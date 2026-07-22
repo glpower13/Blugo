@@ -47,6 +47,8 @@ Quelle: Csíkszentmihályi, *Flow* (1990).
 
 ### Vera F. Birkenbihl — Dekodieren & gehirngerechtes Encoding · **schwach (praxisnah)**
 Wort-für-Wort-Dekodierung (De-Kodierung) statt Vokabelpauken, um Bedeutung greifbar zu machen, bevor man produziert. Eingebracht als **praxisnahe Stimme**, nicht als Fundament: die konkrete Dekodier-Technik ist plausibel und automatisierbar ([`03-method.md`](03-method.md)), aber empirisch dünn. Wir übernehmen die *Technik*, nicht die begleitenden „Gehirn"-Erklärungen.
+
+**Was wir von Birkenbihl NICHT übernehmen:** das **passive Hintergrund-/Schlaf-Hören** („Aktiv-/Passiv-Hören", Vokabeln „im Schlaf" aufnehmen). Dieser Teil ist **widerlegt/schwach** und wird nicht als Mechanik gebaut. Er widerspräche zudem der Kernregel: passives Berieseln erzeugt keinen aktiven Abruf und damit kein wahres Erhalt-Signal.
 Quelle: Birkenbihl, *Sprachenlernen leicht gemacht* (div. Auflagen).
 
 ## Ausdrücklich draußen · **widerlegt / Deko**
@@ -54,6 +56,7 @@ Quelle: Birkenbihl, *Sprachenlernen leicht gemacht* (div. Auflagen).
 - **„Lernstile"** (visuell/auditiv/kinästhetisch als Lehrsteuerung) — vielfach widerlegt.
 - **Generisches „Brain-Training"** — Transfer auf echte Fähigkeiten nicht belegt.
 - **„Neuroplastizität" als Design-Prinzip** — wahres Phänomen, aber als Marketing-Erklärung für Features inhaltsleer. Wir nutzen es nie als Begründung.
+- **„Lernen im Schlaf" / passives Hintergrund-Hören** — als Erwerbs- oder Erhaltmechanik nicht belegt; siehe Birkenbihl oben. Bewusst keine Kernmechanik.
 
 ## Umgang mit Unsicherheit
 

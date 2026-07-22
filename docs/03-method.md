@@ -47,6 +47,8 @@ Kann  du   helfen   mir?      (Dekodierung, wörtlich)
 
 Nutzen: Der Lerner *sieht* die schwedische Logik, statt zu pauken. Historisch musste diese Dekodierung von Hand erstellt werden — der Hauptgrund, warum die Methode nie skaliert hat. NEUROLANG **automatisiert sie in der Content-Pipeline** ([`08-content-pipeline.md`](08-content-pipeline.md)). Das ist der Teil von Birkenbihl, den wir übernehmen — als Technik, nicht als Gehirn-Theorie ([`02-science.md`](02-science.md)).
 
+Birkenbihls **passives Hintergrund-/Schlaf-Hören** übernehmen wir dagegen ausdrücklich **nicht**: widerlegt/schwach belegt und ohne aktiven Abruf — es würde die Kernregel verletzen ([`02-science.md`](02-science.md)).
+
 ## Scheduling-Logik (konzeptionell, nicht implementiert)
 
 Pro Chunk hält die Memory-Engine mindestens:
