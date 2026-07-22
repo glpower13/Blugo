@@ -22,5 +22,10 @@
 - DSGVO, Speicherort, Konten, Sync.
 - Umgang mit KI-generiertem Content (Qualität, Haftung, Kennzeichnung).
 
+## Wissenschaft / Evidenz (offene Belege)
+- **Kontextvariation** (`02-science.md`, Prinzip 6) hat noch keine eigenständige starke Primärbasis — aktuell nur an Spacing/Desirable Difficulties angelehnt. Belastbaren Direktbeleg (Encoding-Variability) nachtragen.
+- **Birkenbihl-Dekodierung als Methode**: keine kontrollierten Primärstudien zur Technik selbst. Als [SCHWACH–mittel] geführt; falls verfügbar, Studien zu Interlinear-/Bilingual-Input nachtragen.
+- Passives Hintergrund-/Schlaf-Hören bleibt [WIDERLEGT/SCHWACH] und wird nicht gebaut — nur dokumentieren, nicht als Feature.
+
 ## Wirksamkeitsnachweis
 - Wie messen wir Erhalt sauber (kleine Selbsttests, A/B gegen Nicht-Spacing)?
