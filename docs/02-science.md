@@ -1,63 +1,43 @@
-# 02 — Wissenschaftliche Grundlage: Gremium, Evidenzstufen, Quellen
+# 02 — Wissenschaftliche Grundlage & Evidenzstufen
 
-*Zweck: Auf welchen Effekten NEUROLANG steht, wie stark jeder belegt ist, und was ausdrücklich draußen bleibt.*
+Jede fachliche Aussage wird nach Evidenzstärke gekennzeichnet:
+**[FELS]** massiv repliziert · **[STARK]** gut gestützt · **[SCHWACH]** populär, dünn belegt · **[WIDERLEGT]** nicht haltbar.
 
-## Prinzip: Gremium, keine Einzellehre
+## Das Gremium (mehrere Stimmen, kein Dogma)
+- **Ebbinghaus** — Vergessenskurve & Spacing. **[FELS]**
+- **Roediger & Karpicke** — Retrieval Practice / Testing Effect: Abrufen baut Gedächtnis stärker als Wiederlesen. **[FELS]**
+- **Krashen** — Comprehensible Input (i+1) als Primärtreiber des Erwerbs. **[STARK]** (starke „Input-only"-Variante: **[SCHWACH]**)
+- **Bjork** — Desirable Difficulties: erwünschte Schwierigkeit verbessert Behalten. **[STARK]**
+- **Deci & Ryan** — Selbstbestimmungstheorie: Kompetenz, Autonomie, Verbundenheit. **[STARK]**
+- **Csíkszentmihályi** — Flow als Zustand optimaler Herausforderung. **[STARK]**
+- **Locke & Latham** — Zielsetzungstheorie: konkrete, bedeutsame Ziele motivieren. **[STARK]**
+- **Vera F. Birkenbihl** — Dekodieren, Anti-Vokabelpauken, gehirngerechtes Encoding. Praxisnahe Stimme, **nicht** Fundament. Encoding-Kern **[STARK]**, passives Hintergrund-/Schlaf-Hören **[SCHWACH]**.
 
-NEUROLANG steht nicht auf *einem* Autor. Es steht auf einem **Gremium mehrerer Stimmen**, die gegeneinander abgewogen werden. Keine Stimme — auch nicht Birkenbihl — ist das Fundament. Wo Stimmen sich widersprechen, entscheidet die Evidenzstärke, nicht die Popularität.
+## Tragende Prinzipien (Priorität)
+1. **Spacing** — Wiederholung am Vergessenspunkt, dehnende Intervalle. **[FELS]**
+2. **Retrieval Practice** — aktiver Abruf statt Wiedererkennen/Wiederlesen. **[FELS]**
+3. **Comprehensible Input** — verständlicher Input auf i+1 als Erwerbstreiber. **[STARK]**
+4. **Interleaving** — Durchmischen statt Blocken. **[STARK]**
+5. **Desirable Difficulty** — Zielband ~80–85 % Erfolg. **[STARK]**
+6. **Kontextvariation** — gegen kontextgebundenes Verblassen. **[STARK/mittel]**
+7. **Dual Coding** — Bild + Sprache. **[SCHWACH–mittel]**
+8. **Konsolidierung/Schlaf-Timing** — Nutzen ja, konkrete App-Konsequenz begrenzt. **[SCHWACH]**
 
-## Evidenzstufen (Pflicht-Kennzeichnung)
+## Ausdrücklich draußen
+- **„Lernstile"** (visuell/auditiv/kinästhetisch als Lernvorschrift). **[WIDERLEGT]**
+- **Generisches „Brain-Training"** (überträgt nicht auf Sprache). **[WIDERLEGT]**
+- **„Neuroplastizität" als Design-Prinzip** — real als Phänomen, aber ohne konkrete Design-Konsequenz meist Deko. **[SCHWACH als Designleitlinie]**
+- **„Lernen im Schlaf"** durch Berieselung. **[WIDERLEGT/SCHWACH]**
 
-Jede lernpsychologische Behauptung im Projekt bekommt genau eine Stufe:
+## Quellen (kuratiert, in M0 zu vervollständigen)
+- Spaced Repetition — https://en.wikipedia.org/wiki/Spaced_repetition
+- Testing Effect — https://en.wikipedia.org/wiki/Testing_effect
+- Spacing Effect — https://en.wikipedia.org/wiki/Spacing_effect
+- Comprehensible Input / Input-Hypothese — https://en.wikipedia.org/wiki/Input_hypothesis
+- Desirable Difficulty — https://en.wikipedia.org/wiki/Desirable_difficulty
+- Self-Determination Theory — https://en.wikipedia.org/wiki/Self-determination_theory
+- Language Attrition — https://en.wikipedia.org/wiki/Language_attrition
+- Flow — https://en.wikipedia.org/wiki/Flow_(psychology)
+- Goodhart's Law — https://en.wikipedia.org/wiki/Goodhart%27s_law
 
-| Stufe | Bedeutung | Konsequenz fürs Design |
-|---|---|---|
-| **Fels** | Vielfach repliziert, breiter Konsens, robust über Kontexte | Darf tragende Mechanik sein |
-| **stark** | Gut belegt, breite Evidenz, kleinere offene Fragen | Darf Mechanik sein, mit Vorsicht |
-| **schwach** | Plausibel, aber dünn/uneinheitlich belegt | Nur als Hypothese, messen statt glauben |
-| **widerlegt** | Empirisch entkräftet oder nie belegt | Draußen — auch wenn populär |
-
-Kennzeichnung erfolgt inline, dort wo die Behauptung fällt, z. B. „*(Spacing Effect — Fels)*".
-
-## Das Gremium
-
-### Ebbinghaus — Vergessenskurve & Spacing · **Fels**
-Wissen zerfällt vorhersagbar über die Zeit; verteilte Wiederholung verlangsamt den Zerfall dramatisch. Fundament des Wartungs- und Scheduling-Denkens ([`03-method.md`](03-method.md)).
-Quelle: Ebbinghaus, *Über das Gedächtnis* (1885).
-
-### Roediger & Karpicke — Retrieval Practice / Testing Effect · **Fels**
-Aktives Abrufen festigt stärker als erneutes Ansehen. Deshalb ist der Abruf-Schritt nicht optional, sondern Kern jeder Chunk-Schleife.
-Quelle: Roediger & Karpicke, *Test-Enhanced Learning* (Psychological Science, 2006).
-
-### Krashen — Comprehensible Input (i+1) · **stark**
-Erwerb passiert über verständlichen Input knapp über dem aktuellen Niveau. Begründet, warum unser Content graduiert auf i+1 erzeugt wird ([`08-content-pipeline.md`](08-content-pipeline.md)). Als Gesamttheorie umstritten, als Design-Heuristik gut belegt — daher „stark", nicht „Fels".
-Quelle: Krashen, *The Input Hypothesis* (1985).
-
-### Bjork — Desirable Difficulties · **stark**
-Etwas erschwerter Abruf (Spacing, Interleaving, Variation) fühlt sich schlechter an, behält aber besser. Begründet das adaptive Erfolgsband und die Kontextvariation.
-Quelle: Bjork & Bjork, *Making Things Hard on Yourself, But in a Good Way* (2011).
-
-### Deci & Ryan — Selbstbestimmungstheorie (SDT) · **stark**
-Nachhaltige Motivation kommt aus Kompetenz, Autonomie, Verbundenheit — nicht aus externen Belohnungen, die intrinsische Motivation sogar untergraben können. Fundament des Motivationssystems ([`06-motivation.md`](06-motivation.md)).
-Quelle: Deci & Ryan, *Self-Determination Theory* (2000).
-
-### Csíkszentmihályi — Flow · **schwach–stark**
-Optimales Erleben im Band zwischen Über- und Unterforderung. Als Zielzustand nützlich und intuitiv, als quantitatives Modell dünn belegt — wir nutzen es als Design-Richtung (Erfolgsband ~80–85 %), nicht als messbaren Anspruch.
-Quelle: Csíkszentmihályi, *Flow* (1990).
-
-### Vera F. Birkenbihl — Dekodieren & gehirngerechtes Encoding · **schwach (praxisnah)**
-Wort-für-Wort-Dekodierung (De-Kodierung) statt Vokabelpauken, um Bedeutung greifbar zu machen, bevor man produziert. Eingebracht als **praxisnahe Stimme**, nicht als Fundament: die konkrete Dekodier-Technik ist plausibel und automatisierbar ([`03-method.md`](03-method.md)), aber empirisch dünn. Wir übernehmen die *Technik*, nicht die begleitenden „Gehirn"-Erklärungen.
-
-**Was wir von Birkenbihl NICHT übernehmen:** das **passive Hintergrund-/Schlaf-Hören** („Aktiv-/Passiv-Hören", Vokabeln „im Schlaf" aufnehmen). Dieser Teil ist **widerlegt/schwach** und wird nicht als Mechanik gebaut. Er widerspräche zudem der Kernregel: passives Berieseln erzeugt keinen aktiven Abruf und damit kein wahres Erhalt-Signal.
-Quelle: Birkenbihl, *Sprachenlernen leicht gemacht* (div. Auflagen).
-
-## Ausdrücklich draußen · **widerlegt / Deko**
-
-- **„Lernstile"** (visuell/auditiv/kinästhetisch als Lehrsteuerung) — vielfach widerlegt.
-- **Generisches „Brain-Training"** — Transfer auf echte Fähigkeiten nicht belegt.
-- **„Neuroplastizität" als Design-Prinzip** — wahres Phänomen, aber als Marketing-Erklärung für Features inhaltsleer. Wir nutzen es nie als Begründung.
-- **„Lernen im Schlaf" / passives Hintergrund-Hören** — als Erwerbs- oder Erhaltmechanik nicht belegt; siehe Birkenbihl oben. Bewusst keine Kernmechanik.
-
-## Umgang mit Unsicherheit
-
-Wo eine Stimme nur „schwach" ist (Flow, Birkenbihl), bauen wir das Feature als **Hypothese mit Messpunkt**, nicht als Glaubenssatz. Offene wissenschaftliche Fragen wandern nach [`10-open-questions.md`](10-open-questions.md).
+> Aufgabe für Claude Code (M0): Primärquellen (Studien/Reviews) ergänzen und je Aussage mindestens einen belastbaren Beleg verlinken. Keine erfundenen Zitate.

@@ -4,7 +4,7 @@
 
 Erste Sprache: **Deutsch → Schwedisch.** Zielnutzer: erwachsene Selbstlerner, die schon Duolingo/Babbel/Lingua probiert haben, dabei durchaus etwas gelernt — es aber nie langfristig behalten haben und an der steigenden Schwierigkeit abgesprungen sind.
 
-> **Status:** Meilenstein 0 — Konzept & Dokumentation. Es wird in dieser Phase bewusst **keine** Anwendung programmiert. Siehe [`docs/09-roadmap.md`](docs/09-roadmap.md).
+> **Status:** Meilenstein 0 — Konzept & Dokumentation. Es wird in dieser Phase bewusst **keine** Anwendung programmiert. Siehe `docs/09-roadmap.md`.
 
 ---
 
@@ -23,7 +23,7 @@ Drei Ursachen, alle belegbar:
 
 NEUROLANG optimiert **messbaren Erhalt** statt Engagement. Der Fortschrittswert ist nicht „Lektionen" oder „Streak", sondern:
 
-> *Was du gerade zuverlässig behältst.*
+> *Was du gerade zuverlässig behältst.*  
 > z. B. „340 Chunks aktiv, davon 60 auch nach 90 Tagen ohne Übung stabil."
 
 Das ist die einzige Zahl, die in der Realität etwas bedeutet.
@@ -43,13 +43,13 @@ Das ist die einzige Zahl, die in der Realität etwas bedeutet.
 
 Kein Zaubertrick, sondern die konsequente Verdrahtung weniger sehr robuster Effekte zu **einer Schleife pro Chunk** (Chunk = sinnvolle Wendung im Kontext, nie isolierte Vokabel):
 
-1. **Verständliche Begegnung** — der Chunk erscheint eingebettet in verstandenem Input auf i+1-Niveau. *(Comprehensible Input; Encoding u. a. per Birkenbihl-Dekodierung — siehe [`docs/03-method.md`](docs/03-method.md).)*
+1. **Verständliche Begegnung** — der Chunk erscheint eingebettet in verstandenem Input auf i+1-Niveau. *(Comprehensible Input; Encoding u. a. per Birkenbihl-Dekodierung — siehe `docs/03-method.md`.)*
 2. **Aktiver Abruf** — kurz danach selbst herholen, erst Wiedererkennen, später Produktion. *(Testing Effect.)*
 3. **Abruf am Vergessenspunkt** — der Chunk kommt exakt dann zurück, wenn Vergessen droht; Intervalle dehnen sich. *(Spacing Effect.)*
 4. **Kontextvariation** — Wiederkehr in *anderen* Sätzen/Situationen, nie identisch. *(Direkter Fix gegen kontextgebundenes Verblassen.)*
 5. **Wartungsmodus** — ein „gelernter" Chunk verschwindet nie, sondern wandert in einen sich ewig verlängernden Erhalt-Rhythmus. **Das ist der Teil, den keine App hat — und der Grund, warum es diesmal bleibt.**
 
-Details: [`docs/03-method.md`](docs/03-method.md).
+Details: `docs/03-method.md`.
 
 ## 5. Wissenschaftliche Grundlage
 
@@ -63,14 +63,14 @@ Jede Funktion wird begründet und nach **Evidenzstärke gekennzeichnet** (Fels /
 - **Csíkszentmihályi** — Flow
 - **Vera F. Birkenbihl** — Dekodieren, Anti-Vokabelpauken, gehirngerechtes Encoding *(als eine praxisnahe Stimme, nicht als Fundament)*
 
-Ausdrücklich **draußen** (widerlegt/Deko): „Lernstile", generisches „Brain-Training", „Neuroplastizität" als Design-Prinzip. Details & Quellen: [`docs/02-science.md`](docs/02-science.md).
+Ausdrücklich **draußen** (widerlegt/Deko): „Lernstile", generisches „Brain-Training", „Neuroplastizität" als Design-Prinzip. Details & Quellen: `docs/02-science.md`.
 
 ## 6. Die vier Module (statt zehn „Engines")
 
-1. **Content-Pipeline** — erzeugt verständlichen, auf i+1 graduierten schwedischen Input on demand (der Moat). [`docs/08-content-pipeline.md`](docs/08-content-pipeline.md)
-2. **Comprehension-Loop** — Begegnung → Verständnishilfen → Verständnis-Check → Logging. [`docs/04-product.md`](docs/04-product.md)
-3. **Memory-Engine** — Spacing, Retrieval-Scheduling, Wartung, Kontextvariation. [`docs/03-method.md`](docs/03-method.md)
-4. **Progress-/Measurement-Modul** — die neue, ehrliche Gamification. [`docs/06-motivation.md`](docs/06-motivation.md), [`docs/07-measurement.md`](docs/07-measurement.md)
+1. **Content-Pipeline** — erzeugt verständlichen, auf i+1 graduierten schwedischen Input on demand (der Moat). `docs/08-content-pipeline.md`
+2. **Comprehension-Loop** — Begegnung → Verständnishilfen → Verständnis-Check → Logging. `docs/04-product.md`
+3. **Memory-Engine** — Spacing, Retrieval-Scheduling, Wartung, Kontextvariation. `docs/03-method.md`
+4. **Progress-/Measurement-Modul** — die neue, ehrliche Gamification. `docs/06-motivation.md`, `docs/07-measurement.md`
 
 ## 7. Der Moat: KI-Content-Pipeline
 
@@ -78,7 +78,7 @@ Für Schwedisch existiert kaum graded Content, und kuratierte Podcasts führen i
 
 ## 8. Motivation ohne Dopamin-Tricks
 
-Grundregel: **belohne Kompetenz, nicht Anwesenheit** — und jede Belohnung muss ein *wahres* Signal echten Fortschritts sein (sonst Goodhart: man optimiert den Streak statt die Sprache). Vier Mechaniken: lebendes Gedächtnisfeld · Meilensteine an realer Fähigkeit · Flow-Band · ehrlicher „Streak" als Gesundheitssignal (pflegen statt Kette zerreißen). Details: [`docs/06-motivation.md`](docs/06-motivation.md).
+Grundregel: **belohne Kompetenz, nicht Anwesenheit** — und jede Belohnung muss ein *wahres* Signal echten Fortschritts sein (sonst Goodhart: man optimiert den Streak statt die Sprache). Vier Mechaniken: lebendes Gedächtnisfeld · Meilensteine an realer Fähigkeit · Flow-Band · ehrlicher „Streak" als Gesundheitssignal (pflegen statt Kette zerreißen). Details: `docs/06-motivation.md`.
 
 ## 9. Roadmap (Kurzform)
 
@@ -86,7 +86,7 @@ Grundregel: **belohne Kompetenz, nicht Anwesenheit** — und jede Belohnung muss
 - **M1 — schlankes MVP**: Web-App, *ein* Level, ~20 handgeprüfte KI-generierte schwedische Segmente, der Comprehension-Loop, simple Fortschrittsanzeige. Beweist den Kern an einem echten Lerner.
 - **später**: Content-Pipeline automatisieren, Memory-Engine ausbauen, weitere Level/Sprachen, Mobile.
 
-Vollständig: [`docs/09-roadmap.md`](docs/09-roadmap.md).
+Vollständig: `docs/09-roadmap.md`.
 
 ## 10. Was dieses Projekt NICHT ist
 
