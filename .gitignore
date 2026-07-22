@@ -2,7 +2,9 @@
 node_modules/
 # Build output
 dist/
+dev-dist/
 build/
+*.tsbuildinfo
 # Env & secrets (NIE committen)
 .env
 .env.*

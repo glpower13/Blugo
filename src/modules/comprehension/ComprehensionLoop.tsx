@@ -1,0 +1,115 @@
+// Comprehension-Loop (docs/04-product.md): Begegnung → Verständnishilfen →
+// Verständnis-Check → Ergebnis. Hilfen sind abschaltbare "Krücken": der Nutzer
+// zieht nur so viel Hilfe, wie er braucht (Autonomie, docs/06-motivation.md).
+
+import { useEffect, useState } from 'react';
+import type { Chunk, ReviewResult, Segment } from '../../domain/chunk';
+import { speakSwedish, ttsAvailable } from './tts';
+
+interface Props {
+  segment: Segment;
+  chunk: Chunk;
+  stage: 'recognition' | 'production';
+  onResult: (result: ReviewResult) => void;
+}
+
+export function ComprehensionLoop({ segment, chunk, stage, onResult }: Props) {
+  const [showDecoding, setShowDecoding] = useState(false);
+  const [showIdiomatic, setShowIdiomatic] = useState(false);
+  const [revealed, setRevealed] = useState(false);
+
+  // Reset helpers whenever a new item appears.
+  useEffect(() => {
+    setShowDecoding(false);
+    setShowIdiomatic(false);
+    setRevealed(false);
+  }, [segment.id, chunk.id]);
+
+  return (
+    <section className="rounded-2xl bg-surface p-5 shadow-lg">
+      <p className="mb-1 text-xs uppercase tracking-wide text-slate-400">
+        Begegnung · Level {segment.level} · {stage === 'production' ? 'Produktion' : 'Wiedererkennen'}
+      </p>
+
+      {/* 1. Verständliche Begegnung */}
+      <div className="flex items-start justify-between gap-3">
+        <p className="text-2xl font-semibold text-slate-100">{segment.sv}</p>
+        {ttsAvailable() && (
+          <button
+            onClick={() => speakSwedish(segment.sv)}
+            className="shrink-0 rounded-full bg-brand/20 px-3 py-2 text-sm text-brand"
+            aria-label="Vorlesen"
+          >
+            ▶︎ Hören
+          </button>
+        )}
+      </div>
+
+      {/* 2. Verständnishilfen (gestuft, abschaltbar) */}
+      <div className="mt-4 flex flex-wrap gap-2">
+        <button
+          onClick={() => setShowDecoding((v) => !v)}
+          className="rounded-lg border border-slate-600 px-3 py-1.5 text-sm text-slate-200"
+        >
+          {showDecoding ? 'Dekodierung ausblenden' : 'Dekodierung'}
+        </button>
+        <button
+          onClick={() => setShowIdiomatic((v) => !v)}
+          className="rounded-lg border border-slate-600 px-3 py-1.5 text-sm text-slate-200"
+        >
+          {showIdiomatic ? 'Übersetzung ausblenden' : 'Übersetzung'}
+        </button>
+      </div>
+
+      {showDecoding && (
+        <div className="mt-3 flex flex-wrap gap-x-4 gap-y-2">
+          {segment.decoding.map((t, i) => (
+            <span key={i} className="inline-flex flex-col items-center">
+              <span className="text-slate-100">{t.sv}</span>
+              <span className="text-xs text-slate-400">{t.de}</span>
+            </span>
+          ))}
+        </div>
+      )}
+
+      {showIdiomatic && <p className="mt-3 italic text-slate-300">{segment.de}</p>}
+
+      {/* 3. Verständnis-Check für den Ziel-Chunk */}
+      <div className="mt-6 border-t border-slate-700 pt-4">
+        <p className="mb-2 text-sm text-slate-400">
+          {stage === 'production'
+            ? `Wie heißt „${chunk.de}" auf Schwedisch?`
+            : `Was bedeutet „${chunk.sv}"?`}
+        </p>
+
+        {!revealed ? (
+          <button
+            onClick={() => setRevealed(true)}
+            className="rounded-lg bg-brand px-4 py-2 font-medium text-white"
+          >
+            Auflösen
+          </button>
+        ) : (
+          <>
+            <p className="mb-4 text-lg text-slate-100">
+              {stage === 'production' ? chunk.sv : chunk.de}
+            </p>
+            <div className="grid grid-cols-3 gap-2">
+              <GradeButton label="Nochmal" tone="bg-rose-500/80" onClick={() => onResult('again')} />
+              <GradeButton label="Schwer" tone="bg-amber-500/80" onClick={() => onResult('hard')} />
+              <GradeButton label="Sitzt" tone="bg-emerald-500/80" onClick={() => onResult('good')} />
+            </div>
+          </>
+        )}
+      </div>
+    </section>
+  );
+}
+
+function GradeButton({ label, tone, onClick }: { label: string; tone: string; onClick: () => void }) {
+  return (
+    <button onClick={onClick} className={`rounded-lg py-2.5 text-sm font-medium text-white ${tone}`}>
+      {label}
+    </button>
+  );
+}
