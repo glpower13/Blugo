@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { flushSync } from 'react-dom';
 import type { Category, Chunk, ChunkState, ReviewResult, Segment } from './domain/chunk';
 import { seedContentSource } from './modules/content/contentPipeline';
 import { getAllChunkStates, logEvent, putChunkState } from './storage/db';
@@ -92,6 +93,25 @@ export default function App() {
     [categories, chunks, states],
   );
 
+  // Animierte Ansichts-Navigation (View Transitions): der Inhalt gleitet
+  // richtungsabhängig. Fällt sauber auf sofortiges Umschalten zurück, wo die
+  // API fehlt oder reduzierte Bewegung gewünscht ist.
+  const navigate = useCallback((direction: 'push' | 'pop', update: () => void) => {
+    const doc = document as Document & {
+      startViewTransition?: (cb: () => void) => { finished: Promise<void> };
+    };
+    const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    if (!doc.startViewTransition || reduce) {
+      update();
+      return;
+    }
+    document.documentElement.dataset.nav = direction;
+    const t = doc.startViewTransition(() => flushSync(update));
+    void t.finished.finally(() => {
+      delete document.documentElement.dataset.nav;
+    });
+  }, []);
+
   // Theme focus for NEW intake (autonomy). No queue rebuild — the session builds
   // its queue fresh on start (buildQueue never biases due maintenance).
   const setFocus = useCallback((next: string | null) => {
@@ -99,8 +119,8 @@ export default function App() {
     saveFocus(next);
   }, []);
 
-  // Start a learning session. Optionally scoped to one theme ("Dieses Thema üben").
-  const startSession = useCallback(
+  // Enter a learning session. Optionally scoped to one theme ("Dieses Thema üben").
+  const enterSession = useCallback(
     (categoryId?: string) => {
       const now = Date.now();
       const maxNew = recommendedNewCount(successRate);
@@ -161,7 +181,7 @@ export default function App() {
     <>
       <Backdrop />
       <div className="grain" aria-hidden="true" />
-      <main className="mx-auto flex min-h-dvh w-full max-w-md flex-col gap-4 px-4 pb-10 pt-6 md:max-w-5xl md:px-6">
+      <main className="vt-page mx-auto flex min-h-dvh w-full max-w-md flex-col gap-4 px-4 pb-10 pt-6 md:max-w-5xl md:px-6">
         {error && (
           <section className="rounded-2xl border border-danger/40 bg-danger/10 p-4">
             <p className="text-sm text-danger">{error}</p>
@@ -194,7 +214,7 @@ export default function App() {
             <div className="grid gap-4 md:grid-cols-2 md:items-start">
               <div className="flex flex-col gap-4">
                 {/* Ehrliche Fortschrittsanzeige (docs/07-measurement.md) */}
-                <section className="glass rise rounded-2xl p-5" style={{ animationDelay: '0.04s' }}>
+                <section className="glass rounded-2xl p-5">
                   <div className="flex items-baseline gap-5">
                     <Stat value={metrics.active} label="aktiv" />
                     <Stat value={metrics.maturing} label="reift" />
@@ -218,9 +238,8 @@ export default function App() {
 
                 {!loading && !error && (
                   <button
-                    onClick={() => startSession()}
-                    className="btn-gold rise flex items-center justify-center gap-2 rounded-2xl py-4 text-base font-semibold text-ink"
-                    style={{ animationDelay: '0.08s' }}
+                    onClick={() => navigate('push', () => enterSession())}
+                    className="btn-gold flex items-center justify-center gap-2 rounded-2xl py-4 text-base font-semibold text-ink"
                   >
                     <IconPlay className="h-4 w-4" />
                     {metrics.dueNow > 0 ? `Weiterlernen · ${metrics.dueNow} fällig` : 'Weiterlernen'}
@@ -232,9 +251,8 @@ export default function App() {
                 <CategoryOverview
                   progress={catProgress}
                   focusId={focusId}
-                  onOpen={(id) => setView({ name: 'category', id })}
+                  onOpen={(id) => navigate('push', () => setView({ name: 'category', id }))}
                   onClearFocus={() => setFocus(null)}
-                  enterDelay="0.13s"
                 />
               )}
             </div>
@@ -254,8 +272,8 @@ export default function App() {
               states={states}
               isFocus={focusId === activeCategory.id}
               onToggleFocus={() => setFocus(focusId === activeCategory.id ? null : activeCategory.id)}
-              onBack={() => setView({ name: 'home' })}
-              onPractice={() => startSession(activeCategory.id)}
+              onBack={() => navigate('pop', () => setView({ name: 'home' }))}
+              onPractice={() => navigate('push', () => enterSession(activeCategory.id))}
             />
           </div>
         )}
@@ -265,7 +283,7 @@ export default function App() {
           <div className="mx-auto flex w-full max-w-xl flex-col gap-4">
             <nav className="flex items-center justify-between gap-2 px-1">
               <button
-                onClick={() => setView({ name: 'home' })}
+                onClick={() => navigate('pop', () => setView({ name: 'home' }))}
                 className="glass-soft flex items-center gap-1 rounded-full py-1.5 pl-2 pr-3 text-sm text-paper"
                 aria-label="Session verlassen"
               >
@@ -289,7 +307,7 @@ export default function App() {
             ) : null}
 
             {done && (
-              <section className="glass rise rounded-2xl p-6 text-center">
+              <section className="glass rounded-2xl p-6 text-center">
                 <p className="font-display text-xl font-semibold text-success">Session erledigt.</p>
                 <p className="mt-1 text-sm text-muted">
                   Heute stabilisiert. Der Rest wartet — ohne zerbrechenden Streak.
@@ -300,7 +318,7 @@ export default function App() {
                   </p>
                 )}
                 <button
-                  onClick={() => setView({ name: 'home' })}
+                  onClick={() => navigate('pop', () => setView({ name: 'home' }))}
                   className="btn-gold mt-4 rounded-xl px-5 py-2.5 font-medium text-ink"
                 >
                   Zurück zur Übersicht

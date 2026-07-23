@@ -41,7 +41,7 @@ export function CategoryDetail({
   const stable = items.filter((c) => isStable(states[c.id])).length;
 
   return (
-    <div className="rise flex flex-col gap-4">
+    <div className="flex flex-col gap-4">
       {/* Navigations-Leiste mit Zurück */}
       <nav className="flex items-center gap-2 px-1">
         <button

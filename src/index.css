@@ -251,6 +251,85 @@ button:active {
     inset 0 1px 0 0 rgba(255, 255, 255, 0.5);
 }
 
+/* ── Ansichts-Navigation (View Transitions) ─────────────────────────────────
+   Die Inhaltsseite gleitet richtungsabhängig: vorwärts von rechts herein, das
+   Alte nach links; zurück umgekehrt. Native Anmutung, ruhig und weich. */
+main.vt-page {
+  view-transition-name: page;
+}
+@media (prefers-reduced-motion: no-preference) {
+  main.vt-page {
+    animation: appear 0.55s both cubic-bezier(0.22, 0.61, 0.36, 1); /* einmalig beim Laden */
+  }
+  ::view-transition-old(page),
+  ::view-transition-new(page) {
+    animation-duration: 0.36s;
+    animation-timing-function: cubic-bezier(0.22, 0.61, 0.36, 1);
+  }
+  html[data-nav='push']::view-transition-old(page) {
+    animation-name: vt-out-left;
+  }
+  html[data-nav='push']::view-transition-new(page) {
+    animation-name: vt-in-right;
+  }
+  html[data-nav='pop']::view-transition-old(page) {
+    animation-name: vt-out-right;
+  }
+  html[data-nav='pop']::view-transition-new(page) {
+    animation-name: vt-in-left;
+  }
+}
+@keyframes appear {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes vt-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(32px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes vt-out-left {
+  from {
+    opacity: 1;
+    transform: none;
+  }
+  to {
+    opacity: 0;
+    transform: translateX(-26px);
+  }
+}
+@keyframes vt-in-left {
+  from {
+    opacity: 0;
+    transform: translateX(-32px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes vt-out-right {
+  from {
+    opacity: 1;
+    transform: none;
+  }
+  to {
+    opacity: 0;
+    transform: translateX(26px);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   body::before,
   .backdrop-art .ribbons,

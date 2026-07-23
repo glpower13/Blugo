@@ -12,10 +12,9 @@ interface Props {
   focusId: string | null;
   onOpen: (categoryId: string) => void;
   onClearFocus: () => void;
-  enterDelay?: string; // gestaffeltes Einschweben (Choreografie)
 }
 
-export function CategoryOverview({ progress, focusId, onOpen, onClearFocus, enterDelay }: Props) {
+export function CategoryOverview({ progress, focusId, onOpen, onClearFocus }: Props) {
   // Balken füllen sich beim Erscheinen weich (von 0 auf ihren Anteil).
   const [filled, setFilled] = useState(false);
   useEffect(() => {
@@ -27,7 +26,7 @@ export function CategoryOverview({ progress, focusId, onOpen, onClearFocus, ente
   const focused = progress.find((p) => p.category.id === focusId);
 
   return (
-    <section className="glass rise rounded-2xl p-5" style={{ animationDelay: enterDelay }}>
+    <section className="glass rounded-2xl p-5">
       <div className="mb-3 flex items-baseline justify-between gap-3">
         <h2 className="font-display text-lg font-semibold tracking-[0.01em] text-paper">Themen</h2>
         {focused && (

@@ -22,10 +22,9 @@ interface Props {
   stage: 'recognition' | 'production';
   onResult: (result: ReviewResult, helpUsed: boolean) => void;
   known?: KnownPhrase[]; // Wendungen, die der Lerner schon kann (für echtes i+1)
-  enterDelay?: string; // gestaffeltes Einschweben (Choreografie)
 }
 
-export function ComprehensionLoop({ segment, chunk, stage, onResult, known, enterDelay }: Props) {
+export function ComprehensionLoop({ segment, chunk, stage, onResult, known }: Props) {
   const [showDecoding, setShowDecoding] = useState(false);
   const [showIdiomatic, setShowIdiomatic] = useState(false);
   const [showPron, setShowPron] = useState(false); // Aussprache-Hinweise (on-device)
@@ -142,7 +141,7 @@ export function ComprehensionLoop({ segment, chunk, stage, onResult, known, ente
   }
 
   return (
-    <section className="glass rise rounded-2xl p-5" style={{ animationDelay: enterDelay }}>
+    <section className="glass rounded-2xl p-5">
       <p className="mb-2 text-[0.68rem] font-medium uppercase tracking-[0.16em] text-faint">
         Begegnung · Level {segment.level} · {stage === 'production' ? 'Produktion' : 'Wiedererkennen'}
       </p>
