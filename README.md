@@ -134,6 +134,24 @@ npm run lint     # ESLint
 
 > Hinweis: Die mitgelieferten schwedischen Segmente sind ein **Platzhalter** zum Ausprobieren des Loops — noch **nicht** die geprüften M1-Inhalte (siehe `docs/08-content-pipeline.md`).
 
+### Gebaut vs. konzipiert (Ehrlichkeit, kein Überzeichnen)
+
+Damit Doku und Realität nicht auseinanderdriften — was *heute Code* ist und was noch *Konzept*:
+
+| Konzept-Baustein | Stand |
+|---|---|
+| Comprehension-Loop (Begegnung → Hilfen → Abruf → Logging) | ✅ gebaut |
+| Memory-Engine (Spacing, Stufen, Wartung, Demotion) | ✅ gebaut |
+| Ehrliche Messung (aktiv · reift · **bewiesen** stabil · Abdeckung) | ✅ gebaut |
+| Kontextvariation, Tages-Dosierung neuer Chunks | ✅ gebaut |
+| Installierbare PWA, offline, lokale Daten | ✅ gebaut |
+| Adaptives Erfolgsband ~80–85 % (Schwierigkeit passt sich an) | 🚧 konzipiert, noch nicht Code |
+| Echte Produktionserfassung (Tippen/Sprechen statt Selbstnote) | 🚧 konzipiert |
+| Natürliches schwedisches TTS/Audio-QS | 🚧 konzipiert (nach Content-Pipeline) |
+| KI-Content-Pipeline (der Moat) | 🚧 konzipiert (nach M1) |
+
+Priorisierte Umsetzung: `docs/gremium-review-M1.md` (Maßnahmenkatalog).
+
 Projektstruktur des App-Codes:
 
 ```

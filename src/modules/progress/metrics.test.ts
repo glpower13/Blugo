@@ -46,4 +46,13 @@ describe('metrics', () => {
   it('coverage is 0 when nothing is active', () => {
     expect(computeMetrics([make({ status: 'new' })], NOW).coverage).toBe(0);
   });
+
+  it('maturing counts production chunks with a grown interval that are not yet proven stable', () => {
+    const maturing = make({ chunkId: 'm', stage: 'production', intervalDays: 50 }); // grown, unproven
+    const proven = make({ chunkId: 's', stage: 'production', intervalDays: 120, provenStableAt: NOW });
+    const early = make({ chunkId: 'e', stage: 'recognition', intervalDays: 50 }); // not production
+    const m = computeMetrics([maturing, proven, early], NOW);
+    expect(m.maturing).toBe(1); // only the unproven production chunk
+    expect(m.stable).toBe(1);
+  });
 });

@@ -5,7 +5,8 @@ import type { ChunkState } from '../../domain/chunk';
 
 export interface Metrics {
   active: number; // chunks currently in the loop
-  stable: number; // maintenance chunks held past the stability horizon
+  maturing: number; // on the way to stable: production stage, interval grown, not yet proven
+  stable: number; // chunks proven retained after a long gap
   dueNow: number; // chunks due for retrieval right now
   coverage: number; // Verständnis-Abdeckung 0..1 (share of active chunks last understood)
 }
@@ -30,11 +31,17 @@ export function isStable(s: ChunkState): boolean {
   return s.provenStableAt != null;
 }
 
+/** On the way to stable: reliably in production with a grown interval, not yet proven. */
+function isMaturing(s: ChunkState): boolean {
+  return !isStable(s) && s.stage === 'production' && s.intervalDays >= 21;
+}
+
 export function computeMetrics(states: ChunkState[], now: number = Date.now()): Metrics {
   const activeStates = states.filter(isActive);
   const understood = activeStates.filter(lastWasGood).length;
   return {
     active: activeStates.length,
+    maturing: states.filter(isMaturing).length,
     stable: states.filter(isStable).length,
     dueNow: states.filter((s) => s.dueAt <= now).length,
     // Verständnis-Abdeckung (docs/07-measurement.md), M1-Vereinfachung:

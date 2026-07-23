@@ -91,11 +91,11 @@ export default function App() {
       <section className="rounded-2xl bg-surface p-4">
         <div className="flex items-baseline gap-4">
           <Stat value={metrics.active} label="aktiv" />
-          <Stat value={metrics.stable} label="stabil (≥90 T.)" accent />
-          <Stat value={metrics.dueNow} label="jetzt fällig" />
+          <Stat value={metrics.maturing} label="reift" />
+          <Stat value={metrics.stable} label="stabil (bewiesen)" accent />
         </div>
         <p className="mt-2 text-xs text-slate-400">
-          Verständnis-Abdeckung: {Math.round(metrics.coverage * 100)} %
+          {metrics.dueNow} jetzt fällig · Verständnis-Abdeckung {Math.round(metrics.coverage * 100)} %
         </p>
         <div className="mt-3">
           <MemoryField states={stateList} />
