@@ -1,0 +1,343 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  min-height: 100%;
+  color: #f5f5f7;
+  /* Apple-System-Schrift (SF) — die iPhone-Anmutung. */
+  font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', system-ui,
+    'Segoe UI', Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  background-color: #06060a;
+  /* Sichere Zonen auf Notch-Geräten respektieren. */
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom)
+    env(safe-area-inset-left);
+}
+
+/* Atmosphärischer Tiefen-Hintergrund (iPhone-Sperrbildschirm-Anmutung): weiche,
+   langsam driftende Farb-Lichter, die dem Milchglas etwas zum Brechen geben. */
+body::before {
+  content: '';
+  position: fixed;
+  inset: -25%;
+  z-index: -2;
+  /* Ruhige Zwei-Ton-Luxuswelt: tiefes Petrol/Teal + ein Gold-Schimmer
+     (docs/gremium-design-weltklasse.md) — edel statt Regenbogen. */
+  background:
+    radial-gradient(54% 46% at 16% 10%, rgba(34, 132, 150, 0.52), transparent 72%),
+    radial-gradient(48% 42% at 88% 6%, rgba(58, 168, 168, 0.4), transparent 72%),
+    radial-gradient(60% 54% at 84% 88%, rgba(214, 158, 86, 0.26), transparent 74%),
+    radial-gradient(58% 52% at 6% 92%, rgba(22, 86, 108, 0.44), transparent 74%),
+    radial-gradient(74% 64% at 50% 50%, rgba(18, 74, 92, 0.3), transparent 80%);
+  filter: saturate(135%);
+  animation: aurora 34s ease-in-out infinite alternate;
+  will-change: transform;
+}
+
+/* Tiefe: dezente Vignette (dunklere Ränder), damit das Glas AUF etwas liegt. */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(125% 95% at 50% 40%, transparent 58%, rgba(0, 0, 0, 0.48) 100%);
+}
+
+/* Bildsprache-Ebene (Nordlicht-Szene, docs/gremium-design-weltklasse.md):
+   tief hinter allem, sehr zurückhaltend, langsame Drift. */
+.backdrop-art {
+  position: fixed;
+  inset: -8%;
+  z-index: -3;
+  pointer-events: none;
+  opacity: 0.7;
+}
+.backdrop-svg {
+  width: 100%;
+  height: 100%;
+}
+.backdrop-art .ribbons {
+  animation: drift 42s ease-in-out infinite alternate;
+  transform-origin: center;
+  will-change: transform;
+}
+
+/* Filmkorn ÜBER allem (auch über dem Glas): nimmt der Fläche das Klinische —
+   der größte einzelne „teuer"-Effekt (docs/gremium-design-weltklasse.md). */
+.grain {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  pointer-events: none;
+  opacity: 0.05;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 160px 160px;
+}
+
+@keyframes drift {
+  0% {
+    transform: translate3d(-2%, -1%, 0) scale(1.04);
+  }
+  100% {
+    transform: translate3d(3%, 2%, 0) scale(1.1);
+  }
+}
+
+@keyframes aurora {
+  0% {
+    transform: translate3d(-2%, -1%, 0) scale(1.03) rotate(0deg);
+  }
+  50% {
+    transform: translate3d(2%, 2%, 0) scale(1.09) rotate(1.5deg);
+  }
+  100% {
+    transform: translate3d(-1%, 1%, 0) scale(1.04) rotate(-1deg);
+  }
+}
+
+@layer components {
+  /* Milchglas-Fläche (frosted). Der obere Innen-Glanz macht die „Glaskante". */
+  .glass {
+    /* Dunkel getöntes Milchglas (iOS „dark material"): heller Text bleibt klar
+       lesbar, der bunte Hintergrund schimmert gedämpft durch. Oben eine feine
+       Licht-Kante als Glaskante. */
+    background-color: rgba(13, 15, 24, 0.56);
+    background-image: linear-gradient(
+      177deg,
+      rgba(255, 255, 255, 0.09) 0%,
+      rgba(255, 255, 255, 0.015) 38%,
+      rgba(255, 255, 255, 0) 68%
+    );
+    -webkit-backdrop-filter: blur(32px) saturate(150%);
+    backdrop-filter: blur(32px) saturate(150%);
+    border: 1px solid rgba(255, 255, 255, 0.13);
+    box-shadow:
+      0 26px 60px -26px rgba(0, 0, 0, 0.78),
+      0 2px 8px -4px rgba(0, 0, 0, 0.55),
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.2),
+      inset 0 -1px 0 0 rgba(0, 0, 0, 0.18);
+  }
+  /* Leichtere Glas-Variante für innere Panels/Chips (etwas heller = gehoben). */
+  .glass-soft {
+    background-color: rgba(255, 255, 255, 0.07);
+    background-image: linear-gradient(
+      177deg,
+      rgba(255, 255, 255, 0.08) 0%,
+      rgba(255, 255, 255, 0) 60%
+    );
+    -webkit-backdrop-filter: blur(10px) saturate(130%);
+    backdrop-filter: blur(10px) saturate(130%);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.12);
+  }
+  /* Sanftes Erscheinen (gestaffelt per style=animation-delay). */
+  .rise {
+    animation: rise 0.62s both cubic-bezier(0.22, 0.61, 0.36, 1);
+  }
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px) scale(0.99);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Wortmarke: ein Hauch Leuchten (edel, nicht grell). */
+.wordmark {
+  text-shadow: 0 0 24px rgba(231, 192, 138, 0.18);
+}
+
+/* Große Kennzahlen: tabellarische Ziffern (ruhige, präzise Ausrichtung). */
+.tnum {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+
+/* Das Wahrheitssignal glimmt: bewiesen Stabiles leuchtet leise. */
+.glow-success {
+  text-shadow: 0 0 22px rgba(95, 208, 160, 0.35);
+}
+.dot-glow {
+  box-shadow: 0 0 10px rgba(95, 208, 160, 0.55);
+}
+
+/* Gedächtnis-Nachthimmel: ein feiner Schein am Boden, Sterne darüber. */
+.memory-sky {
+  background:
+    radial-gradient(120% 90% at 50% 120%, rgba(95, 208, 160, 0.1), transparent 60%),
+    radial-gradient(100% 80% at 80% -20%, rgba(120, 160, 255, 0.08), transparent 60%);
+}
+.star {
+  position: absolute;
+  border-radius: 9999px;
+  transform: translate(-50%, -50%);
+}
+.star-faint {
+  opacity: 0.32;
+}
+.star-maint {
+  box-shadow: 0 0 8px rgba(95, 208, 160, 0.45);
+}
+.star-stable {
+  box-shadow:
+    0 0 12px 1px rgba(95, 208, 160, 0.8),
+    0 0 4px rgba(95, 208, 160, 0.95);
+  animation: twinkle 3.6s ease-in-out infinite;
+}
+@keyframes twinkle {
+  0%,
+  100% {
+    opacity: 0.78;
+    transform: translate(-50%, -50%) scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.18);
+  }
+}
+
+/* Primäre Aktion: leicht durchscheinendes „Milchglas-Gold" (edler als sattes
+   Vollgold) — der Hintergrund schimmert dezent durch. Glanzkante + weiches Glühen. */
+.btn-gold {
+  background-image: linear-gradient(
+    180deg,
+    rgba(243, 212, 165, 0.9) 0%,
+    rgba(226, 180, 120, 0.85) 55%,
+    rgba(214, 168, 102, 0.82) 100%
+  );
+  -webkit-backdrop-filter: blur(6px) saturate(140%);
+  backdrop-filter: blur(6px) saturate(140%);
+  border: 1px solid rgba(255, 245, 225, 0.35);
+  box-shadow:
+    0 12px 26px -12px rgba(231, 192, 138, 0.5),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.4);
+}
+
+/* Tastbares Feedback: dezentes Eindrücken auf Tap (ruhig, nie lärmend). */
+button {
+  transition:
+    transform 0.18s cubic-bezier(0.22, 0.61, 0.36, 1),
+    opacity 0.18s ease,
+    background-color 0.18s ease,
+    border-color 0.18s ease;
+}
+button:active {
+  transform: scale(0.97);
+}
+.btn-gold:active {
+  filter: brightness(1.06);
+  box-shadow:
+    0 14px 30px -10px rgba(231, 192, 138, 0.6),
+    inset 0 1px 0 0 rgba(255, 255, 255, 0.5);
+}
+
+/* ── Ansichts-Navigation (View Transitions) ─────────────────────────────────
+   Die Inhaltsseite gleitet richtungsabhängig: vorwärts von rechts herein, das
+   Alte nach links; zurück umgekehrt. Native Anmutung, ruhig und weich. */
+main.vt-page {
+  view-transition-name: page;
+}
+@media (prefers-reduced-motion: no-preference) {
+  main.vt-page {
+    animation: appear 0.55s both cubic-bezier(0.22, 0.61, 0.36, 1); /* einmalig beim Laden */
+  }
+  ::view-transition-old(page),
+  ::view-transition-new(page) {
+    animation-duration: 0.36s;
+    animation-timing-function: cubic-bezier(0.22, 0.61, 0.36, 1);
+  }
+  html[data-nav='push']::view-transition-old(page) {
+    animation-name: vt-out-left;
+  }
+  html[data-nav='push']::view-transition-new(page) {
+    animation-name: vt-in-right;
+  }
+  html[data-nav='pop']::view-transition-old(page) {
+    animation-name: vt-out-right;
+  }
+  html[data-nav='pop']::view-transition-new(page) {
+    animation-name: vt-in-left;
+  }
+}
+@keyframes appear {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes vt-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(32px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes vt-out-left {
+  from {
+    opacity: 1;
+    transform: none;
+  }
+  to {
+    opacity: 0;
+    transform: translateX(-26px);
+  }
+}
+@keyframes vt-in-left {
+  from {
+    opacity: 0;
+    transform: translateX(-32px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes vt-out-right {
+  from {
+    opacity: 1;
+    transform: none;
+  }
+  to {
+    opacity: 0;
+    transform: translateX(26px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body::before,
+  .backdrop-art .ribbons,
+  .star-stable,
+  .rise {
+    animation: none;
+  }
+  * {
+    transition: none !important;
+  }
+}

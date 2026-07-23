@@ -1,0 +1,58 @@
+import { describe, expect, it } from 'vitest';
+import { computeMetrics, isStable } from './metrics';
+import { initialState } from '../memory/memoryEngine';
+import type { ChunkState } from '../../domain/chunk';
+
+const NOW = 1_700_000_000_000;
+
+function make(overrides: Partial<ChunkState>): ChunkState {
+  return { ...initialState('x', NOW), ...overrides };
+}
+
+describe('metrics', () => {
+  it('counts a chunk stable only once proven (provenStableAt set), not by scheduled interval', () => {
+    // A long *scheduled* interval alone is NOT stable (anti-Goodhart)...
+    expect(
+      isStable(make({ status: 'maintenance', stage: 'production', intervalDays: 120 })),
+    ).toBe(false);
+    // ...only an actual proven recall after a long gap counts.
+    expect(
+      isStable(make({ status: 'maintenance', stage: 'production', provenStableAt: NOW })),
+    ).toBe(true);
+  });
+
+  it('computeMetrics reports active, stable and due counts', () => {
+    const states: ChunkState[] = [
+      make({ chunkId: 'new', status: 'new' }), // untouched → not active
+      make({ chunkId: 'learn', status: 'learning', history: [{ at: NOW, result: 'good', segmentId: 's' }] }),
+      make({ chunkId: 'stable', status: 'maintenance', stage: 'production', intervalDays: 100, provenStableAt: NOW }),
+      make({ chunkId: 'due', status: 'learning', dueAt: NOW - 1000, history: [{ at: NOW, result: 'good', segmentId: 's' }] }),
+    ];
+    const m = computeMetrics(states, NOW);
+    expect(m.active).toBe(3); // learn, stable, due (new untouched excluded)
+    expect(m.stable).toBe(1);
+    expect(m.dueNow).toBeGreaterThanOrEqual(1);
+  });
+
+  it('coverage weights production-good full, recognition-good half, failure zero', () => {
+    const prodGood = make({ chunkId: 'p', stage: 'production', history: [{ at: NOW, result: 'good', segmentId: 's' }] });
+    const recogGood = make({ chunkId: 'r', stage: 'recognition', history: [{ at: NOW, result: 'good', segmentId: 's' }] });
+    const bad = make({ chunkId: 'b', history: [{ at: NOW, result: 'again', segmentId: 's' }] });
+    const m = computeMetrics([prodGood, recogGood, bad], NOW);
+    expect(m.active).toBe(3);
+    expect(m.coverage).toBeCloseTo((1 + 0.5) / 3); // = 0.5
+  });
+
+  it('coverage is 0 when nothing is active', () => {
+    expect(computeMetrics([make({ status: 'new' })], NOW).coverage).toBe(0);
+  });
+
+  it('maturing counts production chunks with a grown interval that are not yet proven stable', () => {
+    const maturing = make({ chunkId: 'm', stage: 'production', intervalDays: 50 }); // grown, unproven
+    const proven = make({ chunkId: 's', stage: 'production', intervalDays: 120, provenStableAt: NOW });
+    const early = make({ chunkId: 'e', stage: 'recognition', intervalDays: 50 }); // not production
+    const m = computeMetrics([maturing, proven, early], NOW);
+    expect(m.maturing).toBe(1); // only the unproven production chunk
+    expect(m.stable).toBe(1);
+  });
+});
