@@ -332,6 +332,9 @@ export const seedChunks: Chunk[] = [
   { id: 'c-klockan', categoryId: 'cat-numbers', sv: 'vad är klockan?', de: 'wie spät ist es?', decoding: [{ sv: 'vad', de: 'was' }, { sv: 'är', de: 'ist' }, { sv: 'klockan', de: 'die Uhr' }] },
   { id: 'c-vilkendag', categoryId: 'cat-numbers', sv: 'vilken dag är det?', de: 'welcher Tag ist es?', decoding: [{ sv: 'vilken', de: 'welcher' }, { sv: 'dag', de: 'Tag' }, { sv: 'är', de: 'ist' }, { sv: 'det', de: 'es' }] },
   { id: 'c-entimme', categoryId: 'cat-numbers', sv: 'om en timme', de: 'in einer Stunde', decoding: [{ sv: 'om', de: 'in' }, { sv: 'en', de: 'einer' }, { sv: 'timme', de: 'Stunde' }] },
+  { id: 'c-klockantre', categoryId: 'cat-numbers', sv: 'klockan är tre', de: 'es ist drei Uhr', decoding: [{ sv: 'klockan', de: 'die Uhr' }, { sv: 'är', de: 'ist' }, { sv: 'tre', de: 'drei' }] },
+  { id: 'c-tiominuter', categoryId: 'cat-numbers', sv: 'det tar tio minuter', de: 'das dauert zehn Minuten', decoding: [{ sv: 'det', de: 'es' }, { sv: 'tar', de: 'nimmt' }, { sv: 'tio', de: 'zehn' }, { sv: 'minuter', de: 'Minuten' }] },
+  { id: 'c-vaddatum', categoryId: 'cat-numbers', sv: 'vilket datum är det?', de: 'welches Datum ist es?', decoding: [{ sv: 'vilket', de: 'welches' }, { sv: 'datum', de: 'Datum' }, { sv: 'är', de: 'ist' }, { sv: 'det', de: 'es' }] },
 
   // Essen & Trinken
   { id: 'c-hungrig', categoryId: 'cat-food', sv: 'jag är hungrig', de: 'ich bin hungrig', decoding: [{ sv: 'jag', de: 'ich' }, { sv: 'är', de: 'bin' }, { sv: 'hungrig', de: 'hungrig' }] },
@@ -784,6 +787,12 @@ export const seedSegments: Segment[] = [
   // c-entimme
   { id: 's-entimme1', level: 1, sv: 'Vi ses om en timme.', de: 'Wir sehen uns in einer Stunde.', decoding: [{ sv: 'vi', de: 'wir' }, { sv: 'ses', de: 'sehen uns' }, { sv: 'om', de: 'in' }, { sv: 'en', de: 'einer' }, { sv: 'timme', de: 'Stunde' }], chunkIds: ['c-entimme'] },
   { id: 's-entimme2', level: 1, sv: 'Jag kommer om en timme.', de: 'Ich komme in einer Stunde.', decoding: [{ sv: 'jag', de: 'ich' }, { sv: 'kommer', de: 'komme' }, { sv: 'om', de: 'in' }, { sv: 'en', de: 'einer' }, { sv: 'timme', de: 'Stunde' }], chunkIds: ['c-entimme'] },
+  { id: 's-klockantre1', level: 1, sv: 'Klockan är tre nu.', de: 'Es ist jetzt drei Uhr.', decoding: [{ sv: 'klockan', de: 'die Uhr' }, { sv: 'är', de: 'ist' }, { sv: 'tre', de: 'drei' }, { sv: 'nu', de: 'jetzt' }], chunkIds: ['c-klockantre'] },
+  { id: 's-klockantre2', level: 1, sv: 'Titta, klockan är tre!', de: 'Schau, es ist drei Uhr!', decoding: [{ sv: 'titta', de: 'schau' }, { sv: 'klockan', de: 'die Uhr' }, { sv: 'är', de: 'ist' }, { sv: 'tre', de: 'drei' }], chunkIds: ['c-klockantre'] },
+  { id: 's-tiominuter1', level: 1, sv: 'Det tar tio minuter.', de: 'Das dauert zehn Minuten.', decoding: [{ sv: 'det', de: 'es' }, { sv: 'tar', de: 'nimmt' }, { sv: 'tio', de: 'zehn' }, { sv: 'minuter', de: 'Minuten' }], chunkIds: ['c-tiominuter'] },
+  { id: 's-tiominuter2', level: 1, sv: 'Bussen tar tio minuter.', de: 'Der Bus dauert zehn Minuten.', decoding: [{ sv: 'bussen', de: 'der Bus' }, { sv: 'tar', de: 'nimmt' }, { sv: 'tio', de: 'zehn' }, { sv: 'minuter', de: 'Minuten' }], chunkIds: ['c-tiominuter'] },
+  { id: 's-vaddatum1', level: 1, sv: 'Ursäkta, vilket datum är det?', de: 'Entschuldigung, welches Datum ist es?', decoding: [{ sv: 'ursäkta', de: 'entschuldige' }, { sv: 'vilket', de: 'welches' }, { sv: 'datum', de: 'Datum' }, { sv: 'är', de: 'ist' }, { sv: 'det', de: 'es' }], chunkIds: ['c-vaddatum'] },
+  { id: 's-vaddatum2', level: 1, sv: 'Vilket datum är det idag?', de: 'Welches Datum ist heute?', decoding: [{ sv: 'vilket', de: 'welches' }, { sv: 'datum', de: 'Datum' }, { sv: 'är', de: 'ist' }, { sv: 'det', de: 'es' }, { sv: 'idag', de: 'heute' }], chunkIds: ['c-vaddatum'] },
 
   // c-hungrig
   { id: 's-hungrig1', level: 1, sv: 'Jag är hungrig.', de: 'Ich bin hungrig.', decoding: [{ sv: 'jag', de: 'ich' }, { sv: 'är', de: 'bin' }, { sv: 'hungrig', de: 'hungrig' }], chunkIds: ['c-hungrig'] },

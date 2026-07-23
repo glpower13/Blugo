@@ -61,8 +61,8 @@ Konkret gebaut:
 3. **Navigation:** Übersicht → Bereich → Thema → Session (`AreaOverview.tsx`, `AreaDetail.tsx`, `App.tsx`), mit richtungsabhängigen View-Transitions und kontextuellem „Zurück".
 4. **Üben pro Ebene:** „Diesen Bereich üben" / „Dieses Thema üben"; unscoped bleibt der ehrliche globale Fällig-Satz (die Memory-Engine treibt den Loop). Der Themen-Fokus biast nur **neuen** Stoff, nie die Wiederholungen.
 
-**Startbestand (Seed, nicht muttersprachlich geprüft):** 6 Bereiche · 17 Themen · 95 Wendungen ·
-189 Kontexte. Bereiche: Erste Schritte · Reisen & Unterwegs · Essen & Café · Menschen & Alltag ·
+**Startbestand (Seed, nicht muttersprachlich geprüft):** 6 Bereiche · 17 Themen · 98 Wendungen ·
+195 Kontexte. Bereiche: Erste Schritte · Reisen & Unterwegs · Essen & Café · Menschen & Alltag ·
 Einkaufen · Notfall & Gesundheit.
 
 > **Anschluss:** Moat/Content `08-content-pipeline.md` · Messung `07-measurement.md` · Motivation/Autonomie `06-motivation.md` · Roadmap-Standort `gremium-naechste-schritte.md` · offene Punkte `10-open-questions.md`.

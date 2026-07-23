@@ -2,7 +2,7 @@
 
 > **⚠️ Erweiterung 2026-07-23 (abends):** Der Seed steht jetzt in einem **Baum**
 > (Bereich → Thema → Wendung) und wurde erneut deutlich vergrößert — jetzt **6 Bereiche,
-> 17 Themen, 95 Wendungen, 189 Kontext-Sätze** (Quelle: `src/modules/content/seedSegments.ts`).
+> 17 Themen, 98 Wendungen, 195 Kontext-Sätze** (Quelle: `src/modules/content/seedSegments.ts`).
 > Die Tabellen A/B unten decken nur den **ursprünglichen** Kern (11 Wendungen) ab; der
 > **gesamte** neue Inhalt ist **ebenfalls NICHT muttersprachlich geprüft** und braucht
 > dieselbe Prüfung. Neue Bereiche/Themen: Einkaufen (Im Geschäft, Bezahlen, Im Supermarkt),
