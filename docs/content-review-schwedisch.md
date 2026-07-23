@@ -1,11 +1,14 @@
 # Content-Prüfliste — Schwedisch (Seed für M1)
 
-> **⚠️ Erweiterung 2026-07-23:** Der Seed wurde deutlich vergrößert — jetzt **8 Themen,
-> ~43 Wendungen, ~85 Kontext-Sätze** (Quelle: `src/modules/content/seedSegments.ts`).
+> **⚠️ Erweiterung 2026-07-23 (abends):** Der Seed steht jetzt in einem **Baum**
+> (Bereich → Thema → Wendung) und wurde erneut deutlich vergrößert — jetzt **6 Bereiche,
+> 17 Themen, 95 Wendungen, 189 Kontext-Sätze** (Quelle: `src/modules/content/seedSegments.ts`).
 > Die Tabellen A/B unten decken nur den **ursprünglichen** Kern (11 Wendungen) ab; der
 > **gesamte** neue Inhalt ist **ebenfalls NICHT muttersprachlich geprüft** und braucht
-> dieselbe Prüfung. Neue Themen: Zahlen & Zeit, Essen & Trinken, Familie & Herkunft,
-> Alltag & Small Talk + Ausbau der bestehenden. Bekannte Wackelkandidaten: siehe §„Erweiterung" unten.
+> dieselbe Prüfung. Neue Bereiche/Themen: Einkaufen (Im Geschäft, Bezahlen, Im Supermarkt),
+> Notfall & Gesundheit (Beim Arzt & Apotheke, Notfall & Hilfe), Höflich & Basics,
+> Bus/Bahn & Taxi, Im Hotel, Im Restaurant + Ausbau der bestehenden. Bekannte
+> Wackelkandidaten: siehe §„Erweiterung" unten.
 
 > **Zweck:** die im Code liegenden **noch ungeprüften Segmente** von einer
 > schwedischsprachigen (oder gleichwertig qualifizierten) Person prüfen lassen,
@@ -110,6 +113,23 @@ zum gezielten Draufschauen:
 - **Groß-/Kleinschreibung** von Ländernamen (`Tyskland`) / Satzanfängen.
 - **Register/Natürlichkeit** der neuen Alltagssätze (Wetter, Familie, Wegbeschreibung) —
   sagt man das *wirklich* so?
+
+## Erweiterung 2026-07-23 (abends) — Baum-Batch (ebenfalls ungeprüft)
+
+Gezielt draufschauen (bekannte Zweifelsfälle des neuen Batches):
+
+- **`varsågod` → „bitte"**: als **eine** Glosse geführt (feste Höflichkeitsformel, kein
+  echtes Wort-für-Wort). Ok so, oder aufspalten (`var·så·god`)?
+- **`ont` → „Schmerz"** in `jag har ont här` (idiom. „mir tut es hier weh") und
+  `det gör ont här`: strukturell vertretbar oder verwirrend?
+- **`ring` → „ruf an"** (`ring polisen`, `ring en ambulans`): Partikel-Glosse ok?
+- **`blått` (Neutrum)** in `har ni den i blått?`: natürlich? (Farb-/Genus-Form.)
+- **`den här`/`den` → „das"/„es"**: Demonstrativ vs. Pronomen sauber getrennt?
+- **Register `har ni …` („haben Sie")** vs. `har du`: konsistent/natürlich in Laden,
+  Hotel, Restaurant?
+- **`spår` → „Gleis"**, **`hållplats` → „Haltestelle"**, **`nödsituation` → „Notfall"**:
+  natürlichste Alltagswörter?
+- **`mätt` → „satt"**, **`kvittot` → „der Beleg"**, **`påse` → „Tüte"**: Wortwahl ok?
 
 ## Nach der Freigabe (Checkliste)
 

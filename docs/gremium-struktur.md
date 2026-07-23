@@ -43,4 +43,26 @@ Konkret gebaut (erste Scheibe):
 - Wie werden Themen genau geschnitten, wenn der KI-Content wächst (Größe, Überlappung)? → `10-open-questions.md`.
 - Sollen Themen eine grobe Reihenfolge/Empfehlung tragen (Anfänger-Pfad), ohne zur Klippe zu werden? Später prüfen.
 
+## 6. Erweiterung 2026-07-23 (abends) — echter Baum: Bereich → Thema → Wendung
+
+**Auftrag (Nutzer):** „Bau einen vernünftigen Baum mit Themen, dass man sich nicht in
+die Ewigkeit scrollen muss … Kategorien für Reisen, für Einkaufen … und dann darunter
+die Unterpunkte." → Also **eine Ebene mehr über dem Thema**, damit die Startseite kurz
+bleibt und der Stoff wie bei den Top-Apps flach durchsuchbar ist.
+
+**Entscheidung:** Drei Ebenen statt zwei — **Bereich (`Area`) → Thema (`Category`) →
+Wendung (`Chunk`)**. Ein Bereich ist dieselbe *ehrliche Linse* wie ein Thema (kein Kurs
+zum Abschließen); seine Zahl ist die **Summe** der ehrlichen Themen-Zahlen darunter
+(*bewiesen stabil* von gesamt) — kein neuer Schein-Indikator (die eine Design-Regel bleibt gewahrt).
+
+Konkret gebaut:
+1. **Datenmodell:** neuer Typ `Area`; jede `Category` trägt eine `areaId` (`src/domain/chunk.ts`).
+2. **Aggregation:** `areaProgress()` (`progress/categories.ts`) summiert die Themen je Bereich; leere Bereiche fallen weg (kein Phantom-Eimer).
+3. **Navigation:** Übersicht → Bereich → Thema → Session (`AreaOverview.tsx`, `AreaDetail.tsx`, `App.tsx`), mit richtungsabhängigen View-Transitions und kontextuellem „Zurück".
+4. **Üben pro Ebene:** „Diesen Bereich üben" / „Dieses Thema üben"; unscoped bleibt der ehrliche globale Fällig-Satz (die Memory-Engine treibt den Loop). Der Themen-Fokus biast nur **neuen** Stoff, nie die Wiederholungen.
+
+**Startbestand (Seed, nicht muttersprachlich geprüft):** 6 Bereiche · 17 Themen · 95 Wendungen ·
+189 Kontexte. Bereiche: Erste Schritte · Reisen & Unterwegs · Essen & Café · Menschen & Alltag ·
+Einkaufen · Notfall & Gesundheit.
+
 > **Anschluss:** Moat/Content `08-content-pipeline.md` · Messung `07-measurement.md` · Motivation/Autonomie `06-motivation.md` · Roadmap-Standort `gremium-naechste-schritte.md` · offene Punkte `10-open-questions.md`.
