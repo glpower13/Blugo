@@ -4,7 +4,15 @@ import { VitePWA } from 'vite-plugin-pwa';
 
 // NEUROLANG — installierbare, offline-fähige PWA (M1-Skelett).
 // Technikwahl bei Build-Start per Live-Recherche (siehe docs/05-architecture.md).
+//
+// base: '/' lokal; auf GitHub Pages läuft die App unter /<repo>/ — der
+// Deploy-Workflow reicht BASE_PATH (z. B. "/Blugo/") herein. start_url/scope
+// und navigateFallback müssen demselben Pfad folgen, sonst bricht die
+// Installation/Offline-Navigation im Unterpfad.
+const base = process.env.BASE_PATH ?? '/';
+
 export default defineConfig({
+  base,
   plugins: [
     react(),
     VitePWA({
@@ -19,8 +27,8 @@ export default defineConfig({
         background_color: '#0b1020',
         display: 'standalone',
         orientation: 'portrait',
-        start_url: '/',
-        scope: '/',
+        start_url: base,
+        scope: base,
         icons: [
           { src: 'icons/icon-192.png', sizes: '192x192', type: 'image/png' },
           { src: 'icons/icon-512.png', sizes: '512x512', type: 'image/png' },
@@ -29,7 +37,7 @@ export default defineConfig({
       },
       workbox: {
         globPatterns: ['**/*.{js,css,html,svg,png,woff2}'],
-        navigateFallback: '/index.html',
+        navigateFallback: `${base}index.html`,
       },
       devOptions: { enabled: true },
     }),

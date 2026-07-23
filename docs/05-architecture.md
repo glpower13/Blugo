@@ -36,3 +36,14 @@ Frontend, Speicherung und der M1-Scheduler sind entschieden — siehe „M1-Stac
 
 ## Querschnitt (bewusst vertagt)
 Auth, Cloud, Sync, Offline, Datenschutz, Security: als offene Fragen erfasst, nicht in M1 vorgebaut. Datenschutz (DSGVO) wird spätestens bei Nutzerdaten/Serverbetrieb konkret.
+
+## Sicherheit & Datenschutz (M1-Stand)
+Die Architektur ist in M1 sicherheitstechnisch bewusst schlank — und das ist ein *Vorteil*, kein Zufall:
+- **Client-only, kein Backend, keine Auth, keine Konten** → minimale Angriffsfläche. Nichts zu übernehmen, keine Server-Secrets im Betrieb.
+- **Alle Lerndaten bleiben lokal** im Browser (IndexedDB); es wird **nichts übertragen**. DSGVO-Exposition in M1 minimal (keine Erhebung, keine Weitergabe).
+- **HTTPS erzwungen** (GitHub Pages liefert nur über HTTPS; Service Worker und Installation funktionieren ohnehin nur über HTTPS).
+- **Keine Drittanbieter zur Laufzeit** — kein CDN, keine externen Skripte/Fonts; alles gebündelt. React escaped Ausgaben, es wird kein Nutzer-HTML injiziert.
+- **Keine Secrets im Repo** (`.gitignore` deckt `.env*`, `*.key`). Der Deploy nutzt nur den automatischen, eng gescopten `GITHUB_TOKEN` (`contents: read`, `pages: write`, `id-token: write`) — keine hinterlegten Zugangsdaten.
+- **Produktiv-Abhängigkeiten: 0 bekannte Lücken** (npm-audit-Funde betreffen nur das Dev-Toolchain, das nicht ausgeliefert wird).
+
+**Wo Sicherheit konkret wird (später):** sobald **TTS/ASR/LLM** dazukommen, verlässt Nutzertext das Gerät Richtung Dritter → dann API-Keys (server-seitig halten, nie im Client), Rate-Limits, Datenschutz-/Consent-Betrachtung. Ebenso bei jedem **Backend/Sync/Konten** → DSGVO, Speicherort, Schlüsselverwaltung. Diese Punkte sind in `10-open-questions.md` geführt und werden erst gebaut, wenn eine Entscheidung sie zwingt.
