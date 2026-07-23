@@ -10,14 +10,21 @@ import { knownPhrases } from './session/knownChunks';
 import { ComprehensionLoop } from './modules/comprehension/ComprehensionLoop';
 import { MemoryField } from './modules/progress/MemoryField';
 import { CategoryOverview } from './modules/progress/CategoryOverview';
+import { CategoryDetail } from './modules/progress/CategoryDetail';
 import { computeMetrics } from './modules/progress/metrics';
 import { categoryProgress } from './modules/progress/categories';
 import { InstallButton } from './ui/InstallButton';
 import { Backdrop } from './ui/Backdrop';
-import { IconSettings } from './ui/icons';
+import { IconSettings, IconBack, IconPlay } from './ui/icons';
 import { useCountUp } from './ui/useCountUp';
 import { AiSettings } from './modules/content/AiSettings';
 import { initAiSettings } from './modules/content/aiSettings';
+
+// Die drei „Räume" der App (client-seitige Navigation, kein Router nötig).
+type View =
+  | { name: 'home' }
+  | { name: 'category'; id: string }
+  | { name: 'session'; categoryId?: string };
 
 export default function App() {
   const [categories, setCategories] = useState<Category[]>([]);
@@ -31,6 +38,8 @@ export default function App() {
   const [successRate, setSuccessRate] = useState<number | null>(null);
   const [showSettings, setShowSettings] = useState(false);
   const [focusId, setFocusId] = useState<string | null>(null);
+  // Navigation: Übersicht → Thema-Detail (Drill-down) → fokussierte Lern-Session.
+  const [view, setView] = useState<View>({ name: 'home' });
   // Guards against a fast double-tap grading the same item twice (P3 race).
   const submitting = useRef(false);
 
@@ -56,25 +65,16 @@ export default function App() {
         const byId: Record<string, ChunkState> = {};
         for (const p of persisted) byId[p.chunkId] = p;
         for (const c of cs) if (!byId[c.id]) byId[c.id] = initialState(c.id, now);
-        // Adaptive difficulty: hold the ~80–85 % success band by tuning how
-        // many NEW chunks enter this session (docs/04-product.md, anti-cliff).
+        // Adaptive difficulty: judge the recent success band (drives how many
+        // NEW chunks a session admits — docs/04-product.md, anti-cliff).
         const rate = recentSuccessRate(Object.values(byId));
-        const maxNew = recommendedNewCount(rate);
-        const focus = loadFocus();
-        const catByChunk = Object.fromEntries(cs.map((c) => [c.id, c.categoryId]));
         setCategories(cats);
         setChunks(cs);
         setSegments(segs);
         setStates(byId);
         setSuccessRate(rate);
-        setFocusId(focus);
-        setQueue(
-          buildQueue(Object.values(byId), now, maxNew, {
-            categoryByChunkId: catByChunk,
-            categoryId: focus,
-          }),
-        );
-        setPos(0);
+        setFocusId(loadFocus());
+        // Kein Vorab-Queue mehr: die Session baut ihre Warteschlange beim Start.
       } catch (e) {
         // Never fail silently (docs/TEST-UND-PRUEF-STANDARD.md §3.1): surface it.
         console.error('Bootstrap failed', e);
@@ -92,18 +92,29 @@ export default function App() {
     [categories, chunks, states],
   );
 
-  // Change the theme focus for NEW intake and rebuild the remaining queue in place.
-  const changeFocus = useCallback(
-    (next: string | null) => {
-      setFocusId(next);
-      saveFocus(next);
+  // Theme focus for NEW intake (autonomy). No queue rebuild — the session builds
+  // its queue fresh on start (buildQueue never biases due maintenance).
+  const setFocus = useCallback((next: string | null) => {
+    setFocusId(next);
+    saveFocus(next);
+  }, []);
+
+  // Start a learning session. Optionally scoped to one theme ("Dieses Thema üben").
+  const startSession = useCallback(
+    (categoryId?: string) => {
       const now = Date.now();
       const maxNew = recommendedNewCount(successRate);
-      const focus: NewFocus = { categoryByChunkId, categoryId: next };
-      setQueue(buildQueue(Object.values(states), now, maxNew, focus));
+      const pool = categoryId
+        ? Object.values(states).filter((s) => categoryByChunkId[s.chunkId] === categoryId)
+        : Object.values(states);
+      const focus: NewFocus | undefined = categoryId
+        ? undefined
+        : { categoryByChunkId, categoryId: focusId };
+      setQueue(buildQueue(pool, now, maxNew, focus));
       setPos(0);
+      setView({ name: 'session', categoryId });
     },
-    [categoryByChunkId, states, successRate],
+    [states, successRate, categoryByChunkId, focusId],
   );
 
   const currentChunkId = queue[pos];
@@ -143,98 +154,156 @@ export default function App() {
   }
 
   const done = !loading && pos >= queue.length;
+  const activeCategory =
+    view.name === 'category' ? categories.find((c) => c.id === view.id) : undefined;
 
   return (
     <>
       <Backdrop />
       <div className="grain" aria-hidden="true" />
       <main className="mx-auto flex min-h-dvh max-w-md flex-col gap-4 px-4 pb-10 pt-6">
-      <header className="flex items-start justify-between gap-3 px-1 pt-1">
-        <div>
-          <h1 className="wordmark font-display text-[1.7rem] font-semibold leading-none tracking-[0.02em] text-paper">
-            neuro<span className="font-light text-brand">lang</span>
-          </h1>
-          <p className="mt-2 text-[0.72rem] font-medium uppercase tracking-[0.22em] text-muted">
-            Deutsch → Schwedisch
-          </p>
-        </div>
-        <button
-          onClick={() => setShowSettings(true)}
-          className="glass-soft flex shrink-0 items-center justify-center rounded-full p-2.5 text-paper"
-          aria-label="KI-Einstellungen"
-          title="KI-Einstellungen"
-        >
-          <IconSettings className="h-5 w-5" />
-        </button>
-      </header>
-
-      {/* Ehrliche Fortschrittsanzeige (docs/07-measurement.md) */}
-      <section className="glass rise rounded-2xl p-5" style={{ animationDelay: '0.04s' }}>
-        <div className="flex items-baseline gap-5">
-          <Stat value={metrics.active} label="aktiv" />
-          <Stat value={metrics.maturing} label="reift" />
-          <Stat value={metrics.stable} label="stabil (bewiesen)" accent />
-        </div>
-        <p className="mt-2 text-xs text-muted">
-          {metrics.dueNow} jetzt fällig · Verständnis-Abdeckung {Math.round(metrics.coverage * 100)} %
-        </p>
-        {successRate !== null && (
-          <p className="mt-1 text-xs text-faint">
-            Flow-Band: {bandStatus(successRate)} ({Math.round(successRate * 100)} % zuletzt)
-          </p>
+        {error && (
+          <section className="rounded-2xl border border-danger/40 bg-danger/10 p-4">
+            <p className="text-sm text-danger">{error}</p>
+          </section>
         )}
-        <div className="mt-3">
-          <MemoryField states={stateList} />
-        </div>
-      </section>
 
-      {!loading && !error && categories.length > 0 && (
-        <CategoryOverview
-          progress={catProgress}
-          focusId={focusId}
-          onFocus={changeFocus}
-          enterDelay="0.11s"
-        />
-      )}
+        {/* ───────── ÜBERSICHT ───────── */}
+        {view.name === 'home' && (
+          <>
+            <header className="flex items-start justify-between gap-3 px-1 pt-1">
+              <div>
+                <h1 className="wordmark font-display text-[1.7rem] font-semibold leading-none tracking-[0.02em] text-paper">
+                  neuro<span className="font-light text-brand">lang</span>
+                </h1>
+                <p className="mt-2 text-[0.72rem] font-medium uppercase tracking-[0.22em] text-muted">
+                  Deutsch → Schwedisch
+                </p>
+              </div>
+              <button
+                onClick={() => setShowSettings(true)}
+                className="glass-soft flex shrink-0 items-center justify-center rounded-full p-2.5 text-paper"
+                aria-label="KI-Einstellungen"
+                title="KI-Einstellungen"
+              >
+                <IconSettings className="h-5 w-5" />
+              </button>
+            </header>
 
-      {loading && <p className="text-muted">Lädt…</p>}
+            {/* Ehrliche Fortschrittsanzeige (docs/07-measurement.md) */}
+            <section className="glass rise rounded-2xl p-5" style={{ animationDelay: '0.04s' }}>
+              <div className="flex items-baseline gap-5">
+                <Stat value={metrics.active} label="aktiv" />
+                <Stat value={metrics.maturing} label="reift" />
+                <Stat value={metrics.stable} label="stabil (bewiesen)" accent />
+              </div>
+              <p className="mt-2 text-xs text-muted">
+                {metrics.dueNow} jetzt fällig · Verständnis-Abdeckung{' '}
+                {Math.round(metrics.coverage * 100)} %
+              </p>
+              {successRate !== null && (
+                <p className="mt-1 text-xs text-faint">
+                  Flow-Band: {bandStatus(successRate)} ({Math.round(successRate * 100)} % zuletzt)
+                </p>
+              )}
+              <div className="mt-3">
+                <MemoryField states={stateList} />
+              </div>
+            </section>
 
-      {error && (
-        <section className="rounded-2xl border border-danger/40 bg-danger/10 p-4">
-          <p className="text-sm text-danger">{error}</p>
-        </section>
-      )}
+            {loading && <p className="text-muted">Lädt…</p>}
 
-      {!loading && !error && currentChunk && currentSegment && currentState ? (
-        <ComprehensionLoop
-          segment={currentSegment}
-          chunk={currentChunk}
-          stage={currentState.stage}
-          onResult={handleResult}
-          known={known}
-          enterDelay="0.18s"
-        />
-      ) : null}
+            {!loading && !error && (
+              <button
+                onClick={() => startSession()}
+                className="btn-gold rise flex items-center justify-center gap-2 rounded-2xl py-4 text-base font-semibold text-ink"
+                style={{ animationDelay: '0.08s' }}
+              >
+                <IconPlay className="h-4 w-4" />
+                {metrics.dueNow > 0 ? `Weiterlernen · ${metrics.dueNow} fällig` : 'Weiterlernen'}
+              </button>
+            )}
 
-      {done && !error && (
-        <section className="glass rise rounded-2xl p-6 text-center">
-          <p className="font-display text-xl font-semibold text-success">Session erledigt.</p>
-          <p className="mt-1 text-sm text-muted">
-            Heute stabilisiert. Der Rest wartet — ohne zerbrechenden Streak.
-          </p>
-          {metrics.dueNow > 0 && (
-            <p className="mt-2 text-xs text-faint">
-              Noch {metrics.dueNow} fällig — bewusst auf die nächsten Sitzungen verteilt.
-            </p>
-          )}
-        </section>
-      )}
+            {!loading && !error && categories.length > 0 && (
+              <CategoryOverview
+                progress={catProgress}
+                focusId={focusId}
+                onOpen={(id) => setView({ name: 'category', id })}
+                onClearFocus={() => setFocus(null)}
+                enterDelay="0.13s"
+              />
+            )}
 
-      <div className="mt-auto pt-4">
-        <InstallButton />
-      </div>
+            <div className="mt-auto pt-4">
+              <InstallButton />
+            </div>
+          </>
+        )}
 
-      {showSettings && <AiSettings onClose={() => setShowSettings(false)} />}
+        {/* ───────── THEMA-DETAIL (Drill-down) ───────── */}
+        {view.name === 'category' && activeCategory && (
+          <CategoryDetail
+            category={activeCategory}
+            chunks={chunks}
+            states={states}
+            isFocus={focusId === activeCategory.id}
+            onToggleFocus={() => setFocus(focusId === activeCategory.id ? null : activeCategory.id)}
+            onBack={() => setView({ name: 'home' })}
+            onPractice={() => startSession(activeCategory.id)}
+          />
+        )}
+
+        {/* ───────── LERN-SESSION (fokussiert) ───────── */}
+        {view.name === 'session' && (
+          <div className="flex flex-col gap-4">
+            <nav className="flex items-center justify-between gap-2 px-1">
+              <button
+                onClick={() => setView({ name: 'home' })}
+                className="glass-soft flex items-center gap-1 rounded-full py-1.5 pl-2 pr-3 text-sm text-paper"
+                aria-label="Session verlassen"
+              >
+                <IconBack className="h-4 w-4" /> Übersicht
+              </button>
+              {!done && queue.length > 0 && (
+                <span className="text-xs font-medium uppercase tracking-wide text-faint">
+                  {Math.min(pos + 1, queue.length)} / {queue.length}
+                </span>
+              )}
+            </nav>
+
+            {!done && currentChunk && currentSegment && currentState ? (
+              <ComprehensionLoop
+                segment={currentSegment}
+                chunk={currentChunk}
+                stage={currentState.stage}
+                onResult={handleResult}
+                known={known}
+              />
+            ) : null}
+
+            {done && (
+              <section className="glass rise rounded-2xl p-6 text-center">
+                <p className="font-display text-xl font-semibold text-success">Session erledigt.</p>
+                <p className="mt-1 text-sm text-muted">
+                  Heute stabilisiert. Der Rest wartet — ohne zerbrechenden Streak.
+                </p>
+                {metrics.dueNow > 0 && (
+                  <p className="mt-2 text-xs text-faint">
+                    Noch {metrics.dueNow} fällig — bewusst auf die nächsten Sitzungen verteilt.
+                  </p>
+                )}
+                <button
+                  onClick={() => setView({ name: 'home' })}
+                  className="btn-gold mt-4 rounded-xl px-5 py-2.5 font-medium text-ink"
+                >
+                  Zurück zur Übersicht
+                </button>
+              </section>
+            )}
+          </div>
+        )}
+
+        {showSettings && <AiSettings onClose={() => setShowSettings(false)} />}
       </main>
     </>
   );

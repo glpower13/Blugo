@@ -1,21 +1,21 @@
-// Themen-Übersicht: pro Kategorie die EHRLICHE Abdeckung (bewiesen stabil von
-// gesamt) plus eine Fokus-Wahl für neuen Stoff (Autonomie, docs/gremium-struktur.md).
-//
-// Bewusst KEIN „Lektion erledigt"-Balken: der Balken zeigt den Anteil BEWIESEN
-// stabiler Wendungen — ein wahres Signal, kein Anwesenheits-Fortschritt
-// (docs/07-measurement.md; CLAUDE.md „die eine Design-Regel").
+// Themen-Übersicht (Navigations-Einstieg): jede Kachel ist anklickbar und führt
+// per Drill-down ins Thema-Detail. Zeigt die EHRLICHE Abdeckung (bewiesen stabil
+// von gesamt) — bewusst KEIN „Lektion erledigt"-Balken (docs/07-measurement.md;
+// die eine Design-Regel). Die Fokus-Wahl liegt im Detail.
 
 import { useEffect, useState } from 'react';
 import type { CategoryProgress } from './categories';
+import { IconChevron } from '../../ui/icons';
 
 interface Props {
   progress: CategoryProgress[];
   focusId: string | null;
-  onFocus: (categoryId: string | null) => void;
+  onOpen: (categoryId: string) => void;
+  onClearFocus: () => void;
   enterDelay?: string; // gestaffeltes Einschweben (Choreografie)
 }
 
-export function CategoryOverview({ progress, focusId, onFocus, enterDelay }: Props) {
+export function CategoryOverview({ progress, focusId, onOpen, onClearFocus, enterDelay }: Props) {
   // Balken füllen sich beim Erscheinen weich (von 0 auf ihren Anteil).
   const [filled, setFilled] = useState(false);
   useEffect(() => {
@@ -23,68 +23,57 @@ export function CategoryOverview({ progress, focusId, onFocus, enterDelay }: Pro
     return () => cancelAnimationFrame(id);
   }, []);
   if (progress.length === 0) return null;
+
+  const focused = progress.find((p) => p.category.id === focusId);
+
   return (
     <section className="glass rise rounded-2xl p-5" style={{ animationDelay: enterDelay }}>
-      <div className="mb-3 flex items-baseline justify-between">
+      <div className="mb-3 flex items-baseline justify-between gap-3">
         <h2 className="font-display text-lg font-semibold tracking-[0.01em] text-paper">Themen</h2>
-        {focusId && (
-          <button
-            onClick={() => onFocus(null)}
-            className="text-xs text-muted underline underline-offset-2"
-          >
-            Fokus aufheben
+        {focused && (
+          <button onClick={onClearFocus} className="text-xs text-muted underline underline-offset-2">
+            Fokus: {focused.category.title} · aufheben
           </button>
         )}
       </div>
 
       <ul className="flex flex-col gap-3">
         {progress.map((p) => {
-          const isFocus = p.category.id === focusId;
           const share = p.total === 0 ? 0 : p.stable / p.total;
+          const isFocus = p.category.id === focusId;
           return (
-            <li key={p.category.id} className="glass-soft rounded-xl p-3.5">
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <p className="text-[0.98rem] font-semibold text-paper">{p.category.title}</p>
-                  <p className="mt-0.5 text-xs text-muted">{p.category.blurb}</p>
+            <li key={p.category.id}>
+              <button
+                onClick={() => onOpen(p.category.id)}
+                className="glass-soft block w-full rounded-xl p-3.5 text-left"
+              >
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="flex items-center gap-1.5 text-[0.98rem] font-semibold text-paper">
+                      {isFocus && <span className="text-brand">★</span>}
+                      {p.category.title}
+                    </p>
+                    <p className="mt-0.5 text-xs text-muted">{p.category.blurb}</p>
+                  </div>
+                  <IconChevron className="mt-0.5 h-5 w-5 shrink-0 text-faint" />
                 </div>
-                <button
-                  onClick={() => onFocus(isFocus ? null : p.category.id)}
-                  aria-pressed={isFocus}
-                  className={
-                    'shrink-0 rounded-full px-3 py-1.5 text-xs font-medium ' +
-                    (isFocus
-                      ? 'btn-gold text-ink'
-                      : 'border border-brand/50 text-brand')
-                  }
-                >
-                  {isFocus ? '★ Fokus' : 'Fokus'}
-                </button>
-              </div>
 
-              {/* Ehrlicher Balken: Anteil BEWIESEN stabiler Wendungen (nicht „erledigt"). */}
-              <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-line">
-                <div
-                  className="h-full rounded-full bg-success transition-[width] duration-700 ease-out"
-                  style={{ width: `${filled ? Math.round(share * 100) : 0}%` }}
-                />
-              </div>
-              <p className="mt-1.5 text-xs text-muted">
-                <span className="text-success">{p.stable}</span> von {p.total} bewiesen stabil
-                {p.active > 0 && <> · {p.active} aktiv</>}
-                {p.dueNow > 0 && <> · {p.dueNow} fällig</>}
-              </p>
+                {/* Ehrlicher Balken: Anteil BEWIESEN stabiler Wendungen (nicht „erledigt"). */}
+                <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-line">
+                  <div
+                    className="h-full rounded-full bg-success transition-[width] duration-700 ease-out"
+                    style={{ width: `${filled ? Math.round(share * 100) : 0}%` }}
+                  />
+                </div>
+                <p className="mt-1.5 text-xs text-muted">
+                  <span className="text-success">{p.stable}</span> von {p.total} bewiesen stabil
+                  {p.dueNow > 0 && <> · {p.dueNow} fällig</>}
+                </p>
+              </button>
             </li>
           );
         })}
       </ul>
-
-      {focusId && (
-        <p className="mt-3 text-xs text-faint">
-          Neuer Stoff kommt bevorzugt aus diesem Thema. Fällige Wiederholungen bleiben
-          unberührt — Erhalt geht vor.
-        </p>
-      )}
     </section>
   );
 }

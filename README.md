@@ -182,6 +182,7 @@ Damit Doku und Realität nicht auseinanderdriften — was *heute Code* ist und w
 | Ehrliche Messung (aktiv · reift · **bewiesen** stabil · Abdeckung) | ✅ gebaut |
 | Kontextvariation, Tages-Dosierung neuer Chunks | ✅ gebaut |
 | Thematische Struktur — Chunks in Kategorien, ehrliche Themen-Abdeckung („X von Y bewiesen stabil"), Fokus-Wahl für neuen Stoff | ✅ gebaut (`gremium-struktur.md`) |
+| Navigation — Übersicht → Thema-Detail (Drill-down mit den einzelnen Wendungen) → fokussierte Lern-Session (mit Fortschritt & Zurück) | ✅ gebaut (client-seitig, kein Router) |
 | Installierbare PWA, offline, lokale Daten | ✅ gebaut |
 | Adaptives Erfolgsband ~80–85 % (Neuzufuhr passt sich an) | ✅ gebaut (Session-Ebene; Intervall-Feintuning später) |
 | Echte Produktionserfassung (Tippen statt Selbstnote) | ✅ Tippen gebaut · Sprechen/ASR später |

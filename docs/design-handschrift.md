@@ -62,6 +62,8 @@ Fünf Hebel von „Top-40" auf Weltklasse (`gremium-design-weltklasse.md`):
 4. **Editorial-Typografie**: der schwedische Satz als Hero, selbstbewusste Kennzahlen, klare Hierarchie.
 5. **Zwei-Ton-Luxuswelt**: Petrol/Teal + Gold statt Regenbogen.
 
+**Fundamentale Struktur (Navigation):** Weg von der einen langen Seite hin zu klaren „Räumen": **Übersicht** (Nachthimmel + Kennzahlen + „Weiterlernen" + Themen) → **Thema-Detail** (Drill-down: die einzelnen Wendungen mit Einzelstatus, Fokus-Wahl, „dieses Thema üben") → **fokussierte Session** (mit Fortschritt & Zurück). Client-seitig, kein Router (`App.tsx` `View`; `CategoryDetail.tsx`).
+
 ## 6. Bewusst später (nicht jetzt)
 
 - Optional eine eigene, lizenzierte **Marken-Schrift** statt reiner Systemschrift.

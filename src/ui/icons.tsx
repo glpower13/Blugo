@@ -60,6 +60,24 @@ export function IconWave({ className }: P) {
   );
 }
 
+/** Zurück (Chevron links). */
+export function IconBack({ className }: P) {
+  return (
+    <svg {...box(className)} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M15 5 L8 12 L15 19" />
+    </svg>
+  );
+}
+
+/** Aufklappen / hinein (Chevron rechts). */
+export function IconChevron({ className }: P) {
+  return (
+    <svg {...box(className)} fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M9 5 L16 12 L9 19" />
+    </svg>
+  );
+}
+
 /** KI — Funkeln (die zeitgemäße, edle „AI"-Signatur statt Roboter). */
 export function IconSparkle({ className }: P) {
   return (
