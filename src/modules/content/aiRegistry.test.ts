@@ -14,6 +14,7 @@ describe('aiRegistry — Ports & Adapters', () => {
     expect(aiRegistry.decoder.id).toBe('seed');
     expect(aiRegistry.synthesizer.id).toBe('web-speech');
     expect(aiRegistry.recognizer).toBeNull();
+    expect(aiRegistry.explainer).toBeNull();
   });
 
   it('erlaubt das Tauschen eines Adapters, ohne die Aufrufer zu ändern', () => {

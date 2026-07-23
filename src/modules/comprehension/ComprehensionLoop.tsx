@@ -29,6 +29,11 @@ export function ComprehensionLoop({ segment, chunk, stage, onResult }: Props) {
   const [autoGrade, setAutoGrade] = useState<ReviewResult | null>(null);
   // Formatives Feedback bei Produktion (Abweichung + Hinweis, docs/gremium-feedback.md).
   const [feedback, setFeedback] = useState<AnswerAnalysis | null>(null);
+  // Optionale KI-Erklärung „Warum?" (nur bei aktiver Cloud-KI; Feedback-Schritt 2).
+  const [why, setWhy] = useState<{ state: 'idle' | 'loading' | 'ok' | 'error'; text: string }>({
+    state: 'idle',
+    text: '',
+  });
   // On-demand KI-Dekodierung (nur bei aktivem Cloud-Anbieter).
   const [aiTokens, setAiTokens] = useState<DecodingToken[] | null>(null);
   const [aiState, setAiState] = useState<'idle' | 'loading' | 'error'>('idle');
@@ -43,6 +48,7 @@ export function ComprehensionLoop({ segment, chunk, stage, onResult }: Props) {
     setTyped('');
     setAutoGrade(null);
     setFeedback(null);
+    setWhy({ state: 'idle', text: '' });
     setAiTokens(null);
     setAiState('idle');
     setAiError('');
@@ -69,12 +75,29 @@ export function ComprehensionLoop({ segment, chunk, stage, onResult }: Props) {
   function submitTyped() {
     const fb = analyzeAnswer(typed, chunk.sv);
     setAutoGrade(fb.grade);
+    setWhy({ state: 'idle', text: '' });
     if (fb.correct) {
       setFeedback(null);
       setRevealed(true);
     } else {
       setFeedback(fb);
       setHelpUsed(true); // korrektives Feedback ist auch eine gezogene Hilfe
+    }
+  }
+
+  // Kann die KI eine Erklärung liefern? (Nur bei eingerichtetem Cloud-Anbieter.)
+  const canExplain = aiRegistry.explainer !== null;
+
+  async function askWhy() {
+    const explainer = aiRegistry.explainer;
+    if (!explainer) return;
+    setHelpUsed(true);
+    setWhy({ state: 'loading', text: '' });
+    try {
+      const text = await explainer.explain({ target: chunk.sv, typed, meaning: chunk.de });
+      setWhy({ state: 'ok', text });
+    } catch (e) {
+      setWhy({ state: 'error', text: e instanceof Error ? e.message : 'Erklärung fehlgeschlagen.' });
     }
   }
 
@@ -206,11 +229,12 @@ export function ComprehensionLoop({ segment, chunk, stage, onResult }: Props) {
                     </span>
                   ))}
                 </div>
-                <div className="flex gap-2">
+                <div className="flex flex-wrap gap-2">
                   <button
                     onClick={() => {
                       setFeedback(null);
                       setTyped('');
+                      setWhy({ state: 'idle', text: '' });
                     }}
                     className="rounded-lg bg-brand px-4 py-2 font-medium text-white"
                   >
@@ -222,7 +246,28 @@ export function ComprehensionLoop({ segment, chunk, stage, onResult }: Props) {
                   >
                     Auflösen
                   </button>
+                  {canExplain && (
+                    <button
+                      onClick={() => void askWhy()}
+                      disabled={why.state === 'loading'}
+                      className="rounded-lg border border-brand/60 px-4 py-2 text-sm text-brand disabled:opacity-50"
+                    >
+                      {why.state === 'loading' ? 'KI denkt…' : '🤖 Warum?'}
+                    </button>
+                  )}
                 </div>
+
+                {why.state === 'ok' && (
+                  <div className="mt-3 rounded-lg border border-brand/40 bg-brand/5 p-3">
+                    <p className="mb-1 text-xs uppercase tracking-wide text-brand">
+                      KI-Hinweis · nicht muttersprachlich geprüft
+                    </p>
+                    <p className="text-sm text-slate-200">{why.text}</p>
+                  </div>
+                )}
+                {why.state === 'error' && (
+                  <p className="mt-2 text-xs text-rose-300">🤖 {why.text}</p>
+                )}
               </div>
             ) : (
               <form

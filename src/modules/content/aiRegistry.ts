@@ -6,6 +6,7 @@
 import type {
   ContentGenerator,
   Decoder,
+  Explainer,
   SpeechRecognizer,
   SpeechSynthesizer,
 } from './ports';
@@ -17,6 +18,7 @@ export interface AiPorts {
   decoder: Decoder;
   synthesizer: SpeechSynthesizer;
   recognizer: SpeechRecognizer | null; // erst post-M1 ein Adapter
+  explainer: Explainer | null; // erst mit Cloud-KI (Feedback-Schritt 2)
 }
 
 /** Die Standard-Belegung: alles, was heute ohne externen Anbieter funktioniert. */
@@ -25,6 +27,7 @@ const defaults: AiPorts = {
   decoder: seedDecoder,
   synthesizer: webSpeechSynthesizer,
   recognizer: null,
+  explainer: null,
 };
 
 /** Aktuelle Belegung. Aufrufer lesen z. B. `aiRegistry.synthesizer.speak(...)`. */

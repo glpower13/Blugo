@@ -4,7 +4,9 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
   buildDecodeBody,
+  buildExplainBody,
   createAnthropicDecoder,
+  createAnthropicExplainer,
   extractText,
   friendlyError,
   parseDecoding,
@@ -83,5 +85,37 @@ describe('anthropic — Decoder-Adapter (simuliertes Netzwerk)', () => {
     }));
     const dec = createAnthropicDecoder({ apiKey: 'k', model: 'claude-opus-4-8' });
     await expect(dec.decode('hej')).rejects.toThrow(/Netzwerk/);
+  });
+});
+
+describe('anthropic — Explainer ("Warum?")', () => {
+  it('buildExplainBody enthält korrekt + getippt + Bedeutung', () => {
+    const body = JSON.parse(
+      buildExplainBody({ target: 'jag heter', typed: 'jag hetar', meaning: 'ich heiße' }, 'claude-opus-4-8'),
+    );
+    expect(body.model).toBe('claude-opus-4-8');
+    expect(body.messages[0].content).toContain('jag heter');
+    expect(body.messages[0].content).toContain('jag hetar');
+    expect(body.messages[0].content).toContain('ich heiße');
+    expect(body.temperature).toBeUndefined();
+  });
+
+  it('explain() liefert den Erklärungstext bei Erfolg', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => ({
+        ok: true,
+        json: async () => ({ content: [{ type: 'text', text: 'Du hast „a" statt „e" geschrieben.' }] }),
+      })),
+    );
+    const ex = createAnthropicExplainer({ apiKey: 'k', model: 'claude-opus-4-8' });
+    const text = await ex.explain({ target: 'jag heter', typed: 'jag hetar' });
+    expect(text).toMatch(/statt/);
+  });
+
+  it('explain() wirft eine klare Meldung bei HTTP-Fehler', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => ({ ok: false, status: 401, json: async () => ({}) })));
+    const ex = createAnthropicExplainer({ apiKey: 'bad', model: 'claude-opus-4-8' });
+    await expect(ex.explain({ target: 'a', typed: 'b' })).rejects.toThrow(/401/);
   });
 });

@@ -28,6 +28,22 @@ export interface Decoder {
   decode(sv: string): Promise<DecodingToken[]>;
 }
 
+/** Anfrage: erkläre den Unterschied zwischen getippter und korrekter Antwort. */
+export interface ExplainRequest {
+  target: string; // die KORREKTE schwedische Form (bekannt → die KI urteilt nicht, sie erklärt)
+  typed: string; // die Eingabe des Lernenden
+  meaning?: string; // deutsche Bedeutung (Kontext)
+}
+
+/**
+ * Erklärt einen Tipp-Fehler in freundlichen Worten (docs/gremium-feedback.md, Schritt 2).
+ * Weil die korrekte Antwort bereits feststeht, ist die Falsch-Korrektur-Gefahr minimal.
+ */
+export interface Explainer {
+  readonly id: string;
+  explain(req: ExplainRequest): Promise<string>;
+}
+
 /** Anfrage an die Sprachausgabe. */
 export interface SpeakRequest {
   text: string;

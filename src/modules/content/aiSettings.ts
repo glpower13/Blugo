@@ -6,7 +6,7 @@
 
 import { setAiPorts } from './aiRegistry';
 import { seedDecoder } from './adapters/seed';
-import { createAnthropicDecoder } from './adapters/anthropic';
+import { createAnthropicDecoder, createAnthropicExplainer } from './adapters/anthropic';
 
 export type AiProvider = 'device' | 'anthropic';
 
@@ -84,15 +84,14 @@ export function saveSettings(s: AiSettings): void {
 /** Wendet die Einstellung auf die Port-Registry an (in Schritt C nur den Decoder). */
 export function applySettings(s: AiSettings): void {
   if (s.provider === 'anthropic' && s.anthropic.apiKey.trim()) {
+    const cfg = { apiKey: s.anthropic.apiKey.trim(), model: s.anthropic.model };
     setAiPorts({
-      decoder: createAnthropicDecoder({
-        apiKey: s.anthropic.apiKey.trim(),
-        model: s.anthropic.model,
-      }),
+      decoder: createAnthropicDecoder(cfg),
+      explainer: createAnthropicExplainer(cfg),
     });
   } else {
-    // Zurück zum kostenlosen Standard-Dekoder (Seed) — Sprachausgabe bleibt unberührt.
-    setAiPorts({ decoder: seedDecoder });
+    // Zurück zum kostenlosen Standard-Dekoder (Seed); keine KI-Erklärung.
+    setAiPorts({ decoder: seedDecoder, explainer: null });
   }
 }
 

@@ -5,7 +5,7 @@
 // Sicherheits-/Datenschutz-Abwägung: docs/05-architecture.md §Sicherheit.
 
 import type { DecodingToken } from '../../../domain/chunk';
-import type { Decoder } from '../ports';
+import type { Decoder, ExplainRequest, Explainer } from '../ports';
 
 const API_URL = 'https://api.anthropic.com/v1/messages';
 const API_VERSION = '2023-06-01';
@@ -74,6 +74,56 @@ export function friendlyError(status: number): string {
   if (status === 429) return 'Zu viele Anfragen (429) — kurz warten.';
   if (status >= 500) return 'Der Anbieter hat gerade ein Problem — später erneut.';
   return `Anfrage fehlgeschlagen (HTTP ${status}).`;
+}
+
+// --- Schritt 2: Fehler-Erklärung ("Warum?") ------------------------------------
+
+const EXPLAIN_SYSTEM =
+  'Du bist ein geduldiger Schwedisch-Lernbegleiter. Der Lernende hat eine Antwort getippt; ' +
+  'die KORREKTE Form ist bekannt und gilt. Erkläre in 1–2 kurzen, freundlichen deutschen ' +
+  'Sätzen den Unterschied (Rechtschreibung/Grammatik) — konkret und ermutigend. Wenn die ' +
+  'Eingabe in Wahrheit eine akzeptable Variante ist, sag das und erfinde KEINEN Fehler. ' +
+  'Antworte nur mit der Erklärung, ohne Vorwort, ohne Markdown.';
+
+/** Baut den Request-Body für die Erklärung (rein, testbar). */
+export function buildExplainBody(req: ExplainRequest, model: string): string {
+  const user =
+    `Korrekt: „${req.target}"\nGetippt: „${req.typed}"` +
+    (req.meaning ? `\nBedeutung: „${req.meaning}"` : '');
+  return JSON.stringify({
+    model,
+    max_tokens: 300,
+    system: EXPLAIN_SYSTEM,
+    messages: [{ role: 'user', content: user }],
+  });
+}
+
+/** Erzeugt einen Explainer-Adapter, der Claude nutzt. */
+export function createAnthropicExplainer(config: AnthropicConfig): Explainer {
+  return {
+    id: 'anthropic:' + config.model,
+    async explain(req: ExplainRequest): Promise<string> {
+      let res: Response;
+      try {
+        res = await fetch(API_URL, {
+          method: 'POST',
+          headers: {
+            'content-type': 'application/json',
+            'x-api-key': config.apiKey,
+            'anthropic-version': API_VERSION,
+            'anthropic-dangerous-direct-browser-access': 'true',
+          },
+          body: buildExplainBody(req, config.model),
+        });
+      } catch {
+        throw new Error('Verbindung zum Anbieter fehlgeschlagen (Netzwerk).');
+      }
+      if (!res.ok) throw new Error(friendlyError(res.status));
+      const text = extractText((await res.json()) as unknown);
+      if (!text) throw new Error('Es kam keine Erklärung zurück.');
+      return text;
+    },
+  };
 }
 
 /** Erzeugt einen Decoder-Adapter, der Claude nutzt. */

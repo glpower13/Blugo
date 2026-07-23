@@ -39,18 +39,21 @@ describe('save/load — Rundlauf', () => {
 });
 
 describe('applySettings — wirkt auf die Port-Registry', () => {
-  it('Gerät → Standard-Dekoder (seed)', () => {
+  it('Gerät → Standard-Dekoder (seed), keine KI-Erklärung', () => {
     applySettings({ provider: 'device', anthropic: { apiKey: '', model: DEFAULT_MODEL } });
     expect(aiRegistry.decoder.id).toBe('seed');
+    expect(aiRegistry.explainer).toBeNull();
   });
 
-  it('Claude mit Schlüssel → Anthropic-Dekoder', () => {
+  it('Claude mit Schlüssel → Anthropic-Dekoder + Explainer', () => {
     applySettings({ provider: 'anthropic', anthropic: { apiKey: 'k', model: 'claude-opus-4-8' } });
     expect(aiRegistry.decoder.id).toBe('anthropic:claude-opus-4-8');
+    expect(aiRegistry.explainer?.id).toBe('anthropic:claude-opus-4-8');
   });
 
-  it('Claude ohne Schlüssel → bleibt beim Standard-Dekoder', () => {
+  it('Claude ohne Schlüssel → bleibt beim Standard-Dekoder, kein Explainer', () => {
     applySettings({ provider: 'anthropic', anthropic: { apiKey: '   ', model: 'claude-opus-4-8' } });
     expect(aiRegistry.decoder.id).toBe('seed');
+    expect(aiRegistry.explainer).toBeNull();
   });
 });

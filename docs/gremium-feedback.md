@@ -83,14 +83,14 @@ Feedback ist **fürs Lernen** klar wertvoll (§2). Für **dieses Produkt** wird 
 
 ## 6. Umsetzung von Schritt 2 & 3 (Gremium — „Wie bauen")
 
-### Schritt 2 — optionale KI-Erklärung („warum"), gekennzeichnet *(jetzt baubar)*
+### Schritt 2 — optionale KI-Erklärung („warum"), gekennzeichnet ✅ *(gebaut 2026-07-23)*
 
-**Der Trick, der das Risiko fast auflöst:** Weil wir die **richtige Antwort schon kennen** (geprüfter Chunk + deterministisches Feedback aus Schritt 1), muss die KI **nicht urteilen, nur erklären**. Sie bekommt Ziel + Eingabe + bekannte Abweichung und formuliert 1–2 freundliche Sätze „warum" — die gefährlichste Fehlerquelle (Falsch-Korrektur) ist damit praktisch ausgeschlossen.
+**Der Trick, der das Risiko fast auflöst:** Weil wir die **richtige Antwort schon kennen** (geprüfter Chunk + deterministisches Feedback aus Schritt 1), muss die KI **nicht urteilen, nur erklären**. Sie bekommt Ziel + Eingabe und formuliert 1–2 freundliche Sätze „warum" — die gefährlichste Fehlerquelle (Falsch-Korrektur) ist damit praktisch ausgeschlossen.
 
-- **Wie:** neue Fähigkeit im Port (z. B. `Explainer.explain(ziel, eingabe)`), erster Adapter = Claude (erweitert `adapters/anthropic.ts`), an dieselbe BYOK-Einstellung angedockt.
+- **Umgesetzt:** neuer `Explainer`-Port (`ports.ts`), Claude-Adapter (`adapters/anthropic.ts` → `createAnthropicExplainer`), an dieselbe BYOK-Einstellung angedockt (`aiSettings.ts`).
 - **Auslösung:** Knopf „🤖 Warum?" im Feedback-Panel — **opt-in, pro Klick** (Kostenkontrolle), nur bei aktiver Cloud-KI.
-- **Ehrlichkeit:** Ergebnis klar als „KI-Hinweis (nicht muttersprachlich geprüft)"; konservativer Prompt („wenn die Eingabe eine akzeptable Variante ist, sag das; erfinde keine Fehler").
-- **Aufwand/Risiko:** niedrig–mittel; testbar wie der Dekoder (reiner Prompt-Bau + Antwort-Parse + simuliertes Netz).
+- **Ehrlichkeit:** Ergebnis klar als **„KI-Hinweis · nicht muttersprachlich geprüft"**; konservativer Prompt („wenn die Eingabe eine akzeptable Variante ist, sag das; erfinde keine Fehler").
+- **Geprüft:** 88 Tests grün (Prompt-Bau, Antwort, Fehler, Verdrahtung) + Build/E2E.
 
 ### Schritt 3 — Aussprache-Feedback per ASR *(post-M1)*
 

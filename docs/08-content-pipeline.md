@@ -21,6 +21,7 @@ die Pipeline an genormten **Ports** (Fähigkeits-Interfaces), nicht an Produkten
 |---|---|---|---|
 | `ContentGenerator` | i+1-Segment on demand erzeugen (der Moat) | `seed` (bedient Seed-Kontexte) | LLM |
 | `Decoder` | interlineare Dekodierung SV→DE | `seed` (kennt nur Seed) | ✅ Claude (`adapters/anthropic.ts`, BYOK) · weitere LLM |
+| `Explainer` | Tipp-Fehler freundlich erklären („Warum?") | — (nur mit Cloud) | ✅ Claude (BYOK) |
 | `SpeechSynthesizer` | Schwedisch vorlesen (TTS) | `web-speech` (on-device, zuverlässige sv-Stimme + Langsam) | natürliches TTS |
 | `SpeechRecognizer` | Schwedisch erkennen (ASR) | — (nur Vertrag) | ASR (post-M1) |
 
