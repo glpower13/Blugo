@@ -52,8 +52,10 @@ export interface ChunkState {
   chunkId: string;
   status: ChunkStatus;
   stage: RetrievalStage;
-  intervalDays: number; // current spacing interval
-  ease: number; // multiplier growth factor
+  intervalDays: number; // current spacing interval (derived from FSRS stability)
+  // FSRS memory state (DSR model) — drives the scheduling (docs/gremium-weltklasse.md).
+  stability: number; // FSRS stability S: days until recall probability decays to ~90 %
+  difficulty: number; // FSRS difficulty D: 1 (easy) .. 10 (hard)
   dueAt: number; // epoch ms of next due
   lastReviewedAt: number | null;
   successStreak: number; // consecutive 'good' — used to promote stage/status

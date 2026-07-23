@@ -161,7 +161,7 @@ Damit Doku und Realität nicht auseinanderdriften — was *heute Code* ist und w
 | Konzept-Baustein | Stand |
 |---|---|
 | Comprehension-Loop (Begegnung → Hilfen → Abruf → Logging) | ✅ gebaut |
-| Memory-Engine (Spacing, Stufen, Wartung, Demotion) | ✅ gebaut |
+| Memory-Engine — Spacing per **FSRS** (DSR-Modell), Stufen, Wartung, Demotion | ✅ gebaut |
 | Ehrliche Messung (aktiv · reift · **bewiesen** stabil · Abdeckung) | ✅ gebaut |
 | Kontextvariation, Tages-Dosierung neuer Chunks | ✅ gebaut |
 | Installierbare PWA, offline, lokale Daten | ✅ gebaut |

@@ -17,7 +17,7 @@ Wir wollen nicht „noch eine Vokabel-App", sondern die **einzige, die aufs *Beh
 2. **Wir werden mit jedem Tag besser für *dich*:** Die App merkt sich genau, was *du* schon kannst, und erzeugt neuen Übungsstoff exakt darauf zugeschnitten. Je länger du dabei bist, desto passgenauer — das kann ein fertiger Kurs nie.
 3. **Deine Daten gehören dir:** Alles läuft auf deinem Gerät, kein Konto nötig. Das schafft Vertrauen — und macht uns unabhängig von Firmen und Moden.
 
-Der **eine wichtigste nächste Schritt**: den „Erinnerungs-Motor" der App auf das weltweit beste, kostenlose Verfahren (**FSRS-6**) umstellen. Das bringt das meiste echte Behalten pro Aufwand — und kostet nichts.
+Der **eine wichtigste nächste Schritt**: den „Erinnerungs-Motor" der App auf das weltweit beste, kostenlose Verfahren (**FSRS**) umstellen. Das bringt das meiste echte Behalten pro Aufwand — und kostet nichts. **✅ Umgesetzt am 2026-07-23** (Schritt A, siehe §6/§7); der nutzerspezifische Feinschliff („FSRS-6") folgt später mit echten Nutzungsdaten.
 
 ---
 
@@ -99,7 +99,7 @@ Legende Träger: **🤖 autonom** · **🧑 deine Entscheidung** · **👥 Mutte
 
 | # | Schritt | Zielgröße | Träger | Status / Voraussetzung |
 |---|---|---|---|---|
-| **A** | **FSRS-6-Engine** als Behaltens-Kern (ersetzt den Ad-hoc-Scheduler; eigene ehrliche Messung bleibt darüber) | **R, L** | 🤖 (bauen) + 🧑 (Freigabe) | **Größter Hebel, kostenlos, anbieterfrei.** Ändert die dokumentierte „später"-Haltung → **braucht dein OK.** |
+| **A** | **FSRS-Engine** als Behaltens-Kern (ersetzt den Ad-hoc-Scheduler; eigene ehrliche Messung bleibt darüber) | **R, L** | 🤖 + 🧑 | ✅ **gebaut 2026-07-23 (Loop 7)** — `src/modules/memory/fsrs.ts` + Motor umgestellt, 53 Tests grün, Build/E2E grün. Parameter-Optimierung („-6") später mit Nutzungsdaten. |
 | **B** | **KI-Port-Schicht** definieren: Interfaces für Generierung/Dekodierung/TTS/ASR (noch ohne Anbieter) | **L** | 🤖 | Direkt danach; legt niemanden fest, macht die Pipeline andockbar. |
 | **C** | **Erste vertikale Scheibe** der Pipeline: **eine** Fähigkeit (Vorschlag: **Auto-Dekodierung SV→DE**) hinter dem Port, mit **einem** ersten Adapter | **R, T** | 🤖 (bauen) + 🧑 (Anbieterwahl) | Braucht Anbieter-Entscheidung (Kosten/Datenschutz) → §7. |
 | **D** | **Schwedische Muttersprache-Prüfung** der Segmente | **R** | 👥 | Bleibt Qualitäts-Gate (Checkliste liegt bereit). |
@@ -112,7 +112,7 @@ Legende Träger: **🤖 autonom** · **🧑 deine Entscheidung** · **👥 Mutte
 
 ## 7. Offene Entscheidungen (an dich — nicht still entschieden)
 
-1. **FSRS jetzt einführen?** *Empfehlung: ja* (Schritt A). Bester belegter Behaltens-Hebel, kostenlos, zukunftssicher; ändert nur die interne Terminlogik, nicht die Bedienung.
+1. ~~FSRS jetzt einführen?~~ **✅ erledigt 2026-07-23** — Schritt A gebaut und verifiziert (FSRS-Kern + Motor umgestellt, ehrliche Messung bleibt darüber).
 2. **Erster KI-Anbieter für die Pipeline (Schritt C)** — Abwägung Qualität / Kosten / Datenschutz. Sobald hier Nutzertext das Gerät verlässt, greifen `05-architecture.md` §Sicherheit (Keys server-seitig, Consent).
 3. **TTS-Richtung:** **on-device/open-source** (Piper/Kokoro — kostenlos, datensparsam, Qualität für Schwedisch bei Umsetzung testen) **vs. Cloud** (natürlicher, aber Daten verlassen das Gerät + laufende Kosten). Muss nicht heute fallen — die Port-Schicht (B) hält beide Wege offen.
 

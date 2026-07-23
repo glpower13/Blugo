@@ -1,9 +1,22 @@
 // Memory-Engine — spacing, retrieval scheduling, maintenance, stage promotion.
-// Deliberately SIMPLE in M1 (docs/09-roadmap.md: "Memory-Engine minimal: echtes
-// Spacing + Wartung"). The concrete SRS algorithm (SM-2/FSRS/eigen) stays an
-// open question — see docs/10-open-questions.md.
+// Der Terminplaner-Kern ist FSRS (siehe ./fsrs.ts) — best-belegtes, offenes
+// Spacing-Verfahren (docs/gremium-weltklasse.md §5–§6). DARÜBER sitzt weiterhin
+// die pädagogische/ehrliche Schicht: Stufen (Wiedererkennen→Produktion),
+// Kurzzeit-Relearn in der Sitzung und der strenge, GEMESSENE Stabilitätsbeweis
+// (`provenStableAt`) — nicht vom Algorithmus geschätzt (docs/07-measurement.md).
 
 import type { ChunkState, ReviewResult, RetrievalStage } from '../../domain/chunk';
+import {
+  DEFAULT_REQUEST_RETENTION,
+  initialDifficulty,
+  initialStability,
+  intervalForRetention,
+  nextDifficulty,
+  nextForgetStability,
+  nextRecallStability,
+  retrievability,
+  type FsrsGrade,
+} from './fsrs';
 
 export const DAY_MS = 24 * 60 * 60 * 1000;
 
@@ -13,13 +26,17 @@ export const STABLE_INTERVAL_DAYS = 90;
 /** Successful retrievals needed to promote recognition → production. */
 const PROMOTE_TO_PRODUCTION_AT = 2;
 
+/** Unsere 3 Bewertungsknöpfe auf die FSRS-Skala abbilden (Easy bleibt für später frei). */
+const GRADE: Record<ReviewResult, FsrsGrade> = { again: 1, hard: 2, good: 3 };
+
 export function initialState(chunkId: string, now: number = Date.now()): ChunkState {
   return {
     chunkId,
     status: 'new',
     stage: 'recognition',
     intervalDays: 0,
-    ease: 2.0,
+    stability: 0, // noch nicht initialisiert — wird bei der ersten Bewertung gesetzt
+    difficulty: 0,
     dueAt: now, // new chunks are due immediately
     lastReviewedAt: null,
     successStreak: 0,
@@ -31,7 +48,8 @@ export function initialState(chunkId: string, now: number = Date.now()): ChunkSt
 
 /**
  * Apply a graded retrieval result and return the next state.
- * Spacing: success dehnt das Intervall, Fehlabruf staucht es (docs/03-method.md).
+ * FSRS treibt Stabilität/Schwierigkeit und damit das Intervall; die Stufen-,
+ * Kurzzeit- und Beweis-Logik bleibt bewusst darüber (docs/03-method.md).
  */
 export function schedule(
   state: ChunkState,
@@ -39,28 +57,45 @@ export function schedule(
   segmentId: string,
   now: number = Date.now(),
 ): ChunkState {
-  let { intervalDays, ease, successStreak, stage, status } = state;
   const preInterval = state.intervalDays; // interval the chunk had survived so far
   const preStage = state.stage;
+  const g = GRADE[result];
+
+  // --- FSRS-Kern: Gedächtniszustand (S, D) fortschreiben ---
+  const firstReview = state.lastReviewedAt === null || state.stability <= 0;
+  let stability: number;
+  let difficulty: number;
+  if (firstReview) {
+    stability = initialStability(g);
+    difficulty = initialDifficulty(g);
+  } else {
+    const elapsedDays = Math.max(0, (now - state.lastReviewedAt!) / DAY_MS);
+    const r = retrievability(elapsedDays, state.stability);
+    // Reihenfolge wie in der FSRS-Referenz: erst neue Schwierigkeit, dann Stabilität.
+    difficulty = nextDifficulty(state.difficulty, g);
+    stability =
+      g === 1
+        ? nextForgetStability(difficulty, state.stability, r)
+        : nextRecallStability(difficulty, state.stability, r, g);
+  }
+
+  // --- Pädagogische/Session-Schicht ÜBER FSRS ---
+  let { stage, status, successStreak } = state;
+  let intervalDays: number;
 
   if (result === 'again') {
     successStreak = 0;
-    intervalDays = 0; // relearn — due again this session
-    ease = Math.max(1.3, ease - 0.2);
+    intervalDays = 0; // Relearn: in DIESER Sitzung erneut fällig (Kurzzeit-Schritt)
     // Demote a failed production chunk back to recognition — it clearly cannot
     // be produced yet, so retrieval difficulty is stepped back down (ISTQB E-1).
     stage = 'recognition';
   } else {
     successStreak += 1;
-    const wasNew = intervalDays === 0;
-    if (result === 'hard') {
-      ease = Math.max(1.3, ease - 0.05);
-      intervalDays = wasNew ? 1 : Math.max(1, Math.round(intervalDays * 1.2));
-    } else {
-      // 'good'
-      ease = Math.min(2.8, ease + 0.05);
-      intervalDays = wasNew ? 1 : Math.max(1, Math.round(intervalDays * ease));
-    }
+    // Intervall = Zeit, bis die Abrufwahrscheinlichkeit auf die Ziel-Retention fällt.
+    intervalDays = Math.max(
+      1,
+      Math.round(intervalForRetention(stability, DEFAULT_REQUEST_RETENTION)),
+    );
   }
 
   // Stage promotion: recognition → production once retrieval is reliable.
@@ -88,7 +123,8 @@ export function schedule(
     ...state,
     status,
     stage,
-    ease,
+    stability,
+    difficulty,
     intervalDays,
     successStreak,
     provenStableAt,

@@ -4,11 +4,14 @@
 > Belegt durch echte Tests — Rückverfolgbarkeit über die Test-IDs in
 > `src/modules/memory/memoryEngine.istqb.test.ts` (ST/DT/BVA).
 
-**Prüfgegenstand:** `src/modules/memory/memoryEngine.ts` (Spacing, Scheduling,
-Stufen-Promotion, Wartung), `src/modules/progress/metrics.ts` (Erhalt-Messung),
+**Prüfgegenstand:** `src/modules/memory/memoryEngine.ts` (Scheduling,
+Stufen-Promotion, Wartung, Kurzzeit-Relearn), `src/modules/memory/fsrs.ts`
+(FSRS-Formelkern), `src/modules/progress/metrics.ts` (Erhalt-Messung),
 `src/session/buildQueue.ts` (Tages-Dosierung).
-**Stand:** Commit-Reihe bis `28f65f8`. **Testlauf:** A (Typecheck) grün ·
-C (28 Unit-Tests) grün · B (Playwright headless) grün · Lint grün.
+**Stand:** Terminplaner-Kern in **Loop 7 auf FSRS** umgestellt (DSR-Modell,
+`fsrs.ts`); die ehrliche Messung (`provenStableAt`) bleibt darüber.
+**Testlauf (re-run):** A (Typecheck) grün · C (53 Unit-Tests, inkl. FSRS-Kern)
+grün · B (Playwright headless) grün · Lint grün.
 
 ---
 
@@ -33,7 +36,8 @@ Modell (status × Auslöser):
 | recognition | 2× good | production (Stage) | ST2 |
 | learning | again | new (Intervall 0, Streak 0) | ST3 |
 | maintenance | again | learning (Demotion, nicht bis new) | ST4 |
-| new → … | 7× good | maintenance, Intervall ≥ 90 | ST5 |
+| new → … | Good-Kette bis Horizont | maintenance, Intervall ≥ 90 (noch nicht bewiesen stabil) | ST5 |
+| … → stabil | Good bei Intervall ≥ 90 | `provenStableAt` gesetzt | ST6 |
 
 Alle erlaubten Übergänge grün. Verbotener/undefinierter Übergang: keiner
 möglich, da `schedule` total ist (jede Kombination liefert einen definierten
@@ -43,11 +47,11 @@ Folgezustand).
 
 | Regel | wasNew | result | Intervall-Ergebnis | Test |
 |---|---|---|---|---|
-| DT1 | ja | good | 1 | ✓ |
-| DT2 | ja | hard | 1 | ✓ |
+| DT1 | ja | good | FSRS-Anfangsintervall (~3 T.) | ✓ |
+| DT2 | ja | hard | ≥ 1, kürzer als good | ✓ |
 | DT3 | ja | again | 0 | ✓ |
-| DT4 | nein | good | round(interval × ease), wächst | ✓ |
-| DT5 | nein | hard | round(interval × 1.2) | ✓ |
+| DT4 | nein | good | Stabilität & Intervall wachsen | ✓ |
+| DT5 | nein | hard | wächst, aber langsamer als good | ✓ |
 | DT6 | nein | again | 0 (Relearn) | ✓ |
 
 Alle 6 Regeln (vollständige Abdeckung der Bedingungskombinationen) grün.
@@ -58,7 +62,7 @@ Alle 6 Regeln (vollständige Abdeckung der Bedingungskombinationen) grün.
 |---|---|---|
 | `STABLE_INTERVAL_DAYS = 90` | 89 = nicht stabil · 90 = stabil · 91 = stabil | BVA1 |
 | `MAX_NEW_PER_SESSION = 3` | 2→2 · 3→3 · 4→3 (Deckel) | BVA2 |
-| ease-Klemme `[1.3, 2.8]` | Unterlauf → 1.3 · Überlauf → ≤ 2.8 | BVA3 |
+| FSRS-Schwierigkeit `[1, 10]` + Stabilitätswachstum | D bleibt in [1,10] · Good-Kette → S wächst | BVA3 |
 | Fälligkeit `dueAt ≤ now` | genau `= now` zählt · Zukunft nicht | BVA4 |
 | Promotion `successStreak ≥ 2` | 1 = recognition · 2 = production | ST2 |
 
@@ -107,7 +111,7 @@ offenen **P3** (E-1, E-2 rein qualitativ; plus Beobachtungen) sind dokumentiert
 und nicht blockierend.
 
 **Vor Produktivbetrieb / mit echten Lernern** neu zu bewerten: E-1 (Stage-Demotion
-sinnvoll?) und — sobald Nutzungsdaten vorliegen — ob der einfache Scheduler
-gegen eine SRS-Familie (FSRS/SM-2) getauscht wird (`10-open-questions.md`).
-Dann zusätzlich Stufe **G** (Property-Fuzzing über die Scheduling-Invarianten,
-Fault-Injection auf IndexedDB).
+sinnvoll?) und — sobald Nutzungsdaten vorliegen — die **nutzerspezifische
+FSRS-Parameter-Optimierung** auf echten Review-Logs (der Feinschliff von
+„FSRS-6"; `10-open-questions.md`). Dann zusätzlich Stufe **G** (Property-Fuzzing
+über die Scheduling-Invarianten, Fault-Injection auf IndexedDB).

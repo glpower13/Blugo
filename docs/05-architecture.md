@@ -17,13 +17,13 @@ Anforderungen aus dem Konzept: schlank, Web zuerst, **installierbar** und **offl
 - **Tailwind** — ruhige, fokussierte, mobil-first UI (kein „Konfetti-Lärm", `04-product.md`).
 - **`vite-plugin-pwa`** (Workbox) — Web-App-Manifest + Service Worker → installierbar („Zum Startbildschirm hinzufügen") und offline lauffähig.
 - **IndexedDB via `idb`** — lokale, offline-first Persistenz der Chunk-Zustände und Logs; kein Server.
-- **Spacing (M1):** bewusst **einfacher eigener Scheduler** (Intervall × Ease, Stufen-Promotion). Eine ausgereifte SRS-Familie (FSRS/SM-2) bleibt offen, bis echte Daten vorliegen (`10-open-questions.md`).
+- **Spacing:** **FSRS** (Free Spaced Repetition Scheduler, DSR-Modell) als Terminplaner-Kern (`src/modules/memory/fsrs.ts`) — best-belegtes, offenes Verfahren (open source, MIT). DARÜBER liegt die pädagogische Schicht (Stufen, Kurzzeit-Relearn) und der **gemessene** Stabilitätsbeweis (`provenStableAt`), nicht vom Algorithmus geschätzt. Entscheidung/Begründung: `gremium-weltklasse.md` §5–§6, `10-open-questions.md` (2026-07-23). Die nutzerspezifische Parameter-Optimierung (der Feinschliff von „FSRS-6") folgt mit echten Review-Daten.
 
 Nicht in M1 entschieden (weiter vertagt): schwedisches TTS/ASR, LLM für Generierung & Dekodierung — siehe unten und `10-open-questions.md`.
 
 ## Datenmodell (Kern)
 - **Chunk**: Text (SV), Dekodierung (DE), Audio-Referenz, Level/i+1-Stufe, Kontext-Varianten, Tags.
-- **Nutzer-Chunk-Status**: Stabilität, letztes/ nächstes Abrufdatum, Intervall, Erfolgshistorie, Modus (neu/lernend/Wartung).
+- **Nutzer-Chunk-Status**: FSRS-Gedächtniszustand (Stabilität & Schwierigkeit), letztes/ nächstes Abrufdatum, Intervall, Erfolgshistorie, Modus (neu/lernend/Wartung).
 - **Session-Log**: Abrufe, Ergebnisse, Latenz, genutzte Hilfen.
 
 ## Anforderungen an noch offene Technik (nicht: Produktwahl)

@@ -6,12 +6,12 @@
 
 **Entschieden bei Build-Start (M1) — Begründung in `05-architecture.md`:**
 - Frontend-Stack: Vite + React + TypeScript + Tailwind, PWA via `vite-plugin-pwa`. Speicherung lokal (IndexedDB), kein Backend.
-- Spacing (M1): einfacher eigener Scheduler (Intervall × Ease, Stufen-Promotion) — bewusst simpel.
+- Spacing: zunächst einfacher Eigen-Scheduler (M1-Skelett) — **am 2026-07-23 durch FSRS ersetzt** (Begründung unten unter „Weiter offen"/entschieden).
 
 **Weiter offen:**
 - Welches LLM für Generierung + Dekodierung SV↔DE? *(Gremium-Empfehlung: hinter einer anbieter-agnostischen Port-Schicht bauen, ein erster Adapter zur Entscheidung — `gremium-weltklasse.md` §7.2.)*
 - Welches schwedische TTS (Natürlichkeit, Tempo, Lizenz/Kosten)? *(Gremium: on-device/open-source wie Piper/Kokoro vs. Cloud abwägen; Port-Schicht hält beides offen — `gremium-weltklasse.md` §7.3.)*
-- Reicht der einfache Scheduler, oder später eine SRS-Familie (FSRS/SM-2)? **Live-Recherche Juli 2026 (`gremium-weltklasse.md` §5–§6):** FSRS-6 (open source, MIT) erreicht gleiche Behaltensquote mit ~20–30 % weniger Wiederholungen als SM-2 (Effizienz aus Simulation, kein Schüler-RCT). **Gremium-Empfehlung:** FSRS als Behaltens-Kern übernehmen, eigene ehrliche Messung darüber behalten. → **Entscheidung 🧑 offen.**
+- ~~Reicht der einfache Scheduler, oder eine SRS-Familie (FSRS/SM-2)?~~ **Entschieden 2026-07-23: FSRS** (DSR-Modell, `src/modules/memory/fsrs.ts`) als Terminplaner-Kern; die ehrliche Messung (`provenStableAt`) bleibt bewusst DARÜBER. Begründung: best-belegtes, offenes Verfahren, ~20–30 % weniger Wiederholungen als SM-2 bei gleicher Retention (Effizienz aus Simulation, kein Schüler-RCT; `gremium-weltklasse.md` §5–§6). **Klein weiter offen:** nutzerspezifische Parameter-Optimierung auf echten Review-Logs (der Feinschliff von „FSRS-6") — erst mit Nutzungsdaten.
 - Hosting/Deployment über HTTPS (nötig, damit PWA-Installation auf dem Handy greift).
 - SessionStart-Hook für Web-Sessions (`npm install` automatisch): bewusst (noch) **nicht** angelegt — Nutzerentscheidung.
 
