@@ -145,12 +145,19 @@ export default function App() {
     <main className="mx-auto flex min-h-dvh max-w-md flex-col gap-4 px-4 pb-10 pt-6">
       <header className="flex items-start justify-between gap-3">
         <div>
-          <h1 className="text-lg font-bold tracking-tight text-slate-100">NEUROLANG</h1>
-          <p className="text-xs text-slate-400">Deutsch → Schwedisch · Erhalt statt Streak</p>
+          <h1 className="font-display text-2xl font-semibold tracking-[0.14em] text-paper">
+            NEURO<span className="text-brand">LANG</span>
+          </h1>
+          <div className="mt-1.5 flex items-center gap-2">
+            <span className="h-px w-6 bg-brand-soft" aria-hidden />
+            <p className="text-[0.7rem] uppercase tracking-[0.18em] text-muted">
+              Deutsch → Schwedisch · Erhalt statt Streak
+            </p>
+          </div>
         </div>
         <button
           onClick={() => setShowSettings(true)}
-          className="shrink-0 rounded-full bg-surface px-3 py-2 text-sm text-slate-300"
+          className="shrink-0 rounded-full border border-line bg-surface px-3 py-2 text-sm text-muted"
           aria-label="KI-Einstellungen"
           title="KI-Einstellungen"
         >
@@ -165,11 +172,11 @@ export default function App() {
           <Stat value={metrics.maturing} label="reift" />
           <Stat value={metrics.stable} label="stabil (bewiesen)" accent />
         </div>
-        <p className="mt-2 text-xs text-slate-400">
+        <p className="mt-2 text-xs text-muted">
           {metrics.dueNow} jetzt fällig · Verständnis-Abdeckung {Math.round(metrics.coverage * 100)} %
         </p>
         {successRate !== null && (
-          <p className="mt-1 text-xs text-slate-500">
+          <p className="mt-1 text-xs text-faint">
             Flow-Band: {bandStatus(successRate)} ({Math.round(successRate * 100)} % zuletzt)
           </p>
         )}
@@ -182,11 +189,11 @@ export default function App() {
         <CategoryOverview progress={catProgress} focusId={focusId} onFocus={changeFocus} />
       )}
 
-      {loading && <p className="text-slate-400">Lädt…</p>}
+      {loading && <p className="text-muted">Lädt…</p>}
 
       {error && (
-        <section className="rounded-2xl border border-rose-500/40 bg-rose-500/10 p-4">
-          <p className="text-sm text-rose-300">{error}</p>
+        <section className="rounded-2xl border border-danger/40 bg-danger/10 p-4">
+          <p className="text-sm text-danger">{error}</p>
         </section>
       )}
 
@@ -202,12 +209,12 @@ export default function App() {
 
       {done && !error && (
         <section className="rounded-2xl bg-surface p-5 text-center">
-          <p className="text-lg font-semibold text-emerald-400">Session erledigt.</p>
-          <p className="mt-1 text-sm text-slate-400">
+          <p className="font-display text-xl font-semibold text-success">Session erledigt.</p>
+          <p className="mt-1 text-sm text-muted">
             Heute stabilisiert. Der Rest wartet — ohne zerbrechenden Streak.
           </p>
           {metrics.dueNow > 0 && (
-            <p className="mt-2 text-xs text-slate-500">
+            <p className="mt-2 text-xs text-faint">
               Noch {metrics.dueNow} fällig — bewusst auf die nächsten Sitzungen verteilt.
             </p>
           )}
@@ -226,10 +233,10 @@ export default function App() {
 function Stat({ value, label, accent }: { value: number; label: string; accent?: boolean }) {
   return (
     <div>
-      <div className={`text-2xl font-bold ${accent ? 'text-emerald-400' : 'text-slate-100'}`}>
+      <div className={`font-display text-3xl font-semibold ${accent ? 'text-success' : 'text-paper'}`}>
         {value}
       </div>
-      <div className="text-xs text-slate-400">{label}</div>
+      <div className="mt-0.5 text-[0.7rem] uppercase tracking-[0.12em] text-muted">{label}</div>
     </div>
   );
 }

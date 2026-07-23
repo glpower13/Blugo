@@ -141,13 +141,13 @@ export function ComprehensionLoop({ segment, chunk, stage, onResult, known }: Pr
 
   return (
     <section className="rounded-2xl bg-surface p-5 shadow-lg">
-      <p className="mb-1 text-xs uppercase tracking-wide text-slate-400">
+      <p className="mb-1 text-xs uppercase tracking-wide text-muted">
         Begegnung · Level {segment.level} · {stage === 'production' ? 'Produktion' : 'Wiedererkennen'}
       </p>
 
       {/* 1. Verständliche Begegnung */}
       <div className="flex items-start justify-between gap-3">
-        <p lang="sv" className="text-2xl font-semibold text-slate-100">
+        <p lang="sv" className="font-display text-2xl font-semibold leading-snug text-paper">
           {segment.sv}
         </p>
         {aiRegistry.synthesizer.isAvailable() && (
@@ -178,7 +178,7 @@ export function ComprehensionLoop({ segment, chunk, stage, onResult, known }: Pr
             setShowDecoding((v) => !v);
             setHelpUsed(true);
           }}
-          className="rounded-lg border border-slate-600 px-3 py-1.5 text-sm text-slate-200"
+          className="rounded-lg border border-line px-3 py-1.5 text-sm text-paper"
         >
           {showDecoding ? 'Dekodierung ausblenden' : 'Dekodierung'}
         </button>
@@ -187,7 +187,7 @@ export function ComprehensionLoop({ segment, chunk, stage, onResult, known }: Pr
             setShowIdiomatic((v) => !v);
             setHelpUsed(true);
           }}
-          className="rounded-lg border border-slate-600 px-3 py-1.5 text-sm text-slate-200"
+          className="rounded-lg border border-line px-3 py-1.5 text-sm text-paper"
         >
           {showIdiomatic ? 'Übersetzung ausblenden' : 'Übersetzung'}
         </button>
@@ -196,7 +196,7 @@ export function ComprehensionLoop({ segment, chunk, stage, onResult, known }: Pr
             setShowPron((v) => !v);
             setHelpUsed(true);
           }}
-          className="rounded-lg border border-slate-600 px-3 py-1.5 text-sm text-slate-200"
+          className="rounded-lg border border-line px-3 py-1.5 text-sm text-paper"
         >
           {showPron ? 'Aussprache ausblenden' : '🗣️ Aussprache'}
         </button>
@@ -224,31 +224,31 @@ export function ComprehensionLoop({ segment, chunk, stage, onResult, known }: Pr
         <div className="mt-3 flex flex-wrap gap-x-4 gap-y-2">
           {segment.decoding.map((t, i) => (
             <span key={i} className="inline-flex flex-col items-center">
-              <span lang="sv" className="text-slate-100">{t.sv}</span>
-              <span className="text-xs text-slate-400">{t.de}</span>
+              <span lang="sv" className="text-paper">{t.sv}</span>
+              <span className="text-xs text-muted">{t.de}</span>
             </span>
           ))}
         </div>
       )}
 
-      {showIdiomatic && <p className="mt-3 italic text-slate-300">{segment.de}</p>}
+      {showIdiomatic && <p className="mt-3 italic text-muted">{segment.de}</p>}
 
       {showPron && (
         <div className="mt-3 flex flex-col gap-2">
           {pronTips.length === 0 ? (
-            <p className="text-xs text-slate-400">Hier gibt es keine besonderen Aussprache-Stolpersteine.</p>
+            <p className="text-xs text-muted">Hier gibt es keine besonderen Aussprache-Stolpersteine.</p>
           ) : (
             pronTips.map((t) => (
-              <div key={t.id} className="rounded-lg border border-slate-700 bg-base px-3 py-2">
+              <div key={t.id} className="rounded-lg border border-line bg-base px-3 py-2">
                 <p className="text-xs font-medium text-brand">{t.label}</p>
-                <p className="text-sm text-slate-300">{t.hint}</p>
+                <p className="text-sm text-muted">{t.hint}</p>
               </div>
             ))
           )}
         </div>
       )}
 
-      {aiState === 'error' && <p className="mt-3 text-xs text-rose-300">🤖 {aiError}</p>}
+      {aiState === 'error' && <p className="mt-3 text-xs text-danger">🤖 {aiError}</p>}
 
       {aiTokens && (
         <div className="mt-3">
@@ -256,15 +256,15 @@ export function ComprehensionLoop({ segment, chunk, stage, onResult, known }: Pr
           <div className="flex flex-wrap gap-x-4 gap-y-2">
             {aiTokens.map((t, i) => (
               <span key={i} className="inline-flex flex-col items-center">
-                <span lang="sv" className="text-slate-100">{t.sv}</span>
-                <span className="text-xs text-slate-400">{t.de}</span>
+                <span lang="sv" className="text-paper">{t.sv}</span>
+                <span className="text-xs text-muted">{t.de}</span>
               </span>
             ))}
           </div>
         </div>
       )}
 
-      {genState === 'error' && <p className="mt-3 text-xs text-rose-300">🤖 {genError}</p>}
+      {genState === 'error' && <p className="mt-3 text-xs text-danger">🤖 {genError}</p>}
 
       {/* Neuer, KI-erzeugter Kontext (Kontextvariation, i+1). Ehrlich als ungeprüft
           gekennzeichnet — echtes Können, nicht Schein (die eine Design-Regel). */}
@@ -274,7 +274,7 @@ export function ComprehensionLoop({ segment, chunk, stage, onResult, known }: Pr
             Neuer Kontext · 🤖 KI-erzeugt · nicht geprüft
           </p>
           <div className="flex items-start justify-between gap-3">
-            <p lang="sv" className="text-lg font-medium text-slate-100">
+            <p lang="sv" className="text-lg font-medium text-paper">
               {genSegment.sv}
             </p>
             {aiRegistry.synthesizer.isAvailable() && (
@@ -287,13 +287,13 @@ export function ComprehensionLoop({ segment, chunk, stage, onResult, known }: Pr
               </button>
             )}
           </div>
-          <p className="mt-1 italic text-slate-300">{genSegment.de}</p>
+          <p className="mt-1 italic text-muted">{genSegment.de}</p>
           {genSegment.decoding.length > 0 && (
             <div className="mt-3 flex flex-wrap gap-x-4 gap-y-2">
               {genSegment.decoding.map((t, i) => (
                 <span key={i} className="inline-flex flex-col items-center">
-                  <span lang="sv" className="text-slate-100">{t.sv}</span>
-                  <span className="text-xs text-slate-400">{t.de}</span>
+                  <span lang="sv" className="text-paper">{t.sv}</span>
+                  <span className="text-xs text-muted">{t.de}</span>
                 </span>
               ))}
             </div>
@@ -302,8 +302,8 @@ export function ComprehensionLoop({ segment, chunk, stage, onResult, known }: Pr
       )}
 
       {/* 3. Verständnis-Check für den Ziel-Chunk */}
-      <div className="mt-6 border-t border-slate-700 pt-4">
-        <p className="mb-2 text-sm text-slate-400">
+      <div className="mt-6 border-t border-line pt-4">
+        <p className="mb-2 text-sm text-muted">
           {stage === 'production'
             ? `Wie heißt „${chunk.de}" auf Schwedisch?`
             : `Was bedeutet „${chunk.sv}"?`}
@@ -313,24 +313,24 @@ export function ComprehensionLoop({ segment, chunk, stage, onResult, known }: Pr
           stage === 'production' ? (
             feedback ? (
               <div>
-                <p className="mb-2 text-sm text-amber-300">{feedback.hint}</p>
-                <p className="mb-1 text-xs text-slate-500">
-                  <span className="text-emerald-400 underline">grün</span> = fehlt ·{' '}
-                  <span className="text-rose-400 line-through">rot</span> = zu viel getippt
+                <p className="mb-2 text-sm text-warn">{feedback.hint}</p>
+                <p className="mb-1 text-xs text-faint">
+                  <span className="text-success underline">grün</span> = fehlt ·{' '}
+                  <span className="text-danger line-through">rot</span> = zu viel getippt
                 </p>
                 <div
                   lang="sv"
-                  className="mb-3 rounded-lg border border-slate-700 bg-base px-3 py-2 text-lg tracking-wide"
+                  className="mb-3 rounded-lg border border-line bg-base px-3 py-2 text-lg tracking-wide"
                 >
                   {feedback.diff.map((p, i) => (
                     <span
                       key={i}
                       className={
                         p.kind === 'same'
-                          ? 'text-slate-100'
+                          ? 'text-paper'
                           : p.kind === 'missing'
-                            ? 'text-emerald-400 underline'
-                            : 'text-rose-400 line-through'
+                            ? 'text-success underline'
+                            : 'text-danger line-through'
                       }
                     >
                       {p.text}
@@ -344,13 +344,13 @@ export function ComprehensionLoop({ segment, chunk, stage, onResult, known }: Pr
                       setTyped('');
                       setWhy({ state: 'idle', text: '' });
                     }}
-                    className="rounded-lg bg-brand px-4 py-2 font-medium text-white"
+                    className="rounded-lg bg-brand px-4 py-2 font-medium text-base"
                   >
                     Nochmal versuchen
                   </button>
                   <button
                     onClick={() => setRevealed(true)}
-                    className="rounded-lg border border-slate-600 px-4 py-2 text-slate-200"
+                    className="rounded-lg border border-line px-4 py-2 text-paper"
                   >
                     Auflösen
                   </button>
@@ -370,11 +370,11 @@ export function ComprehensionLoop({ segment, chunk, stage, onResult, known }: Pr
                     <p className="mb-1 text-xs uppercase tracking-wide text-brand">
                       KI-Hinweis · nicht muttersprachlich geprüft
                     </p>
-                    <p className="text-sm text-slate-200">{why.text}</p>
+                    <p className="text-sm text-paper">{why.text}</p>
                   </div>
                 )}
                 {why.state === 'error' && (
-                  <p className="mt-2 text-xs text-rose-300">🤖 {why.text}</p>
+                  <p className="mt-2 text-xs text-danger">🤖 {why.text}</p>
                 )}
               </div>
             ) : (
@@ -393,9 +393,9 @@ export function ComprehensionLoop({ segment, chunk, stage, onResult, known }: Pr
                   aria-label="Antwort auf Schwedisch"
                   autoCapitalize="off"
                   autoCorrect="off"
-                  className="flex-1 rounded-lg border border-slate-600 bg-base px-3 py-2 text-slate-100"
+                  className="flex-1 rounded-lg border border-line bg-base px-3 py-2 text-paper"
                 />
-                <button type="submit" className="rounded-lg bg-brand px-4 py-2 font-medium text-white">
+                <button type="submit" className="rounded-lg bg-brand px-4 py-2 font-medium text-base">
                   Prüfen
                 </button>
               </form>
@@ -403,25 +403,25 @@ export function ComprehensionLoop({ segment, chunk, stage, onResult, known }: Pr
           ) : (
             <button
               onClick={() => setRevealed(true)}
-              className="rounded-lg bg-brand px-4 py-2 font-medium text-white"
+              className="rounded-lg bg-brand px-4 py-2 font-medium text-base"
             >
               Auflösen
             </button>
           )
         ) : (
           <>
-            <p lang={stage === 'production' ? 'sv' : 'de'} className="mb-1 text-lg text-slate-100">
+            <p lang={stage === 'production' ? 'sv' : 'de'} className="mb-1 text-lg text-paper">
               {stage === 'production' ? chunk.sv : chunk.de}
             </p>
             {stage === 'production' && autoGrade && (
-              <p className="mb-3 text-xs text-slate-400">
+              <p className="mb-3 text-xs text-muted">
                 Deine Eingabe: „{typed || '—'}" · Vorschlag: {GRADE_LABEL[autoGrade]}
               </p>
             )}
             <div className="grid grid-cols-3 gap-2">
-              <GradeButton label="Nochmal" tone="bg-rose-500/80" onClick={() => onResult('again', helpUsed)} />
-              <GradeButton label="Schwer" tone="bg-amber-500/80" onClick={() => onResult('hard', helpUsed)} />
-              <GradeButton label="Sitzt" tone="bg-emerald-500/80" onClick={() => onResult('good', helpUsed)} />
+              <GradeButton label="Nochmal" tone="bg-danger" onClick={() => onResult('again', helpUsed)} />
+              <GradeButton label="Schwer" tone="bg-warn" onClick={() => onResult('hard', helpUsed)} />
+              <GradeButton label="Sitzt" tone="bg-success" onClick={() => onResult('good', helpUsed)} />
             </div>
           </>
         )}
@@ -435,7 +435,7 @@ function GradeButton({ label, tone, onClick }: { label: string; tone: string; on
     <button
       onClick={onClick}
       aria-label={`Selbsteinschätzung: ${label}`}
-      className={`rounded-lg py-2.5 text-sm font-medium text-white ${tone}`}
+      className={`rounded-lg py-2.5 text-sm font-medium text-base ${tone}`}
     >
       {label}
     </button>

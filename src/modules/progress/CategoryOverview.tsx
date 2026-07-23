@@ -18,11 +18,11 @@ export function CategoryOverview({ progress, focusId, onFocus }: Props) {
   return (
     <section className="rounded-2xl bg-surface p-4">
       <div className="mb-3 flex items-baseline justify-between">
-        <h2 className="text-sm font-semibold text-slate-100">Themen</h2>
+        <h2 className="font-display text-base font-semibold tracking-wide text-paper">Themen</h2>
         {focusId && (
           <button
             onClick={() => onFocus(null)}
-            className="text-xs text-slate-400 underline underline-offset-2"
+            className="text-xs text-muted underline underline-offset-2"
           >
             Fokus aufheben
           </button>
@@ -34,11 +34,11 @@ export function CategoryOverview({ progress, focusId, onFocus }: Props) {
           const isFocus = p.category.id === focusId;
           const share = p.total === 0 ? 0 : p.stable / p.total;
           return (
-            <li key={p.category.id} className="rounded-xl border border-slate-700 bg-base p-3">
+            <li key={p.category.id} className="rounded-xl border border-line bg-base p-3">
               <div className="flex items-start justify-between gap-3">
                 <div>
-                  <p className="text-sm font-medium text-slate-100">{p.category.title}</p>
-                  <p className="mt-0.5 text-xs text-slate-400">{p.category.blurb}</p>
+                  <p className="text-sm font-medium text-paper">{p.category.title}</p>
+                  <p className="mt-0.5 text-xs text-muted">{p.category.blurb}</p>
                 </div>
                 <button
                   onClick={() => onFocus(isFocus ? null : p.category.id)}
@@ -46,7 +46,7 @@ export function CategoryOverview({ progress, focusId, onFocus }: Props) {
                   className={
                     'shrink-0 rounded-full px-3 py-1.5 text-xs font-medium ' +
                     (isFocus
-                      ? 'bg-brand text-white'
+                      ? 'bg-brand text-base'
                       : 'border border-brand/50 text-brand')
                   }
                 >
@@ -55,14 +55,14 @@ export function CategoryOverview({ progress, focusId, onFocus }: Props) {
               </div>
 
               {/* Ehrlicher Balken: Anteil BEWIESEN stabiler Wendungen (nicht „erledigt"). */}
-              <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-slate-700">
+              <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-line">
                 <div
-                  className="h-full rounded-full bg-emerald-500"
+                  className="h-full rounded-full bg-success"
                   style={{ width: `${Math.round(share * 100)}%` }}
                 />
               </div>
-              <p className="mt-1.5 text-xs text-slate-400">
-                <span className="text-emerald-400">{p.stable}</span> von {p.total} bewiesen stabil
+              <p className="mt-1.5 text-xs text-muted">
+                <span className="text-success">{p.stable}</span> von {p.total} bewiesen stabil
                 {p.active > 0 && <> · {p.active} aktiv</>}
                 {p.dueNow > 0 && <> · {p.dueNow} fällig</>}
               </p>
@@ -72,7 +72,7 @@ export function CategoryOverview({ progress, focusId, onFocus }: Props) {
       </ul>
 
       {focusId && (
-        <p className="mt-3 text-xs text-slate-500">
+        <p className="mt-3 text-xs text-faint">
           Neuer Stoff kommt bevorzugt aus diesem Thema. Fällige Wiederholungen bleiben
           unberührt — Erhalt geht vor.
         </p>

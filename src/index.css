@@ -14,11 +14,23 @@ body,
 
 body {
   margin: 0;
-  background-color: #0b1020;
-  color: #e2e8f0;
-  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  /* Warmes Tinten-Dunkel mit einem kaum sichtbaren Wärme-Verlauf nach oben —
+     Materialgefühl statt flacher Fläche (docs/design-handschrift.md). */
+  background-color: #16130f;
+  background-image: radial-gradient(120% 80% at 50% -10%, #221b13 0%, #16130f 60%);
+  background-attachment: fixed;
+  color: #ece3d5;
+  font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
   /* Sichere Zonen auf Notch-Geräten respektieren. */
   padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom)
     env(safe-area-inset-left);
+}
+
+/* Ruhige, einheitliche Bewegung — weich, nie lärmend (Bewegung erzählt). */
+@media (prefers-reduced-motion: no-preference) {
+  * {
+    transition-timing-function: cubic-bezier(0.22, 0.61, 0.36, 1);
+  }
 }

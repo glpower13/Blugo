@@ -17,7 +17,7 @@ Wir haben ein **starkes Skelett** gebaut (Lern-Loop, ehrlicher Erinnerungs-Motor
 **Fehlt fundamental:**
 1. **Inhalt = großteils Platzhalter.** ~11 handgeschriebene Seed-Chunks, **nicht** muttersprachlich geprüft. Die **erste Scheibe** der KI-Content-Fabrik läuft (on-demand-Generierung *eines* Kontexts, ehrlich als „nicht geprüft" gekennzeichnet), **aber** Grading/Leveling im Verhältnis und die **schwedische Muttersprache-QS** fehlen noch — der Moat ist angefangen, nicht fertig.
 2. **Kein Beweis.** Nicht live (kein Deploy), kein echter Lerner über Wochen → das M1-Erfolgskriterium (`09-roadmap.md`) ist ungetestet.
-3. **Design ist sauber, aber generisch** — funktional, nicht „edel/herausragend".
+3. ~~Design ist sauber, aber generisch~~ **Erste Premium-Handschrift gebaut (2026-07-23):** warme Tinte + Messing-Akzent, Editorial-Serif, Ruhe — weg vom generischen KI-Indigo (`design-handschrift.md`). Voller Feinschliff (eigene Schrift/Icons) bewusst später, wenn echte Inhalte stehen.
 
 ---
 
@@ -58,7 +58,7 @@ Lernwissenschaft · Content/Moat · **Design/Handwerk** · Architektur/Zukunft �
 
 1. **Live schalten (A)** — kleiner Schritt, macht den Beweis überhaupt möglich, du kannst es aufs Handy legen.
 2. **Moat weiterbauen (B)** — *erste Scheibe steht* (on-demand-Generierung *eines* i+1-Kontexts hinter dem Port). Als Nächstes: Grading/Leveling + schwedische QS. **Das bringt uns dem Ziel am nächsten.**
-3. **Design-Handschrift definieren (E, nur Identität)** — parallel, billig, als roter Faden.
+3. ~~Design-Handschrift definieren~~ ✅ **erste Umsetzung gebaut** (`design-handschrift.md`) — warme Tinte + Messing, Editorial-Serif, Ruhe. Feinschliff später.
 4. **Datenhoheit: Export/Import (D)** — kleiner Vertrauens-Gewinn, jederzeit einschiebbar.
 5. **Nach dem M1-Beweis:** Aussprache-Bewertung/ASR (C), volle Premium-Umsetzung (E), Reichweite (F).
 
