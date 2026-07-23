@@ -34,13 +34,15 @@ body::before {
   position: fixed;
   inset: -25%;
   z-index: -2;
+  /* Ruhige Zwei-Ton-Luxuswelt: tiefes Petrol/Teal + ein Gold-Schimmer
+     (docs/gremium-design-weltklasse.md) — edel statt Regenbogen. */
   background:
-    radial-gradient(50% 42% at 18% 12%, rgba(150, 110, 255, 0.5), transparent 72%),
-    radial-gradient(46% 40% at 86% 8%, rgba(78, 130, 255, 0.44), transparent 72%),
-    radial-gradient(60% 52% at 82% 84%, rgba(42, 206, 190, 0.32), transparent 74%),
-    radial-gradient(56% 50% at 8% 90%, rgba(233, 160, 82, 0.3), transparent 74%),
-    radial-gradient(70% 60% at 50% 48%, rgba(120, 90, 210, 0.22), transparent 78%);
-  filter: saturate(140%);
+    radial-gradient(54% 46% at 16% 10%, rgba(34, 132, 150, 0.52), transparent 72%),
+    radial-gradient(48% 42% at 88% 6%, rgba(58, 168, 168, 0.4), transparent 72%),
+    radial-gradient(60% 54% at 84% 88%, rgba(214, 158, 86, 0.26), transparent 74%),
+    radial-gradient(58% 52% at 6% 92%, rgba(22, 86, 108, 0.44), transparent 74%),
+    radial-gradient(74% 64% at 50% 50%, rgba(18, 74, 92, 0.3), transparent 80%);
+  filter: saturate(135%);
   animation: aurora 34s ease-in-out infinite alternate;
   will-change: transform;
 }

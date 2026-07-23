@@ -21,10 +21,10 @@ Die App liegt auf einer **tiefen, atmosphärischen Bühne** (weiche, langsam dri
 ## 3. Die Handschrift (Identität)
 
 **Bühne — atmosphärischer Tiefen-Hintergrund.**
-Ein fast schwarzer Grund (`#06060a`) mit **weichen, langsam driftenden Farb-Lichtern** (Violett, Blau, Türkis, ein warmer Schimmer) — die „Aurora", die dem Glas Farbe zum Brechen gibt (`index.css`, `body::before`, `@keyframes aurora`). Ruhig, edel, nie grell.
+Ein fast schwarzer Grund (`#06060a`) mit **weichen, langsam driftenden Farb-Lichtern** in einer **ruhigen Zwei-Ton-Luxuswelt: tiefes Petrol/Teal + ein Gold-Schimmer** (nordischer Fjord in der Dämmerung — edel statt Regenbogen). Dazu eine schemenhafte **Nordlicht-Bildsprache** (Aurora-Bänder über Bergsilhouette, `ui/Backdrop.tsx`), **Filmkorn** und **Vignette** für Tiefe (`index.css`, `body::before`).
 
-**Flächen — Milchglas (frosted).**
-Karten sind **durchscheinend** (`rgba(255,255,255,0.08)`) mit **Unschärfe** (`backdrop-filter: blur(30px) saturate(180%)`), einer **feinen Lichtkante** oben (`inset`-Glanz) und weichem, tiefem Schatten. Klasse `.glass` (Karten) und `.glass-soft` (innere Panels/Chips) in `index.css`. Große Radien.
+**Flächen — dunkel getöntes Milchglas (iOS „dark material").**
+Karten sind **dunkel getönt durchscheinend** (`rgba(13,15,24,0.56)`) mit **Unschärfe** und einer **feinen Lichtkante** oben — so bleibt heller Text **klar lesbar**, während der Hintergrund gedämpft durchschimmert. Klasse `.glass` (Karten) und `.glass-soft` (innere Panels/Pillen). Große Radien, poliertes Gold für die primäre Aktion (`.btn-gold`).
 
 **Farbe — ein Akzent, mit Bedeutung.**
 Genau **ein** edler Akzent: **Champagner-Gold** (`brand #E7C08A`) — glüht auf dem Glas, souverän, sparsam (Wortmarke, primäre Aktion, aktiver Fokus). Farbe trägt sonst nur **Bedeutung**: Grün (`success`) = *bewiesen* stabil (das eine Wahrheitssignal), Ampel `warn`/`danger` nur für die Selbsteinschätzung. Text in **Apple-Label-Farben** (`paper #F5F5F7`, `muted`, `faint`). Solides Tiefdunkel (`ink`) für Text auf goldenen Flächen.
@@ -53,10 +53,18 @@ Gebaut: Aurora-Tiefenhintergrund + `.glass`/`.glass-soft` (`index.css`, `tailwin
 
 Bewusst **dunkel-only** (`index.css` `color-scheme: dark`).
 
-## 5. Bewusst später (nicht jetzt)
+## 5. Weltklasse-Pass gebaut (2026-07-23)
 
-- Eigene **Icons** statt Emoji (⚙️/▶︎/🐢/🗣️/🤖) — „ruhige Souveränität".
+Fünf Hebel von „Top-40" auf Weltklasse (`gremium-design-weltklasse.md`):
+1. **Gedächtnisfeld als Nachthimmel** — jede Wendung ein Stern; nur *bewiesen* Stabiles leuchtet/pulsiert (`MemoryField.tsx`, ehrlich).
+2. **Eigene Linien-Icons** statt Emoji (Schieberegler, Play, Schildkröte, Klangwelle, KI-Funkeln — `ui/icons.tsx`).
+3. **Lebendige Bewegung**: Zahlen zählen hoch, Balken füllen sich, Aurora-Parallaxe beim Scrollen, Tap-Glühen (`useCountUp.ts`).
+4. **Editorial-Typografie**: der schwedische Satz als Hero, selbstbewusste Kennzahlen, klare Hierarchie.
+5. **Zwei-Ton-Luxuswelt**: Petrol/Teal + Gold statt Regenbogen.
+
+## 6. Bewusst später (nicht jetzt)
+
 - Optional eine eigene, lizenzierte **Marken-Schrift** statt reiner Systemschrift.
-- Feinschliff (Mikro-Interaktionen, ggf. sanfte Parallaxe der Aurora), **wenn echte Inhalte** stehen — sonst poliert man Platzhalter (`gremium-naechste-schritte.md` §4).
+- Feinschliff mit einem echten Art-Director am realen Gerät, **wenn echte Inhalte** stehen — sonst poliert man Platzhalter (`gremium-naechste-schritte.md` §4).
 
 > **Anschluss:** Vision `gremium-naechste-schritte.md` §4 · Motivation/Ehrlichkeit `06-motivation.md` · Produkt-Ruhe `04-product.md` · Architektur (offline, keine Fremd-Server) `05-architecture.md`.

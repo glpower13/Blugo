@@ -38,18 +38,18 @@ export function Backdrop() {
       >
         <defs>
           <linearGradient id="ribbon-a" x1="0" y1="0" x2="1" y2="1">
-            <stop offset="0%" stopColor="#7fe8c8" stopOpacity="0" />
-            <stop offset="45%" stopColor="#5fd7ff" stopOpacity="0.9" />
-            <stop offset="100%" stopColor="#9a7bff" stopOpacity="0" />
+            <stop offset="0%" stopColor="#5fe0d0" stopOpacity="0" />
+            <stop offset="45%" stopColor="#54cfd0" stopOpacity="0.9" />
+            <stop offset="100%" stopColor="#2a8ba0" stopOpacity="0" />
           </linearGradient>
           <linearGradient id="ribbon-b" x1="1" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#8f7bff" stopOpacity="0" />
-            <stop offset="50%" stopColor="#6ad0b4" stopOpacity="0.8" />
+            <stop offset="0%" stopColor="#e6b46a" stopOpacity="0" />
+            <stop offset="50%" stopColor="#5cc6bc" stopOpacity="0.8" />
             <stop offset="100%" stopColor="#e6a04e" stopOpacity="0" />
           </linearGradient>
           <linearGradient id="mountains" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#1a2440" stopOpacity="0.9" />
-            <stop offset="100%" stopColor="#0a0d18" stopOpacity="0.9" />
+            <stop offset="0%" stopColor="#123040" stopOpacity="0.9" />
+            <stop offset="100%" stopColor="#08111a" stopOpacity="0.9" />
           </linearGradient>
           <filter id="soft" x="-40%" y="-40%" width="180%" height="180%">
             <feGaussianBlur stdDeviation="26" />
