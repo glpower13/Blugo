@@ -5,6 +5,7 @@
 // stabiler Wendungen — ein wahres Signal, kein Anwesenheits-Fortschritt
 // (docs/07-measurement.md; CLAUDE.md „die eine Design-Regel").
 
+import { useEffect, useState } from 'react';
 import type { CategoryProgress } from './categories';
 
 interface Props {
@@ -15,6 +16,12 @@ interface Props {
 }
 
 export function CategoryOverview({ progress, focusId, onFocus, enterDelay }: Props) {
+  // Balken füllen sich beim Erscheinen weich (von 0 auf ihren Anteil).
+  const [filled, setFilled] = useState(false);
+  useEffect(() => {
+    const id = requestAnimationFrame(() => setFilled(true));
+    return () => cancelAnimationFrame(id);
+  }, []);
   if (progress.length === 0) return null;
   return (
     <section className="glass rise rounded-2xl p-5" style={{ animationDelay: enterDelay }}>
@@ -58,8 +65,8 @@ export function CategoryOverview({ progress, focusId, onFocus, enterDelay }: Pro
               {/* Ehrlicher Balken: Anteil BEWIESEN stabiler Wendungen (nicht „erledigt"). */}
               <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-line">
                 <div
-                  className="h-full rounded-full bg-success"
-                  style={{ width: `${Math.round(share * 100)}%` }}
+                  className="h-full rounded-full bg-success transition-[width] duration-700 ease-out"
+                  style={{ width: `${filled ? Math.round(share * 100) : 0}%` }}
                 />
               </div>
               <p className="mt-1.5 text-xs text-muted">

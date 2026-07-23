@@ -15,6 +15,7 @@ import { categoryProgress } from './modules/progress/categories';
 import { InstallButton } from './ui/InstallButton';
 import { Backdrop } from './ui/Backdrop';
 import { IconSettings } from './ui/icons';
+import { useCountUp } from './ui/useCountUp';
 import { AiSettings } from './modules/content/AiSettings';
 import { initAiSettings } from './modules/content/aiSettings';
 
@@ -240,12 +241,13 @@ export default function App() {
 }
 
 function Stat({ value, label, accent }: { value: number; label: string; accent?: boolean }) {
+  const shown = useCountUp(value);
   return (
     <div>
       <div
         className={`tnum font-display text-3xl font-semibold ${accent ? 'text-success glow-success' : 'text-paper'}`}
       >
-        {value}
+        {shown}
       </div>
       <div className="mt-0.5 text-[0.7rem] uppercase tracking-[0.12em] text-muted">{label}</div>
     </div>

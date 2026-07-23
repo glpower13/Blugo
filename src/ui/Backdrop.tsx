@@ -3,9 +3,33 @@
 // Bergsilhouette. Rein als SVG (offline-sicher, gestochen scharf, kByte statt
 // MByte), sehr zurückhaltend. Reine Atmosphäre, nie Inhalt (die eine Design-Regel).
 
+import { useEffect, useRef } from 'react';
+
 export function Backdrop() {
+  const ref = useRef<HTMLDivElement>(null);
+
+  // Sanfte Parallaxe: die Szene wandert beim Scrollen langsamer als der Inhalt
+  // (Tiefe). rAF-gedrosselt; bei reduced-motion aus.
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    if (window.matchMedia?.('(prefers-reduced-motion: reduce)').matches) return;
+    let raf = 0;
+    const onScroll = () => {
+      cancelAnimationFrame(raf);
+      raf = requestAnimationFrame(() => {
+        el.style.transform = `translate3d(0, ${window.scrollY * 0.06}px, 0)`;
+      });
+    };
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', onScroll);
+      cancelAnimationFrame(raf);
+    };
+  }, []);
+
   return (
-    <div className="backdrop-art" aria-hidden="true">
+    <div className="backdrop-art" aria-hidden="true" ref={ref}>
       <svg
         className="backdrop-svg"
         viewBox="0 0 400 800"
