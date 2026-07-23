@@ -34,13 +34,13 @@ describe('metrics', () => {
     expect(m.dueNow).toBeGreaterThanOrEqual(1);
   });
 
-  it('coverage is the share of active chunks whose last retrieval was good', () => {
-    const good = make({ chunkId: 'g', status: 'learning', history: [{ at: NOW, result: 'good', segmentId: 's' }] });
-    const bad = make({ chunkId: 'b', status: 'learning', history: [{ at: NOW, result: 'again', segmentId: 's' }] });
-    const untouched = make({ chunkId: 'u', status: 'new' }); // excluded from coverage
-    const m = computeMetrics([good, bad, untouched], NOW);
-    expect(m.active).toBe(2);
-    expect(m.coverage).toBeCloseTo(0.5); // 1 of 2 active understood
+  it('coverage weights production-good full, recognition-good half, failure zero', () => {
+    const prodGood = make({ chunkId: 'p', stage: 'production', history: [{ at: NOW, result: 'good', segmentId: 's' }] });
+    const recogGood = make({ chunkId: 'r', stage: 'recognition', history: [{ at: NOW, result: 'good', segmentId: 's' }] });
+    const bad = make({ chunkId: 'b', history: [{ at: NOW, result: 'again', segmentId: 's' }] });
+    const m = computeMetrics([prodGood, recogGood, bad], NOW);
+    expect(m.active).toBe(3);
+    expect(m.coverage).toBeCloseTo((1 + 0.5) / 3); // = 0.5
   });
 
   it('coverage is 0 when nothing is active', () => {

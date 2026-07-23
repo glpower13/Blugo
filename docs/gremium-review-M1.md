@@ -67,12 +67,12 @@ Legende Träger: **🤖 autonom** (ich) · **🧑 du/Entscheidung** · **👥 Me
 | ✅2 | Stufen-Demotion bei Fehler | ISTQB E-1 | P3 | 🤖 | **erledigt (Loop 1)** |
 | 3 | **Reifegrad-Signal** „reift" zwischen aktiv und stabil, damit Fortschritt sichtbar ist | R2 | P2 | 🤖 | Metrik `maturing` + Anzeige + Test **(Loop 2)** |
 | 4 | **„Gebaut vs. versprochen"** in README/Roadmap klar trennen (Anti-Überzeichnung) | M2 | P2 | 🤖 | Abschnitt/Statusspalte ergänzen **(Loop 2)** |
-| 5 | „Verständnis-Abdeckung" schärfen (Produktion/neuer Kontext gewichten) oder ehrlicher benennen | W3 | P3 | 🤖 | Definition/Label anpassen + Test |
+| ✅5 | „Verständnis-Abdeckung" stufengewichtet (Produktion voll, Wiedererkennen halb) | W3 | P3 | 🤖 | **erledigt (Loop 3)** |
 | 6 | **Content auf ~20 Segmente** erweitern (mehr Alltagssituationen) | D1 | P2 | 🤖-Entwurf → 👥-Prüfung | Entwurf erstellen, dann `content-review-schwedisch.md` abhaken |
-| 7 | Committed **Playwright-E2E** + CI-Step (Stufe B in CI) | E1 | P3 | 🤖 | `@playwright/test` devDep, `test:e2e`, Workflow-Step |
+| ✅7 | Committed **Playwright-E2E** + CI-Workflow (Stufe B in CI) | E1 | P3 | 🤖 | **erledigt (Loop 3)** — `e2e/`, `ci.yml` |
 | 8 | Hilfenutzung erfassen (Krücke gezogen?) als Signal | D4 | P3 | 🤖 | Log-Feld + spätere Nutzung im Scoring |
-| 9 | Schreibfehler beim Bewerten sichtbar machen | E2 | P3 | 🤖 | try/catch in `handleResult` → Fehlerzustand |
-| 10 | A11y-Runde (aria, Kontrast) | E4 | P3 | 🤖 | Labels + Kontrastprüfung |
+| ✅9 | Schreibfehler beim Bewerten sichtbar machen | E2 | P3 | 🤖 | **erledigt (Loop 3)** |
+| ✅10 | A11y-Runde (aria-Labels, `lang="sv"`) | E4 | P3 | 🤖 | **erledigt (Loop 3)** |
 | 11 | **Adaptives Erfolgsband** real bauen (Neuzufuhr/Intervalle an Erfolgsquote koppeln) | W2 | P2 | 🤖 (größer) | Difficulty-Controller-Modul, eigener Loop |
 | 12 | Echte **Produktionserfassung** (Texteingabe-Abgleich → später ASR) | D2 | P2 | 🤖 (größer) | eigener Loop; ASR in `11-ideas.md` |
 | 13 | Schwedisches **TTS** in der Pipeline (Audio-QS) | D3 | P2 | 🧑 (Anbieterwahl) + 🤖 | bei Content-Pipeline (nach M1) |
@@ -83,8 +83,8 @@ Legende Träger: **🤖 autonom** (ich) · **🧑 du/Entscheidung** · **👥 Me
 
 - **Loop 1 ✅** — #1, #2 (ehrliche Messung + Demotion). *Erledigt, verifiziert.*
 - **Loop 2** — #3, #4 (Reife-Signal + „gebaut vs. versprochen"). *Autonom, als Nächstes.*
-- **Loop 3** — #5, #7, #9, #10 (Abdeckung schärfen, E2E in CI, Schreibfehler, A11y). *Autonom.*
-- **Loop 4** — #6 (Content-Entwurf auf ~20) → **👥 Muttersprache-Prüfung**.
+- **Loop 3 ✅** — #5, #7, #9, #10 (Abdeckung gewichtet, E2E in CI, Schreibfehler sichtbar, A11y). *Erledigt, verifiziert.*
+- **Loop 4** — #6 (Content-Entwurf auf ~20) → **👥 Muttersprache-Prüfung**. *Als Nächstes.*
 - **Loop 5** — #11 (adaptives Band). *Größer, eigener Loop.*
 - **Loop 6+** — #12/#13 (Produktion/ASR, TTS) — Richtung Content-Pipeline (nach M1-Beweis).
 

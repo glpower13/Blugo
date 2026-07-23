@@ -33,7 +33,9 @@ export function ComprehensionLoop({ segment, chunk, stage, onResult }: Props) {
 
       {/* 1. Verständliche Begegnung */}
       <div className="flex items-start justify-between gap-3">
-        <p className="text-2xl font-semibold text-slate-100">{segment.sv}</p>
+        <p lang="sv" className="text-2xl font-semibold text-slate-100">
+          {segment.sv}
+        </p>
         {ttsAvailable() && (
           <button
             onClick={() => speakSwedish(segment.sv)}
@@ -65,7 +67,7 @@ export function ComprehensionLoop({ segment, chunk, stage, onResult }: Props) {
         <div className="mt-3 flex flex-wrap gap-x-4 gap-y-2">
           {segment.decoding.map((t, i) => (
             <span key={i} className="inline-flex flex-col items-center">
-              <span className="text-slate-100">{t.sv}</span>
+              <span lang="sv" className="text-slate-100">{t.sv}</span>
               <span className="text-xs text-slate-400">{t.de}</span>
             </span>
           ))}
@@ -91,7 +93,7 @@ export function ComprehensionLoop({ segment, chunk, stage, onResult }: Props) {
           </button>
         ) : (
           <>
-            <p className="mb-4 text-lg text-slate-100">
+            <p lang={stage === 'production' ? 'sv' : 'de'} className="mb-4 text-lg text-slate-100">
               {stage === 'production' ? chunk.sv : chunk.de}
             </p>
             <div className="grid grid-cols-3 gap-2">
@@ -108,7 +110,11 @@ export function ComprehensionLoop({ segment, chunk, stage, onResult }: Props) {
 
 function GradeButton({ label, tone, onClick }: { label: string; tone: string; onClick: () => void }) {
   return (
-    <button onClick={onClick} className={`rounded-lg py-2.5 text-sm font-medium text-white ${tone}`}>
+    <button
+      onClick={onClick}
+      aria-label={`Selbsteinschätzung: ${label}`}
+      className={`rounded-lg py-2.5 text-sm font-medium text-white ${tone}`}
+    >
       {label}
     </button>
   );

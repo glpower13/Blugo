@@ -38,14 +38,19 @@ function isMaturing(s: ChunkState): boolean {
 
 export function computeMetrics(states: ChunkState[], now: number = Date.now()): Metrics {
   const activeStates = states.filter(isActive);
-  const understood = activeStates.filter(lastWasGood).length;
+  // Verständnis-Abdeckung (docs/07-measurement.md), M1-Näherung: gewichtet nach
+  // Stufe — ein Produktions-Abruf zählt voll, Wiedererkennen nur halb, weil
+  // produktives Können mehr wert ist als bloßes Wiedererkennen. Offene
+  // Verfeinerung (neuer Kontext / Zielstufe) in docs/10-open-questions.md.
+  const understoodWeight = activeStates.reduce((sum, s) => {
+    if (!lastWasGood(s)) return sum;
+    return sum + (s.stage === 'production' ? 1 : 0.5);
+  }, 0);
   return {
     active: activeStates.length,
     maturing: states.filter(isMaturing).length,
     stable: states.filter(isStable).length,
     dueNow: states.filter((s) => s.dueAt <= now).length,
-    // Verständnis-Abdeckung (docs/07-measurement.md), M1-Vereinfachung:
-    // Anteil aktiver Chunks, deren letzter Abruf erfolgreich war.
-    coverage: activeStates.length === 0 ? 0 : understood / activeStates.length,
+    coverage: activeStates.length === 0 ? 0 : understoodWeight / activeStates.length,
   };
 }

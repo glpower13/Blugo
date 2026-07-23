@@ -5,6 +5,10 @@ dist/
 dev-dist/
 build/
 *.tsbuildinfo
+# Playwright
+test-results/
+playwright-report/
+playwright/.cache/
 # Env & secrets (NIE committen)
 .env
 .env.*

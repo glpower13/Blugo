@@ -67,12 +67,17 @@ export default function App() {
     try {
       const now = Date.now();
       const next = schedule(currentState, result, currentSegment.id, now);
-      setStates((prev) => ({ ...prev, [currentChunk.id]: next }));
+      // Persist first; only advance the UI once the write succeeded, so a
+      // storage failure is surfaced and never silently drops progress.
       await putChunkState(next);
       await logEvent(currentChunk.id, { at: now, result, segmentId: currentSegment.id });
+      setStates((prev) => ({ ...prev, [currentChunk.id]: next }));
       // 'again' → re-queue at the end (relearn this session); else advance.
       setQueue((q) => (result === 'again' ? [...q, currentChunk.id] : q));
       setPos((p) => p + 1);
+    } catch (e) {
+      console.error('Persist failed', e);
+      setError('Die Bewertung konnte nicht gespeichert werden. Bitte die App neu laden.');
     } finally {
       submitting.current = false;
     }
