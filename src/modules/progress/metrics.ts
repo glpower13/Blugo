@@ -2,7 +2,6 @@
 // The one number that matters is STABLE chunks, not streaks or XP.
 
 import type { ChunkState } from '../../domain/chunk';
-import { STABLE_INTERVAL_DAYS } from '../memory/memoryEngine';
 
 export interface Metrics {
   active: number; // chunks currently in the loop
@@ -22,16 +21,13 @@ function lastWasGood(s: ChunkState): boolean {
 }
 
 /**
- * A chunk is "stable" only under strict conditions (docs/07-measurement.md):
- * it must be in maintenance (production stage) AND carry an interval past the
- * stability horizon. We never count recognition-only or same-day repetition.
+ * A chunk is "stable" only once it has been *proven* so (docs/07-measurement.md):
+ * a successful production recall after the scheduled interval had already
+ * reached the horizon — i.e. it really survived a long gap. Measured, not
+ * estimated; a merely long scheduled interval does not count (anti-Goodhart).
  */
 export function isStable(s: ChunkState): boolean {
-  return (
-    s.status === 'maintenance' &&
-    s.stage === 'production' &&
-    s.intervalDays >= STABLE_INTERVAL_DAYS
-  );
+  return s.provenStableAt != null;
 }
 
 export function computeMetrics(states: ChunkState[], now: number = Date.now()): Metrics {

@@ -56,6 +56,11 @@ export interface ChunkState {
   dueAt: number; // epoch ms of next due
   lastReviewedAt: number | null;
   successStreak: number; // consecutive 'good' — used to promote stage/status
+  // Set the moment a chunk is *proven* stable: a successful PRODUCTION recall
+  // whose scheduled interval had already reached the stability horizon. Null
+  // until then. This is the honest measure — retained after a real long gap,
+  // not merely scheduled that far (docs/07-measurement.md; anti-Goodhart).
+  provenStableAt: number | null;
   history: ReviewEvent[];
   seenSegmentIds: string[]; // contexts already used → drive context variation
 }

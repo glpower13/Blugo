@@ -10,25 +10,22 @@ function make(overrides: Partial<ChunkState>): ChunkState {
 }
 
 describe('metrics', () => {
-  it('counts a chunk stable only in maintenance + production + interval ≥ 90d', () => {
-    const stable = make({ status: 'maintenance', stage: 'production', intervalDays: 120 });
-    expect(isStable(stable)).toBe(true);
-
-    // recognition only → not stable, even at a long interval
-    expect(isStable(make({ status: 'maintenance', stage: 'recognition', intervalDays: 120 }))).toBe(
-      false,
-    );
-    // too short an interval → not stable
-    expect(isStable(make({ status: 'maintenance', stage: 'production', intervalDays: 40 }))).toBe(
-      false,
-    );
+  it('counts a chunk stable only once proven (provenStableAt set), not by scheduled interval', () => {
+    // A long *scheduled* interval alone is NOT stable (anti-Goodhart)...
+    expect(
+      isStable(make({ status: 'maintenance', stage: 'production', intervalDays: 120 })),
+    ).toBe(false);
+    // ...only an actual proven recall after a long gap counts.
+    expect(
+      isStable(make({ status: 'maintenance', stage: 'production', provenStableAt: NOW })),
+    ).toBe(true);
   });
 
   it('computeMetrics reports active, stable and due counts', () => {
     const states: ChunkState[] = [
       make({ chunkId: 'new', status: 'new' }), // untouched → not active
       make({ chunkId: 'learn', status: 'learning', history: [{ at: NOW, result: 'good', segmentId: 's' }] }),
-      make({ chunkId: 'stable', status: 'maintenance', stage: 'production', intervalDays: 100 }),
+      make({ chunkId: 'stable', status: 'maintenance', stage: 'production', intervalDays: 100, provenStableAt: NOW }),
       make({ chunkId: 'due', status: 'learning', dueAt: NOW - 1000, history: [{ at: NOW, result: 'good', segmentId: 's' }] }),
     ];
     const m = computeMetrics(states, NOW);

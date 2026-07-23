@@ -46,7 +46,7 @@ describe('ST · Zustandsübergänge (status/stage)', () => {
     expect(s.stage).toBe('production'); // nach 2×
   });
 
-  it('ST3 learning --again--> new (Intervall auf 0, Streak reset)', () => {
+  it('ST3 learning --again--> new (Intervall 0, Streak reset)', () => {
     let s = schedule(initialState('c', NOW), 'good', 's', NOW); // learning
     s = schedule(s, 'again', 's', s.dueAt);
     expect(s.status).toBe('new');
@@ -54,7 +54,7 @@ describe('ST · Zustandsübergänge (status/stage)', () => {
     expect(s.successStreak).toBe(0);
   });
 
-  it('ST4 maintenance --again--> learning (Demotion, nicht bis new)', () => {
+  it('ST4 maintenance --again--> learning + Stage-Demotion auf recognition (E-1)', () => {
     const maint = withState({
       status: 'maintenance',
       stage: 'production',
@@ -64,6 +64,7 @@ describe('ST · Zustandsübergänge (status/stage)', () => {
     const s = schedule(maint, 'again', 's', NOW);
     expect(s.status).toBe('learning');
     expect(s.intervalDays).toBe(0);
+    expect(s.stage).toBe('recognition'); // demoted — kann nicht mehr produzieren
   });
 
   it('ST5 Weg bis maintenance ist erreichbar (reine Good-Kette)', () => {
@@ -72,6 +73,13 @@ describe('ST · Zustandsübergänge (status/stage)', () => {
     expect(s.status).toBe('maintenance');
     expect(s.stage).toBe('production');
     expect(s.intervalDays).toBeGreaterThanOrEqual(STABLE_INTERVAL_DAYS);
+    // ...aber noch NICHT bewiesen stabil (kein Abruf nach dem langen Intervall)
+    expect(s.provenStableAt).toBeNull();
+  });
+
+  it('ST6 stabil erst nach erfolgreichem Abruf bei Intervall ≥ Horizont', () => {
+    const s = runGoods(8); // ein weiterer Good bei Intervall ≥ 90 → beweist Stabilität
+    expect(s.provenStableAt).not.toBeNull();
   });
 });
 
@@ -102,11 +110,14 @@ describe('DT · Entscheidungstabelle schedule(result × wasNew)', () => {
 });
 
 describe('BVA · Grenzwerte', () => {
-  it('BVA1 STABLE_INTERVAL_DAYS: 89 nein / 90 ja / 91 ja', () => {
-    const base = { status: 'maintenance', stage: 'production' } as const;
-    expect(isStable(withState({ ...base, intervalDays: STABLE_INTERVAL_DAYS - 1 }))).toBe(false);
-    expect(isStable(withState({ ...base, intervalDays: STABLE_INTERVAL_DAYS }))).toBe(true);
-    expect(isStable(withState({ ...base, intervalDays: STABLE_INTERVAL_DAYS + 1 }))).toBe(true);
+  it('BVA1 Stabilitäts-Beweis am Horizont: preInterval 89 nein / 90 ja / 91 ja', () => {
+    const prod = (interval: number) =>
+      withState({ status: 'maintenance', stage: 'production', intervalDays: interval, successStreak: 5 });
+    expect(schedule(prod(STABLE_INTERVAL_DAYS - 1), 'good', 's', NOW).provenStableAt).toBeNull();
+    const proven = schedule(prod(STABLE_INTERVAL_DAYS), 'good', 's', NOW);
+    expect(proven.provenStableAt).not.toBeNull();
+    expect(isStable(proven)).toBe(true); // Kopplung Beweis → Metrik
+    expect(schedule(prod(STABLE_INTERVAL_DAYS + 1), 'good', 's', NOW).provenStableAt).not.toBeNull();
   });
 
   it('BVA2 MAX_NEW_PER_SESSION: 2→2, 3→3, 4→3', () => {

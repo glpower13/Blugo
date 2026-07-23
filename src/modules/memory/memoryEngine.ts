@@ -23,6 +23,7 @@ export function initialState(chunkId: string, now: number = Date.now()): ChunkSt
     dueAt: now, // new chunks are due immediately
     lastReviewedAt: null,
     successStreak: 0,
+    provenStableAt: null,
     history: [],
     seenSegmentIds: [],
   };
@@ -39,11 +40,16 @@ export function schedule(
   now: number = Date.now(),
 ): ChunkState {
   let { intervalDays, ease, successStreak, stage, status } = state;
+  const preInterval = state.intervalDays; // interval the chunk had survived so far
+  const preStage = state.stage;
 
   if (result === 'again') {
     successStreak = 0;
     intervalDays = 0; // relearn — due again this session
     ease = Math.max(1.3, ease - 0.2);
+    // Demote a failed production chunk back to recognition — it clearly cannot
+    // be produced yet, so retrieval difficulty is stepped back down (ISTQB E-1).
+    stage = 'recognition';
   } else {
     successStreak += 1;
     const wasNew = intervalDays === 0;
@@ -62,6 +68,14 @@ export function schedule(
     stage = 'production';
   }
 
+  // Proof of stability: a successful PRODUCTION recall AFTER the scheduled
+  // interval had already reached the horizon. Measured, not estimated — the
+  // chunk really survived a long gap (docs/07-measurement.md, anti-Goodhart).
+  const provenStableAt =
+    result === 'good' && preStage === 'production' && preInterval >= STABLE_INTERVAL_DAYS
+      ? now
+      : state.provenStableAt;
+
   // Status lifecycle: new → learning → maintenance.
   status = deriveStatus(status, intervalDays, stage, successStreak);
 
@@ -77,6 +91,7 @@ export function schedule(
     ease,
     intervalDays,
     successStreak,
+    provenStableAt,
     dueAt,
     lastReviewedAt: now,
     seenSegmentIds,
