@@ -161,7 +161,7 @@ export default function App() {
     <>
       <Backdrop />
       <div className="grain" aria-hidden="true" />
-      <main className="mx-auto flex min-h-dvh max-w-md flex-col gap-4 px-4 pb-10 pt-6">
+      <main className="mx-auto flex min-h-dvh w-full max-w-md flex-col gap-4 px-4 pb-10 pt-6 md:max-w-5xl md:px-6">
         {error && (
           <section className="rounded-2xl border border-danger/40 bg-danger/10 p-4">
             <p className="text-sm text-danger">{error}</p>
@@ -190,49 +190,54 @@ export default function App() {
               </button>
             </header>
 
-            {/* Ehrliche Fortschrittsanzeige (docs/07-measurement.md) */}
-            <section className="glass rise rounded-2xl p-5" style={{ animationDelay: '0.04s' }}>
-              <div className="flex items-baseline gap-5">
-                <Stat value={metrics.active} label="aktiv" />
-                <Stat value={metrics.maturing} label="reift" />
-                <Stat value={metrics.stable} label="stabil (bewiesen)" accent />
+            {/* Breiten-optimiert: ab md zwei Spalten (Übersicht/CTA | Themen). */}
+            <div className="grid gap-4 md:grid-cols-2 md:items-start">
+              <div className="flex flex-col gap-4">
+                {/* Ehrliche Fortschrittsanzeige (docs/07-measurement.md) */}
+                <section className="glass rise rounded-2xl p-5" style={{ animationDelay: '0.04s' }}>
+                  <div className="flex items-baseline gap-5">
+                    <Stat value={metrics.active} label="aktiv" />
+                    <Stat value={metrics.maturing} label="reift" />
+                    <Stat value={metrics.stable} label="stabil (bewiesen)" accent />
+                  </div>
+                  <p className="mt-2 text-xs text-muted">
+                    {metrics.dueNow} jetzt fällig · Verständnis-Abdeckung{' '}
+                    {Math.round(metrics.coverage * 100)} %
+                  </p>
+                  {successRate !== null && (
+                    <p className="mt-1 text-xs text-faint">
+                      Flow-Band: {bandStatus(successRate)} ({Math.round(successRate * 100)} % zuletzt)
+                    </p>
+                  )}
+                  <div className="mt-3">
+                    <MemoryField states={stateList} />
+                  </div>
+                </section>
+
+                {loading && <p className="text-muted">Lädt…</p>}
+
+                {!loading && !error && (
+                  <button
+                    onClick={() => startSession()}
+                    className="btn-gold rise flex items-center justify-center gap-2 rounded-2xl py-4 text-base font-semibold text-ink"
+                    style={{ animationDelay: '0.08s' }}
+                  >
+                    <IconPlay className="h-4 w-4" />
+                    {metrics.dueNow > 0 ? `Weiterlernen · ${metrics.dueNow} fällig` : 'Weiterlernen'}
+                  </button>
+                )}
               </div>
-              <p className="mt-2 text-xs text-muted">
-                {metrics.dueNow} jetzt fällig · Verständnis-Abdeckung{' '}
-                {Math.round(metrics.coverage * 100)} %
-              </p>
-              {successRate !== null && (
-                <p className="mt-1 text-xs text-faint">
-                  Flow-Band: {bandStatus(successRate)} ({Math.round(successRate * 100)} % zuletzt)
-                </p>
+
+              {!loading && !error && categories.length > 0 && (
+                <CategoryOverview
+                  progress={catProgress}
+                  focusId={focusId}
+                  onOpen={(id) => setView({ name: 'category', id })}
+                  onClearFocus={() => setFocus(null)}
+                  enterDelay="0.13s"
+                />
               )}
-              <div className="mt-3">
-                <MemoryField states={stateList} />
-              </div>
-            </section>
-
-            {loading && <p className="text-muted">Lädt…</p>}
-
-            {!loading && !error && (
-              <button
-                onClick={() => startSession()}
-                className="btn-gold rise flex items-center justify-center gap-2 rounded-2xl py-4 text-base font-semibold text-ink"
-                style={{ animationDelay: '0.08s' }}
-              >
-                <IconPlay className="h-4 w-4" />
-                {metrics.dueNow > 0 ? `Weiterlernen · ${metrics.dueNow} fällig` : 'Weiterlernen'}
-              </button>
-            )}
-
-            {!loading && !error && categories.length > 0 && (
-              <CategoryOverview
-                progress={catProgress}
-                focusId={focusId}
-                onOpen={(id) => setView({ name: 'category', id })}
-                onClearFocus={() => setFocus(null)}
-                enterDelay="0.13s"
-              />
-            )}
+            </div>
 
             <div className="mt-auto pt-4">
               <InstallButton />
@@ -242,20 +247,22 @@ export default function App() {
 
         {/* ───────── THEMA-DETAIL (Drill-down) ───────── */}
         {view.name === 'category' && activeCategory && (
-          <CategoryDetail
-            category={activeCategory}
-            chunks={chunks}
-            states={states}
-            isFocus={focusId === activeCategory.id}
-            onToggleFocus={() => setFocus(focusId === activeCategory.id ? null : activeCategory.id)}
-            onBack={() => setView({ name: 'home' })}
-            onPractice={() => startSession(activeCategory.id)}
-          />
+          <div className="mx-auto w-full max-w-2xl">
+            <CategoryDetail
+              category={activeCategory}
+              chunks={chunks}
+              states={states}
+              isFocus={focusId === activeCategory.id}
+              onToggleFocus={() => setFocus(focusId === activeCategory.id ? null : activeCategory.id)}
+              onBack={() => setView({ name: 'home' })}
+              onPractice={() => startSession(activeCategory.id)}
+            />
+          </div>
         )}
 
         {/* ───────── LERN-SESSION (fokussiert) ───────── */}
         {view.name === 'session' && (
-          <div className="flex flex-col gap-4">
+          <div className="mx-auto flex w-full max-w-xl flex-col gap-4">
             <nav className="flex items-center justify-between gap-2 px-1">
               <button
                 onClick={() => setView({ name: 'home' })}

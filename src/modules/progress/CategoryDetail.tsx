@@ -73,8 +73,8 @@ export function CategoryDetail({
           {isFocus ? '★ Im Fokus für neuen Stoff' : 'Als Fokus für neuen Stoff'}
         </button>
 
-        {/* Die einzelnen Wendungen, sauber gegliedert */}
-        <ul className="mt-5 flex flex-col gap-2">
+        {/* Die einzelnen Wendungen, sauber gegliedert (breit: zwei Spalten). */}
+        <ul className="mt-5 grid grid-cols-1 gap-2 sm:grid-cols-2">
           {items.map((c) => {
             const st = statusOf(states[c.id]);
             return (
