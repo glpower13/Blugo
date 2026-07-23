@@ -152,6 +152,23 @@ npm run lint     # ESLint
 
 **Auf dem Handy installieren:** den Build über **HTTPS** servieren bzw. hosten, im mobilen Browser öffnen → „Zum Startbildschirm hinzufügen". Android/Chrome zeigt zusätzlich den In-App-Button „NEUROLANG installieren"; auf iOS: Teilen → „Zum Home-Bildschirm". Danach läuft NEUROLANG als eigenständige, offline-fähige App.
 
+### App live schalten (kostenlos, über GitHub Pages)
+
+Alles Technische ist schon vorbereitet: ein automatischer Ablauf (`.github/workflows/deploy.yml`)
+baut die App und veröffentlicht sie — er prüft vorher Lint + Tests, damit nie eine kaputte
+Version live geht. Es fehlen nur **zwei Klicks von dir** auf github.com:
+
+1. **Einmalig anschalten:** Im Repo auf **Settings → Pages** gehen, unter „Build and deployment"
+   bei **Source** „**GitHub Actions**" auswählen. (Nur dieses eine Mal nötig.)
+2. **Code auf `main` bringen:** Der Veröffentlichungs-Ablauf startet, sobald die Änderungen auf
+   dem Haupt-Zweig `main` liegen. Dafür wird der aktuelle Arbeits-Zweig per **Pull Request**
+   nach `main` zusammengeführt (sag Bescheid, dann lege ich den Pull Request an).
+
+Danach läuft der Ablauf automatisch und die App erscheint unter
+`https://<dein-name>.github.io/<repo>/` — den genauen Link zeigt GitHub nach dem ersten Lauf
+unter **Settings → Pages** und in der **Actions**-Übersicht. Diesen Link im Handy-Browser öffnen
+→ „Zum Startbildschirm hinzufügen", fertig.
+
 > Hinweis: Die mitgelieferten schwedischen Segmente sind ein **Platzhalter** zum Ausprobieren des Loops — noch **nicht** die geprüften M1-Inhalte (siehe `docs/08-content-pipeline.md`).
 
 ### Gebaut vs. konzipiert (Ehrlichkeit, kein Überzeichnen)
