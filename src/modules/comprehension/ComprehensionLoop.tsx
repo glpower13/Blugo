@@ -3,7 +3,7 @@
 // zieht nur so viel Hilfe, wie er braucht (Autonomie, docs/06-motivation.md).
 
 import { useEffect, useState } from 'react';
-import type { Chunk, ReviewResult, Segment } from '../../domain/chunk';
+import type { Chunk, DecodingToken, ReviewResult, Segment } from '../../domain/chunk';
 import { aiRegistry } from '../content/aiRegistry';
 import { gradeTyped } from './answerCheck';
 
@@ -27,6 +27,10 @@ export function ComprehensionLoop({ segment, chunk, stage, onResult }: Props) {
   const [helpUsed, setHelpUsed] = useState(false); // pulled a hint before answering?
   const [typed, setTyped] = useState(''); // production: the learner's typed answer
   const [autoGrade, setAutoGrade] = useState<ReviewResult | null>(null);
+  // On-demand KI-Dekodierung (nur bei aktivem Cloud-Anbieter).
+  const [aiTokens, setAiTokens] = useState<DecodingToken[] | null>(null);
+  const [aiState, setAiState] = useState<'idle' | 'loading' | 'error'>('idle');
+  const [aiError, setAiError] = useState('');
 
   // Reset helpers whenever a new item appears.
   useEffect(() => {
@@ -36,7 +40,27 @@ export function ComprehensionLoop({ segment, chunk, stage, onResult }: Props) {
     setHelpUsed(false);
     setTyped('');
     setAutoGrade(null);
+    setAiTokens(null);
+    setAiState('idle');
+    setAiError('');
   }, [segment.id, chunk.id]);
+
+  // Hat der Nutzer eine echte Cloud-KI eingerichtet? (Standard-Dekoder = 'seed'.)
+  const aiActive = aiRegistry.decoder.id !== 'seed';
+
+  async function fetchAiDecoding() {
+    setHelpUsed(true); // KI-Hilfe ist auch eine gezogene Krücke (Ehrlichkeit)
+    setAiState('loading');
+    setAiError('');
+    try {
+      const tokens = await aiRegistry.decoder.decode(segment.sv);
+      setAiTokens(tokens);
+      setAiState('idle');
+    } catch (e) {
+      setAiState('error');
+      setAiError(e instanceof Error ? e.message : 'KI-Dekodierung fehlgeschlagen.');
+    }
+  }
 
   return (
     <section className="rounded-2xl bg-surface p-5 shadow-lg">
@@ -90,6 +114,15 @@ export function ComprehensionLoop({ segment, chunk, stage, onResult }: Props) {
         >
           {showIdiomatic ? 'Übersetzung ausblenden' : 'Übersetzung'}
         </button>
+        {aiActive && (
+          <button
+            onClick={() => void fetchAiDecoding()}
+            disabled={aiState === 'loading'}
+            className="rounded-lg border border-brand/60 px-3 py-1.5 text-sm text-brand disabled:opacity-50"
+          >
+            {aiState === 'loading' ? 'KI übersetzt…' : '🤖 KI-Dekodierung'}
+          </button>
+        )}
       </div>
 
       {showDecoding && (
@@ -104,6 +137,22 @@ export function ComprehensionLoop({ segment, chunk, stage, onResult }: Props) {
       )}
 
       {showIdiomatic && <p className="mt-3 italic text-slate-300">{segment.de}</p>}
+
+      {aiState === 'error' && <p className="mt-3 text-xs text-rose-300">🤖 {aiError}</p>}
+
+      {aiTokens && (
+        <div className="mt-3">
+          <p className="mb-1 text-xs uppercase tracking-wide text-brand">Wort-für-Wort · per KI</p>
+          <div className="flex flex-wrap gap-x-4 gap-y-2">
+            {aiTokens.map((t, i) => (
+              <span key={i} className="inline-flex flex-col items-center">
+                <span lang="sv" className="text-slate-100">{t.sv}</span>
+                <span className="text-xs text-slate-400">{t.de}</span>
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* 3. Verständnis-Check für den Ziel-Chunk */}
       <div className="mt-6 border-t border-slate-700 pt-4">

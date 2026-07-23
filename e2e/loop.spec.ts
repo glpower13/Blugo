@@ -65,3 +65,29 @@ test('AI settings overlay opens, shows the login, and closes cleanly', async ({ 
   expect(consoleErrors, consoleErrors.join('\n')).toHaveLength(0);
   expect(pageErrors, pageErrors.join('\n')).toHaveLength(0);
 });
+
+// Stufe B: nach Einrichten eines Cloud-Anbieters erscheint der On-Demand-Knopf
+// "KI-Dekodierung" im Lern-Loop. Kein echter Aufruf (nicht geklickt), also kein Netz.
+test('AI decode button appears in the loop once a cloud provider is configured', async ({ page }) => {
+  const consoleErrors: string[] = [];
+  page.on('console', (m: ConsoleMessage) => {
+    if (m.type() === 'error') consoleErrors.push(m.text());
+  });
+
+  await page.goto('/');
+  await expect(page.getByText(/Verständnis-Abdeckung/)).toBeVisible();
+
+  // Standard (auf dem Gerät): kein KI-Knopf
+  await expect(page.getByRole('button', { name: /KI-Dekodierung/ })).toHaveCount(0);
+
+  // Cloud einrichten: Claude wählen, (Test-)Schlüssel eintragen, speichern
+  await page.getByRole('button', { name: 'KI-Einstellungen' }).click();
+  await page.getByText('Claude (Cloud)').click();
+  await page.getByPlaceholder('sk-ant-…').fill('sk-ant-test-000');
+  await page.getByRole('button', { name: 'Speichern' }).click();
+
+  // Jetzt ist der On-Demand-KI-Knopf im Loop sichtbar
+  await expect(page.getByRole('button', { name: /KI-Dekodierung/ })).toBeVisible();
+
+  expect(consoleErrors, consoleErrors.join('\n')).toHaveLength(0);
+});
