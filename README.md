@@ -186,6 +186,7 @@ Damit Doku und Realität nicht auseinanderdriften — was *heute Code* ist und w
 | Installierbare PWA, offline, lokale Daten | ✅ gebaut |
 | Adaptives Erfolgsband ~80–85 % (Neuzufuhr passt sich an) | ✅ gebaut (Session-Ebene; Intervall-Feintuning später) |
 | Echte Produktionserfassung (Tippen statt Selbstnote) | ✅ Tippen gebaut · Sprechen/ASR später |
+| Satz-Darstellung fürs beste Lernen — Zielsprache oben; Bedeutung bei NEUEM Chunk sofort offen, bei bekanntem eingeklappt (Abruf); Produktion als Lückentext ohne Spoiler | ✅ gebaut (`gremium-darstellung.md`) |
 | Formatives Feedback bei Tipp-Produktion (Abweichung zeigen + Hinweis + „Nochmal versuchen") | ✅ gebaut |
 | Optionale KI-Erklärung „🤖 Warum?" zum Tipp-Fehler (gekennzeichnet, opt-in) | ✅ gebaut (BYOK) |
 | Aussprache-Anleitung „🗣️" — deterministische Laut-Hinweise aus der Schreibung (on-device) | ✅ gebaut · ASR-Bewertung 🚧 post-M1 |

@@ -16,17 +16,40 @@ const GRADE_LABEL: Record<ReviewResult, string> = {
   good: 'Sitzt',
 };
 
+/**
+ * Blendet den Ziel-Chunk im schwedischen Satz aus (Lückentext für die Produktion,
+ * docs/gremium-darstellung.md): der Kontext bleibt, die Lösung nicht. Rein.
+ */
+export function clozeSentence(
+  sv: string,
+  target: string,
+): { found: boolean; before: string; after: string } {
+  const i = sv.toLowerCase().indexOf(target.trim().toLowerCase());
+  if (i === -1) return { found: false, before: '', after: '' };
+  return { found: true, before: sv.slice(0, i), after: sv.slice(i + target.trim().length) };
+}
+
 interface Props {
   segment: Segment;
   chunk: Chunk;
   stage: 'recognition' | 'production';
   onResult: (result: ReviewResult, helpUsed: boolean) => void;
   known?: KnownPhrase[]; // Wendungen, die der Lerner schon kann (für echtes i+1)
+  // Neuer Chunk? Dann Bedeutung/Dekodierung SOFORT zeigen (verständlicher Input,
+  // docs/gremium-darstellung.md). Bei bekanntem Chunk bleibt die Stütze zu (Abruf).
+  scaffoldOpen?: boolean;
 }
 
-export function ComprehensionLoop({ segment, chunk, stage, onResult, known }: Props) {
-  const [showDecoding, setShowDecoding] = useState(false);
-  const [showIdiomatic, setShowIdiomatic] = useState(false);
+export function ComprehensionLoop({
+  segment,
+  chunk,
+  stage,
+  onResult,
+  known,
+  scaffoldOpen = false,
+}: Props) {
+  const [showDecoding, setShowDecoding] = useState(scaffoldOpen);
+  const [showIdiomatic, setShowIdiomatic] = useState(scaffoldOpen);
   const [showPron, setShowPron] = useState(false); // Aussprache-Hinweise (on-device)
   const [revealed, setRevealed] = useState(false);
   const [helpUsed, setHelpUsed] = useState(false); // pulled a hint before answering?
@@ -48,10 +71,11 @@ export function ComprehensionLoop({ segment, chunk, stage, onResult, known }: Pr
   const [genState, setGenState] = useState<'idle' | 'loading' | 'error'>('idle');
   const [genError, setGenError] = useState('');
 
-  // Reset helpers whenever a new item appears.
+  // Reset helpers whenever a new item appears. Bei NEUEM Chunk ist die Stütze
+  // (Dekodierung + Übersetzung) sofort offen — damit der Input verständlich ist.
   useEffect(() => {
-    setShowDecoding(false);
-    setShowIdiomatic(false);
+    setShowDecoding(scaffoldOpen);
+    setShowIdiomatic(scaffoldOpen);
     setShowPron(false);
     setRevealed(false);
     setHelpUsed(false);
@@ -65,7 +89,7 @@ export function ComprehensionLoop({ segment, chunk, stage, onResult, known }: Pr
     setGenSegment(null);
     setGenState('idle');
     setGenError('');
-  }, [segment.id, chunk.id]);
+  }, [segment.id, chunk.id, scaffoldOpen]);
 
   // Hat der Nutzer eine echte Cloud-KI eingerichtet? (Standard-Dekoder = 'seed'.)
   const aiActive = aiRegistry.decoder.id !== 'seed';
@@ -140,6 +164,12 @@ export function ComprehensionLoop({ segment, chunk, stage, onResult, known }: Pr
     }
   }
 
+  // Volltext (Schwedisch) + Hilfen erst zeigen, wenn NICHT produziert wird oder
+  // schon aufgelöst ist. In der Produktion (Deutsch → Schwedisch) verrät der
+  // Volltext die Lösung — dort steht der Satz mit Lücke (docs/gremium-darstellung.md).
+  const showFull = stage !== 'production' || revealed;
+  const cloze = clozeSentence(segment.sv, chunk.sv);
+
   return (
     <section className="glass rounded-2xl p-5">
       <p className="mb-2 text-[0.68rem] font-medium uppercase tracking-[0.16em] text-faint">
@@ -148,13 +178,34 @@ export function ComprehensionLoop({ segment, chunk, stage, onResult, known }: Pr
 
       {/* 1. Verständliche Begegnung (der Hero-Moment) */}
       <div className="flex items-start justify-between gap-3">
-        <p
-          lang="sv"
-          className="font-display text-[1.9rem] font-semibold leading-[1.12] tracking-[-0.01em] text-paper"
-        >
-          {segment.sv}
-        </p>
-        {aiRegistry.synthesizer.isAvailable() && (
+        {showFull ? (
+          <p
+            lang="sv"
+            className="font-display text-[1.9rem] font-semibold leading-[1.12] tracking-[-0.01em] text-paper"
+          >
+            {segment.sv}
+          </p>
+        ) : cloze.found ? (
+          // Produktion: Satz mit Lücke an der Stelle des Ziel-Chunks (Kontext ohne Lösung).
+          <p
+            lang="sv"
+            className="font-display text-[1.9rem] font-semibold leading-[1.12] tracking-[-0.01em] text-paper"
+          >
+            {cloze.before}
+            <span
+              className="mx-1 inline-block min-w-[3.5rem] border-b-2 border-dashed border-brand/70 align-middle"
+              aria-label="Lücke"
+            >
+              &nbsp;
+            </span>
+            {cloze.after}
+          </p>
+        ) : (
+          <p className="font-display text-xl font-semibold leading-snug text-muted">
+            Bilde den Satz auf Schwedisch.
+          </p>
+        )}
+        {showFull && aiRegistry.synthesizer.isAvailable() && (
           <div className="flex shrink-0 gap-2">
             <button
               onClick={() => void aiRegistry.synthesizer.speak({ text: segment.sv })}
@@ -175,7 +226,10 @@ export function ComprehensionLoop({ segment, chunk, stage, onResult, known }: Pr
         )}
       </div>
 
-      {/* 2. Verständnishilfen (gestuft, abschaltbar) */}
+      {/* 2. Verständnishilfen — nur wenn der Volltext ohnehin sichtbar ist (sonst
+          würden Dekodierung/Übersetzung die Produktions-Lösung verraten). */}
+      {showFull && (
+      <>
       <div className="mt-4 flex flex-wrap gap-2">
         <button
           onClick={() => {
@@ -314,6 +368,8 @@ export function ComprehensionLoop({ segment, chunk, stage, onResult, known }: Pr
             </div>
           )}
         </div>
+      )}
+      </>
       )}
 
       {/* 3. Verständnis-Check für den Ziel-Chunk */}

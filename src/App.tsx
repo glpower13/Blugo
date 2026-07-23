@@ -149,6 +149,11 @@ export default function App() {
     () => (currentChunkId ? knownPhrases(chunks, states, currentChunkId) : []),
     [chunks, states, currentChunkId],
   );
+  // Neuer Chunk (noch kein erfolgreicher Abruf)? Dann die Bedeutung/Dekodierung
+  // sofort offen zeigen (verständlicher Input, docs/gremium-darstellung.md).
+  const scaffoldOpen = currentState
+    ? !currentState.history.some((h) => h.result === 'good')
+    : true;
 
   async function handleResult(result: ReviewResult, helpUsed: boolean) {
     if (submitting.current) return; // ignore rapid double-taps on the same item
@@ -303,6 +308,7 @@ export default function App() {
                 stage={currentState.stage}
                 onResult={handleResult}
                 known={known}
+                scaffoldOpen={scaffoldOpen}
               />
             ) : null}
 
