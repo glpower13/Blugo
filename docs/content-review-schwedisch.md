@@ -1,0 +1,78 @@
+# Content-Prüfliste — Schwedisch (Seed für M1)
+
+> **Zweck:** die aktuell im Code liegenden **Platzhalter-Segmente** von einer
+> schwedischsprachigen (oder gleichwertig qualifizierten) Person prüfen lassen,
+> bevor sie als geprüfter M1-Inhalt gelten (`docs/08-content-pipeline.md`, QS;
+> `docs/09-roadmap.md`, „~20 handgeprüfte Segmente").
+>
+> **Quelle:** `src/modules/content/seedSegments.ts`. Ändert sich der Code, hier
+> nachziehen (oder umgekehrt nach Freigabe).
+>
+> **So abhaken:** je Zeile `OK` eintragen **oder** die Korrektur notieren.
+> Erst wenn alles OK ist, im Code den Platzhalter-Hinweis entfernen und den
+> Roadmap-Punkt schließen.
+
+## Prüfkriterien (pro Eintrag)
+
+1. **Idiomatik:** Ist die schwedische Wendung natürlich und korrekt (nicht nur
+   grammatisch)? Sagt man das so?
+2. **Idiomatische DE-Übersetzung:** trifft sie die Bedeutung?
+3. **Wörtliche Dekodierung (Birkenbihl):** ist jede SV→DE-Glosse als
+   *strukturelle* Wort-für-Wort-Entsprechung vertretbar? (Bewusst unidiomatisch —
+   z. B. `mår → befindest` — aber nicht *falsch*.)
+4. **Niveau:** A1 / i+1 angemessen (kurz, hochfrequent, alltagsnah)?
+5. **Natürlichkeit im Kontext:** passt der Satz als echte Alltagsäußerung?
+6. **Keine False Friends / Fehlbetonung**, die den Lerner in die Irre führen.
+
+Legende: **✅ OK** · **✏️ Korrektur:** …
+
+---
+
+## A. Chunks (die Lerneinheit)
+
+| ID | SV | wörtliche Dekodierung | idiomatische DE | Urteil |
+|---|---|---|---|---|
+| c-hej | hur mår du? | hur=wie · mår=befindest · du=du | wie geht es dir? | ⬜ |
+| c-heter | jag heter | jag=ich · heter=heiße | ich heiße | ⬜ |
+| c-hjalpa | kan du hjälpa mig? | kan=kann · du=du · hjälpa=helfen · mig=mir | kannst du mir helfen? | ⬜ |
+| c-kostar | vad kostar det? | vad=was · kostar=kostet · det=das | was kostet das? | ⬜ |
+| c-forstar | jag förstår inte | jag=ich · förstår=verstehe · inte=nicht | ich verstehe nicht | ⬜ |
+| c-langsam | kan du prata långsammare? | kan=kann · du=du · prata=sprechen · långsammare=langsamer | kannst du langsamer sprechen? | ⬜ |
+
+## B. Segmente (Chunk im Kontext, je ≥ 2 Kontexte)
+
+| ID | SV | idiomatische DE | enthält Chunk(s) | Urteil |
+|---|---|---|---|---|
+| s-cafe | Hej! Hur mår du idag? | Hallo! Wie geht es dir heute? | c-hej | ⬜ |
+| s-morgon | God morgon! Hur mår du? | Guten Morgen! Wie geht es dir? | c-hej | ⬜ |
+| s-namn1 | Jag heter Anna. Vad heter du? | Ich heiße Anna. Wie heißt du? | c-heter | ⬜ |
+| s-namn2 | Hej, jag heter Erik. | Hallo, ich heiße Erik. | c-heter | ⬜ |
+| s-butik | Ursäkta, kan du hjälpa mig? Vad kostar det? | Entschuldigung, kannst du mir helfen? Was kostet das? | c-hjalpa, c-kostar | ⬜ |
+| s-hjalp2 | Kan du hjälpa mig, tack? | Kannst du mir helfen, bitte? | c-hjalpa | ⬜ |
+| s-pris2 | Ursäkta, vad kostar det? | Entschuldigung, was kostet das? | c-kostar | ⬜ |
+| s-forstar1 | Förlåt, jag förstår inte. | Verzeihung, ich verstehe nicht. | c-forstar | ⬜ |
+| s-forstar2 | Vänta, jag förstår inte riktigt. | Warte, ich verstehe nicht ganz. | c-forstar | ⬜ |
+| s-langsam1 | Kan du prata långsammare, tack? | Kannst du langsamer sprechen, bitte? | c-langsam | ⬜ |
+| s-langsam2 | Ursäkta, kan du prata långsammare? | Entschuldigung, kannst du langsamer sprechen? | c-langsam | ⬜ |
+
+---
+
+## Offene Fragen an die Prüfperson (bekannte Zweifelsfälle)
+
+- **`tack`** ist in `s-hjalp2`/`s-langsam1` mit „bitte" idiomatisch übersetzt
+  (Höflichkeitsfloskel), wörtlich aber „danke". Ist die idiomatische Wahl hier
+  richtig, oder besser „danke"?
+- **`mår` → „befindest"** als Glosse: vertretbar, oder verwirrend? Alternative
+  Glosse?
+- **`förlåt` vs. `ursäkta`** (beide „Entschuldigung/Verzeihung"): sind die
+  jeweiligen Kontexte natürlich gewählt?
+- Reicht die Zahl/Streuung für ein M1-Level, oder fehlen Alltagssituationen?
+  (Ziel laut Roadmap: ~20 geprüfte Segmente — aktuell 11.)
+
+## Nach der Freigabe (Checkliste)
+
+- [ ] Korrekturen in `src/modules/content/seedSegments.ts` eingepflegt.
+- [ ] Platzhalter-Warnhinweis im Dateikopf entfernt/entschärft.
+- [ ] Ggf. auf ~20 Segmente ergänzt (weitere Alltagssituationen).
+- [ ] `docs/09-roadmap.md`: M1-Punkt „~20 handgeprüfte Segmente" abhaken.
+- [ ] Kaskade erneut (A→C) grün; B angesehen.
