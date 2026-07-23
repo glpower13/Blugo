@@ -31,3 +31,5 @@ Ziel: den Lern-Loop an *einem echten Lerner* wirksam zeigen.
 
 ## Priorisierungsregel
 Was den *Erhalt* messbar verbessert, hat Vorrang. Alles, was nur Engagement erhöht, wird abgelehnt oder geparkt.
+
+> **Standortbestimmung & Reihenfolge nach vorn (2026-07-23):** `gremium-naechste-schritte.md`. Kernbotschaft: Der schnellste Weg zum Ziel führt über **Inhalt (Moat) + Beweis (Deploy)**, nicht über mehr Features. Premium-Design (edel, herausragend, nicht generisch) als **Nordstern jetzt**, volle Umsetzung **nach** der Substanz.
