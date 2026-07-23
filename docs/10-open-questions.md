@@ -9,9 +9,9 @@
 - Spacing (M1): einfacher eigener Scheduler (Intervall × Ease, Stufen-Promotion) — bewusst simpel.
 
 **Weiter offen:**
-- Welches LLM für Generierung + Dekodierung SV↔DE?
-- Welches schwedische TTS (Natürlichkeit, Tempo, Lizenz/Kosten)?
-- Reicht der einfache Scheduler, oder später eine SRS-Familie (FSRS/SM-2)? Evaluieren, sobald echte Nutzungsdaten vorliegen.
+- Welches LLM für Generierung + Dekodierung SV↔DE? *(Gremium-Empfehlung: hinter einer anbieter-agnostischen Port-Schicht bauen, ein erster Adapter zur Entscheidung — `gremium-weltklasse.md` §7.2.)*
+- Welches schwedische TTS (Natürlichkeit, Tempo, Lizenz/Kosten)? *(Gremium: on-device/open-source wie Piper/Kokoro vs. Cloud abwägen; Port-Schicht hält beides offen — `gremium-weltklasse.md` §7.3.)*
+- Reicht der einfache Scheduler, oder später eine SRS-Familie (FSRS/SM-2)? **Live-Recherche Juli 2026 (`gremium-weltklasse.md` §5–§6):** FSRS-6 (open source, MIT) erreicht gleiche Behaltensquote mit ~20–30 % weniger Wiederholungen als SM-2 (Effizienz aus Simulation, kein Schüler-RCT). **Gremium-Empfehlung:** FSRS als Behaltens-Kern übernehmen, eigene ehrliche Messung darüber behalten. → **Entscheidung 🧑 offen.**
 - Hosting/Deployment über HTTPS (nötig, damit PWA-Installation auf dem Handy greift).
 - SessionStart-Hook für Web-Sessions (`npm install` automatisch): bewusst (noch) **nicht** angelegt — Nutzerentscheidung.
 
