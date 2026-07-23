@@ -111,34 +111,36 @@ body::after {
 @layer components {
   /* Milchglas-Fläche (frosted). Der obere Innen-Glanz macht die „Glaskante". */
   .glass {
-    /* Poliertes Glas: durchscheinende Fläche + feiner Licht-Sheen von oben. */
-    background-color: rgba(255, 255, 255, 0.075);
+    /* Dunkel getöntes Milchglas (iOS „dark material"): heller Text bleibt klar
+       lesbar, der bunte Hintergrund schimmert gedämpft durch. Oben eine feine
+       Licht-Kante als Glaskante. */
+    background-color: rgba(13, 15, 24, 0.56);
     background-image: linear-gradient(
       177deg,
-      rgba(255, 255, 255, 0.12) 0%,
-      rgba(255, 255, 255, 0.02) 42%,
-      rgba(255, 255, 255, 0) 70%
+      rgba(255, 255, 255, 0.09) 0%,
+      rgba(255, 255, 255, 0.015) 38%,
+      rgba(255, 255, 255, 0) 68%
     );
-    -webkit-backdrop-filter: blur(32px) saturate(185%);
-    backdrop-filter: blur(32px) saturate(185%);
-    border: 1px solid rgba(255, 255, 255, 0.14);
+    -webkit-backdrop-filter: blur(32px) saturate(150%);
+    backdrop-filter: blur(32px) saturate(150%);
+    border: 1px solid rgba(255, 255, 255, 0.13);
     box-shadow:
-      0 26px 60px -26px rgba(0, 0, 0, 0.74),
-      0 2px 8px -4px rgba(0, 0, 0, 0.5),
-      inset 0 1px 0 0 rgba(255, 255, 255, 0.22),
-      inset 0 -1px 0 0 rgba(0, 0, 0, 0.12);
+      0 26px 60px -26px rgba(0, 0, 0, 0.78),
+      0 2px 8px -4px rgba(0, 0, 0, 0.55),
+      inset 0 1px 0 0 rgba(255, 255, 255, 0.2),
+      inset 0 -1px 0 0 rgba(0, 0, 0, 0.18);
   }
-  /* Leichtere Glas-Variante für innere Panels/Chips. */
+  /* Leichtere Glas-Variante für innere Panels/Chips (etwas heller = gehoben). */
   .glass-soft {
-    background-color: rgba(255, 255, 255, 0.05);
+    background-color: rgba(255, 255, 255, 0.07);
     background-image: linear-gradient(
       177deg,
       rgba(255, 255, 255, 0.08) 0%,
       rgba(255, 255, 255, 0) 60%
     );
-    -webkit-backdrop-filter: blur(16px) saturate(150%);
-    backdrop-filter: blur(16px) saturate(150%);
-    border: 1px solid rgba(255, 255, 255, 0.09);
+    -webkit-backdrop-filter: blur(10px) saturate(130%);
+    backdrop-filter: blur(10px) saturate(130%);
+    border: 1px solid rgba(255, 255, 255, 0.1);
     box-shadow: inset 0 1px 0 0 rgba(255, 255, 255, 0.12);
   }
   /* Sanftes Erscheinen (gestaffelt per style=animation-delay). */
