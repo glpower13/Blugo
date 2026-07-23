@@ -40,6 +40,10 @@ export function ComprehensionLoop({ segment, chunk, stage, onResult }: Props) {
   const [aiTokens, setAiTokens] = useState<DecodingToken[] | null>(null);
   const [aiState, setAiState] = useState<'idle' | 'loading' | 'error'>('idle');
   const [aiError, setAiError] = useState('');
+  // KI-Content-Generierung: neuer i+1-Kontext auf Wunsch (der Moat, opt-in).
+  const [genSegment, setGenSegment] = useState<Segment | null>(null);
+  const [genState, setGenState] = useState<'idle' | 'loading' | 'error'>('idle');
+  const [genError, setGenError] = useState('');
 
   // Reset helpers whenever a new item appears.
   useEffect(() => {
@@ -55,6 +59,9 @@ export function ComprehensionLoop({ segment, chunk, stage, onResult }: Props) {
     setAiTokens(null);
     setAiState('idle');
     setAiError('');
+    setGenSegment(null);
+    setGenState('idle');
+    setGenError('');
   }, [segment.id, chunk.id]);
 
   // Hat der Nutzer eine echte Cloud-KI eingerichtet? (Standard-Dekoder = 'seed'.)
@@ -73,6 +80,29 @@ export function ComprehensionLoop({ segment, chunk, stage, onResult }: Props) {
     } catch (e) {
       setAiState('error');
       setAiError(e instanceof Error ? e.message : 'KI-Dekodierung fehlgeschlagen.');
+    }
+  }
+
+  // Nutzt der Nutzer eine echte Cloud-KI, die Inhalte erzeugen kann? (Seed erzeugt nichts Neues.)
+  const canGenerate = aiRegistry.generator.id !== 'seed';
+
+  async function generateContext() {
+    setHelpUsed(true);
+    setGenState('loading');
+    setGenError('');
+    try {
+      const seg = await aiRegistry.generator.generate({
+        chunkId: chunk.id,
+        sv: chunk.sv,
+        de: chunk.de,
+        level: segment.level + 1,
+        avoidSegmentIds: [segment.id],
+      });
+      setGenSegment(seg);
+      setGenState('idle');
+    } catch (e) {
+      setGenState('error');
+      setGenError(e instanceof Error ? e.message : 'Erzeugung fehlgeschlagen.');
     }
   }
 
@@ -176,6 +206,15 @@ export function ComprehensionLoop({ segment, chunk, stage, onResult }: Props) {
             {aiState === 'loading' ? 'KI übersetzt…' : '🤖 KI-Dekodierung'}
           </button>
         )}
+        {canGenerate && (
+          <button
+            onClick={() => void generateContext()}
+            disabled={genState === 'loading'}
+            className="rounded-lg border border-brand/60 px-3 py-1.5 text-sm text-brand disabled:opacity-50"
+          >
+            {genState === 'loading' ? 'KI schreibt…' : '🤖 Neuer Kontext'}
+          </button>
+        )}
       </div>
 
       {showDecoding && (
@@ -219,6 +258,43 @@ export function ComprehensionLoop({ segment, chunk, stage, onResult }: Props) {
               </span>
             ))}
           </div>
+        </div>
+      )}
+
+      {genState === 'error' && <p className="mt-3 text-xs text-rose-300">🤖 {genError}</p>}
+
+      {/* Neuer, KI-erzeugter Kontext (Kontextvariation, i+1). Ehrlich als ungeprüft
+          gekennzeichnet — echtes Können, nicht Schein (die eine Design-Regel). */}
+      {genSegment && (
+        <div className="mt-4 rounded-xl border border-brand/40 bg-brand/5 p-4">
+          <p className="mb-2 text-xs uppercase tracking-wide text-brand">
+            Neuer Kontext · 🤖 KI-erzeugt · nicht geprüft
+          </p>
+          <div className="flex items-start justify-between gap-3">
+            <p lang="sv" className="text-lg font-medium text-slate-100">
+              {genSegment.sv}
+            </p>
+            {aiRegistry.synthesizer.isAvailable() && (
+              <button
+                onClick={() => void aiRegistry.synthesizer.speak({ text: genSegment.sv })}
+                className="shrink-0 rounded-full bg-brand/20 px-3 py-1.5 text-sm text-brand"
+                aria-label="Neuen Kontext vorlesen"
+              >
+                ▶︎ Hören
+              </button>
+            )}
+          </div>
+          <p className="mt-1 italic text-slate-300">{genSegment.de}</p>
+          {genSegment.decoding.length > 0 && (
+            <div className="mt-3 flex flex-wrap gap-x-4 gap-y-2">
+              {genSegment.decoding.map((t, i) => (
+                <span key={i} className="inline-flex flex-col items-center">
+                  <span lang="sv" className="text-slate-100">{t.sv}</span>
+                  <span className="text-xs text-slate-400">{t.de}</span>
+                </span>
+              ))}
+            </div>
+          )}
         </div>
       )}
 

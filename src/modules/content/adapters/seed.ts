@@ -13,12 +13,10 @@ export const seedGenerator: ContentGenerator = {
   id: 'seed',
   async generate(req: GenerateSegmentRequest): Promise<Segment> {
     const avoid = new Set(req.avoidSegmentIds ?? []);
-    const contains = (s: Segment): boolean =>
-      req.targetChunkIds.every((id) => s.chunkIds.includes(id));
-    const candidates = seedSegments.filter(contains);
+    const candidates = seedSegments.filter((s) => s.chunkIds.includes(req.chunkId));
     if (candidates.length === 0) {
       throw new Error(
-        `seedGenerator: kein Seed-Segment enthält [${req.targetChunkIds.join(', ')}] — ` +
+        `seedGenerator: kein Seed-Segment enthält „${req.chunkId}" — ` +
           'echte Generierung braucht einen Anbieter-Adapter (Schritt C).',
       );
     }

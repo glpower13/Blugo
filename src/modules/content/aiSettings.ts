@@ -5,8 +5,12 @@
 // (docs/05-architecture.md §Sicherheit; docs/10-open-questions.md).
 
 import { setAiPorts } from './aiRegistry';
-import { seedDecoder } from './adapters/seed';
-import { createAnthropicDecoder, createAnthropicExplainer } from './adapters/anthropic';
+import { seedDecoder, seedGenerator } from './adapters/seed';
+import {
+  createAnthropicDecoder,
+  createAnthropicExplainer,
+  createAnthropicGenerator,
+} from './adapters/anthropic';
 
 export type AiProvider = 'device' | 'anthropic';
 
@@ -88,10 +92,11 @@ export function applySettings(s: AiSettings): void {
     setAiPorts({
       decoder: createAnthropicDecoder(cfg),
       explainer: createAnthropicExplainer(cfg),
+      generator: createAnthropicGenerator(cfg),
     });
   } else {
-    // Zurück zum kostenlosen Standard-Dekoder (Seed); keine KI-Erklärung.
-    setAiPorts({ decoder: seedDecoder, explainer: null });
+    // Zurück zu den kostenlosen Standard-Adaptern (Seed); keine KI-Erklärung.
+    setAiPorts({ decoder: seedDecoder, explainer: null, generator: seedGenerator });
   }
 }
 

@@ -5,12 +5,17 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
   buildDecodeBody,
   buildExplainBody,
+  buildGenerateBody,
   createAnthropicDecoder,
   createAnthropicExplainer,
+  createAnthropicGenerator,
   extractText,
   friendlyError,
   parseDecoding,
+  parseSegment,
 } from './anthropic';
+
+const GEN_REQ = { chunkId: 'c-heter', sv: 'jag heter', de: 'ich heiße', level: 2 };
 
 afterEach(() => vi.unstubAllGlobals());
 
@@ -117,5 +122,46 @@ describe('anthropic — Explainer ("Warum?")', () => {
     vi.stubGlobal('fetch', vi.fn(async () => ({ ok: false, status: 401, json: async () => ({}) })));
     const ex = createAnthropicExplainer({ apiKey: 'bad', model: 'claude-opus-4-8' });
     await expect(ex.explain({ target: 'a', typed: 'b' })).rejects.toThrow(/401/);
+  });
+});
+
+describe('anthropic — Generator (der Moat)', () => {
+  it('buildGenerateBody enthält Ziel-Wendung + Bedeutung', () => {
+    const body = JSON.parse(buildGenerateBody(GEN_REQ, 'claude-opus-4-8'));
+    expect(body.model).toBe('claude-opus-4-8');
+    expect(body.messages[0].content).toContain('jag heter');
+    expect(body.messages[0].content).toContain('ich heiße');
+  });
+
+  it('parseSegment baut ein Segment mit sv/de/decoding und trägt die chunkId', () => {
+    const seg = parseSegment(
+      'Hier: {"sv":"Hej, jag heter Anna.","de":"Hallo, ich heiße Anna.","decoding":[{"sv":"jag","de":"ich"},{"sv":"heter","de":"heiße"}]}',
+      GEN_REQ,
+    );
+    expect(seg.sv).toBe('Hej, jag heter Anna.');
+    expect(seg.de).toBe('Hallo, ich heiße Anna.');
+    expect(seg.decoding).toHaveLength(2);
+    expect(seg.chunkIds).toEqual(['c-heter']);
+    expect(seg.id).toBe('ai:c-heter');
+  });
+
+  it('parseSegment wirft ohne schwedischen Satz', () => {
+    expect(() => parseSegment('{"de":"nur deutsch"}', GEN_REQ)).toThrow(/schwedischer Satz/i);
+  });
+
+  it('generate() liefert ein Segment bei Erfolg', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => ({
+        ok: true,
+        json: async () => ({
+          content: [{ type: 'text', text: '{"sv":"Jag heter Erik.","de":"Ich heiße Erik.","decoding":[]}' }],
+        }),
+      })),
+    );
+    const gen = createAnthropicGenerator({ apiKey: 'k', model: 'claude-opus-4-8' });
+    const seg = await gen.generate(GEN_REQ);
+    expect(seg.sv).toBe('Jag heter Erik.');
+    expect(seg.chunkIds).toEqual(['c-heter']);
   });
 });

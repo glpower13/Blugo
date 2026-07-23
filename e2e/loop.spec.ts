@@ -66,9 +66,10 @@ test('AI settings overlay opens, shows the login, and closes cleanly', async ({ 
   expect(pageErrors, pageErrors.join('\n')).toHaveLength(0);
 });
 
-// Stufe B: nach Einrichten eines Cloud-Anbieters erscheint der On-Demand-Knopf
-// "KI-Dekodierung" im Lern-Loop. Kein echter Aufruf (nicht geklickt), also kein Netz.
-test('AI decode button appears in the loop once a cloud provider is configured', async ({ page }) => {
+// Stufe B: nach Einrichten eines Cloud-Anbieters erscheinen die On-Demand-Knöpfe
+// "KI-Dekodierung" UND "Neuer Kontext" (der Moat) im Lern-Loop. Kein echter Aufruf
+// (nicht geklickt), also kein Netz.
+test('AI decode and generate buttons appear in the loop once a cloud provider is configured', async ({ page }) => {
   const consoleErrors: string[] = [];
   page.on('console', (m: ConsoleMessage) => {
     if (m.type() === 'error') consoleErrors.push(m.text());
@@ -77,8 +78,9 @@ test('AI decode button appears in the loop once a cloud provider is configured',
   await page.goto('/');
   await expect(page.getByText(/Verständnis-Abdeckung/)).toBeVisible();
 
-  // Standard (auf dem Gerät): kein KI-Knopf
+  // Standard (auf dem Gerät): keine KI-Knöpfe
   await expect(page.getByRole('button', { name: /KI-Dekodierung/ })).toHaveCount(0);
+  await expect(page.getByRole('button', { name: /Neuer Kontext/ })).toHaveCount(0);
 
   // Cloud einrichten: Claude wählen, (Test-)Schlüssel eintragen, speichern
   await page.getByRole('button', { name: 'KI-Einstellungen' }).click();
@@ -86,8 +88,9 @@ test('AI decode button appears in the loop once a cloud provider is configured',
   await page.getByPlaceholder('sk-ant-…').fill('sk-ant-test-000');
   await page.getByRole('button', { name: 'Speichern' }).click();
 
-  // Jetzt ist der On-Demand-KI-Knopf im Loop sichtbar
+  // Jetzt sind beide On-Demand-KI-Knöpfe im Loop sichtbar
   await expect(page.getByRole('button', { name: /KI-Dekodierung/ })).toBeVisible();
+  await expect(page.getByRole('button', { name: /Neuer Kontext/ })).toBeVisible();
 
   expect(consoleErrors, consoleErrors.join('\n')).toHaveLength(0);
 });

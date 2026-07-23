@@ -4,8 +4,14 @@
 // statt SDK, um die PWA schlank zu halten (ein einziger Endpunkt).
 // Sicherheits-/Datenschutz-Abwägung: docs/05-architecture.md §Sicherheit.
 
-import type { DecodingToken } from '../../../domain/chunk';
-import type { Decoder, ExplainRequest, Explainer } from '../ports';
+import type { DecodingToken, Segment } from '../../../domain/chunk';
+import type {
+  ContentGenerator,
+  Decoder,
+  ExplainRequest,
+  Explainer,
+  GenerateSegmentRequest,
+} from '../ports';
 
 const API_URL = 'https://api.anthropic.com/v1/messages';
 const API_VERSION = '2023-06-01';
@@ -42,29 +48,38 @@ export function extractText(json: unknown): string {
     .trim();
 }
 
-/** Parst die Wort-für-Wort-Dekodierung aus dem Modelltext (rein, tolerant). */
-export function parseDecoding(text: string): DecodingToken[] {
+/** Extrahiert das erste JSON-Objekt aus dem Modelltext (rein, tolerant). */
+function parseJsonLoose(text: string): Record<string, unknown> {
   const start = text.indexOf('{');
   const end = text.lastIndexOf('}');
   if (start === -1 || end === -1 || end < start) {
     throw new Error('Die Antwort enthielt kein lesbares Ergebnis.');
   }
-  let obj: unknown;
   try {
-    obj = JSON.parse(text.slice(start, end + 1));
+    return JSON.parse(text.slice(start, end + 1)) as Record<string, unknown>;
   } catch {
     throw new Error('Die Antwort war kein gültiges JSON.');
   }
-  const tokens = (obj as { tokens?: unknown })?.tokens;
-  if (!Array.isArray(tokens)) throw new Error('Die Antwort enthielt keine Wortpaare.');
-  const result: DecodingToken[] = [];
-  for (const t of tokens) {
-    const sv = (t as { sv?: unknown })?.sv;
-    const de = (t as { de?: unknown })?.de;
-    if (typeof sv === 'string' && typeof de === 'string') result.push({ sv, de });
+}
+
+/** Validiert eine Wort-für-Wort-Liste [{sv,de}] (rein). */
+function toDecodingTokens(value: unknown): DecodingToken[] {
+  const out: DecodingToken[] = [];
+  if (Array.isArray(value)) {
+    for (const t of value) {
+      const sv = (t as { sv?: unknown })?.sv;
+      const de = (t as { de?: unknown })?.de;
+      if (typeof sv === 'string' && typeof de === 'string') out.push({ sv, de });
+    }
   }
-  if (result.length === 0) throw new Error('Es kamen keine Wortpaare zurück.');
-  return result;
+  return out;
+}
+
+/** Parst die Wort-für-Wort-Dekodierung aus dem Modelltext (rein, tolerant). */
+export function parseDecoding(text: string): DecodingToken[] {
+  const tokens = toDecodingTokens(parseJsonLoose(text).tokens);
+  if (tokens.length === 0) throw new Error('Es kamen keine Wortpaare zurück.');
+  return tokens;
 }
 
 /** Übersetzt HTTP-Fehler in eine klare, nicht-technische Meldung (rein). */
@@ -150,6 +165,70 @@ export function createAnthropicDecoder(config: AnthropicConfig): Decoder {
       if (!res.ok) throw new Error(friendlyError(res.status));
       const json = (await res.json()) as unknown;
       return parseDecoding(extractText(json));
+    },
+  };
+}
+
+// --- Der Moat: KI-Content-Generierung (i+1-Segment on demand) -------------------
+
+const GENERATE_SYSTEM =
+  'Du bist Autor für verständlichen schwedischen Lern-Input (Comprehensible Input, Stufe i+1). ' +
+  'Erzeuge EINEN kurzen, natürlichen und KORREKTEN schwedischen Satz, der die vorgegebene Wendung ' +
+  'natürlich enthält; halte den Rest einfach und alltäglich. Antworte NUR als JSON ' +
+  '{"sv":"<satz>","de":"<idiomatische deutsche Übersetzung>","decoding":[{"sv":"<wort>","de":"<wörtlich>"}]} ' +
+  '— „decoding" ist die Wort-für-Wort-Übersetzung. Keine Erklärung, kein Markdown.';
+
+/** Baut den Request-Body für die Segment-Generierung (rein, testbar). */
+export function buildGenerateBody(req: GenerateSegmentRequest, model: string): string {
+  const user =
+    `Ziel-Wendung (muss vorkommen): „${req.sv}" (Bedeutung: „${req.de}"). ` +
+    'Baue sie in einen NEUEN, anderen Alltagssatz ein. Einfach halten (i+1).';
+  return JSON.stringify({
+    model,
+    max_tokens: 600,
+    system: GENERATE_SYSTEM,
+    messages: [{ role: 'user', content: user }],
+  });
+}
+
+/** Baut aus dem Modelltext ein Segment (rein, tolerant). */
+export function parseSegment(text: string, req: GenerateSegmentRequest): Segment {
+  const obj = parseJsonLoose(text);
+  const sv = typeof obj.sv === 'string' ? obj.sv.trim() : '';
+  const de = typeof obj.de === 'string' ? obj.de.trim() : '';
+  if (!sv) throw new Error('Es kam kein schwedischer Satz zurück.');
+  return {
+    id: 'ai:' + req.chunkId,
+    level: req.level,
+    sv,
+    de,
+    decoding: toDecodingTokens(obj.decoding),
+    chunkIds: [req.chunkId],
+  };
+}
+
+/** Erzeugt einen ContentGenerator-Adapter, der Claude nutzt (der Moat). */
+export function createAnthropicGenerator(config: AnthropicConfig): ContentGenerator {
+  return {
+    id: 'anthropic:' + config.model,
+    async generate(req: GenerateSegmentRequest): Promise<Segment> {
+      let res: Response;
+      try {
+        res = await fetch(API_URL, {
+          method: 'POST',
+          headers: {
+            'content-type': 'application/json',
+            'x-api-key': config.apiKey,
+            'anthropic-version': API_VERSION,
+            'anthropic-dangerous-direct-browser-access': 'true',
+          },
+          body: buildGenerateBody(req, config.model),
+        });
+      } catch {
+        throw new Error('Verbindung zum Anbieter fehlgeschlagen (Netzwerk).');
+      }
+      if (!res.ok) throw new Error(friendlyError(res.status));
+      return parseSegment(extractText((await res.json()) as unknown), req);
     },
   };
 }

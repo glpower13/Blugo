@@ -8,10 +8,11 @@
 
 import type { DecodingToken, Segment } from '../../domain/chunk';
 
-/** Anfrage: erzeuge ein verständliches i+1-Segment, das die Ziel-Chunks einbettet. */
+/** Anfrage: erzeuge ein verständliches i+1-Segment, das die Ziel-Wendung einbettet. */
 export interface GenerateSegmentRequest {
-  targetChunkIds: string[]; // diese Chunks sollen vorkommen (das „+1")
-  knownChunkIds?: string[]; // bekannte Chunks, die als Kontext wiederkehren dürfen (das „i")
+  chunkId: string; // Kennung des Ziel-Chunks (für ID/Zuordnung)
+  sv: string; // Ziel-Wendung (SV), die im Segment vorkommen soll (das „+1")
+  de: string; // ihre Bedeutung (DE) — ein Cloud-Modell kennt unsere IDs nicht
   level: number; // Zielstufe (i+1-Graduierung)
   avoidSegmentIds?: string[]; // schon gesehene Kontexte meiden (Kontextvariation)
 }

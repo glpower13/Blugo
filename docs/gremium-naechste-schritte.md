@@ -12,10 +12,10 @@ Wir haben ein **starkes Skelett** gebaut (Lern-Loop, ehrlicher Erinnerungs-Motor
 
 ## 1. Ehrlicher Standort
 
-**Steht (gebaut & geprüft):** Comprehension-Loop · FSRS-Erinnerungs-Motor · ehrliche Messung (aktiv/reift/bewiesen stabil) · adaptives Erfolgsband · installierbare PWA offline · **anbieter-agnostische KI-Ports** + nutzerseitige Auswahl/Login (BYOK) · KI-Dekodierung · Feedback 1–3a (Tipp-Abweichung, „🤖 Warum?", „🗣️ Aussprache").
+**Steht (gebaut & geprüft):** Comprehension-Loop · FSRS-Erinnerungs-Motor · ehrliche Messung (aktiv/reift/bewiesen stabil) · adaptives Erfolgsband · installierbare PWA offline · **anbieter-agnostische KI-Ports** + nutzerseitige Auswahl/Login (BYOK) · KI-Dekodierung · Feedback 1–3a (Tipp-Abweichung, „🤖 Warum?", „🗣️ Aussprache") · **erste Scheibe des Moats: KI erzeugt on demand einen neuen i+1-Kontext („🤖 Neuer Kontext", `08-content-pipeline.md`).**
 
 **Fehlt fundamental:**
-1. **Inhalt = Platzhalter.** ~11 handgeschriebene Seed-Chunks, **nicht** muttersprachlich geprüft, **nicht** KI-generiert. Der eigentliche **Moat (KI-Content-Pipeline)** ist noch nicht gebaut.
+1. **Inhalt = großteils Platzhalter.** ~11 handgeschriebene Seed-Chunks, **nicht** muttersprachlich geprüft. Die **erste Scheibe** der KI-Content-Fabrik läuft (on-demand-Generierung *eines* Kontexts, ehrlich als „nicht geprüft" gekennzeichnet), **aber** Grading/Leveling im Verhältnis und die **schwedische Muttersprache-QS** fehlen noch — der Moat ist angefangen, nicht fertig.
 2. **Kein Beweis.** Nicht live (kein Deploy), kein echter Lerner über Wochen → das M1-Erfolgskriterium (`09-roadmap.md`) ist ungetestet.
 3. **Design ist sauber, aber generisch** — funktional, nicht „edel/herausragend".
 
@@ -29,7 +29,7 @@ Lernwissenschaft · Content/Moat · **Design/Handwerk** · Architektur/Zukunft �
 ## 3. Was noch fehlt bis zum Ziel (gruppiert)
 
 - **A · Beweis (M1-Gate).** Live schalten (HTTPS/Deploy) → dann den Loop an *einem echten Lerner* über Wochen zeigen. **Billig, entsperrt alles, testet die Realität.**
-- **B · Der Moat: KI-Content-Pipeline.** LLM erzeugt i+1-Segmente on demand + Auto-Dekodierung + Grading + **schwedische Muttersprache-QS**. **Die Existenzberechtigung** — heute nur Platzhalter (`08-content-pipeline.md`).
+- **B · Der Moat: KI-Content-Pipeline.** *Erste Scheibe gebaut* (2026-07-23): LLM erzeugt on demand *einen* i+1-Satz + Auto-Dekodierung („🤖 Neuer Kontext"). **Es fehlt noch:** Grading/Leveling im gewünschten Chunk-Verhältnis, Vorrat/Batch statt nur on-demand, und **schwedische Muttersprache-QS**. **Die Existenzberechtigung** (`08-content-pipeline.md`).
 - **C · Aussprache-Bewertung (3b) & echte Sprech-Produktion (ASR).** Post-M1, Anbieter-Entscheidung, „keine Schein-Zahl" (`gremium-feedback.md` §6).
 - **D · Datenhoheit.** Export/Import der Lerndaten (kleiner Schritt, großes Vertrauen); offline steht bereits.
 - **E · Premium-Design.** Eigene, edle Handschrift (siehe §4). *Identität jetzt, volle Umsetzung nach der Substanz.*
@@ -57,7 +57,7 @@ Lernwissenschaft · Content/Moat · **Design/Handwerk** · Architektur/Zukunft �
 ## 5. Empfohlene Reihenfolge (ehrliche Priorität)
 
 1. **Live schalten (A)** — kleiner Schritt, macht den Beweis überhaupt möglich, du kannst es aufs Handy legen.
-2. **Moat starten (B)** — die KI-Content-Pipeline (erste Scheibe: Generierung *einer* i+1-Situation on demand, hinter dem Port) + schwedische QS. **Das bringt uns dem Ziel am nächsten.**
+2. **Moat weiterbauen (B)** — *erste Scheibe steht* (on-demand-Generierung *eines* i+1-Kontexts hinter dem Port). Als Nächstes: Grading/Leveling + schwedische QS. **Das bringt uns dem Ziel am nächsten.**
 3. **Design-Handschrift definieren (E, nur Identität)** — parallel, billig, als roter Faden.
 4. **Datenhoheit: Export/Import (D)** — kleiner Vertrauens-Gewinn, jederzeit einschiebbar.
 5. **Nach dem M1-Beweis:** Aussprache-Bewertung/ASR (C), volle Premium-Umsetzung (E), Reichweite (F).

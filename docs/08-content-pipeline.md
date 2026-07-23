@@ -19,7 +19,7 @@ die Pipeline an genormten **Ports** (Fähigkeits-Interfaces), nicht an Produkten
 
 | Port | Fähigkeit | Standard-Adapter heute | Anbieter-Adapter (Schritt C) |
 |---|---|---|---|
-| `ContentGenerator` | i+1-Segment on demand erzeugen (der Moat) | `seed` (bedient Seed-Kontexte) | LLM |
+| `ContentGenerator` | i+1-Segment on demand erzeugen (der Moat) | `seed` (bedient Seed-Kontexte) | ✅ Claude (`adapters/anthropic.ts`, BYOK) · weitere LLM |
 | `Decoder` | interlineare Dekodierung SV→DE | `seed` (kennt nur Seed) | ✅ Claude (`adapters/anthropic.ts`, BYOK) · weitere LLM |
 | `Explainer` | Tipp-Fehler freundlich erklären („Warum?") | — (nur mit Cloud) | ✅ Claude (BYOK) |
 | `SpeechSynthesizer` | Schwedisch vorlesen (TTS) | `web-speech` (on-device, zuverlässige sv-Stimme + Langsam) | natürliches TTS |
@@ -35,6 +35,22 @@ nicht (Fehler statt Halluzination).
 > **Sicherheit ab Schritt C:** Sobald ein echter Adapter Nutzertext an einen Dritten
 > schickt, greift `05-architecture.md` §Sicherheit (API-Keys server-seitig, nie im
 > Client; Rate-Limits; Consent/Datenschutz).
+
+## Erste Scheibe der KI-Content-Fabrik *(gebaut 2026-07-23)*
+
+Hinter dem `ContentGenerator`-Port steht jetzt der **Claude-Adapter** (BYOK,
+`createAnthropicGenerator`). Im Lern-Loop erscheint bei aktivem Cloud-Anbieter der
+Knopf **„🤖 Neuer Kontext"**: die KI schreibt on demand **einen** neuen, natürlichen
+i+1-Satz, der die Ziel-Wendung in *anderem* Alltagskontext einbettet (Kontextvariation,
+Schritt 4 des Loops), samt Wort-für-Wort-Dekodierung und Vorlese-Knopf.
+
+- **Opt-in & kostenbewusst:** nur auf Klick, nur mit eingerichtetem eigenen Schlüssel.
+- **Ehrlich gekennzeichnet:** die Karte trägt sichtbar „Neuer Kontext · 🤖 KI-erzeugt ·
+  nicht geprüft". Kein Fortschrittssignal koppelt daran (die eine Design-Regel) — es ist
+  zusätzlicher verständlicher Input, kein bewertetes Können.
+- **Warum das der Moat ist:** unbegrenzter, passgenauer Input statt endlicher Content-Bibliothek
+  (siehe „Warum zwingend" oben). Das Grading/Leveling (Anteil bekannter vs. neuer Chunks) und
+  die menschliche Stichprobe bleiben die nächsten Ausbaustufen.
 
 ## Risiken / offene Punkte
 - Faktentreue & Natürlichkeit generierter Sätze → menschliche Stichprobe.

@@ -37,24 +37,22 @@ describe('aiRegistry — Ports & Adapters', () => {
 });
 
 describe('seedGenerator — bedient Seed-Kontexte (Kontextvariation)', () => {
+  const hej = { chunkId: 'c-hej', sv: 'hur mår du?', de: 'wie geht es dir?', level: 1 };
+
   it('liefert ein Segment, das den Ziel-Chunk enthält', async () => {
-    const seg = await seedGenerator.generate({ targetChunkIds: ['c-hej'], level: 1 });
+    const seg = await seedGenerator.generate(hej);
     expect(seg.chunkIds).toContain('c-hej');
   });
 
   it('bevorzugt einen noch ungesehenen Kontext', async () => {
-    const first = await seedGenerator.generate({ targetChunkIds: ['c-hej'], level: 1 });
-    const second = await seedGenerator.generate({
-      targetChunkIds: ['c-hej'],
-      level: 1,
-      avoidSegmentIds: [first.id],
-    });
+    const first = await seedGenerator.generate(hej);
+    const second = await seedGenerator.generate({ ...hej, avoidSegmentIds: [first.id] });
     expect(second.id).not.toBe(first.id);
   });
 
   it('ist ehrlich: unbekannter Chunk → Fehler statt erfundenem Inhalt', async () => {
     await expect(
-      seedGenerator.generate({ targetChunkIds: ['gibt-es-nicht'], level: 1 }),
+      seedGenerator.generate({ chunkId: 'gibt-es-nicht', sv: 'x', de: 'y', level: 1 }),
     ).rejects.toThrow(/Anbieter-Adapter/);
   });
 });

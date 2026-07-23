@@ -173,7 +173,7 @@ Damit Doku und Realität nicht auseinanderdriften — was *heute Code* ist und w
 | KI-Port-Schicht (anbieter-agnostisch) + nutzerseitige KI-Auswahl & Login | ✅ gebaut (⚙️-Einstellungen, Claude-Adapter per BYOK, On-demand-KI-Dekodierung im Loop) |
 | On-device-Sprachausgabe (Web-Speech, zuverlässige sv-Stimme + Langsam-Option) | ✅ gebaut |
 | Natürlicheres schwedisches TTS (neuronal/Cloud) + Audio-QS | 🚧 konzipiert (Entscheidung offen) |
-| KI-Content-Pipeline (der Moat) | 🚧 konzipiert (nach M1) |
+| KI-Content-Pipeline (der Moat) — erste Scheibe: „🤖 Neuer Kontext" erzeugt on demand einen neuen i+1-Satz (gekennzeichnet „nicht geprüft", opt-in, BYOK) | ✅ erste Scheibe gebaut · Grading + schwedische QS 🚧 |
 
 Priorisierte Umsetzung: `docs/gremium-review-M1.md` (Maßnahmenkatalog).
 
