@@ -8,6 +8,26 @@ Erste Sprache: **Deutsch → Schwedisch.** Zielnutzer: erwachsene Selbstlerner, 
 
 ---
 
+## In einfachen Worten (ohne Technik-Kauderwelsch)
+
+*Dieser Abschnitt erklärt das Projekt in Alltagssprache — für alle, die nicht aus der IT kommen.*
+
+**Was ist NEUROLANG?**
+Eine App zum Schwedisch-Lernen. Der Unterschied zu Duolingo & Co.: Die meisten Apps helfen dir, etwas *neu* zu lernen — aber nach ein paar Wochen ohne Übung ist das meiste wieder weg. NEUROLANG ist so gebaut, dass du das Gelernte **dauerhaft behältst**. Die App fragt dich immer genau dann wieder ab, kurz bevor du etwas vergessen würdest.
+
+**Wie weit sind wir? — Stell dir vor, wir bauen ein Haus:**
+- ✅ **Das Haus steht.** Die App funktioniert bereits: Man kann damit lernen, sie merkt sich den Fortschritt und lässt sich wie eine echte App aufs Handy legen. Ich habe alles selbst durchgetestet — es läuft fehlerfrei.
+- 🚧 **Die Einrichtung fehlt noch.** Die schwedischen Beispielsätze in der App sind bisher nur ein Platzhalter zum Ausprobieren. Bevor echte Leute damit lernen, sollte jemand mit Schwedisch als Muttersprache die Sätze einmal durchsehen.
+
+**Die nächsten Schritte — ganz einfach erklärt:**
+1. **Ins Internet stellen** — damit du die App im Browser öffnen und aufs Handy legen kannst. Das kann ich vorbereiten; danach müssen nur noch ein paar Einstellungen bei GitHub angeklickt werden.
+2. **Schwedisch prüfen lassen** — eine schwedischsprachige Person schaut die Sätze einmal durch. Eine fertige Checkliste dafür liegt schon bereit.
+3. **Wirklich ausprobieren** — ein paar Wochen damit lernen und schauen, ob wirklich mehr hängen bleibt als bei anderen Apps.
+
+**Am einfachsten ausprobieren** kannst du die App, sobald Schritt 1 erledigt ist: Dann reicht ein Link im Handy-Browser — ganz ohne Technik-Wissen.
+
+---
+
 ## 1. Das Problem (der ehrliche Kern)
 
 Jede große Sprachlern-App optimiert *Erwerb* — Lektionen abschließen, Vokabeln „durchnehmen", Streaks halten. Keine optimiert *Erhalt*.
