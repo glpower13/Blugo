@@ -6,6 +6,7 @@ import { initialState, schedule } from './modules/memory/memoryEngine';
 import { bandStatus, recentSuccessRate, recommendedNewCount } from './modules/memory/difficulty';
 import { buildQueue, pickSegmentForChunk, type NewFocus } from './session/buildQueue';
 import { loadFocus, saveFocus } from './session/focus';
+import { knownPhrases } from './session/knownChunks';
 import { ComprehensionLoop } from './modules/comprehension/ComprehensionLoop';
 import { MemoryField } from './modules/progress/MemoryField';
 import { CategoryOverview } from './modules/progress/CategoryOverview';
@@ -109,6 +110,11 @@ export default function App() {
     currentChunk && currentState
       ? pickSegmentForChunk(currentChunk, currentState, segments)
       : undefined;
+  // Was der Lerner schon kann — Grundlage für echtes i+1 bei der KI-Generierung.
+  const known = useMemo(
+    () => (currentChunkId ? knownPhrases(chunks, states, currentChunkId) : []),
+    [chunks, states, currentChunkId],
+  );
 
   async function handleResult(result: ReviewResult, helpUsed: boolean) {
     if (submitting.current) return; // ignore rapid double-taps on the same item
@@ -190,6 +196,7 @@ export default function App() {
           chunk={currentChunk}
           stage={currentState.stage}
           onResult={handleResult}
+          known={known}
         />
       ) : null}
 

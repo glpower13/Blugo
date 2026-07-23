@@ -5,6 +5,7 @@
 import { useEffect, useState } from 'react';
 import type { Chunk, DecodingToken, ReviewResult, Segment } from '../../domain/chunk';
 import { aiRegistry } from '../content/aiRegistry';
+import type { KnownPhrase } from '../content/ports';
 import { analyzeAnswer, type AnswerAnalysis } from './answerCheck';
 import { pronunciationTips } from './pronunciation';
 
@@ -19,9 +20,10 @@ interface Props {
   chunk: Chunk;
   stage: 'recognition' | 'production';
   onResult: (result: ReviewResult, helpUsed: boolean) => void;
+  known?: KnownPhrase[]; // Wendungen, die der Lerner schon kann (für echtes i+1)
 }
 
-export function ComprehensionLoop({ segment, chunk, stage, onResult }: Props) {
+export function ComprehensionLoop({ segment, chunk, stage, onResult, known }: Props) {
   const [showDecoding, setShowDecoding] = useState(false);
   const [showIdiomatic, setShowIdiomatic] = useState(false);
   const [showPron, setShowPron] = useState(false); // Aussprache-Hinweise (on-device)
@@ -97,6 +99,7 @@ export function ComprehensionLoop({ segment, chunk, stage, onResult }: Props) {
         de: chunk.de,
         level: segment.level + 1,
         avoidSegmentIds: [segment.id],
+        known, // aus schon bekannten Wörtern bauen → nur die Ziel-Wendung ist neu
       });
       setGenSegment(seg);
       setGenState('idle');

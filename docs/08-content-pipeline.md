@@ -49,8 +49,20 @@ Schritt 4 des Loops), samt Wort-für-Wort-Dekodierung und Vorlese-Knopf.
   nicht geprüft". Kein Fortschrittssignal koppelt daran (die eine Design-Regel) — es ist
   zusätzlicher verständlicher Input, kein bewertetes Können.
 - **Warum das der Moat ist:** unbegrenzter, passgenauer Input statt endlicher Content-Bibliothek
-  (siehe „Warum zwingend" oben). Das Grading/Leveling (Anteil bekannter vs. neuer Chunks) und
-  die menschliche Stichprobe bleiben die nächsten Ausbaustufen.
+  (siehe „Warum zwingend" oben). Die menschliche Stichprobe (schwedische Muttersprache-QS) bleibt
+  die nächste Ausbaustufe.
+
+### Echtes i+1: aus Bekanntem bauen *(gebaut 2026-07-23)*
+
+Der Generator bekommt jetzt die Wendungen mit, die der Lerner **schon kann**
+(`GenerateSegmentRequest.known`, abgeleitet in `session/knownChunks.ts` aus den
+begegneten Chunks). Der Prompt weist die KI an, den neuen Satz **möglichst aus diesen
+bekannten Wörtern** zu bauen und außer der Ziel-Wendung **nichts anderes Neues**
+einzuführen — das ist die Kern-Bedingung für verständlichen Input (nur *ein* neues
+Element pro Begegnung, `03-method.md`). Das ist die erste Stufe des Gradings; das feine
+Leveling (gewünschtes Verhältnis bekannter vs. neuer Chunks, Vorrat/Batch) folgt.
+Ehrlich: „bekannt" heißt hier *begegnet* (Verständlichkeit), es ist **kein**
+Fortschritts-Anspruch — das ehrliche „stabil" bleibt in `07-measurement.md`.
 
 ## Thematisches Rückgrat: Kategorien *(gebaut 2026-07-23)*
 

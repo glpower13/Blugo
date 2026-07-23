@@ -8,6 +8,12 @@
 
 import type { DecodingToken, Segment } from '../../domain/chunk';
 
+/** Eine Wendung, die der Lerner schon kann (bekannter Grund für echtes i+1). */
+export interface KnownPhrase {
+  sv: string;
+  de: string;
+}
+
 /** Anfrage: erzeuge ein verständliches i+1-Segment, das die Ziel-Wendung einbettet. */
 export interface GenerateSegmentRequest {
   chunkId: string; // Kennung des Ziel-Chunks (für ID/Zuordnung)
@@ -15,6 +21,10 @@ export interface GenerateSegmentRequest {
   de: string; // ihre Bedeutung (DE) — ein Cloud-Modell kennt unsere IDs nicht
   level: number; // Zielstufe (i+1-Graduierung)
   avoidSegmentIds?: string[]; // schon gesehene Kontexte meiden (Kontextvariation)
+  // Wendungen, die der Lerner schon beherrscht: der Satz soll MÖGLICHST daraus
+  // gebaut werden, sodass NUR die Ziel-Wendung neu ist — das ist echtes i+1
+  // (verständlicher Input, docs/03-method.md; docs/08-content-pipeline.md).
+  known?: KnownPhrase[];
 }
 
 /** Erzeugt verständlichen Input on demand — die LLM-Fähigkeit (der Moat). */

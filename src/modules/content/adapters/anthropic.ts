@@ -174,15 +174,23 @@ export function createAnthropicDecoder(config: AnthropicConfig): Decoder {
 const GENERATE_SYSTEM =
   'Du bist Autor für verständlichen schwedischen Lern-Input (Comprehensible Input, Stufe i+1). ' +
   'Erzeuge EINEN kurzen, natürlichen und KORREKTEN schwedischen Satz, der die vorgegebene Wendung ' +
-  'natürlich enthält; halte den Rest einfach und alltäglich. Antworte NUR als JSON ' +
+  'natürlich enthält. WICHTIG (i+1): Baue den Rest des Satzes so weit wie möglich aus den als ' +
+  'BEKANNT gelisteten Wörtern; führe außer der Ziel-Wendung möglichst NICHTS Neues ein. Gibt es ' +
+  'keine bekannten Wörter, halte den Rest maximal einfach und alltäglich. Antworte NUR als JSON ' +
   '{"sv":"<satz>","de":"<idiomatische deutsche Übersetzung>","decoding":[{"sv":"<wort>","de":"<wörtlich>"}]} ' +
   '— „decoding" ist die Wort-für-Wort-Übersetzung. Keine Erklärung, kein Markdown.';
 
 /** Baut den Request-Body für die Segment-Generierung (rein, testbar). */
 export function buildGenerateBody(req: GenerateSegmentRequest, model: string): string {
+  const known = (req.known ?? []).map((k) => k.sv).filter(Boolean);
+  const knownLine =
+    known.length > 0
+      ? `\nSchon bekannt (daraus bauen, nichts anderes Neues): ${known.join(', ')}.`
+      : '\n(Noch keine bekannten Wörter — den Rest maximal einfach halten.)';
   const user =
-    `Ziel-Wendung (muss vorkommen): „${req.sv}" (Bedeutung: „${req.de}"). ` +
-    'Baue sie in einen NEUEN, anderen Alltagssatz ein. Einfach halten (i+1).';
+    `Ziel-Wendung (muss vorkommen, ist das EINZIGE Neue): „${req.sv}" (Bedeutung: „${req.de}").` +
+    knownLine +
+    '\nBaue sie in einen NEUEN, anderen Alltagssatz ein (i+1).';
   return JSON.stringify({
     model,
     max_tokens: 600,

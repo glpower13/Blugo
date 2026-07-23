@@ -133,6 +133,25 @@ describe('anthropic — Generator (der Moat)', () => {
     expect(body.messages[0].content).toContain('ich heiße');
   });
 
+  it('buildGenerateBody listet bekannte Wörter für echtes i+1', () => {
+    const body = JSON.parse(
+      buildGenerateBody(
+        { ...GEN_REQ, known: [{ sv: 'tack', de: 'danke' }, { sv: 'hej', de: 'hallo' }] },
+        'claude-opus-4-8',
+      ),
+    );
+    const content = body.messages[0].content as string;
+    expect(content).toContain('tack');
+    expect(content).toContain('hej');
+    expect(content).toMatch(/bekannt/i); // weist die KI an, daraus zu bauen
+  });
+
+  it('buildGenerateBody ohne bekannte Wörter → Hinweis „maximal einfach"', () => {
+    const content = JSON.parse(buildGenerateBody(GEN_REQ, 'claude-opus-4-8')).messages[0]
+      .content as string;
+    expect(content).toMatch(/einfach/i);
+  });
+
   it('parseSegment baut ein Segment mit sv/de/decoding und trägt die chunkId', () => {
     const seg = parseSegment(
       'Hier: {"sv":"Hej, jag heter Anna.","de":"Hallo, ich heiße Anna.","decoding":[{"sv":"jag","de":"ich"},{"sv":"heter","de":"heiße"}]}',
