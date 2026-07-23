@@ -78,6 +78,9 @@ export default function App() {
           <Stat value={metrics.stable} label="stabil (≥90 T.)" accent />
           <Stat value={metrics.dueNow} label="jetzt fällig" />
         </div>
+        <p className="mt-2 text-xs text-slate-400">
+          Verständnis-Abdeckung: {Math.round(metrics.coverage * 100)} %
+        </p>
         <div className="mt-3">
           <MemoryField states={stateList} />
         </div>

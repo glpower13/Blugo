@@ -10,16 +10,25 @@ export interface QueueItem {
   segment: Segment;
 }
 
-/** Ordered chunkIds for this session: overdue first, brand-new last. */
-export function buildQueue(states: ChunkState[], now: number = Date.now()): string[] {
-  return getDue(states, now)
-    .sort((a, b) => {
-      const aNew = a.lastReviewedAt === null ? 1 : 0;
-      const bNew = b.lastReviewedAt === null ? 1 : 0;
-      if (aNew !== bNew) return aNew - bNew; // reviewed (maintenance) before new
-      return a.dueAt - b.dueAt;
-    })
-    .map((s) => s.chunkId);
+/** Daily dosing of NEW chunks (docs/04-product.md: "1–3 neue Chunks"). */
+export const MAX_NEW_PER_SESSION = 3;
+
+/**
+ * Ordered chunkIds for a session: due maintenance/learning first ("Wartung
+ * zuerst"), then at most `maxNew` brand-new chunks. Maintenance is never
+ * capped — forgetting waits for no one; only the intake of new material is.
+ */
+export function buildQueue(
+  states: ChunkState[],
+  now: number = Date.now(),
+  maxNew: number = MAX_NEW_PER_SESSION,
+): string[] {
+  const due = getDue(states, now);
+  const reviewed = due
+    .filter((s) => s.lastReviewedAt !== null)
+    .sort((a, b) => a.dueAt - b.dueAt);
+  const fresh = due.filter((s) => s.lastReviewedAt === null).slice(0, maxNew);
+  return [...reviewed, ...fresh].map((s) => s.chunkId);
 }
 
 /** Choose a context segment for a chunk, favouring an unseen one. */
