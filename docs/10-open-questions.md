@@ -2,11 +2,18 @@
 
 > Regel: hier sammeln, nicht still selbst entscheiden. Jede Entscheidung mit Datum + Begründung dokumentieren, wenn getroffen.
 
-## Technik (vertagt bis M1, per Live-Recherche)
+## Technik
+
+**Entschieden bei Build-Start (M1) — Begründung in `05-architecture.md`:**
+- Frontend-Stack: Vite + React + TypeScript + Tailwind, PWA via `vite-plugin-pwa`. Speicherung lokal (IndexedDB), kein Backend.
+- Spacing (M1): einfacher eigener Scheduler (Intervall × Ease, Stufen-Promotion) — bewusst simpel.
+
+**Weiter offen:**
 - Welches LLM für Generierung + Dekodierung SV↔DE?
 - Welches schwedische TTS (Natürlichkeit, Tempo, Lizenz/Kosten)?
-- Welcher Spacing-Algorithmus konkret (moderne SRS-Familie)?
-- Frontend-Stack? (schlank, Web zuerst)
+- Reicht der einfache Scheduler, oder später eine SRS-Familie (FSRS/SM-2)? Evaluieren, sobald echte Nutzungsdaten vorliegen.
+- Hosting/Deployment über HTTPS (nötig, damit PWA-Installation auf dem Handy greift).
+- SessionStart-Hook für Web-Sessions (`npm install` automatisch): bewusst (noch) **nicht** angelegt — Nutzerentscheidung.
 
 ## Produkt / Methode
 - Wie genau werden Chunks segmentiert und geleveled (i+1 operationalisieren)?

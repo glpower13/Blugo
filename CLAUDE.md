@@ -13,14 +13,13 @@ Eine Sprachlern-App (Deutsch → Schwedisch), deren Produkt **langfristiger Erha
 **Jede Belohnung, jede Zahl, jeder Fortschrittsindikator muss ein *wahres* Signal echten, überprüften Lernfortschritts sein.**
 Sobald ein Indikator vom echten Können abkoppelt (z. B. Punkte fürs bloße Erscheinen), optimiert der Nutzer den Indikator statt die Sprache — Goodharts Gesetz. Wenn du unsicher bist, ob ein Feature diese Regel verletzt, baue es nicht und notiere die Frage in `docs/10-open-questions.md`.
 
-## Aktueller Meilenstein: M0 — nur Doku
+## Aktueller Meilenstein: M1 — schlankes MVP
 
-**In dieser Phase wird KEIN Anwendungscode geschrieben.** Deine Aufgaben:
-- Die Dokumente in `/docs` schärfen, vervollständigen und konsistent halten.
-- Jede fachliche Aussage in `docs/02-science.md` nach Evidenzstärke kennzeichnen: **Fels / stark / schwach / widerlegt.** Fehlt Evidenz, kennzeichne das ausdrücklich — nichts beschönigen.
+M0 (Konzept & Doku) ist abgenommen. Jetzt entsteht **lauffähiger Code**: ein Lern-Loop, ein Level, eine installierbare PWA. Umfang strikt nach `docs/09-roadmap.md`. Deine Aufgaben:
+- Doku und Code **konsistent** halten: ändert sich das Konzept, wandert es in `/docs`; ändert sich Technik, wird die Entscheidung in `docs/05-architecture.md` begründet.
+- App-Code liegt unter `src/` in vier Modulen (content, comprehension, memory, progress). Nur bauen, was der M1-Scope trägt — kein Vorrat.
+- Jede fachliche Aussage in `docs/02-science.md` trägt eine Evidenzstufe: **Fels / stark / schwach / widerlegt.** Nichts beschönigen.
 - Offene Entscheidungen in `docs/10-open-questions.md` sammeln, nicht still selbst entscheiden.
-
-Erst wenn M0 abgenommen ist, beginnt M1 (schlankes MVP, siehe `docs/09-roadmap.md`).
 
 ## Umfangsdisziplin (gegen Scope-Creep)
 
@@ -58,11 +57,13 @@ Vera F. Birkenbihls Dekodieren (wörtliche interlineare Übersetzung → Struktu
 - **Zielsprachpaar:** Deutsch → Schwedisch (Architektur aber so halten, dass weitere Paare später möglich sind).
 - **Chunk** ist die zentrale Dateneinheit — nicht „Wort", nicht „Lektion".
 
-## Technikentscheidungen — bewusst vertagt
+## Technikentscheidungen
 
-Konkrete Modelle (schwedisches TTS/ASR, LLM für Generierung & Dekodierung), Framework und Stack werden **erst bei Build-Start (M1) und per aktueller Recherche** festgelegt — nicht jetzt aus dem Gedächtnis, weil dieser Bereich schnell veraltet. Bis dahin bleiben sie in `docs/05-architecture.md` als Anforderungen (was das Modell können muss), nicht als Produktnamen.
+Bei Build-Start (M1, jetzt) und **per aktueller Recherche** getroffen — nicht aus dem Gedächtnis, weil dieser Bereich schnell veraltet:
+- **Entschieden (M1-Frontend):** Vite + React + TypeScript + Tailwind, PWA via `vite-plugin-pwa`, lokale Daten in IndexedDB (`idb`). Begründung: `docs/05-architecture.md`.
+- **Weiter vertagt:** schwedisches TTS/ASR und LLM für Generierung & Dekodierung — bleiben in `docs/05-architecture.md` als Anforderungen (was das Modell können muss), nicht als Produktnamen, bis die Content-Pipeline gebaut wird.
 
-## Definition of Done für M0
+## Definition of Done für M0 *(erfüllt)*
 
 - `/docs` vollständig, in sich konsistent, ohne Widersprüche zu `README.md`.
 - Jede fachliche Aussage in `docs/02-science.md` mit Evidenzstufe.

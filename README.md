@@ -4,7 +4,7 @@
 
 Erste Sprache: **Deutsch → Schwedisch.** Zielnutzer: erwachsene Selbstlerner, die schon Duolingo/Babbel/Lingua probiert haben, dabei durchaus etwas gelernt — es aber nie langfristig behalten haben und an der steigenden Schwierigkeit abgesprungen sind.
 
-> **Status:** Meilenstein 0 — Konzept & Dokumentation. Es wird in dieser Phase bewusst **keine** Anwendung programmiert. Siehe `docs/09-roadmap.md`.
+> **Status:** Meilenstein 1 — schlankes MVP im Aufbau. Das Konzept (M0) ist abgeschlossen; jetzt entsteht das lauffähige Framework: eine installierbare, offline-fähige PWA. Siehe `docs/09-roadmap.md` und **Entwicklung & Installation** unten.
 
 ---
 
@@ -82,9 +82,9 @@ Grundregel: **belohne Kompetenz, nicht Anwesenheit** — und jede Belohnung muss
 
 ## 9. Roadmap (Kurzform)
 
-- **M0 — Konzept & Doku** *(diese Phase)*: README, `CLAUDE.md`, `/docs`. Kein App-Code.
-- **M1 — schlankes MVP**: Web-App, *ein* Level, ~20 handgeprüfte KI-generierte schwedische Segmente, der Comprehension-Loop, simple Fortschrittsanzeige. Beweist den Kern an einem echten Lerner.
-- **später**: Content-Pipeline automatisieren, Memory-Engine ausbauen, weitere Level/Sprachen, Mobile.
+- **M0 — Konzept & Doku** *(abgeschlossen)*: README, `CLAUDE.md`, `/docs`.
+- **M1 — schlankes MVP** *(diese Phase)*: installierbare Web-App (PWA), *ein* Level, ~20 handgeprüfte schwedische Segmente, der Comprehension-Loop, simple Fortschrittsanzeige. Beweist den Kern an einem echten Lerner. Das Framework steht (siehe **Entwicklung & Installation**); geprüfte Inhalte und Feinschliff folgen.
+- **später**: Content-Pipeline automatisieren, Memory-Engine ausbauen, weitere Level/Sprachen, Mobile-Verpackung.
 
 Vollständig: `docs/09-roadmap.md`.
 
@@ -116,3 +116,35 @@ docs/
 ## 12. Design- & Qualitätsphilosophie
 
 Praktische, lauffähige Substanz vor architektonischer Komplexität. Jede technische Entscheidung wird dokumentiert und begründet. Doku nur so tief, wie sie eine Entscheidung stützt — kein Markdown-Friedhof. Deutsch für nutzer- und projektnahe Inhalte, Englisch im Code. Technikwahl (Modelle, Stack) wird bei Build-Start **per Live-Recherche** getroffen, nicht aus dem Gedächtnis — dieser Teil veraltet zu schnell.
+
+## 13. Entwicklung & Installation
+
+Stack (bei Build-Start per Live-Recherche gewählt — Begründung in `docs/05-architecture.md`): **Vite + React + TypeScript + Tailwind**, PWA via **`vite-plugin-pwa`**, lokale Daten in **IndexedDB** (`idb`). Kein Backend.
+
+```bash
+npm install      # Abhängigkeiten
+npm run dev      # lokaler Dev-Server (Vite)
+npm run build    # Produktions-Build nach dist/
+npm run preview  # Build lokal servieren
+npm test         # Unit-Tests (Vitest)
+npm run lint     # ESLint
+```
+
+**Auf dem Handy installieren:** den Build über **HTTPS** servieren bzw. hosten, im mobilen Browser öffnen → „Zum Startbildschirm hinzufügen". Android/Chrome zeigt zusätzlich den In-App-Button „NEUROLANG installieren"; auf iOS: Teilen → „Zum Home-Bildschirm". Danach läuft NEUROLANG als eigenständige, offline-fähige App.
+
+> Hinweis: Die mitgelieferten schwedischen Segmente sind ein **Platzhalter** zum Ausprobieren des Loops — noch **nicht** die geprüften M1-Inhalte (siehe `docs/08-content-pipeline.md`).
+
+Projektstruktur des App-Codes:
+
+```
+src/
+  domain/        Chunk, ChunkState — das zentrale Datenmodell
+  storage/       IndexedDB-Persistenz (idb)
+  modules/
+    content/      Content-Pipeline (Seed-Quelle; später KI)
+    comprehension/ Comprehension-Loop (UI) + TTS
+    memory/       Memory-Engine (Spacing, Scheduling) + Tests
+    progress/     Metriken (ehrlicher Erhalt) + lebendes Gedächtnisfeld + Tests
+  session/       Tages-Session zusammenstellen (Wartung zuerst)
+  ui/            App-Shell-Bausteine (Install-Button …)
+```
