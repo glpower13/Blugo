@@ -167,7 +167,7 @@ export default function App() {
       </header>
 
       {/* Ehrliche Fortschrittsanzeige (docs/07-measurement.md) */}
-      <section className="glass rise rounded-2xl p-5">
+      <section className="glass rise rounded-2xl p-5" style={{ animationDelay: '0.04s' }}>
         <div className="flex items-baseline gap-5">
           <Stat value={metrics.active} label="aktiv" />
           <Stat value={metrics.maturing} label="reift" />
@@ -187,7 +187,12 @@ export default function App() {
       </section>
 
       {!loading && !error && categories.length > 0 && (
-        <CategoryOverview progress={catProgress} focusId={focusId} onFocus={changeFocus} />
+        <CategoryOverview
+          progress={catProgress}
+          focusId={focusId}
+          onFocus={changeFocus}
+          enterDelay="0.11s"
+        />
       )}
 
       {loading && <p className="text-muted">Lädt…</p>}
@@ -205,6 +210,7 @@ export default function App() {
           stage={currentState.stage}
           onResult={handleResult}
           known={known}
+          enterDelay="0.18s"
         />
       ) : null}
 

@@ -11,12 +11,13 @@ interface Props {
   progress: CategoryProgress[];
   focusId: string | null;
   onFocus: (categoryId: string | null) => void;
+  enterDelay?: string; // gestaffeltes Einschweben (Choreografie)
 }
 
-export function CategoryOverview({ progress, focusId, onFocus }: Props) {
+export function CategoryOverview({ progress, focusId, onFocus, enterDelay }: Props) {
   if (progress.length === 0) return null;
   return (
-    <section className="glass rise rounded-2xl p-5">
+    <section className="glass rise rounded-2xl p-5" style={{ animationDelay: enterDelay }}>
       <div className="mb-3 flex items-baseline justify-between">
         <h2 className="font-display text-base font-semibold tracking-wide text-paper">Themen</h2>
         {focusId && (
@@ -46,7 +47,7 @@ export function CategoryOverview({ progress, focusId, onFocus }: Props) {
                   className={
                     'shrink-0 rounded-full px-3 py-1.5 text-xs font-medium ' +
                     (isFocus
-                      ? 'bg-brand text-ink'
+                      ? 'btn-gold text-ink'
                       : 'border border-brand/50 text-brand')
                   }
                 >

@@ -21,9 +21,10 @@ interface Props {
   stage: 'recognition' | 'production';
   onResult: (result: ReviewResult, helpUsed: boolean) => void;
   known?: KnownPhrase[]; // Wendungen, die der Lerner schon kann (für echtes i+1)
+  enterDelay?: string; // gestaffeltes Einschweben (Choreografie)
 }
 
-export function ComprehensionLoop({ segment, chunk, stage, onResult, known }: Props) {
+export function ComprehensionLoop({ segment, chunk, stage, onResult, known, enterDelay }: Props) {
   const [showDecoding, setShowDecoding] = useState(false);
   const [showIdiomatic, setShowIdiomatic] = useState(false);
   const [showPron, setShowPron] = useState(false); // Aussprache-Hinweise (on-device)
@@ -140,7 +141,7 @@ export function ComprehensionLoop({ segment, chunk, stage, onResult, known }: Pr
   }
 
   return (
-    <section className="glass rise rounded-2xl p-5">
+    <section className="glass rise rounded-2xl p-5" style={{ animationDelay: enterDelay }}>
       <p className="mb-1 text-xs uppercase tracking-wide text-muted">
         Begegnung · Level {segment.level} · {stage === 'production' ? 'Produktion' : 'Wiedererkennen'}
       </p>
@@ -178,7 +179,7 @@ export function ComprehensionLoop({ segment, chunk, stage, onResult, known }: Pr
             setShowDecoding((v) => !v);
             setHelpUsed(true);
           }}
-          className="rounded-lg border border-line px-3 py-1.5 text-sm text-paper"
+          className="glass-soft rounded-full px-3.5 py-1.5 text-sm text-paper"
         >
           {showDecoding ? 'Dekodierung ausblenden' : 'Dekodierung'}
         </button>
@@ -187,7 +188,7 @@ export function ComprehensionLoop({ segment, chunk, stage, onResult, known }: Pr
             setShowIdiomatic((v) => !v);
             setHelpUsed(true);
           }}
-          className="rounded-lg border border-line px-3 py-1.5 text-sm text-paper"
+          className="glass-soft rounded-full px-3.5 py-1.5 text-sm text-paper"
         >
           {showIdiomatic ? 'Übersetzung ausblenden' : 'Übersetzung'}
         </button>
@@ -196,7 +197,7 @@ export function ComprehensionLoop({ segment, chunk, stage, onResult, known }: Pr
             setShowPron((v) => !v);
             setHelpUsed(true);
           }}
-          className="rounded-lg border border-line px-3 py-1.5 text-sm text-paper"
+          className="glass-soft rounded-full px-3.5 py-1.5 text-sm text-paper"
         >
           {showPron ? 'Aussprache ausblenden' : '🗣️ Aussprache'}
         </button>
@@ -204,7 +205,7 @@ export function ComprehensionLoop({ segment, chunk, stage, onResult, known }: Pr
           <button
             onClick={() => void fetchAiDecoding()}
             disabled={aiState === 'loading'}
-            className="rounded-lg border border-brand/60 px-3 py-1.5 text-sm text-brand disabled:opacity-50"
+            className="rounded-full border border-brand/50 bg-brand/10 px-3.5 py-1.5 text-sm text-brand disabled:opacity-50"
           >
             {aiState === 'loading' ? 'KI übersetzt…' : '🤖 KI-Dekodierung'}
           </button>
@@ -213,7 +214,7 @@ export function ComprehensionLoop({ segment, chunk, stage, onResult, known }: Pr
           <button
             onClick={() => void generateContext()}
             disabled={genState === 'loading'}
-            className="rounded-lg border border-brand/60 px-3 py-1.5 text-sm text-brand disabled:opacity-50"
+            className="rounded-full border border-brand/50 bg-brand/10 px-3.5 py-1.5 text-sm text-brand disabled:opacity-50"
           >
             {genState === 'loading' ? 'KI schreibt…' : '🤖 Neuer Kontext'}
           </button>
@@ -344,7 +345,7 @@ export function ComprehensionLoop({ segment, chunk, stage, onResult, known }: Pr
                       setTyped('');
                       setWhy({ state: 'idle', text: '' });
                     }}
-                    className="rounded-lg bg-brand px-4 py-2 font-medium text-ink"
+                    className="btn-gold rounded-xl px-4 py-2 font-medium text-ink"
                   >
                     Nochmal versuchen
                   </button>
@@ -395,7 +396,7 @@ export function ComprehensionLoop({ segment, chunk, stage, onResult, known }: Pr
                   autoCorrect="off"
                   className="flex-1 rounded-lg border border-line bg-base px-3 py-2 text-paper"
                 />
-                <button type="submit" className="rounded-lg bg-brand px-4 py-2 font-medium text-ink">
+                <button type="submit" className="btn-gold rounded-xl px-4 py-2 font-medium text-ink">
                   Prüfen
                 </button>
               </form>
@@ -403,7 +404,7 @@ export function ComprehensionLoop({ segment, chunk, stage, onResult, known }: Pr
           ) : (
             <button
               onClick={() => setRevealed(true)}
-              className="rounded-lg bg-brand px-4 py-2 font-medium text-ink"
+              className="btn-gold rounded-xl px-4 py-2 font-medium text-ink"
             >
               Auflösen
             </button>
