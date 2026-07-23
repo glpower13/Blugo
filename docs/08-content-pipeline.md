@@ -52,6 +52,20 @@ Schritt 4 des Loops), samt Wort-für-Wort-Dekodierung und Vorlese-Knopf.
   (siehe „Warum zwingend" oben). Das Grading/Leveling (Anteil bekannter vs. neuer Chunks) und
   die menschliche Stichprobe bleiben die nächsten Ausbaustufen.
 
+## Thematisches Rückgrat: Kategorien *(gebaut 2026-07-23)*
+
+Der Content ist in **Themen** (`Category`) gegliedert; jeder `Chunk` trägt eine
+`categoryId` (`src/domain/chunk.ts`, Seed: `seedCategories`). Das ist die Struktur,
+an der die Content-Fabrik hängt: die KI erzeugt Stoff **innerhalb eines Themas**,
+dadurch bleibt der Nachschub kohärent und die Abdeckung lesbar.
+
+- **Ehrliche Themen-Übersicht** (`modules/progress/categories.ts`, `CategoryOverview.tsx`):
+  pro Thema „X von Y **bewiesen stabil**" — dieselbe ehrliche Messung wie global
+  (`07-measurement.md`), **kein** „Lektion-erledigt"-Balken.
+- **Fokus-Wahl** (`session/focus.ts`): der Lerner wählt, aus welchem Thema **neuer**
+  Stoff bevorzugt kommt (`buildQueue` · `NewFocus`); **fällige Wiederholungen bleiben
+  unberührt** — Erhalt geht vor. Design-Entscheidung: `gremium-struktur.md`.
+
 ## Risiken / offene Punkte
 - Faktentreue & Natürlichkeit generierter Sätze → menschliche Stichprobe.
 - Qualität schwedischer Dekodierung/Idiomatik → Prüfheuristiken.

@@ -34,6 +34,31 @@ describe('buildQueue', () => {
     const states = Array.from({ length: 5 }, (_, i) => initialState(`n${i}`, NOW));
     expect(buildQueue(states, NOW, 1)).toHaveLength(1);
   });
+
+  it('theme focus prefers new chunks of that category for the scarce slots', () => {
+    // Two themes; without focus, insertion order decides. With focus on 'b',
+    // 'b'-chunks should fill the one new slot.
+    const states = [
+      initialState('a1', NOW),
+      initialState('a2', NOW),
+      initialState('b1', NOW),
+    ];
+    const categoryByChunkId = { a1: 'a', a2: 'a', b1: 'b' };
+    const q = buildQueue(states, NOW, 1, { categoryByChunkId, categoryId: 'b' });
+    expect(q).toEqual(['b1']); // focused theme wins the slot
+  });
+
+  it('theme focus never biases due maintenance — only new intake', () => {
+    const states = [
+      reviewedDue('r-old'), // due maintenance, category 'a'
+      initialState('b1', NOW), // new, category 'b' (focused)
+    ];
+    const categoryByChunkId = { 'r-old': 'a', b1: 'b' };
+    const q = buildQueue(states, NOW, 3, { categoryByChunkId, categoryId: 'b' });
+    // maintenance still comes first regardless of focus; the new one follows
+    expect(q[0]).toBe('r-old');
+    expect(q).toContain('b1');
+  });
 });
 
 describe('pickSegmentForChunk (context variation)', () => {

@@ -8,11 +8,42 @@
 // (docs/08-content-pipeline.md: QS). The literal decodings are structural
 // glosses (Birkenbihl), not idiomatic translations.
 
-import type { Chunk, Segment } from '../../domain/chunk';
+import type { Category, Chunk, Segment } from '../../domain/chunk';
+
+// Thematic backbone (docs/gremium-struktur.md). Themes organize the content and
+// give the learner an honest per-theme coverage view + a focus choice for NEW
+// intake — NOT lessons to "complete" (the memory engine still drives the loop).
+export const seedCategories: Category[] = [
+  {
+    id: 'cat-greet',
+    title: 'Begrüßen & Kennenlernen',
+    blurb: 'Hallo sagen, sich vorstellen, nach dem Befinden fragen.',
+    order: 1,
+  },
+  {
+    id: 'cat-understand',
+    title: 'Sich verständigen',
+    blurb: 'Nachfragen, wenn du etwas nicht verstehst.',
+    order: 2,
+  },
+  {
+    id: 'cat-cafe',
+    title: 'Im Café & Einkaufen',
+    blurb: 'Etwas bestellen, nach dem Preis fragen, danke sagen.',
+    order: 3,
+  },
+  {
+    id: 'cat-around',
+    title: 'Unterwegs & Hilfe',
+    blurb: 'Um Hilfe bitten, nach dem Weg fragen.',
+    order: 4,
+  },
+];
 
 export const seedChunks: Chunk[] = [
   {
     id: 'c-hej',
+    categoryId: 'cat-greet',
     sv: 'hur mår du?',
     de: 'wie geht es dir?',
     decoding: [
@@ -23,6 +54,7 @@ export const seedChunks: Chunk[] = [
   },
   {
     id: 'c-heter',
+    categoryId: 'cat-greet',
     sv: 'jag heter',
     de: 'ich heiße',
     decoding: [
@@ -32,6 +64,7 @@ export const seedChunks: Chunk[] = [
   },
   {
     id: 'c-hjalpa',
+    categoryId: 'cat-around',
     sv: 'kan du hjälpa mig?',
     de: 'kannst du mir helfen?',
     decoding: [
@@ -43,6 +76,7 @@ export const seedChunks: Chunk[] = [
   },
   {
     id: 'c-kostar',
+    categoryId: 'cat-cafe',
     sv: 'vad kostar det?',
     de: 'was kostet das?',
     decoding: [
@@ -53,6 +87,7 @@ export const seedChunks: Chunk[] = [
   },
   {
     id: 'c-forstar',
+    categoryId: 'cat-understand',
     sv: 'jag förstår inte',
     de: 'ich verstehe nicht',
     decoding: [
@@ -63,6 +98,7 @@ export const seedChunks: Chunk[] = [
   },
   {
     id: 'c-langsam',
+    categoryId: 'cat-understand',
     sv: 'kan du prata långsammare?',
     de: 'kannst du langsamer sprechen?',
     decoding: [
@@ -74,6 +110,7 @@ export const seedChunks: Chunk[] = [
   },
   {
     id: 'c-tack',
+    categoryId: 'cat-cafe',
     sv: 'tack så mycket',
     de: 'danke vielmals',
     decoding: [
@@ -84,6 +121,7 @@ export const seedChunks: Chunk[] = [
   },
   {
     id: 'c-marbra',
+    categoryId: 'cat-greet',
     sv: 'jag mår bra',
     de: 'mir geht es gut',
     decoding: [
@@ -94,6 +132,7 @@ export const seedChunks: Chunk[] = [
   },
   {
     id: 'c-var-toa',
+    categoryId: 'cat-around',
     sv: 'var är toaletten?',
     de: 'wo ist die Toilette?',
     decoding: [
@@ -104,6 +143,7 @@ export const seedChunks: Chunk[] = [
   },
   {
     id: 'c-vill-ha',
+    categoryId: 'cat-cafe',
     sv: 'jag vill ha',
     de: 'ich möchte',
     decoding: [
@@ -114,6 +154,7 @@ export const seedChunks: Chunk[] = [
   },
   {
     id: 'c-engelska',
+    categoryId: 'cat-understand',
     sv: 'talar du engelska?',
     de: 'sprichst du Englisch?',
     decoding: [

@@ -1,18 +1,22 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
-import type { Chunk, ChunkState, ReviewResult, Segment } from './domain/chunk';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import type { Category, Chunk, ChunkState, ReviewResult, Segment } from './domain/chunk';
 import { seedContentSource } from './modules/content/contentPipeline';
 import { getAllChunkStates, logEvent, putChunkState } from './storage/db';
 import { initialState, schedule } from './modules/memory/memoryEngine';
 import { bandStatus, recentSuccessRate, recommendedNewCount } from './modules/memory/difficulty';
-import { buildQueue, pickSegmentForChunk } from './session/buildQueue';
+import { buildQueue, pickSegmentForChunk, type NewFocus } from './session/buildQueue';
+import { loadFocus, saveFocus } from './session/focus';
 import { ComprehensionLoop } from './modules/comprehension/ComprehensionLoop';
 import { MemoryField } from './modules/progress/MemoryField';
+import { CategoryOverview } from './modules/progress/CategoryOverview';
 import { computeMetrics } from './modules/progress/metrics';
+import { categoryProgress } from './modules/progress/categories';
 import { InstallButton } from './ui/InstallButton';
 import { AiSettings } from './modules/content/AiSettings';
 import { initAiSettings } from './modules/content/aiSettings';
 
 export default function App() {
+  const [categories, setCategories] = useState<Category[]>([]);
   const [chunks, setChunks] = useState<Chunk[]>([]);
   const [segments, setSegments] = useState<Segment[]>([]);
   const [states, setStates] = useState<Record<string, ChunkState>>({});
@@ -22,15 +26,24 @@ export default function App() {
   const [error, setError] = useState<string | null>(null);
   const [successRate, setSuccessRate] = useState<number | null>(null);
   const [showSettings, setShowSettings] = useState(false);
+  const [focusId, setFocusId] = useState<string | null>(null);
   // Guards against a fast double-tap grading the same item twice (P3 race).
   const submitting = useRef(false);
+
+  const chunkById = useMemo(() => Object.fromEntries(chunks.map((c) => [c.id, c])), [chunks]);
+  // Chunk → category map for the new-intake focus (buildQueue never biases maintenance).
+  const categoryByChunkId = useMemo(
+    () => Object.fromEntries(chunks.map((c) => [c.id, c.categoryId])),
+    [chunks],
+  );
 
   // Bootstrap: load content + persisted states, initialise missing states.
   useEffect(() => {
     initAiSettings(); // gespeicherte KI-Auswahl laden und auf die Registry anwenden
     (async () => {
       try {
-        const [cs, segs, persisted] = await Promise.all([
+        const [cats, cs, segs, persisted] = await Promise.all([
+          seedContentSource.getCategories(),
           seedContentSource.getChunks(),
           seedContentSource.getSegments(),
           getAllChunkStates(),
@@ -43,11 +56,20 @@ export default function App() {
         // many NEW chunks enter this session (docs/04-product.md, anti-cliff).
         const rate = recentSuccessRate(Object.values(byId));
         const maxNew = recommendedNewCount(rate);
+        const focus = loadFocus();
+        const catByChunk = Object.fromEntries(cs.map((c) => [c.id, c.categoryId]));
+        setCategories(cats);
         setChunks(cs);
         setSegments(segs);
         setStates(byId);
         setSuccessRate(rate);
-        setQueue(buildQueue(Object.values(byId), now, maxNew));
+        setFocusId(focus);
+        setQueue(
+          buildQueue(Object.values(byId), now, maxNew, {
+            categoryByChunkId: catByChunk,
+            categoryId: focus,
+          }),
+        );
         setPos(0);
       } catch (e) {
         // Never fail silently (docs/TEST-UND-PRUEF-STANDARD.md §3.1): surface it.
@@ -59,9 +81,26 @@ export default function App() {
     })();
   }, []);
 
-  const chunkById = useMemo(() => Object.fromEntries(chunks.map((c) => [c.id, c])), [chunks]);
   const stateList = useMemo(() => Object.values(states), [states]);
   const metrics = useMemo(() => computeMetrics(stateList), [stateList]);
+  const catProgress = useMemo(
+    () => categoryProgress(categories, chunks, states),
+    [categories, chunks, states],
+  );
+
+  // Change the theme focus for NEW intake and rebuild the remaining queue in place.
+  const changeFocus = useCallback(
+    (next: string | null) => {
+      setFocusId(next);
+      saveFocus(next);
+      const now = Date.now();
+      const maxNew = recommendedNewCount(successRate);
+      const focus: NewFocus = { categoryByChunkId, categoryId: next };
+      setQueue(buildQueue(Object.values(states), now, maxNew, focus));
+      setPos(0);
+    },
+    [categoryByChunkId, states, successRate],
+  );
 
   const currentChunkId = queue[pos];
   const currentChunk = currentChunkId ? chunkById[currentChunkId] : undefined;
@@ -132,6 +171,10 @@ export default function App() {
           <MemoryField states={stateList} />
         </div>
       </section>
+
+      {!loading && !error && categories.length > 0 && (
+        <CategoryOverview progress={catProgress} focusId={focusId} onFocus={changeFocus} />
+      )}
 
       {loading && <p className="text-slate-400">Lädt…</p>}
 

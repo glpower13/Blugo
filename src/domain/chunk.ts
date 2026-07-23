@@ -7,9 +7,26 @@ export interface DecodingToken {
   de: string;
 }
 
+/**
+ * A thematic grouping of chunks (Begrüßen, Im Café, …) — the content backbone
+ * (docs/gremium-struktur.md, docs/08-content-pipeline.md).
+ *
+ * IMPORTANT (anti-Goodhart): a category is an ORGANIZING + honest-coverage lens
+ * and an autonomy choice for what NEW material to draw next — it is NOT a "lesson"
+ * to complete. The memory engine (FSRS) still drives the daily loop; per-category
+ * "stable" is the same PROVEN measure as everywhere else (docs/07-measurement.md).
+ */
+export interface Category {
+  id: string;
+  title: string; // German, learner-facing, e.g. "Im Café & Einkaufen"
+  blurb: string; // one short German line describing the theme
+  order: number; // display order (ascending)
+}
+
 /** A learnable chunk: a phrase, its idiomatic translation and its decoding. */
 export interface Chunk {
   id: string;
+  categoryId: string; // which theme this chunk belongs to (Category.id)
   sv: string; // Swedish phrase, e.g. "kan du hjälpa mig?"
   de: string; // idiomatic German, e.g. "kannst du mir helfen?"
   decoding: DecodingToken[]; // literal word-for-word (structure made visible)

@@ -95,6 +95,32 @@ test('AI decode and generate buttons appear in the loop once a cloud provider is
   expect(consoleErrors, consoleErrors.join('\n')).toHaveLength(0);
 });
 
+// Stufe B: die Themen-Übersicht zeigt ehrliche Abdeckung pro Kategorie und der
+// Fokus lässt sich setzen (Autonomie für neuen Stoff), ohne Fehler.
+test('theme overview shows honest coverage and a focus can be set', async ({ page }) => {
+  const consoleErrors: string[] = [];
+  const pageErrors: string[] = [];
+  page.on('console', (m: ConsoleMessage) => {
+    if (m.type() === 'error') consoleErrors.push(m.text());
+  });
+  page.on('pageerror', (e) => pageErrors.push(String(e)));
+
+  await page.goto('/');
+
+  // Themen-Übersicht mit ehrlicher Formulierung ("bewiesen stabil", nicht "erledigt")
+  await expect(page.getByRole('heading', { name: 'Themen' })).toBeVisible();
+  await expect(page.getByText('Begrüßen & Kennenlernen')).toBeVisible();
+  await expect(page.getByText(/bewiesen stabil/).first()).toBeVisible();
+
+  // Fokus setzen → Erklärzeile erscheint, „Fokus aufheben" wird sichtbar
+  await page.getByRole('button', { name: 'Fokus', exact: true }).first().click();
+  await expect(page.getByText(/Neuer Stoff kommt bevorzugt/)).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Fokus aufheben' })).toBeVisible();
+
+  expect(consoleErrors, consoleErrors.join('\n')).toHaveLength(0);
+  expect(pageErrors, pageErrors.join('\n')).toHaveLength(0);
+});
+
 // Stufe B: die On-device-Aussprache-Hilfe öffnet und zeigt Hinweise, ohne Fehler.
 test('pronunciation help toggles open in the loop', async ({ page }) => {
   const consoleErrors: string[] = [];
