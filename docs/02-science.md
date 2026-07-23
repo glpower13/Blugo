@@ -25,6 +25,7 @@ Zitierregel: je Aussage mindestens ein belastbarer Primärbeleg (Studie/Review/M
 7. **Dual Coding** — Bild + Sprache. **[SCHWACH–mittel]** — Paivio (1986).
 8. **Konsolidierung/Schlaf-Timing** — Nutzen ja, konkrete App-Konsequenz begrenzt. **[SCHWACH]** — keine belastbare Design-Konsequenz belegt.
 9. **Korrektiv-Feedback** — gezielte Rückmeldung auf *produzierte* Sprache verbessert Genauigkeit, dauerhaft. **[STARK]** — Li (2010), Meta-Analyse (d = 0,64); mündlich Lyster & Saito (2010). *Bedingung (die eine Design-Regel):* keine Falsch-Korrektur, keine Schein-Genauigkeit — Umsetzung/Design in `gremium-feedback.md`.
+10. **Explizite Ausspracheschulung (Segmentale zuerst)** — bewusste Anleitung zu Einzellauten verbessert die Aussprache stärker als Satzmelodie. **[STARK]** (CAPT mit explizitem Feedback); die schwedischen Laut-Schreib-Regeln selbst **[FELS]**. Deterministische, on-device abgeleitete Aussprache-Hinweise — `gremium-aussprache.md`.
 
 ## Warum das Produkt überhaupt nötig ist
 - **Sprachattrition** — ungenutztes (v. a. produktives) Wissen zerfällt; genau der Effekt, den Wartung/Spacing bekämpfen. **[STARK]** — Schmid & Köpke (2017).

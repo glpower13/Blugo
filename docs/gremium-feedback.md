@@ -92,9 +92,11 @@ Feedback ist **fürs Lernen** klar wertvoll (§2). Für **dieses Produkt** wird 
 - **Ehrlichkeit:** Ergebnis klar als **„KI-Hinweis · nicht muttersprachlich geprüft"**; konservativer Prompt („wenn die Eingabe eine akzeptable Variante ist, sag das; erfinde keine Fehler").
 - **Geprüft:** 88 Tests grün (Prompt-Bau, Antwort, Fehler, Verdrahtung) + Build/E2E.
 
-### Schritt 3 — Aussprache-Feedback per ASR *(post-M1)*
+### Schritt 3 — Aussprache *(zweigeteilt)*
 
-Live-Recherche (Juli 2026) — **drei Wege, mit ehrlichen Grenzen:**
+**3a · Aussprache-Anleitung ✅ gebaut 2026-07-23** — deterministische Laut-Hinweise aus der Schreibung („🗣️ Aussprache", on-device, kein ASR, kein Fehl-Hören). Eigene Beratung + Umsetzung: **`gremium-aussprache.md`**.
+
+**3b · Aussprache-*Bewertung* per ASR *(post-M1)*** — Live-Recherche (Juli 2026), **drei Wege, mit ehrlichen Grenzen:**
 
 | Weg | Was | Grenzen | Eignung |
 |---|---|---|---|

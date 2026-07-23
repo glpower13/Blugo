@@ -91,3 +91,22 @@ test('AI decode button appears in the loop once a cloud provider is configured',
 
   expect(consoleErrors, consoleErrors.join('\n')).toHaveLength(0);
 });
+
+// Stufe B: die On-device-Aussprache-Hilfe öffnet und zeigt Hinweise, ohne Fehler.
+test('pronunciation help toggles open in the loop', async ({ page }) => {
+  const consoleErrors: string[] = [];
+  const pageErrors: string[] = [];
+  page.on('console', (m: ConsoleMessage) => {
+    if (m.type() === 'error') consoleErrors.push(m.text());
+  });
+  page.on('pageerror', (e) => pageErrors.push(String(e)));
+
+  await page.goto('/');
+  await expect(page.getByText(/Verständnis-Abdeckung/)).toBeVisible();
+
+  await page.getByRole('button', { name: /Aussprache/ }).click();
+  await expect(page.getByRole('button', { name: 'Aussprache ausblenden' })).toBeVisible();
+
+  expect(consoleErrors, consoleErrors.join('\n')).toHaveLength(0);
+  expect(pageErrors, pageErrors.join('\n')).toHaveLength(0);
+});

@@ -6,6 +6,7 @@ import { useEffect, useState } from 'react';
 import type { Chunk, DecodingToken, ReviewResult, Segment } from '../../domain/chunk';
 import { aiRegistry } from '../content/aiRegistry';
 import { analyzeAnswer, type AnswerAnalysis } from './answerCheck';
+import { pronunciationTips } from './pronunciation';
 
 const GRADE_LABEL: Record<ReviewResult, string> = {
   again: 'Nochmal',
@@ -23,6 +24,7 @@ interface Props {
 export function ComprehensionLoop({ segment, chunk, stage, onResult }: Props) {
   const [showDecoding, setShowDecoding] = useState(false);
   const [showIdiomatic, setShowIdiomatic] = useState(false);
+  const [showPron, setShowPron] = useState(false); // Aussprache-Hinweise (on-device)
   const [revealed, setRevealed] = useState(false);
   const [helpUsed, setHelpUsed] = useState(false); // pulled a hint before answering?
   const [typed, setTyped] = useState(''); // production: the learner's typed answer
@@ -43,6 +45,7 @@ export function ComprehensionLoop({ segment, chunk, stage, onResult }: Props) {
   useEffect(() => {
     setShowDecoding(false);
     setShowIdiomatic(false);
+    setShowPron(false);
     setRevealed(false);
     setHelpUsed(false);
     setTyped('');
@@ -56,6 +59,8 @@ export function ComprehensionLoop({ segment, chunk, stage, onResult }: Props) {
 
   // Hat der Nutzer eine echte Cloud-KI eingerichtet? (Standard-Dekoder = 'seed'.)
   const aiActive = aiRegistry.decoder.id !== 'seed';
+  // Aussprache-Hinweise (deterministisch aus der Schreibung des Segments).
+  const pronTips = pronunciationTips(segment.sv);
 
   async function fetchAiDecoding() {
     setHelpUsed(true); // KI-Hilfe ist auch eine gezogene Krücke (Ehrlichkeit)
@@ -153,6 +158,15 @@ export function ComprehensionLoop({ segment, chunk, stage, onResult }: Props) {
         >
           {showIdiomatic ? 'Übersetzung ausblenden' : 'Übersetzung'}
         </button>
+        <button
+          onClick={() => {
+            setShowPron((v) => !v);
+            setHelpUsed(true);
+          }}
+          className="rounded-lg border border-slate-600 px-3 py-1.5 text-sm text-slate-200"
+        >
+          {showPron ? 'Aussprache ausblenden' : '🗣️ Aussprache'}
+        </button>
         {aiActive && (
           <button
             onClick={() => void fetchAiDecoding()}
@@ -176,6 +190,21 @@ export function ComprehensionLoop({ segment, chunk, stage, onResult }: Props) {
       )}
 
       {showIdiomatic && <p className="mt-3 italic text-slate-300">{segment.de}</p>}
+
+      {showPron && (
+        <div className="mt-3 flex flex-col gap-2">
+          {pronTips.length === 0 ? (
+            <p className="text-xs text-slate-400">Hier gibt es keine besonderen Aussprache-Stolpersteine.</p>
+          ) : (
+            pronTips.map((t) => (
+              <div key={t.id} className="rounded-lg border border-slate-700 bg-base px-3 py-2">
+                <p className="text-xs font-medium text-brand">{t.label}</p>
+                <p className="text-sm text-slate-300">{t.hint}</p>
+              </div>
+            ))
+          )}
+        </div>
+      )}
 
       {aiState === 'error' && <p className="mt-3 text-xs text-rose-300">🤖 {aiError}</p>}
 
