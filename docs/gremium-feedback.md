@@ -77,7 +77,38 @@ Feedback ist **fürs Lernen** klar wertvoll (§2). Für **dieses Produkt** wird 
 2. **Freie KI-Korrektur (Schritt 2):** ok mit Pflicht-Kennzeichnung „nicht muttersprachlich geprüft" und konservativer Haltung?
 3. **Aussprache/ASR (Schritt 3):** später; Anbieterwahl + Regel „keine Schein-Genauigkeit" + Einzellaute zuerst.
 
-*Diese Punkte werden zusätzlich in `10-open-questions.md` geführt. Wird Schritt 1 gebaut, wandert das Prinzip „Korrektur-Feedback" mit Evidenzstufe nach `02-science.md`.*
+*Diese Punkte werden zusätzlich in `10-open-questions.md` geführt. Schritt 1 ist gebaut (2026-07-23); das Prinzip „Korrektiv-Feedback" steht mit Evidenzstufe in `02-science.md`.*
+
+---
+
+## 6. Umsetzung von Schritt 2 & 3 (Gremium — „Wie bauen")
+
+### Schritt 2 — optionale KI-Erklärung („warum"), gekennzeichnet *(jetzt baubar)*
+
+**Der Trick, der das Risiko fast auflöst:** Weil wir die **richtige Antwort schon kennen** (geprüfter Chunk + deterministisches Feedback aus Schritt 1), muss die KI **nicht urteilen, nur erklären**. Sie bekommt Ziel + Eingabe + bekannte Abweichung und formuliert 1–2 freundliche Sätze „warum" — die gefährlichste Fehlerquelle (Falsch-Korrektur) ist damit praktisch ausgeschlossen.
+
+- **Wie:** neue Fähigkeit im Port (z. B. `Explainer.explain(ziel, eingabe)`), erster Adapter = Claude (erweitert `adapters/anthropic.ts`), an dieselbe BYOK-Einstellung angedockt.
+- **Auslösung:** Knopf „🤖 Warum?" im Feedback-Panel — **opt-in, pro Klick** (Kostenkontrolle), nur bei aktiver Cloud-KI.
+- **Ehrlichkeit:** Ergebnis klar als „KI-Hinweis (nicht muttersprachlich geprüft)"; konservativer Prompt („wenn die Eingabe eine akzeptable Variante ist, sag das; erfinde keine Fehler").
+- **Aufwand/Risiko:** niedrig–mittel; testbar wie der Dekoder (reiner Prompt-Bau + Antwort-Parse + simuliertes Netz).
+
+### Schritt 3 — Aussprache-Feedback per ASR *(post-M1)*
+
+Live-Recherche (Juli 2026) — **drei Wege, mit ehrlichen Grenzen:**
+
+| Weg | Was | Grenzen | Eignung |
+|---|---|---|---|
+| **Browser-Spracherkennung** (Web Speech API) | „nachsprechen → Transkript → mit Ziel vergleichen" | kostenlos, aber **streamt Audio an Google/Azure** (nicht lokal), Schwedisch schwach, **nur Transkript, keine Laut-Bewertung**, wackelig bei Akzent | billiges Experiment; **indirekt**, nur „moderat" wirksam |
+| **Aussprache-Bewertungs-Dienst** (SpeechAce, Azure) | **Laut-/Silben-Bewertung** — genau die *explizite* Rückmeldung, die am stärksten wirkt (g ≈ 0,86) | **Cloud, kostenpflichtig, Audio verlässt das Gerät**; Anbieterwahl; Azure teils unzuverlässige Laut-Scores | der „echte" muttersprach-optimierende Weg |
+| **On-device** (Whisper via WebGPU/WASM; neue ~17-MB-Engines) | lokal, datensparsam | Whisper = **nur Transkript**, schwer; Laut-Scoring on-device erst im Kommen, für Schwedisch/Browser **unbelegt** | zukünftig interessant, heute unreif |
+
+- **Architektur:** passt in den bereits definierten `SpeechRecognizer`-Port — ein Adapter genügt, ohne App-Umbau.
+- **Guardrails (die eine Design-Regel):** **keine Schein-Prozentzahl** für Ungemessenes; **Einzellaute zuerst** (dort starke Evidenz, Satzmelodie schwach); **konservativ + freundlich** („klang eher wie X — versuch Y", nie „falsch"); **Fehl-Hören** einkalkulieren → nur bei hoher Sicherheit anmerken, immer „trotzdem weiter" erlauben.
+- **Empfehlung:** **post-M1 lassen** (so schon `09-roadmap.md`). Wenn drangenommen: **Laut-Bewertungs-Dienst hinter dem Port** + Guardrails; das freie Browser-„Nachsprechen" höchstens als klar gekennzeichnetes Experiment.
+
+### Empfohlene Reihenfolge
+1. **Schritt 2 jetzt** — klein, sicher, hoher Nutzen (die KI *erklärt* nur das schon bekannte Richtige).
+2. **Schritt 3 nach dem M1-Beweis** — mit Anbieter-Entscheidung (Datenschutz/Kosten) und den Guardrails oben.
 
 ---
 
@@ -90,6 +121,10 @@ Feedback ist **fürs Lernen** klar wertvoll (§2). Für **dieses Produkt** wird 
 - **Bitchener, J. (2008).** Evidence in Support of Written Corrective Feedback. *Journal of Second Language Writing, 17*(2), 102–118. https://www.sciencedirect.com/science/article/abs/pii/S1060374307000823
 - **ASR-Aussprache — Meta-Analyse (ReCALL, Cambridge):** The effectiveness of automatic speech recognition in ESL/EFL pronunciation. https://www.cambridge.org/core/journals/recall/article/effectiveness-of-automatic-speech-recognition-in-eslefl-pronunciation-a-metaanalysis/A915444CF252B61D14961D2FE733822D
 - **CAPT — systematisches Review (ReCALL, Cambridge):** Computer-assisted pronunciation training: A systematic review. https://www.cambridge.org/core/journals/recall/article/computerassisted-pronunciation-training-a-systematic-review/71E786F7DFC99727837909FDED7A2320
+- **Web Speech API (MDN):** Grenzen der Browser-Spracherkennung. https://developer.mozilla.org/en-US/docs/Web/API/Web_Speech_API
+- **SpeechAce — Aussprache-/Laut-Bewertung (API-Doku):** https://api-docs.speechace.com/features/scripted-activities/pronunciation-scoring
+- **Azure Pronunciation Assessment (Microsoft Learn):** https://learn.microsoft.com/en-us/azure/ai-services/speech-service/how-to-pronunciation-assessment
+- **Browser-Whisper-Landschaft 2026 (Überblick):** https://offlinetts.com/blog/browser-speech-recognition-whisper-comparison/
 - **Klassiker (textlich):** Schmidt, R. (1990) Noticing, *Applied Linguistics 11*; Swain, M. (1995) Pushed Output; Long, M. (1991) Focus on Form; Krashen, S. (1985) Affective Filter; Deci & Ryan (2000) SDT; Strathern, M. (1997) Goodhart.
 
 > **Anschluss:** Wissenschaft `02-science.md` · Messung/Ehrlichkeit `07-measurement.md` · Produkt-Loop `04-product.md` · Ports/KI `08-content-pipeline.md` · offene Entscheidungen `10-open-questions.md` · Weltklasse/Moat `gremium-weltklasse.md`.
