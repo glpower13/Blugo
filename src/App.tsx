@@ -14,6 +14,7 @@ import { computeMetrics } from './modules/progress/metrics';
 import { categoryProgress } from './modules/progress/categories';
 import { InstallButton } from './ui/InstallButton';
 import { Backdrop } from './ui/Backdrop';
+import { IconSettings } from './ui/icons';
 import { AiSettings } from './modules/content/AiSettings';
 import { initAiSettings } from './modules/content/aiSettings';
 
@@ -158,11 +159,11 @@ export default function App() {
         </div>
         <button
           onClick={() => setShowSettings(true)}
-          className="glass-soft shrink-0 rounded-full px-3 py-2 text-sm text-paper"
+          className="glass-soft flex shrink-0 items-center justify-center rounded-full p-2.5 text-paper"
           aria-label="KI-Einstellungen"
           title="KI-Einstellungen"
         >
-          ⚙️
+          <IconSettings className="h-5 w-5" />
         </button>
       </header>
 

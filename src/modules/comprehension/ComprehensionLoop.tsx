@@ -8,6 +8,7 @@ import { aiRegistry } from '../content/aiRegistry';
 import type { KnownPhrase } from '../content/ports';
 import { analyzeAnswer, type AnswerAnalysis } from './answerCheck';
 import { pronunciationTips } from './pronunciation';
+import { IconPlay, IconSlow, IconWave, IconSparkle } from '../../ui/icons';
 
 const GRADE_LABEL: Record<ReviewResult, string> = {
   again: 'Nochmal',
@@ -155,18 +156,18 @@ export function ComprehensionLoop({ segment, chunk, stage, onResult, known, ente
           <div className="flex shrink-0 gap-2">
             <button
               onClick={() => void aiRegistry.synthesizer.speak({ text: segment.sv })}
-              className="rounded-full bg-brand/20 px-3 py-2 text-sm text-brand"
+              className="flex items-center gap-1.5 rounded-full bg-brand/20 px-3.5 py-2 text-sm text-brand"
               aria-label="Vorlesen"
             >
-              ▶︎ Hören
+              <IconPlay className="h-3 w-3" /> Hören
             </button>
             <button
               onClick={() => void aiRegistry.synthesizer.speak({ text: segment.sv, rate: 0.6 })}
-              className="rounded-full bg-brand/20 px-3 py-2 text-sm text-brand"
+              className="flex items-center rounded-full bg-brand/20 px-3 py-2 text-brand"
               aria-label="Langsam vorlesen"
               title="Langsamer"
             >
-              🐢
+              <IconSlow className="h-4 w-4" />
             </button>
           </div>
         )}
@@ -197,26 +198,29 @@ export function ComprehensionLoop({ segment, chunk, stage, onResult, known, ente
             setShowPron((v) => !v);
             setHelpUsed(true);
           }}
-          className="glass-soft rounded-full px-3.5 py-1.5 text-sm text-paper"
+          className="glass-soft flex items-center gap-1.5 rounded-full px-3.5 py-1.5 text-sm text-paper"
         >
-          {showPron ? 'Aussprache ausblenden' : '🗣️ Aussprache'}
+          <IconWave className="h-3.5 w-3.5" />
+          {showPron ? 'Aussprache ausblenden' : 'Aussprache'}
         </button>
         {aiActive && (
           <button
             onClick={() => void fetchAiDecoding()}
             disabled={aiState === 'loading'}
-            className="rounded-full border border-brand/50 bg-brand/10 px-3.5 py-1.5 text-sm text-brand disabled:opacity-50"
+            className="flex items-center gap-1.5 rounded-full border border-brand/50 bg-brand/10 px-3.5 py-1.5 text-sm text-brand disabled:opacity-50"
           >
-            {aiState === 'loading' ? 'KI übersetzt…' : '🤖 KI-Dekodierung'}
+            <IconSparkle className="h-3.5 w-3.5" />
+            {aiState === 'loading' ? 'KI übersetzt…' : 'KI-Dekodierung'}
           </button>
         )}
         {canGenerate && (
           <button
             onClick={() => void generateContext()}
             disabled={genState === 'loading'}
-            className="rounded-full border border-brand/50 bg-brand/10 px-3.5 py-1.5 text-sm text-brand disabled:opacity-50"
+            className="flex items-center gap-1.5 rounded-full border border-brand/50 bg-brand/10 px-3.5 py-1.5 text-sm text-brand disabled:opacity-50"
           >
-            {genState === 'loading' ? 'KI schreibt…' : '🤖 Neuer Kontext'}
+            <IconSparkle className="h-3.5 w-3.5" />
+            {genState === 'loading' ? 'KI schreibt…' : 'Neuer Kontext'}
           </button>
         )}
       </div>
@@ -249,7 +253,11 @@ export function ComprehensionLoop({ segment, chunk, stage, onResult, known, ente
         </div>
       )}
 
-      {aiState === 'error' && <p className="mt-3 text-xs text-danger">🤖 {aiError}</p>}
+      {aiState === 'error' && (
+        <p className="mt-3 flex items-center gap-1.5 text-xs text-danger">
+          <IconSparkle className="h-3 w-3" /> {aiError}
+        </p>
+      )}
 
       {aiTokens && (
         <div className="mt-3">
@@ -265,14 +273,18 @@ export function ComprehensionLoop({ segment, chunk, stage, onResult, known, ente
         </div>
       )}
 
-      {genState === 'error' && <p className="mt-3 text-xs text-danger">🤖 {genError}</p>}
+      {genState === 'error' && (
+        <p className="mt-3 flex items-center gap-1.5 text-xs text-danger">
+          <IconSparkle className="h-3 w-3" /> {genError}
+        </p>
+      )}
 
       {/* Neuer, KI-erzeugter Kontext (Kontextvariation, i+1). Ehrlich als ungeprüft
           gekennzeichnet — echtes Können, nicht Schein (die eine Design-Regel). */}
       {genSegment && (
         <div className="mt-4 rounded-xl border border-brand/40 bg-brand/5 p-4">
-          <p className="mb-2 text-xs uppercase tracking-wide text-brand">
-            Neuer Kontext · 🤖 KI-erzeugt · nicht geprüft
+          <p className="mb-2 flex items-center gap-1.5 text-xs uppercase tracking-wide text-brand">
+            <IconSparkle className="h-3.5 w-3.5" /> Neuer Kontext · KI-erzeugt · nicht geprüft
           </p>
           <div className="flex items-start justify-between gap-3">
             <p lang="sv" className="text-lg font-medium text-paper">
@@ -281,10 +293,10 @@ export function ComprehensionLoop({ segment, chunk, stage, onResult, known, ente
             {aiRegistry.synthesizer.isAvailable() && (
               <button
                 onClick={() => void aiRegistry.synthesizer.speak({ text: genSegment.sv })}
-                className="shrink-0 rounded-full bg-brand/20 px-3 py-1.5 text-sm text-brand"
+                className="flex shrink-0 items-center gap-1.5 rounded-full bg-brand/20 px-3.5 py-1.5 text-sm text-brand"
                 aria-label="Neuen Kontext vorlesen"
               >
-                ▶︎ Hören
+                <IconPlay className="h-3 w-3" /> Hören
               </button>
             )}
           </div>
@@ -359,9 +371,10 @@ export function ComprehensionLoop({ segment, chunk, stage, onResult, known, ente
                     <button
                       onClick={() => void askWhy()}
                       disabled={why.state === 'loading'}
-                      className="rounded-lg border border-brand/60 px-4 py-2 text-sm text-brand disabled:opacity-50"
+                      className="flex items-center gap-1.5 rounded-full border border-brand/50 bg-brand/10 px-4 py-2 text-sm text-brand disabled:opacity-50"
                     >
-                      {why.state === 'loading' ? 'KI denkt…' : '🤖 Warum?'}
+                      <IconSparkle className="h-3.5 w-3.5" />
+                      {why.state === 'loading' ? 'KI denkt…' : 'Warum?'}
                     </button>
                   )}
                 </div>
@@ -375,7 +388,9 @@ export function ComprehensionLoop({ segment, chunk, stage, onResult, known, ente
                   </div>
                 )}
                 {why.state === 'error' && (
-                  <p className="mt-2 text-xs text-danger">🤖 {why.text}</p>
+                  <p className="mt-2 flex items-center gap-1.5 text-xs text-danger">
+                    <IconSparkle className="h-3 w-3" /> {why.text}
+                  </p>
                 )}
               </div>
             ) : (
