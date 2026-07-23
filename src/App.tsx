@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import type { Chunk, ChunkState, ReviewResult, Segment } from './domain/chunk';
 import { seedContentSource } from './modules/content/contentPipeline';
 import { getAllChunkStates, logEvent, putChunkState } from './storage/db';
@@ -16,25 +16,35 @@ export default function App() {
   const [queue, setQueue] = useState<string[]>([]);
   const [pos, setPos] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  // Guards against a fast double-tap grading the same item twice (P3 race).
+  const submitting = useRef(false);
 
   // Bootstrap: load content + persisted states, initialise missing states.
   useEffect(() => {
     (async () => {
-      const [cs, segs, persisted] = await Promise.all([
-        seedContentSource.getChunks(),
-        seedContentSource.getSegments(),
-        getAllChunkStates(),
-      ]);
-      const now = Date.now();
-      const byId: Record<string, ChunkState> = {};
-      for (const p of persisted) byId[p.chunkId] = p;
-      for (const c of cs) if (!byId[c.id]) byId[c.id] = initialState(c.id, now);
-      setChunks(cs);
-      setSegments(segs);
-      setStates(byId);
-      setQueue(buildQueue(Object.values(byId), now));
-      setPos(0);
-      setLoading(false);
+      try {
+        const [cs, segs, persisted] = await Promise.all([
+          seedContentSource.getChunks(),
+          seedContentSource.getSegments(),
+          getAllChunkStates(),
+        ]);
+        const now = Date.now();
+        const byId: Record<string, ChunkState> = {};
+        for (const p of persisted) byId[p.chunkId] = p;
+        for (const c of cs) if (!byId[c.id]) byId[c.id] = initialState(c.id, now);
+        setChunks(cs);
+        setSegments(segs);
+        setStates(byId);
+        setQueue(buildQueue(Object.values(byId), now));
+        setPos(0);
+      } catch (e) {
+        // Never fail silently (docs/TEST-UND-PRUEF-STANDARD.md §3.1): surface it.
+        console.error('Bootstrap failed', e);
+        setError('Lokale Daten konnten nicht geladen werden. Bitte die App neu laden.');
+      } finally {
+        setLoading(false);
+      }
     })();
   }, []);
 
@@ -51,15 +61,21 @@ export default function App() {
       : undefined;
 
   async function handleResult(result: ReviewResult) {
+    if (submitting.current) return; // ignore rapid double-taps on the same item
     if (!currentChunk || !currentState || !currentSegment) return;
-    const now = Date.now();
-    const next = schedule(currentState, result, currentSegment.id, now);
-    setStates((prev) => ({ ...prev, [currentChunk.id]: next }));
-    await putChunkState(next);
-    await logEvent(currentChunk.id, { at: now, result, segmentId: currentSegment.id });
-    // 'again' → re-queue at the end (relearn this session); else advance.
-    setQueue((q) => (result === 'again' ? [...q, currentChunk.id] : q));
-    setPos((p) => p + 1);
+    submitting.current = true;
+    try {
+      const now = Date.now();
+      const next = schedule(currentState, result, currentSegment.id, now);
+      setStates((prev) => ({ ...prev, [currentChunk.id]: next }));
+      await putChunkState(next);
+      await logEvent(currentChunk.id, { at: now, result, segmentId: currentSegment.id });
+      // 'again' → re-queue at the end (relearn this session); else advance.
+      setQueue((q) => (result === 'again' ? [...q, currentChunk.id] : q));
+      setPos((p) => p + 1);
+    } finally {
+      submitting.current = false;
+    }
   }
 
   const done = !loading && pos >= queue.length;
@@ -88,7 +104,13 @@ export default function App() {
 
       {loading && <p className="text-slate-400">Lädt…</p>}
 
-      {!loading && currentChunk && currentSegment && currentState ? (
+      {error && (
+        <section className="rounded-2xl border border-rose-500/40 bg-rose-500/10 p-4">
+          <p className="text-sm text-rose-300">{error}</p>
+        </section>
+      )}
+
+      {!loading && !error && currentChunk && currentSegment && currentState ? (
         <ComprehensionLoop
           segment={currentSegment}
           chunk={currentChunk}
@@ -97,12 +119,17 @@ export default function App() {
         />
       ) : null}
 
-      {done && (
+      {done && !error && (
         <section className="rounded-2xl bg-surface p-5 text-center">
           <p className="text-lg font-semibold text-emerald-400">Session erledigt.</p>
           <p className="mt-1 text-sm text-slate-400">
             Heute stabilisiert. Der Rest wartet — ohne zerbrechenden Streak.
           </p>
+          {metrics.dueNow > 0 && (
+            <p className="mt-2 text-xs text-slate-500">
+              Noch {metrics.dueNow} fällig — bewusst auf die nächsten Sitzungen verteilt.
+            </p>
+          )}
         </section>
       )}
 
