@@ -60,7 +60,7 @@ export function AiSettings({ onClose }: { onClose: () => void }) {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-md">
-      <div className="glass rise w-full max-w-md rounded-2xl p-5">
+      <div className="glass rise max-h-[90vh] w-full max-w-md overflow-y-auto rounded-2xl p-5">
         <div className="mb-3 flex items-center justify-between">
           <h2 className="text-base font-semibold text-paper">KI-Einstellungen</h2>
           <button onClick={close} className="text-muted" aria-label="Schließen">
@@ -131,9 +131,13 @@ export function AiSettings({ onClose }: { onClose: () => void }) {
             </button>
 
             {test.state === 'ok' && (
-              <p className="text-xs text-success">✓ Klappt: {test.msg}</p>
+              <p className="text-xs leading-snug text-success">✓ Klappt: {test.msg}</p>
             )}
-            {test.state === 'error' && <p className="text-xs text-danger">✕ {test.msg}</p>}
+            {test.state === 'error' && (
+              <p className="rounded-lg border border-danger/30 bg-danger/10 px-3 py-2 text-sm leading-snug text-danger">
+                ✕ {test.msg}
+              </p>
+            )}
 
             <p className="text-xs text-faint">
               Hinweis: Beim Übersetzen verlässt der schwedische Text dein Gerät Richtung Anbieter.

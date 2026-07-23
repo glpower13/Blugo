@@ -82,13 +82,67 @@ export function parseDecoding(text: string): DecodingToken[] {
   return tokens;
 }
 
-/** Übersetzt HTTP-Fehler in eine klare, nicht-technische Meldung (rein). */
-export function friendlyError(status: number): string {
-  if (status === 401) return 'Zugangs-Schlüssel ungültig (401) — bitte prüfen.';
-  if (status === 403) return 'Kein Zugriff mit diesem Schlüssel (403).';
-  if (status === 429) return 'Zu viele Anfragen (429) — kurz warten.';
-  if (status >= 500) return 'Der Anbieter hat gerade ein Problem — später erneut.';
-  return `Anfrage fehlgeschlagen (HTTP ${status}).`;
+/**
+ * Übersetzt HTTP-Fehler in eine klare, nicht-technische Meldung (rein).
+ * `detail` ist die ECHTE Fehlermeldung des Anbieters (falls vorhanden) — sie zu
+ * zeigen ist der Unterschied zwischen "geht nicht" und "weiß, warum es nicht geht".
+ */
+export function friendlyError(status: number, detail?: string): string {
+  const extra = detail && detail.trim() ? ` — ${detail.trim()}` : '';
+  if (status === 400) return `Anfrage abgelehnt (400)${extra}.`;
+  if (status === 401)
+    return `Zugangs-Schlüssel ungültig (401)${extra}. Er muss mit „sk-ant-…" beginnen — bitte prüfen.`;
+  if (status === 403) return `Kein Zugriff mit diesem Schlüssel (403)${extra}.`;
+  if (status === 404)
+    return (
+      `Modell nicht verfügbar (404)${extra}. ` +
+      'Tipp: Wähle unten ein anderes Modell (z. B. Haiku) — dein Schlüssel hat evtl. keinen Zugriff auf dieses.'
+    );
+  if (status === 429) return `Zu viele Anfragen (429)${extra} — kurz warten und erneut testen.`;
+  if (status >= 500) return `Der Anbieter hat gerade ein Problem (HTTP ${status})${extra} — später erneut.`;
+  return `Anfrage fehlgeschlagen (HTTP ${status})${extra}.`;
+}
+
+/** Header für den direkten Browser-Aufruf (inkl. CORS-Freigabe). */
+function headers(apiKey: string): Record<string, string> {
+  return {
+    'content-type': 'application/json',
+    'x-api-key': apiKey,
+    'anthropic-version': API_VERSION,
+    // Nötig, damit der Browser die API direkt aufrufen darf (CORS).
+    'anthropic-dangerous-direct-browser-access': 'true',
+  };
+}
+
+/** Liest die eigentliche Fehlermeldung aus dem Antwort-Body (rein, tolerant). */
+async function readErrorDetail(res: Response): Promise<string> {
+  try {
+    const data = (await res.json()) as { error?: { message?: unknown } };
+    const msg = data?.error?.message;
+    return typeof msg === 'string' ? msg.trim() : '';
+  } catch {
+    return '';
+  }
+}
+
+/**
+ * Ein Aufruf der Messages-API — gebündelte, robuste Fehlerbehandlung für alle
+ * drei Adapter (Decoder/Explainer/Generator). Wirft ausschließlich klare,
+ * nicht-technische deutsche Meldungen und reicht die echte Anbieter-Meldung durch.
+ */
+async function callMessages(config: AnthropicConfig, body: string): Promise<unknown> {
+  let res: Response;
+  try {
+    res = await fetch(API_URL, { method: 'POST', headers: headers(config.apiKey), body });
+  } catch {
+    // `fetch` wirft nur bei Netzwerk/CORS — nicht bei HTTP-Fehlern (die sind !res.ok).
+    throw new Error(
+      'Keine Verbindung zur Cloud-KI (Netzwerk). Prüfe die Internet-Verbindung — ' +
+        'ein Ad-/Tracking-Blocker oder ein Firmen-/Schul-Netz kann api.anthropic.com blockieren.',
+    );
+  }
+  if (!res.ok) throw new Error(friendlyError(res.status, await readErrorDetail(res)));
+  return (await res.json()) as unknown;
 }
 
 // --- Schritt 2: Fehler-Erklärung ("Warum?") ------------------------------------
@@ -118,23 +172,8 @@ export function createAnthropicExplainer(config: AnthropicConfig): Explainer {
   return {
     id: 'anthropic:' + config.model,
     async explain(req: ExplainRequest): Promise<string> {
-      let res: Response;
-      try {
-        res = await fetch(API_URL, {
-          method: 'POST',
-          headers: {
-            'content-type': 'application/json',
-            'x-api-key': config.apiKey,
-            'anthropic-version': API_VERSION,
-            'anthropic-dangerous-direct-browser-access': 'true',
-          },
-          body: buildExplainBody(req, config.model),
-        });
-      } catch {
-        throw new Error('Verbindung zum Anbieter fehlgeschlagen (Netzwerk).');
-      }
-      if (!res.ok) throw new Error(friendlyError(res.status));
-      const text = extractText((await res.json()) as unknown);
+      const json = await callMessages(config, buildExplainBody(req, config.model));
+      const text = extractText(json);
       if (!text) throw new Error('Es kam keine Erklärung zurück.');
       return text;
     },
@@ -146,24 +185,7 @@ export function createAnthropicDecoder(config: AnthropicConfig): Decoder {
   return {
     id: 'anthropic:' + config.model,
     async decode(sv: string): Promise<DecodingToken[]> {
-      let res: Response;
-      try {
-        res = await fetch(API_URL, {
-          method: 'POST',
-          headers: {
-            'content-type': 'application/json',
-            'x-api-key': config.apiKey,
-            'anthropic-version': API_VERSION,
-            // Nötig, damit der Browser die API direkt aufrufen darf (CORS).
-            'anthropic-dangerous-direct-browser-access': 'true',
-          },
-          body: buildDecodeBody(sv, config.model),
-        });
-      } catch {
-        throw new Error('Verbindung zum Anbieter fehlgeschlagen (Netzwerk).');
-      }
-      if (!res.ok) throw new Error(friendlyError(res.status));
-      const json = (await res.json()) as unknown;
+      const json = await callMessages(config, buildDecodeBody(sv, config.model));
       return parseDecoding(extractText(json));
     },
   };
@@ -220,23 +242,8 @@ export function createAnthropicGenerator(config: AnthropicConfig): ContentGenera
   return {
     id: 'anthropic:' + config.model,
     async generate(req: GenerateSegmentRequest): Promise<Segment> {
-      let res: Response;
-      try {
-        res = await fetch(API_URL, {
-          method: 'POST',
-          headers: {
-            'content-type': 'application/json',
-            'x-api-key': config.apiKey,
-            'anthropic-version': API_VERSION,
-            'anthropic-dangerous-direct-browser-access': 'true',
-          },
-          body: buildGenerateBody(req, config.model),
-        });
-      } catch {
-        throw new Error('Verbindung zum Anbieter fehlgeschlagen (Netzwerk).');
-      }
-      if (!res.ok) throw new Error(friendlyError(res.status));
-      return parseSegment(extractText((await res.json()) as unknown), req);
+      const json = await callMessages(config, buildGenerateBody(req, config.model));
+      return parseSegment(extractText(json), req);
     },
   };
 }
