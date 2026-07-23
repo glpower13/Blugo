@@ -38,6 +38,11 @@ Legende: **✅ OK** · **✏️ Korrektur:** …
 | c-kostar | vad kostar det? | vad=was · kostar=kostet · det=das | was kostet das? | ⬜ |
 | c-forstar | jag förstår inte | jag=ich · förstår=verstehe · inte=nicht | ich verstehe nicht | ⬜ |
 | c-langsam | kan du prata långsammare? | kan=kann · du=du · prata=sprechen · långsammare=langsamer | kannst du langsamer sprechen? | ⬜ |
+| c-tack | tack så mycket | tack=danke · så=so · mycket=viel | danke vielmals | ⬜ |
+| c-marbra | jag mår bra | jag=ich · mår=befinde · bra=gut | mir geht es gut | ⬜ |
+| c-var-toa | var är toaletten? | var=wo · är=ist · toaletten=die Toilette | wo ist die Toilette? | ⬜ |
+| c-vill-ha | jag vill ha | jag=ich · vill=will · ha=haben | ich möchte | ⬜ |
+| c-engelska | talar du engelska? | talar=sprichst · du=du · engelska=Englisch | sprichst du Englisch? | ⬜ |
 
 ## B. Segmente (Chunk im Kontext, je ≥ 2 Kontexte)
 
@@ -54,6 +59,16 @@ Legende: **✅ OK** · **✏️ Korrektur:** …
 | s-forstar2 | Vänta, jag förstår inte riktigt. | Warte, ich verstehe nicht ganz. | c-forstar | ⬜ |
 | s-langsam1 | Kan du prata långsammare, tack? | Kannst du langsamer sprechen, bitte? | c-langsam | ⬜ |
 | s-langsam2 | Ursäkta, kan du prata långsammare? | Entschuldigung, kannst du langsamer sprechen? | c-langsam | ⬜ |
+| s-tack1 | Tack så mycket för hjälpen! | Vielen Dank für die Hilfe! | c-tack | ⬜ |
+| s-tack2 | Tack så mycket, hej då! | Vielen Dank, tschüss! | c-tack | ⬜ |
+| s-marbra1 | Tack, jag mår bra. | Danke, mir geht es gut. | c-marbra | ⬜ |
+| s-marbra2 | Jag mår bra idag. | Mir geht es heute gut. | c-marbra | ⬜ |
+| s-toa1 | Ursäkta, var är toaletten? | Entschuldigung, wo ist die Toilette? | c-var-toa | ⬜ |
+| s-toa2 | Var är toaletten, tack? | Wo ist die Toilette, bitte? | c-var-toa | ⬜ |
+| s-vill1 | Jag vill ha en kaffe, tack. | Ich möchte einen Kaffee, bitte. | c-vill-ha | ⬜ |
+| s-vill2 | Jag vill ha vatten, tack. | Ich möchte Wasser, bitte. | c-vill-ha | ⬜ |
+| s-eng1 | Ursäkta, talar du engelska? | Entschuldigung, sprichst du Englisch? | c-engelska | ⬜ |
+| s-eng2 | Hej, talar du engelska? | Hallo, sprichst du Englisch? | c-engelska | ⬜ |
 
 ---
 
@@ -66,8 +81,10 @@ Legende: **✅ OK** · **✏️ Korrektur:** …
   Glosse?
 - **`förlåt` vs. `ursäkta`** (beide „Entschuldigung/Verzeihung"): sind die
   jeweiligen Kontexte natürlich gewählt?
+- **`hej då` → „tschüss"** (Abschied): Glosse ok? Wörtlich eher „hallo/hej + då/dann".
+- **`jag vill ha` → „ich möchte"**: idiomatisch richtig, wörtlich „ich will haben" — passt die Glosse?
 - Reicht die Zahl/Streuung für ein M1-Level, oder fehlen Alltagssituationen?
-  (Ziel laut Roadmap: ~20 geprüfte Segmente — aktuell 11.)
+  (Ziel laut Roadmap: ~20 geprüfte Segmente — **aktuell 21** (11 Chunks).)
 
 ## Nach der Freigabe (Checkliste)
 

@@ -41,6 +41,7 @@ export interface ReviewEvent {
   at: number; // epoch ms
   result: ReviewResult;
   segmentId: string; // which context it was retrieved in (for variation tracking)
+  helpUsed?: boolean; // did the learner reveal a hint before answering? (docs/04-product.md)
 }
 
 /**

@@ -10,19 +10,21 @@ interface Props {
   segment: Segment;
   chunk: Chunk;
   stage: 'recognition' | 'production';
-  onResult: (result: ReviewResult) => void;
+  onResult: (result: ReviewResult, helpUsed: boolean) => void;
 }
 
 export function ComprehensionLoop({ segment, chunk, stage, onResult }: Props) {
   const [showDecoding, setShowDecoding] = useState(false);
   const [showIdiomatic, setShowIdiomatic] = useState(false);
   const [revealed, setRevealed] = useState(false);
+  const [helpUsed, setHelpUsed] = useState(false); // pulled a hint before answering?
 
   // Reset helpers whenever a new item appears.
   useEffect(() => {
     setShowDecoding(false);
     setShowIdiomatic(false);
     setRevealed(false);
+    setHelpUsed(false);
   }, [segment.id, chunk.id]);
 
   return (
@@ -50,13 +52,19 @@ export function ComprehensionLoop({ segment, chunk, stage, onResult }: Props) {
       {/* 2. Verständnishilfen (gestuft, abschaltbar) */}
       <div className="mt-4 flex flex-wrap gap-2">
         <button
-          onClick={() => setShowDecoding((v) => !v)}
+          onClick={() => {
+            setShowDecoding((v) => !v);
+            setHelpUsed(true);
+          }}
           className="rounded-lg border border-slate-600 px-3 py-1.5 text-sm text-slate-200"
         >
           {showDecoding ? 'Dekodierung ausblenden' : 'Dekodierung'}
         </button>
         <button
-          onClick={() => setShowIdiomatic((v) => !v)}
+          onClick={() => {
+            setShowIdiomatic((v) => !v);
+            setHelpUsed(true);
+          }}
           className="rounded-lg border border-slate-600 px-3 py-1.5 text-sm text-slate-200"
         >
           {showIdiomatic ? 'Übersetzung ausblenden' : 'Übersetzung'}
@@ -97,9 +105,9 @@ export function ComprehensionLoop({ segment, chunk, stage, onResult }: Props) {
               {stage === 'production' ? chunk.sv : chunk.de}
             </p>
             <div className="grid grid-cols-3 gap-2">
-              <GradeButton label="Nochmal" tone="bg-rose-500/80" onClick={() => onResult('again')} />
-              <GradeButton label="Schwer" tone="bg-amber-500/80" onClick={() => onResult('hard')} />
-              <GradeButton label="Sitzt" tone="bg-emerald-500/80" onClick={() => onResult('good')} />
+              <GradeButton label="Nochmal" tone="bg-rose-500/80" onClick={() => onResult('again', helpUsed)} />
+              <GradeButton label="Schwer" tone="bg-amber-500/80" onClick={() => onResult('hard', helpUsed)} />
+              <GradeButton label="Sitzt" tone="bg-emerald-500/80" onClick={() => onResult('good', helpUsed)} />
             </div>
           </>
         )}

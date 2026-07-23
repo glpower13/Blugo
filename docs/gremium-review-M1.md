@@ -68,9 +68,9 @@ Legende Träger: **🤖 autonom** (ich) · **🧑 du/Entscheidung** · **👥 Me
 | 3 | **Reifegrad-Signal** „reift" zwischen aktiv und stabil, damit Fortschritt sichtbar ist | R2 | P2 | 🤖 | Metrik `maturing` + Anzeige + Test **(Loop 2)** |
 | 4 | **„Gebaut vs. versprochen"** in README/Roadmap klar trennen (Anti-Überzeichnung) | M2 | P2 | 🤖 | Abschnitt/Statusspalte ergänzen **(Loop 2)** |
 | ✅5 | „Verständnis-Abdeckung" stufengewichtet (Produktion voll, Wiedererkennen halb) | W3 | P3 | 🤖 | **erledigt (Loop 3)** |
-| 6 | **Content auf ~20 Segmente** erweitern (mehr Alltagssituationen) | D1 | P2 | 🤖-Entwurf → 👥-Prüfung | Entwurf erstellen, dann `content-review-schwedisch.md` abhaken |
+| 🟡6 | **Content auf ~20 Segmente** erweitern (mehr Alltagssituationen) | D1 | P2 | 🤖-Entwurf → 👥-Prüfung | **Entwurf erledigt (Loop 4): 21 Segmente / 11 Chunks** — jetzt `content-review-schwedisch.md` durch 👥 abhaken |
 | ✅7 | Committed **Playwright-E2E** + CI-Workflow (Stufe B in CI) | E1 | P3 | 🤖 | **erledigt (Loop 3)** — `e2e/`, `ci.yml` |
-| 8 | Hilfenutzung erfassen (Krücke gezogen?) als Signal | D4 | P3 | 🤖 | Log-Feld + spätere Nutzung im Scoring |
+| ✅8 | Hilfenutzung erfassen (Krücke gezogen?) als Signal | D4 | P3 | 🤖 | **erledigt (Loop 4)** — `helpUsed` im Session-Log |
 | ✅9 | Schreibfehler beim Bewerten sichtbar machen | E2 | P3 | 🤖 | **erledigt (Loop 3)** |
 | ✅10 | A11y-Runde (aria-Labels, `lang="sv"`) | E4 | P3 | 🤖 | **erledigt (Loop 3)** |
 | 11 | **Adaptives Erfolgsband** real bauen (Neuzufuhr/Intervalle an Erfolgsquote koppeln) | W2 | P2 | 🤖 (größer) | Difficulty-Controller-Modul, eigener Loop |
@@ -84,7 +84,7 @@ Legende Träger: **🤖 autonom** (ich) · **🧑 du/Entscheidung** · **👥 Me
 - **Loop 1 ✅** — #1, #2 (ehrliche Messung + Demotion). *Erledigt, verifiziert.*
 - **Loop 2** — #3, #4 (Reife-Signal + „gebaut vs. versprochen"). *Autonom, als Nächstes.*
 - **Loop 3 ✅** — #5, #7, #9, #10 (Abdeckung gewichtet, E2E in CI, Schreibfehler sichtbar, A11y). *Erledigt, verifiziert.*
-- **Loop 4** — #6 (Content-Entwurf auf ~20) → **👥 Muttersprache-Prüfung**. *Als Nächstes.*
+- **Loop 4 ✅** — #6 (Content-Entwurf auf 21 Segmente) + #8 (Hilfenutzung im Log). *Erledigt; Content wartet nur noch auf 👥 Muttersprache-Prüfung.*
 - **Loop 5** — #11 (adaptives Band). *Größer, eigener Loop.*
 - **Loop 6+** — #12/#13 (Produktion/ASR, TTS) — Richtung Content-Pipeline (nach M1-Beweis).
 

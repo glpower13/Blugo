@@ -60,7 +60,7 @@ export default function App() {
       ? pickSegmentForChunk(currentChunk, currentState, segments)
       : undefined;
 
-  async function handleResult(result: ReviewResult) {
+  async function handleResult(result: ReviewResult, helpUsed: boolean) {
     if (submitting.current) return; // ignore rapid double-taps on the same item
     if (!currentChunk || !currentState || !currentSegment) return;
     submitting.current = true;
@@ -70,7 +70,7 @@ export default function App() {
       // Persist first; only advance the UI once the write succeeded, so a
       // storage failure is surfaced and never silently drops progress.
       await putChunkState(next);
-      await logEvent(currentChunk.id, { at: now, result, segmentId: currentSegment.id });
+      await logEvent(currentChunk.id, { at: now, result, segmentId: currentSegment.id, helpUsed });
       setStates((prev) => ({ ...prev, [currentChunk.id]: next }));
       // 'again' → re-queue at the end (relearn this session); else advance.
       setQueue((q) => (result === 'again' ? [...q, currentChunk.id] : q));
