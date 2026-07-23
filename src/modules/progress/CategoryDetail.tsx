@@ -11,6 +11,7 @@ interface Props {
   chunks: Chunk[];
   states: Record<string, ChunkState>;
   isFocus: boolean;
+  backLabel: string; // Titel der Ebene darüber (der Bereich), für den Zurück-Knopf
   onToggleFocus: () => void;
   onBack: () => void;
   onPractice: () => void;
@@ -33,6 +34,7 @@ export function CategoryDetail({
   chunks,
   states,
   isFocus,
+  backLabel,
   onToggleFocus,
   onBack,
   onPractice,
@@ -42,14 +44,14 @@ export function CategoryDetail({
 
   return (
     <div className="flex flex-col gap-4">
-      {/* Navigations-Leiste mit Zurück */}
+      {/* Navigations-Leiste mit Zurück zum Bereich (eine Ebene höher) */}
       <nav className="flex items-center gap-2 px-1">
         <button
           onClick={onBack}
           className="glass-soft flex items-center gap-1 rounded-full py-1.5 pl-2 pr-3 text-sm text-paper"
-          aria-label="Zurück zur Übersicht"
+          aria-label="Zurück zum Bereich"
         >
-          <IconBack className="h-4 w-4" /> Übersicht
+          <IconBack className="h-4 w-4" /> {backLabel}
         </button>
       </nav>
 

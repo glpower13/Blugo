@@ -11,40 +11,97 @@
 // Themen (cat-*) + ~40 Wendungen (c-*) über Alltag, Café, Weg, Zahlen/Zeit,
 // Essen, Familie, Small Talk. Ausbau folgt über die KI-Content-Fabrik (der Moat).
 
-import type { Category, Chunk, Segment } from '../../domain/chunk';
+import type { Area, Category, Chunk, Segment } from '../../domain/chunk';
 
-// Thematic backbone (docs/gremium-struktur.md). Themes organize the content and
-// give the learner an honest per-theme coverage view + a focus choice for NEW
-// intake — NOT lessons to "complete" (the memory engine still drives the loop).
+// Erste Ebene des Baums: Lebens-BEREICHE (docs/gremium-struktur.md). Der Lerner
+// browst flach: Bereich → Thema → Wendung, statt eine Endlosliste zu scrollen.
+export const seedAreas: Area[] = [
+  {
+    id: 'area-basics',
+    title: 'Erste Schritte',
+    blurb: 'Die ersten Wörter: grüßen und sich verständigen.',
+    order: 1,
+  },
+  {
+    id: 'area-travel',
+    title: 'Reisen & Unterwegs',
+    blurb: 'Ankommen, den Weg finden, unterwegs klarkommen.',
+    order: 2,
+  },
+  {
+    id: 'area-food',
+    title: 'Essen & Café',
+    blurb: 'Bestellen, essen & trinken, zahlen, guten Appetit.',
+    order: 3,
+  },
+  {
+    id: 'area-people',
+    title: 'Menschen & Alltag',
+    blurb: 'Sich kennenlernen, Small Talk, Zeit & Zahlen.',
+    order: 4,
+  },
+];
+
+// Zweite Ebene: Themen (Unterpunkte) je Bereich (docs/gremium-struktur.md). Themen
+// organisieren den Stoff und geben eine ehrliche Abdeckung + eine Fokus-Wahl für
+// NEUEN Stoff — KEINE „Lektionen" zum Abschließen (die Memory-Engine treibt den Loop).
 export const seedCategories: Category[] = [
   {
     id: 'cat-greet',
+    areaId: 'area-basics',
     title: 'Begrüßen & Kennenlernen',
     blurb: 'Hallo sagen, sich vorstellen, nach dem Befinden fragen.',
     order: 1,
   },
   {
     id: 'cat-understand',
+    areaId: 'area-basics',
     title: 'Sich verständigen',
     blurb: 'Nachfragen, wenn du etwas nicht verstehst.',
     order: 2,
   },
   {
-    id: 'cat-cafe',
-    title: 'Im Café & Einkaufen',
-    blurb: 'Etwas bestellen, nach dem Preis fragen, danke sagen.',
-    order: 3,
+    id: 'cat-around',
+    areaId: 'area-travel',
+    title: 'Nach dem Weg fragen',
+    blurb: 'Um Hilfe bitten, nach dem Weg und der Toilette fragen.',
+    order: 1,
   },
   {
-    id: 'cat-around',
-    title: 'Unterwegs & Hilfe',
-    blurb: 'Um Hilfe bitten, nach dem Weg fragen.',
-    order: 4,
+    id: 'cat-cafe',
+    areaId: 'area-food',
+    title: 'Im Café',
+    blurb: 'Etwas bestellen, nach dem Preis fragen, danke sagen.',
+    order: 1,
   },
-  { id: 'cat-numbers', title: 'Zahlen & Zeit', blurb: 'Nach der Uhrzeit und dem Tag fragen.', order: 5 },
-  { id: 'cat-food', title: 'Essen & Trinken', blurb: 'Hunger, Durst, bestellen, guten Appetit.', order: 6 },
-  { id: 'cat-family', title: 'Familie & Herkunft', blurb: 'Woher du kommst, wo du wohnst, Familie.', order: 7 },
-  { id: 'cat-daily', title: 'Alltag & Small Talk', blurb: 'Wetter, Beruf, Alter, sich verabschieden.', order: 8 },
+  {
+    id: 'cat-food',
+    areaId: 'area-food',
+    title: 'Essen & Trinken',
+    blurb: 'Hunger, Durst, bestellen, guten Appetit.',
+    order: 2,
+  },
+  {
+    id: 'cat-family',
+    areaId: 'area-people',
+    title: 'Familie & Herkunft',
+    blurb: 'Woher du kommst, wo du wohnst, Familie.',
+    order: 1,
+  },
+  {
+    id: 'cat-daily',
+    areaId: 'area-people',
+    title: 'Alltag & Small Talk',
+    blurb: 'Wetter, Beruf, Alter, sich verabschieden.',
+    order: 2,
+  },
+  {
+    id: 'cat-numbers',
+    areaId: 'area-people',
+    title: 'Zahlen & Zeit',
+    blurb: 'Nach der Uhrzeit und dem Tag fragen.',
+    order: 3,
+  },
 ];
 
 export const seedChunks: Chunk[] = [

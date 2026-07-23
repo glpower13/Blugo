@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
-import type { Category, Chunk, ChunkState, ReviewResult, Segment } from './domain/chunk';
+import type { Area, Category, Chunk, ChunkState, ReviewResult, Segment } from './domain/chunk';
 import { seedContentSource } from './modules/content/contentPipeline';
 import { getAllChunkStates, logEvent, putChunkState } from './storage/db';
 import { initialState, schedule } from './modules/memory/memoryEngine';
@@ -10,10 +10,11 @@ import { loadFocus, saveFocus } from './session/focus';
 import { knownPhrases } from './session/knownChunks';
 import { ComprehensionLoop } from './modules/comprehension/ComprehensionLoop';
 import { MemoryField } from './modules/progress/MemoryField';
-import { CategoryOverview } from './modules/progress/CategoryOverview';
+import { AreaOverview } from './modules/progress/AreaOverview';
+import { AreaDetail } from './modules/progress/AreaDetail';
 import { CategoryDetail } from './modules/progress/CategoryDetail';
 import { computeMetrics } from './modules/progress/metrics';
-import { categoryProgress } from './modules/progress/categories';
+import { areaProgress, categoryProgress } from './modules/progress/categories';
 import { InstallButton } from './ui/InstallButton';
 import { Backdrop } from './ui/Backdrop';
 import { IconSettings, IconBack, IconPlay } from './ui/icons';
@@ -21,13 +22,19 @@ import { useCountUp } from './ui/useCountUp';
 import { AiSettings } from './modules/content/AiSettings';
 import { initAiSettings } from './modules/content/aiSettings';
 
-// Die drei „Räume" der App (client-seitige Navigation, kein Router nötig).
+// Ein Scope grenzt eine Session ein: ein ganzer Bereich oder ein einzelnes Thema.
+type SessionScope = { kind: 'area' | 'category'; id: string };
+
+// Die „Räume" der App (client-seitige Navigation, kein Router nötig): der Baum
+// Übersicht → Bereich → Thema → Session.
 type View =
   | { name: 'home' }
+  | { name: 'area'; id: string }
   | { name: 'category'; id: string }
-  | { name: 'session'; categoryId?: string };
+  | { name: 'session' };
 
 export default function App() {
+  const [areas, setAreas] = useState<Area[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [chunks, setChunks] = useState<Chunk[]>([]);
   const [segments, setSegments] = useState<Segment[]>([]);
@@ -50,13 +57,19 @@ export default function App() {
     () => Object.fromEntries(chunks.map((c) => [c.id, c.categoryId])),
     [chunks],
   );
+  // Chunk → area map (for area-scoped practice): chunk → category → area.
+  const areaByChunkId = useMemo(() => {
+    const areaOfCat = Object.fromEntries(categories.map((c) => [c.id, c.areaId]));
+    return Object.fromEntries(chunks.map((c) => [c.id, areaOfCat[c.categoryId]]));
+  }, [chunks, categories]);
 
   // Bootstrap: load content + persisted states, initialise missing states.
   useEffect(() => {
     initAiSettings(); // gespeicherte KI-Auswahl laden und auf die Registry anwenden
     (async () => {
       try {
-        const [cats, cs, segs, persisted] = await Promise.all([
+        const [ars, cats, cs, segs, persisted] = await Promise.all([
+          seedContentSource.getAreas(),
           seedContentSource.getCategories(),
           seedContentSource.getChunks(),
           seedContentSource.getSegments(),
@@ -69,6 +82,7 @@ export default function App() {
         // Adaptive difficulty: judge the recent success band (drives how many
         // NEW chunks a session admits — docs/04-product.md, anti-cliff).
         const rate = recentSuccessRate(Object.values(byId));
+        setAreas(ars);
         setCategories(cats);
         setChunks(cs);
         setSegments(segs);
@@ -91,6 +105,12 @@ export default function App() {
   const catProgress = useMemo(
     () => categoryProgress(categories, chunks, states),
     [categories, chunks, states],
+  );
+  const areaProg = useMemo(() => areaProgress(areas, catProgress), [areas, catProgress]);
+  // Titel des fokussierten Themas (global, für die Fokus-Zeile auf der Übersicht).
+  const focusTitle = useMemo(
+    () => (focusId ? (categories.find((c) => c.id === focusId)?.title ?? null) : null),
+    [focusId, categories],
   );
 
   // Animierte Ansichts-Navigation (View Transitions): der Inhalt gleitet
@@ -119,22 +139,28 @@ export default function App() {
     saveFocus(next);
   }, []);
 
-  // Enter a learning session. Optionally scoped to one theme ("Dieses Thema üben").
+  // Enter a learning session. Optionally scoped to one area or one theme
+  // ("Diesen Bereich üben" / "Dieses Thema üben"). Unscoped = the honest global
+  // due-set (the memory engine drives the loop); the theme focus only biases NEW
+  // intake, never which due items surface.
   const enterSession = useCallback(
-    (categoryId?: string) => {
+    (scope?: SessionScope) => {
       const now = Date.now();
       const maxNew = recommendedNewCount(successRate);
-      const pool = categoryId
-        ? Object.values(states).filter((s) => categoryByChunkId[s.chunkId] === categoryId)
-        : Object.values(states);
-      const focus: NewFocus | undefined = categoryId
+      const inScope = (chunkId: string) =>
+        !scope ||
+        (scope.kind === 'category'
+          ? categoryByChunkId[chunkId] === scope.id
+          : areaByChunkId[chunkId] === scope.id);
+      const pool = Object.values(states).filter((s) => inScope(s.chunkId));
+      const focus: NewFocus | undefined = scope
         ? undefined
         : { categoryByChunkId, categoryId: focusId };
       setQueue(buildQueue(pool, now, maxNew, focus));
       setPos(0);
-      setView({ name: 'session', categoryId });
+      setView({ name: 'session' });
     },
-    [states, successRate, categoryByChunkId, focusId],
+    [states, successRate, categoryByChunkId, areaByChunkId, focusId],
   );
 
   const currentChunkId = queue[pos];
@@ -179,8 +205,13 @@ export default function App() {
   }
 
   const done = !loading && pos >= queue.length;
+  const activeArea = view.name === 'area' ? areaProg.find((a) => a.area.id === view.id) : undefined;
   const activeCategory =
     view.name === 'category' ? categories.find((c) => c.id === view.id) : undefined;
+  // Der Bereich, zu dem das offene Thema gehört (für „Zurück"-Ziel + Beschriftung).
+  const parentArea = activeCategory
+    ? areas.find((a) => a.id === activeCategory.areaId)
+    : undefined;
 
   return (
     <>
@@ -252,11 +283,11 @@ export default function App() {
                 )}
               </div>
 
-              {!loading && !error && categories.length > 0 && (
-                <CategoryOverview
-                  progress={catProgress}
-                  focusId={focusId}
-                  onOpen={(id) => navigate('push', () => setView({ name: 'category', id }))}
+              {!loading && !error && areaProg.length > 0 && (
+                <AreaOverview
+                  progress={areaProg}
+                  focusTitle={focusTitle}
+                  onOpen={(id) => navigate('push', () => setView({ name: 'area', id }))}
                   onClearFocus={() => setFocus(null)}
                 />
               )}
@@ -268,7 +299,19 @@ export default function App() {
           </>
         )}
 
-        {/* ───────── THEMA-DETAIL (Drill-down) ───────── */}
+        {/* ───────── BEREICH-DETAIL (Ebene 1 → 2) ───────── */}
+        {view.name === 'area' && activeArea && (
+          <AreaDetail
+            areaProgress={activeArea}
+            focusId={focusId}
+            onOpenCategory={(id) => navigate('push', () => setView({ name: 'category', id }))}
+            onClearFocus={() => setFocus(null)}
+            onBack={() => navigate('pop', () => setView({ name: 'home' }))}
+            onPractice={() => navigate('push', () => enterSession({ kind: 'area', id: activeArea.area.id }))}
+          />
+        )}
+
+        {/* ───────── THEMA-DETAIL (Ebene 2 → 3) ───────── */}
         {view.name === 'category' && activeCategory && (
           <div className="mx-auto w-full max-w-2xl">
             <CategoryDetail
@@ -276,9 +319,16 @@ export default function App() {
               chunks={chunks}
               states={states}
               isFocus={focusId === activeCategory.id}
+              backLabel={parentArea?.title ?? 'Zurück'}
               onToggleFocus={() => setFocus(focusId === activeCategory.id ? null : activeCategory.id)}
-              onBack={() => navigate('pop', () => setView({ name: 'home' }))}
-              onPractice={() => navigate('push', () => enterSession(activeCategory.id))}
+              onBack={() =>
+                navigate('pop', () =>
+                  setView(parentArea ? { name: 'area', id: parentArea.id } : { name: 'home' }),
+                )
+              }
+              onPractice={() =>
+                navigate('push', () => enterSession({ kind: 'category', id: activeCategory.id }))
+              }
             />
           </div>
         )}

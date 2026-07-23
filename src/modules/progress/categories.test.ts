@@ -2,15 +2,15 @@
 // unbekannte Kategorien zählen nicht.
 
 import { describe, expect, it } from 'vitest';
-import { categoryProgress } from './categories';
+import { areaProgress, categoryProgress } from './categories';
 import { initialState } from '../memory/memoryEngine';
-import type { Category, Chunk, ChunkState } from '../../domain/chunk';
+import type { Area, Category, Chunk, ChunkState } from '../../domain/chunk';
 
 const NOW = 1_700_000_000_000;
 
 const categories: Category[] = [
-  { id: 'b', title: 'B', blurb: '', order: 2 },
-  { id: 'a', title: 'A', blurb: '', order: 1 },
+  { id: 'b', areaId: 'area-2', title: 'B', blurb: '', order: 2 },
+  { id: 'a', areaId: 'area-1', title: 'A', blurb: '', order: 1 },
 ];
 
 const chunks: Chunk[] = [
@@ -70,5 +70,38 @@ describe('categoryProgress', () => {
     expect(a.active).toBe(1);
     expect(a.maturing).toBe(1);
     expect(a.dueNow).toBe(1);
+  });
+});
+
+describe('areaProgress', () => {
+  const areas: Area[] = [
+    { id: 'area-2', title: 'Zwei', blurb: '', order: 2 },
+    { id: 'area-1', title: 'Eins', blurb: '', order: 1 },
+  ];
+
+  it('gruppiert Themen unter ihren Bereich und summiert ehrlich', () => {
+    const states: Record<string, ChunkState> = {
+      c1: make('c1', { provenStableAt: NOW }), // Thema a (area-1)
+      c3: make('c3', { dueAt: NOW - 1 }), // Thema b (area-2), fällig
+    };
+    const cp = categoryProgress(categories, chunks, states, NOW);
+    const ap = areaProgress(areas, cp);
+
+    expect(ap.map((x) => x.area.id)).toEqual(['area-1', 'area-2']); // nach area.order
+    const a1 = ap.find((x) => x.area.id === 'area-1')!;
+    expect(a1.total).toBe(2); // c1 + c2 gehören zu Thema a
+    expect(a1.stable).toBe(1); // nur c1 bewiesen
+    expect(a1.categories.map((c) => c.category.id)).toEqual(['a']);
+
+    const a2 = ap.find((x) => x.area.id === 'area-2')!;
+    expect(a2.total).toBe(1); // c3
+    expect(a2.dueNow).toBe(1);
+  });
+
+  it('lässt leere Bereiche weg (kein Phantom-Eimer)', () => {
+    const areasWithEmpty: Area[] = [...areas, { id: 'area-leer', title: 'Leer', blurb: '', order: 3 }];
+    const cp = categoryProgress(categories, chunks, {}, NOW);
+    const ap = areaProgress(areasWithEmpty, cp);
+    expect(ap.find((x) => x.area.id === 'area-leer')).toBeUndefined();
   });
 });

@@ -4,10 +4,11 @@
 // the same shape the AI pipeline (LLM → Grading → Dekodierung → TTS) will later
 // implement, so swapping the source in doesn't touch the rest of the app.
 
-import type { Category, Chunk, Segment } from '../../domain/chunk';
-import { seedCategories, seedChunks, seedSegments } from './seedSegments';
+import type { Area, Category, Chunk, Segment } from '../../domain/chunk';
+import { seedAreas, seedCategories, seedChunks, seedSegments } from './seedSegments';
 
 export interface ContentSource {
+  getAreas(): Promise<Area[]>;
   getCategories(): Promise<Category[]>;
   getChunks(): Promise<Chunk[]>;
   getSegments(): Promise<Segment[]>;
@@ -16,6 +17,9 @@ export interface ContentSource {
 }
 
 export const seedContentSource: ContentSource = {
+  async getAreas() {
+    return seedAreas;
+  },
   async getCategories() {
     return seedCategories;
   },

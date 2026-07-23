@@ -2,16 +2,32 @@
 // in IDs/Referenzen und verwaiste Chunks ab, bevor sie im Loop landen.
 
 import { describe, expect, it } from 'vitest';
-import { seedCategories, seedChunks, seedSegments } from './seedSegments';
+import { seedAreas, seedCategories, seedChunks, seedSegments } from './seedSegments';
 
 describe('seed content — Integrität', () => {
-  it('IDs sind eindeutig (Kategorien, Chunks, Segmente)', () => {
+  it('IDs sind eindeutig (Bereiche, Kategorien, Chunks, Segmente)', () => {
+    const area = seedAreas.map((a) => a.id);
     const cat = seedCategories.map((c) => c.id);
     const ch = seedChunks.map((c) => c.id);
     const seg = seedSegments.map((s) => s.id);
+    expect(new Set(area).size).toBe(area.length);
     expect(new Set(cat).size).toBe(cat.length);
     expect(new Set(ch).size).toBe(ch.length);
     expect(new Set(seg).size).toBe(seg.length);
+  });
+
+  it('jede Kategorie gehört zu einem existierenden Bereich', () => {
+    const areas = new Set(seedAreas.map((a) => a.id));
+    for (const c of seedCategories) {
+      expect(areas.has(c.areaId), `Kategorie ${c.id} → unbekannter Bereich ${c.areaId}`).toBe(true);
+    }
+  });
+
+  it('jeder Bereich enthält mindestens eine Kategorie', () => {
+    const used = new Set(seedCategories.map((c) => c.areaId));
+    for (const a of seedAreas) {
+      expect(used.has(a.id), `Leerer Bereich: ${a.id}`).toBe(true);
+    }
   });
 
   it('jeder Chunk gehört zu einer existierenden Kategorie', () => {
