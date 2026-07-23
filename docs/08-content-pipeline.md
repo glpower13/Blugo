@@ -21,7 +21,7 @@ die Pipeline an genormten **Ports** (Fähigkeits-Interfaces), nicht an Produkten
 |---|---|---|---|
 | `ContentGenerator` | i+1-Segment on demand erzeugen (der Moat) | `seed` (bedient Seed-Kontexte) | LLM |
 | `Decoder` | interlineare Dekodierung SV→DE | `seed` (kennt nur Seed) | LLM |
-| `SpeechSynthesizer` | Schwedisch vorlesen (TTS) | `web-speech` (Browser-Stimme) | natürliches TTS |
+| `SpeechSynthesizer` | Schwedisch vorlesen (TTS) | `web-speech` (on-device, zuverlässige sv-Stimme + Langsam) | natürliches TTS |
 | `SpeechRecognizer` | Schwedisch erkennen (ASR) | — (nur Vertrag) | ASR (post-M1) |
 
 Die **Registry** (`src/modules/content/aiRegistry.ts`) ist der EINE Ort, an dem die

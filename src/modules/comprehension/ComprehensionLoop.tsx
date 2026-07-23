@@ -50,13 +50,23 @@ export function ComprehensionLoop({ segment, chunk, stage, onResult }: Props) {
           {segment.sv}
         </p>
         {aiRegistry.synthesizer.isAvailable() && (
-          <button
-            onClick={() => void aiRegistry.synthesizer.speak({ text: segment.sv })}
-            className="shrink-0 rounded-full bg-brand/20 px-3 py-2 text-sm text-brand"
-            aria-label="Vorlesen"
-          >
-            ▶︎ Hören
-          </button>
+          <div className="flex shrink-0 gap-2">
+            <button
+              onClick={() => void aiRegistry.synthesizer.speak({ text: segment.sv })}
+              className="rounded-full bg-brand/20 px-3 py-2 text-sm text-brand"
+              aria-label="Vorlesen"
+            >
+              ▶︎ Hören
+            </button>
+            <button
+              onClick={() => void aiRegistry.synthesizer.speak({ text: segment.sv, rate: 0.6 })}
+              className="rounded-full bg-brand/20 px-3 py-2 text-sm text-brand"
+              aria-label="Langsam vorlesen"
+              title="Langsamer"
+            >
+              🐢
+            </button>
+          </div>
         )}
       </div>
 

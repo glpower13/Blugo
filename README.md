@@ -167,8 +167,9 @@ Damit Doku und Realität nicht auseinanderdriften — was *heute Code* ist und w
 | Installierbare PWA, offline, lokale Daten | ✅ gebaut |
 | Adaptives Erfolgsband ~80–85 % (Neuzufuhr passt sich an) | ✅ gebaut (Session-Ebene; Intervall-Feintuning später) |
 | Echte Produktionserfassung (Tippen statt Selbstnote) | ✅ Tippen gebaut · Sprechen/ASR später |
-| KI-Port-Schicht (anbieter-agnostischer Andockpunkt, Ports & Adapters) | ✅ gebaut · Anbieter-Adapter 🚧 |
-| Natürliches schwedisches TTS/Audio-QS | 🚧 konzipiert (nach Content-Pipeline) |
+| KI-Port-Schicht (anbieter-agnostisch; Anbieter später nutzerseitig wählbar) | ✅ gebaut · Anbieter-Adapter + Auswahl/Login-UI 🚧 |
+| On-device-Sprachausgabe (Web-Speech, zuverlässige sv-Stimme + Langsam-Option) | ✅ gebaut |
+| Natürlicheres schwedisches TTS (neuronal/Cloud) + Audio-QS | 🚧 konzipiert (Entscheidung offen) |
 | KI-Content-Pipeline (der Moat) | 🚧 konzipiert (nach M1) |
 
 Priorisierte Umsetzung: `docs/gremium-review-M1.md` (Maßnahmenkatalog).

@@ -32,7 +32,7 @@ Für die Content-Pipeline (nach M1) — als Fähigkeiten formuliert, nicht als P
 - **TTS**: natürliches Schwedisch, variables Tempo.
 - **ASR** (später, für Produktion/Aussprache): schwedische Erkennung.
 
-Diese Fähigkeiten sind **seit 2026-07-23 als anbieter-agnostische Ports im Code** vorhanden (`src/modules/content/ports.ts` + `aiRegistry.ts`, Ports & Adapters — Schritt B in `gremium-weltklasse.md`). Heute laufen Standard-Adapter (Seed-Inhalt, Web-Speech-TTS); ein konkreter Anbieter wird angesteckt, ohne die Aufrufer zu ändern. Details: `08-content-pipeline.md` §Port-Schicht.
+Diese Fähigkeiten sind **seit 2026-07-23 als anbieter-agnostische Ports im Code** vorhanden (`src/modules/content/ports.ts` + `aiRegistry.ts`, Ports & Adapters — Schritt B in `gremium-weltklasse.md`). Heute laufen Standard-Adapter (Seed-Inhalt, on-device Web-Speech-TTS); ein konkreter Anbieter wird per `aiRegistry.setAiPorts(...)` angesteckt, ohne die Aufrufer zu ändern. Details: `08-content-pipeline.md` §Port-Schicht. **Geplant (Nutzerwunsch):** die Anbieter-Wahl wird **nutzerseitig** (Einstellungen + Login/Schlüssel) — `10-open-questions.md`.
 
 Frontend, Speicherung und der Scheduler (FSRS) sind entschieden — siehe „M1-Stack" oben.
 
