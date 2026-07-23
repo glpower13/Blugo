@@ -9,6 +9,8 @@ import { ComprehensionLoop } from './modules/comprehension/ComprehensionLoop';
 import { MemoryField } from './modules/progress/MemoryField';
 import { computeMetrics } from './modules/progress/metrics';
 import { InstallButton } from './ui/InstallButton';
+import { AiSettings } from './modules/content/AiSettings';
+import { initAiSettings } from './modules/content/aiSettings';
 
 export default function App() {
   const [chunks, setChunks] = useState<Chunk[]>([]);
@@ -19,11 +21,13 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [successRate, setSuccessRate] = useState<number | null>(null);
+  const [showSettings, setShowSettings] = useState(false);
   // Guards against a fast double-tap grading the same item twice (P3 race).
   const submitting = useRef(false);
 
   // Bootstrap: load content + persisted states, initialise missing states.
   useEffect(() => {
+    initAiSettings(); // gespeicherte KI-Auswahl laden und auf die Registry anwenden
     (async () => {
       try {
         const [cs, segs, persisted] = await Promise.all([
@@ -94,9 +98,19 @@ export default function App() {
 
   return (
     <main className="mx-auto flex min-h-dvh max-w-md flex-col gap-4 px-4 pb-10 pt-6">
-      <header>
-        <h1 className="text-lg font-bold tracking-tight text-slate-100">NEUROLANG</h1>
-        <p className="text-xs text-slate-400">Deutsch → Schwedisch · Erhalt statt Streak</p>
+      <header className="flex items-start justify-between gap-3">
+        <div>
+          <h1 className="text-lg font-bold tracking-tight text-slate-100">NEUROLANG</h1>
+          <p className="text-xs text-slate-400">Deutsch → Schwedisch · Erhalt statt Streak</p>
+        </div>
+        <button
+          onClick={() => setShowSettings(true)}
+          className="shrink-0 rounded-full bg-surface px-3 py-2 text-sm text-slate-300"
+          aria-label="KI-Einstellungen"
+          title="KI-Einstellungen"
+        >
+          ⚙️
+        </button>
       </header>
 
       {/* Ehrliche Fortschrittsanzeige (docs/07-measurement.md) */}
@@ -153,6 +167,8 @@ export default function App() {
       <div className="mt-auto pt-4">
         <InstallButton />
       </div>
+
+      {showSettings && <AiSettings onClose={() => setShowSettings(false)} />}
     </main>
   );
 }

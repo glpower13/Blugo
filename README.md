@@ -167,7 +167,7 @@ Damit Doku und Realität nicht auseinanderdriften — was *heute Code* ist und w
 | Installierbare PWA, offline, lokale Daten | ✅ gebaut |
 | Adaptives Erfolgsband ~80–85 % (Neuzufuhr passt sich an) | ✅ gebaut (Session-Ebene; Intervall-Feintuning später) |
 | Echte Produktionserfassung (Tippen statt Selbstnote) | ✅ Tippen gebaut · Sprechen/ASR später |
-| KI-Port-Schicht (anbieter-agnostisch; Anbieter später nutzerseitig wählbar) | ✅ gebaut · Anbieter-Adapter + Auswahl/Login-UI 🚧 |
+| KI-Port-Schicht (anbieter-agnostisch) + nutzerseitige KI-Auswahl & Login | ✅ gebaut (⚙️-Einstellungen, erster Claude-Adapter per BYOK) |
 | On-device-Sprachausgabe (Web-Speech, zuverlässige sv-Stimme + Langsam-Option) | ✅ gebaut |
 | Natürlicheres schwedisches TTS (neuronal/Cloud) + Audio-QS | 🚧 konzipiert (Entscheidung offen) |
 | KI-Content-Pipeline (der Moat) | 🚧 konzipiert (nach M1) |

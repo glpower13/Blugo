@@ -38,3 +38,30 @@ test('comprehension loop runs to completion without errors', async ({ page }) =>
   expect(consoleErrors, consoleErrors.join('\n')).toHaveLength(0);
   expect(pageErrors, pageErrors.join('\n')).toHaveLength(0);
 });
+
+// Stufe B: die KI-Einstellungs-/Login-Fläche öffnet, zeigt den Login und schließt
+// — ohne Konsolen-/Seitenfehler (Schritt C: nutzerseitige KI-Auswahl).
+test('AI settings overlay opens, shows the login, and closes cleanly', async ({ page }) => {
+  const consoleErrors: string[] = [];
+  const pageErrors: string[] = [];
+  page.on('console', (m: ConsoleMessage) => {
+    if (m.type() === 'error') consoleErrors.push(m.text());
+  });
+  page.on('pageerror', (e) => pageErrors.push(String(e)));
+
+  await page.goto('/');
+
+  await page.getByRole('button', { name: 'KI-Einstellungen' }).click();
+  await expect(page.getByRole('heading', { name: 'KI-Einstellungen' })).toBeVisible();
+
+  // Claude wählen → Schlüssel-Eingabe (Login) erscheint
+  await page.getByText('Claude (Cloud)').click();
+  await expect(page.getByPlaceholder('sk-ant-…')).toBeVisible();
+
+  // schließen → Overlay verschwindet
+  await page.getByRole('button', { name: 'Abbrechen' }).click();
+  await expect(page.getByText('Dein Claude-Zugangs-Schlüssel')).toHaveCount(0);
+
+  expect(consoleErrors, consoleErrors.join('\n')).toHaveLength(0);
+  expect(pageErrors, pageErrors.join('\n')).toHaveLength(0);
+});
