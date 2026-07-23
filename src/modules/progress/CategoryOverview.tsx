@@ -26,7 +26,7 @@ export function CategoryOverview({ progress, focusId, onFocus, enterDelay }: Pro
   return (
     <section className="glass rise rounded-2xl p-5" style={{ animationDelay: enterDelay }}>
       <div className="mb-3 flex items-baseline justify-between">
-        <h2 className="font-display text-base font-semibold tracking-wide text-paper">Themen</h2>
+        <h2 className="font-display text-lg font-semibold tracking-[0.01em] text-paper">Themen</h2>
         {focusId && (
           <button
             onClick={() => onFocus(null)}
@@ -45,7 +45,7 @@ export function CategoryOverview({ progress, focusId, onFocus, enterDelay }: Pro
             <li key={p.category.id} className="glass-soft rounded-xl p-3.5">
               <div className="flex items-start justify-between gap-3">
                 <div>
-                  <p className="text-sm font-medium text-paper">{p.category.title}</p>
+                  <p className="text-[0.98rem] font-semibold text-paper">{p.category.title}</p>
                   <p className="mt-0.5 text-xs text-muted">{p.category.blurb}</p>
                 </div>
                 <button

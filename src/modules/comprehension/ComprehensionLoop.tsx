@@ -143,13 +143,16 @@ export function ComprehensionLoop({ segment, chunk, stage, onResult, known, ente
 
   return (
     <section className="glass rise rounded-2xl p-5" style={{ animationDelay: enterDelay }}>
-      <p className="mb-1 text-xs uppercase tracking-wide text-muted">
+      <p className="mb-2 text-[0.68rem] font-medium uppercase tracking-[0.16em] text-faint">
         Begegnung · Level {segment.level} · {stage === 'production' ? 'Produktion' : 'Wiedererkennen'}
       </p>
 
-      {/* 1. Verständliche Begegnung */}
+      {/* 1. Verständliche Begegnung (der Hero-Moment) */}
       <div className="flex items-start justify-between gap-3">
-        <p lang="sv" className="font-display text-2xl font-semibold leading-snug text-paper">
+        <p
+          lang="sv"
+          className="font-display text-[1.9rem] font-semibold leading-[1.12] tracking-[-0.01em] text-paper"
+        >
           {segment.sv}
         </p>
         {aiRegistry.synthesizer.isAvailable() && (
@@ -363,7 +366,7 @@ export function ComprehensionLoop({ segment, chunk, stage, onResult, known, ente
                   </button>
                   <button
                     onClick={() => setRevealed(true)}
-                    className="rounded-lg border border-line px-4 py-2 text-paper"
+                    className="glass-soft rounded-xl px-4 py-2 text-paper"
                   >
                     Auflösen
                   </button>
@@ -426,7 +429,10 @@ export function ComprehensionLoop({ segment, chunk, stage, onResult, known, ente
           )
         ) : (
           <>
-            <p lang={stage === 'production' ? 'sv' : 'de'} className="mb-1 text-lg text-paper">
+            <p
+              lang={stage === 'production' ? 'sv' : 'de'}
+              className="mb-1 font-display text-xl font-semibold text-paper"
+            >
               {stage === 'production' ? chunk.sv : chunk.de}
             </p>
             {stage === 'production' && autoGrade && (

@@ -245,11 +245,13 @@ function Stat({ value, label, accent }: { value: number; label: string; accent?:
   return (
     <div>
       <div
-        className={`tnum font-display text-3xl font-semibold ${accent ? 'text-success glow-success' : 'text-paper'}`}
+        className={`tnum font-display text-[2.4rem] font-bold leading-none ${accent ? 'text-success glow-success' : 'text-paper'}`}
       >
         {shown}
       </div>
-      <div className="mt-0.5 text-[0.7rem] uppercase tracking-[0.12em] text-muted">{label}</div>
+      <div className="mt-1.5 text-[0.68rem] font-medium uppercase tracking-[0.14em] text-muted">
+        {label}
+      </div>
     </div>
   );
 }
