@@ -5,7 +5,7 @@
 import { useEffect, useState } from 'react';
 import type { Chunk, DecodingToken, ReviewResult, Segment } from '../../domain/chunk';
 import { aiRegistry } from '../content/aiRegistry';
-import { gradeTyped } from './answerCheck';
+import { analyzeAnswer, type AnswerAnalysis } from './answerCheck';
 
 const GRADE_LABEL: Record<ReviewResult, string> = {
   again: 'Nochmal',
@@ -27,6 +27,8 @@ export function ComprehensionLoop({ segment, chunk, stage, onResult }: Props) {
   const [helpUsed, setHelpUsed] = useState(false); // pulled a hint before answering?
   const [typed, setTyped] = useState(''); // production: the learner's typed answer
   const [autoGrade, setAutoGrade] = useState<ReviewResult | null>(null);
+  // Formatives Feedback bei Produktion (Abweichung + Hinweis, docs/gremium-feedback.md).
+  const [feedback, setFeedback] = useState<AnswerAnalysis | null>(null);
   // On-demand KI-Dekodierung (nur bei aktivem Cloud-Anbieter).
   const [aiTokens, setAiTokens] = useState<DecodingToken[] | null>(null);
   const [aiState, setAiState] = useState<'idle' | 'loading' | 'error'>('idle');
@@ -40,6 +42,7 @@ export function ComprehensionLoop({ segment, chunk, stage, onResult }: Props) {
     setHelpUsed(false);
     setTyped('');
     setAutoGrade(null);
+    setFeedback(null);
     setAiTokens(null);
     setAiState('idle');
     setAiError('');
@@ -59,6 +62,19 @@ export function ComprehensionLoop({ segment, chunk, stage, onResult }: Props) {
     } catch (e) {
       setAiState('error');
       setAiError(e instanceof Error ? e.message : 'KI-Dekodierung fehlgeschlagen.');
+    }
+  }
+
+  // Getippte Produktion prüfen: exakt → auflösen; sonst formatives Feedback zeigen.
+  function submitTyped() {
+    const fb = analyzeAnswer(typed, chunk.sv);
+    setAutoGrade(fb.grade);
+    if (fb.correct) {
+      setFeedback(null);
+      setRevealed(true);
+    } else {
+      setFeedback(fb);
+      setHelpUsed(true); // korrektives Feedback ist auch eine gezogene Hilfe
     }
   }
 
@@ -164,28 +180,73 @@ export function ComprehensionLoop({ segment, chunk, stage, onResult }: Props) {
 
         {!revealed ? (
           stage === 'production' ? (
-            <form
-              onSubmit={(e) => {
-                e.preventDefault();
-                setAutoGrade(gradeTyped(typed, chunk.sv));
-                setRevealed(true);
-              }}
-              className="flex gap-2"
-            >
-              <input
-                lang="sv"
-                value={typed}
-                onChange={(e) => setTyped(e.target.value)}
-                placeholder="auf Schwedisch tippen…"
-                aria-label="Antwort auf Schwedisch"
-                autoCapitalize="off"
-                autoCorrect="off"
-                className="flex-1 rounded-lg border border-slate-600 bg-base px-3 py-2 text-slate-100"
-              />
-              <button type="submit" className="rounded-lg bg-brand px-4 py-2 font-medium text-white">
-                Prüfen
-              </button>
-            </form>
+            feedback ? (
+              <div>
+                <p className="mb-2 text-sm text-amber-300">{feedback.hint}</p>
+                <p className="mb-1 text-xs text-slate-500">
+                  <span className="text-emerald-400 underline">grün</span> = fehlt ·{' '}
+                  <span className="text-rose-400 line-through">rot</span> = zu viel getippt
+                </p>
+                <div
+                  lang="sv"
+                  className="mb-3 rounded-lg border border-slate-700 bg-base px-3 py-2 text-lg tracking-wide"
+                >
+                  {feedback.diff.map((p, i) => (
+                    <span
+                      key={i}
+                      className={
+                        p.kind === 'same'
+                          ? 'text-slate-100'
+                          : p.kind === 'missing'
+                            ? 'text-emerald-400 underline'
+                            : 'text-rose-400 line-through'
+                      }
+                    >
+                      {p.text}
+                    </span>
+                  ))}
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => {
+                      setFeedback(null);
+                      setTyped('');
+                    }}
+                    className="rounded-lg bg-brand px-4 py-2 font-medium text-white"
+                  >
+                    Nochmal versuchen
+                  </button>
+                  <button
+                    onClick={() => setRevealed(true)}
+                    className="rounded-lg border border-slate-600 px-4 py-2 text-slate-200"
+                  >
+                    Auflösen
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  submitTyped();
+                }}
+                className="flex gap-2"
+              >
+                <input
+                  lang="sv"
+                  value={typed}
+                  onChange={(e) => setTyped(e.target.value)}
+                  placeholder="auf Schwedisch tippen…"
+                  aria-label="Antwort auf Schwedisch"
+                  autoCapitalize="off"
+                  autoCorrect="off"
+                  className="flex-1 rounded-lg border border-slate-600 bg-base px-3 py-2 text-slate-100"
+                />
+                <button type="submit" className="rounded-lg bg-brand px-4 py-2 font-medium text-white">
+                  Prüfen
+                </button>
+              </form>
+            )
           ) : (
             <button
               onClick={() => setRevealed(true)}

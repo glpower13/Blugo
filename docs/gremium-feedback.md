@@ -63,7 +63,7 @@ Feedback ist **fürs Lernen** klar wertvoll (§2). Für **dieses Produkt** wird 
 
 | # | Schritt | Evidenz | Träger | Risiko |
 |---|---|---|---|---|
-| **1** | **Formatives Tipp-Feedback (jetzt).** Statt nur „richtig/falsch": die **Abweichung** getippt↔Ziel zeigen, **ein** gezielter Hinweis, **Wiederholung** erlauben (Pushed Output). Deterministisch gegen den geprüften Chunk — **keine KI nötig**, kein Irrtumsrisiko. Baut auf `answerCheck.ts` auf. | [STARK] | 🤖 | **niedrig** |
+| **1** | ✅ **gebaut 2026-07-23.** Formatives Tipp-Feedback: **Abweichung** getippt↔Ziel (grün = fehlt, rot = zu viel), **ein** Hinweis, **„Nochmal versuchen"** (Pushed Output). Deterministisch gegen den geprüften Chunk — **keine KI, kein Irrtumsrisiko** (`answerCheck.ts` + `ComprehensionLoop.tsx`, 85 Tests grün). | [STARK] | 🤖 | **niedrig** |
 | **2** | **Optionale KI-Erklärung (jetzt möglich).** Wenn Cloud-KI aktiv: kurzes „warum" zum Fehler, **als „KI-Hinweis" gekennzeichnet**, konservativ. Über den vorhandenen Port. | [STARK] Konzept | 🤖 + 🧑 (Anbieter) | mittel (Kennzeichnung!) |
 | **3** | **Aussprache-Feedback per ASR (später, post-M1).** Zuerst **Einzellaute** (dort ist die Evidenz stark), **konservativ**, **keine Prozent-Note**, geprüfte Referenz. Braucht ASR-Anbieter-Entscheidung. | [STARK] mit Vorbehalt | 🧑 (Anbieter) + 🤖 | höher (ASR-Fehler) |
 

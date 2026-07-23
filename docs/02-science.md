@@ -24,6 +24,7 @@ Zitierregel: je Aussage mindestens ein belastbarer Primärbeleg (Studie/Review/M
 6. **Kontextvariation** — gegen kontextgebundenes Verblassen. **[STARK/mittel]** — anschlussfähig an Spacing/Desirable Difficulties (Cepeda et al. 2006; Bjork & Bjork 2011); eigene starke Primärbasis offen → `10-open-questions.md`.
 7. **Dual Coding** — Bild + Sprache. **[SCHWACH–mittel]** — Paivio (1986).
 8. **Konsolidierung/Schlaf-Timing** — Nutzen ja, konkrete App-Konsequenz begrenzt. **[SCHWACH]** — keine belastbare Design-Konsequenz belegt.
+9. **Korrektiv-Feedback** — gezielte Rückmeldung auf *produzierte* Sprache verbessert Genauigkeit, dauerhaft. **[STARK]** — Li (2010), Meta-Analyse (d = 0,64); mündlich Lyster & Saito (2010). *Bedingung (die eine Design-Regel):* keine Falsch-Korrektur, keine Schein-Genauigkeit — Umsetzung/Design in `gremium-feedback.md`.
 
 ## Warum das Produkt überhaupt nötig ist
 - **Sprachattrition** — ungenutztes (v. a. produktives) Wissen zerfällt; genau der Effekt, den Wartung/Spacing bekämpfen. **[STARK]** — Schmid & Köpke (2017).
@@ -40,6 +41,7 @@ Zitierregel: je Aussage mindestens ein belastbarer Primärbeleg (Studie/Review/M
 ### Primärbelege (Studien / Reviews / Meta-Analysen)
 - **Ebbinghaus, H. (1885).** *Über das Gedächtnis.* Duncker & Humblot. — Replikation: **Murre, J. M. J., & Dros, J. (2015).** Replication and Analysis of Ebbinghaus' Forgetting Curve. *PLOS ONE, 10*(7), e0120644. https://doi.org/10.1371/journal.pone.0120644
 - **Roediger, H. L., & Karpicke, J. D. (2006).** Test-Enhanced Learning: Taking Memory Tests Improves Long-Term Retention. *Psychological Science, 17*(3), 249–255. https://doi.org/10.1111/j.1467-9280.2006.01693.x
+- **Li, S. (2010).** The Effectiveness of Corrective Feedback in SLA: A Meta-Analysis. *Language Learning, 60*(2), 309–365. https://doi.org/10.1111/j.1467-9922.2010.00561.x
 - **Cepeda, N. J., Pashler, H., Vul, E., Wixted, J. T., & Rohrer, D. (2006).** Distributed Practice in Verbal Recall Tasks: A Review and Quantitative Synthesis. *Psychological Bulletin, 132*(3), 354–380. https://doi.org/10.1037/0033-2909.132.3.354
 - **Krashen, S. D. (1985).** *The Input Hypothesis: Issues and Implications.* Longman.
 - **Bjork, E. L., & Bjork, R. A. (2011).** Making Things Hard on Yourself, but in a Good Way: Creating Desirable Difficulties to Enhance Learning. In *Psychology and the Real World* (S. 56–64). Worth. https://bjorklab.psych.ucla.edu/wp-content/uploads/sites/13/2016/04/EBjork_RBjork_2011.pdf

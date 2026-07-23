@@ -17,7 +17,7 @@
 - SessionStart-Hook für Web-Sessions (`npm install` automatisch): bewusst (noch) **nicht** angelegt — Nutzerentscheidung.
 
 ## Produkt / Methode
-- **Korrektur-Feedback der KI (Nutzerfrage 2026-07-23) — beraten in `gremium-feedback.md`:** fundamental und evidenzbelegt (Li 2010, d = 0,64, dauerhaft), **aber** an die eine Design-Regel gebunden (keine Falsch-Korrektur, keine Schein-Genauigkeit). **Empfohlene Reihenfolge:** (1) formatives Tipp-Feedback deterministisch gegen geprüfte Chunks *(jetzt, kein Risiko)*, (2) optionale KI-Erklärung gekennzeichnet *(jetzt möglich)*, (3) Aussprache/ASR *(post-M1, Anbieter-Entscheidung)*. → Entscheidung 🧑 offen.
+- **Korrektur-Feedback der KI (Nutzerfrage 2026-07-23) — beraten in `gremium-feedback.md`:** fundamental und evidenzbelegt (Li 2010, d = 0,64, dauerhaft), **aber** an die eine Design-Regel gebunden (keine Falsch-Korrektur, keine Schein-Genauigkeit). **Reihenfolge:** (1) ✅ **gebaut 2026-07-23** — formatives Tipp-Feedback deterministisch gegen geprüfte Chunks (`answerCheck.ts`, `ComprehensionLoop.tsx`); (2) optionale KI-Erklärung gekennzeichnet *(offen)*, (3) Aussprache/ASR *(post-M1, Anbieter-Entscheidung)*. Umsetzung von 2 & 3: nächste Gremium-Runde.
 - Wie genau werden Chunks segmentiert und geleveled (i+1 operationalisieren)?
 - Ab wann kippt Rezeption in Produktion (Kriterium)?
 - Wie wird „Kontextvariation" generiert, ohne Bedeutung zu verfälschen?
