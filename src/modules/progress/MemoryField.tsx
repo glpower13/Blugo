@@ -5,7 +5,7 @@ import type { ChunkState } from '../../domain/chunk';
 import { isStable } from './metrics';
 
 function dotClass(s: ChunkState, now: number): string {
-  if (isStable(s)) return 'bg-success';
+  if (isStable(s)) return 'bg-success dot-glow'; // bewiesen stabil → leuchtet (Wahrheitssignal)
   if (s.status === 'maintenance') return 'bg-success/60';
   if (s.dueAt <= now) return 'bg-warn'; // verblassend, braucht Zuwendung
   if (s.status === 'learning') return 'bg-brand/70';

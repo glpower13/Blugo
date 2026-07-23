@@ -13,6 +13,7 @@ import { CategoryOverview } from './modules/progress/CategoryOverview';
 import { computeMetrics } from './modules/progress/metrics';
 import { categoryProgress } from './modules/progress/categories';
 import { InstallButton } from './ui/InstallButton';
+import { Backdrop } from './ui/Backdrop';
 import { AiSettings } from './modules/content/AiSettings';
 import { initAiSettings } from './modules/content/aiSettings';
 
@@ -142,10 +143,13 @@ export default function App() {
   const done = !loading && pos >= queue.length;
 
   return (
-    <main className="mx-auto flex min-h-dvh max-w-md flex-col gap-4 px-4 pb-10 pt-6">
+    <>
+      <Backdrop />
+      <div className="grain" aria-hidden="true" />
+      <main className="mx-auto flex min-h-dvh max-w-md flex-col gap-4 px-4 pb-10 pt-6">
       <header className="flex items-start justify-between gap-3 px-1 pt-1">
         <div>
-          <h1 className="font-display text-[1.7rem] font-semibold leading-none tracking-[0.02em] text-paper">
+          <h1 className="wordmark font-display text-[1.7rem] font-semibold leading-none tracking-[0.02em] text-paper">
             neuro<span className="font-light text-brand">lang</span>
           </h1>
           <p className="mt-2 text-[0.72rem] font-medium uppercase tracking-[0.22em] text-muted">
@@ -223,14 +227,17 @@ export default function App() {
       </div>
 
       {showSettings && <AiSettings onClose={() => setShowSettings(false)} />}
-    </main>
+      </main>
+    </>
   );
 }
 
 function Stat({ value, label, accent }: { value: number; label: string; accent?: boolean }) {
   return (
     <div>
-      <div className={`font-display text-3xl font-semibold ${accent ? 'text-success' : 'text-paper'}`}>
+      <div
+        className={`tnum font-display text-3xl font-semibold ${accent ? 'text-success glow-success' : 'text-paper'}`}
+      >
         {value}
       </div>
       <div className="mt-0.5 text-[0.7rem] uppercase tracking-[0.12em] text-muted">{label}</div>
