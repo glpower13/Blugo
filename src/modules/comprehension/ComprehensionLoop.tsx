@@ -5,6 +5,13 @@
 import { useEffect, useState } from 'react';
 import type { Chunk, ReviewResult, Segment } from '../../domain/chunk';
 import { speakSwedish, ttsAvailable } from './tts';
+import { gradeTyped } from './answerCheck';
+
+const GRADE_LABEL: Record<ReviewResult, string> = {
+  again: 'Nochmal',
+  hard: 'Schwer',
+  good: 'Sitzt',
+};
 
 interface Props {
   segment: Segment;
@@ -18,6 +25,8 @@ export function ComprehensionLoop({ segment, chunk, stage, onResult }: Props) {
   const [showIdiomatic, setShowIdiomatic] = useState(false);
   const [revealed, setRevealed] = useState(false);
   const [helpUsed, setHelpUsed] = useState(false); // pulled a hint before answering?
+  const [typed, setTyped] = useState(''); // production: the learner's typed answer
+  const [autoGrade, setAutoGrade] = useState<ReviewResult | null>(null);
 
   // Reset helpers whenever a new item appears.
   useEffect(() => {
@@ -25,6 +34,8 @@ export function ComprehensionLoop({ segment, chunk, stage, onResult }: Props) {
     setShowIdiomatic(false);
     setRevealed(false);
     setHelpUsed(false);
+    setTyped('');
+    setAutoGrade(null);
   }, [segment.id, chunk.id]);
 
   return (
@@ -93,17 +104,47 @@ export function ComprehensionLoop({ segment, chunk, stage, onResult }: Props) {
         </p>
 
         {!revealed ? (
-          <button
-            onClick={() => setRevealed(true)}
-            className="rounded-lg bg-brand px-4 py-2 font-medium text-white"
-          >
-            Auflösen
-          </button>
+          stage === 'production' ? (
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                setAutoGrade(gradeTyped(typed, chunk.sv));
+                setRevealed(true);
+              }}
+              className="flex gap-2"
+            >
+              <input
+                lang="sv"
+                value={typed}
+                onChange={(e) => setTyped(e.target.value)}
+                placeholder="auf Schwedisch tippen…"
+                aria-label="Antwort auf Schwedisch"
+                autoCapitalize="off"
+                autoCorrect="off"
+                className="flex-1 rounded-lg border border-slate-600 bg-base px-3 py-2 text-slate-100"
+              />
+              <button type="submit" className="rounded-lg bg-brand px-4 py-2 font-medium text-white">
+                Prüfen
+              </button>
+            </form>
+          ) : (
+            <button
+              onClick={() => setRevealed(true)}
+              className="rounded-lg bg-brand px-4 py-2 font-medium text-white"
+            >
+              Auflösen
+            </button>
+          )
         ) : (
           <>
-            <p lang={stage === 'production' ? 'sv' : 'de'} className="mb-4 text-lg text-slate-100">
+            <p lang={stage === 'production' ? 'sv' : 'de'} className="mb-1 text-lg text-slate-100">
               {stage === 'production' ? chunk.sv : chunk.de}
             </p>
+            {stage === 'production' && autoGrade && (
+              <p className="mb-3 text-xs text-slate-400">
+                Deine Eingabe: „{typed || '—'}" · Vorschlag: {GRADE_LABEL[autoGrade]}
+              </p>
+            )}
             <div className="grid grid-cols-3 gap-2">
               <GradeButton label="Nochmal" tone="bg-rose-500/80" onClick={() => onResult('again', helpUsed)} />
               <GradeButton label="Schwer" tone="bg-amber-500/80" onClick={() => onResult('hard', helpUsed)} />

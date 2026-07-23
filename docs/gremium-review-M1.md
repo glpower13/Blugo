@@ -74,7 +74,7 @@ Legende Träger: **🤖 autonom** (ich) · **🧑 du/Entscheidung** · **👥 Me
 | ✅9 | Schreibfehler beim Bewerten sichtbar machen | E2 | P3 | 🤖 | **erledigt (Loop 3)** |
 | ✅10 | A11y-Runde (aria-Labels, `lang="sv"`) | E4 | P3 | 🤖 | **erledigt (Loop 3)** |
 | ✅11 | **Adaptives Erfolgsband** real bauen (Neuzufuhr an Erfolgsquote koppeln) | W2 | P2 | 🤖 | **erledigt (Loop 5)** — `difficulty.ts`; Intervall-Feintuning bleibt später |
-| 12 | Echte **Produktionserfassung** (Texteingabe-Abgleich → später ASR) | D2 | P2 | 🤖 (größer) | eigener Loop; ASR in `11-ideas.md` |
+| 🟡12 | Echte **Produktionserfassung** (Texteingabe-Abgleich → später ASR) | D2 | P2 | 🤖 | **Tippen erledigt (Loop 6)** — `answerCheck.ts`; Sprechen/ASR bleibt post-M1 (`11-ideas.md`) |
 | 13 | Schwedisches **TTS** in der Pipeline (Audio-QS) | D3 | P2 | 🧑 (Anbieterwahl) + 🤖 | bei Content-Pipeline (nach M1) |
 
 ---
@@ -86,6 +86,7 @@ Legende Träger: **🤖 autonom** (ich) · **🧑 du/Entscheidung** · **👥 Me
 - **Loop 3 ✅** — #5, #7, #9, #10 (Abdeckung gewichtet, E2E in CI, Schreibfehler sichtbar, A11y). *Erledigt, verifiziert.*
 - **Loop 4 ✅** — #6 (Content-Entwurf auf 21 Segmente) + #8 (Hilfenutzung im Log). *Erledigt; Content wartet nur noch auf 👥 Muttersprache-Prüfung.*
 - **Loop 5 ✅** — #11 (adaptives Erfolgsband über die Neuzufuhr). *Erledigt, verifiziert.*
-- **Loop 6+** — #12/#13 (Produktion/ASR, TTS) — Richtung Content-Pipeline (nach M1-Beweis).
+- **Loop 6 ✅** — #12 (getippte Produktionserfassung, `answerCheck.ts`). *Erledigt, verifiziert.*
+- **Loop 7+ (post-M1)** — #13 (schwedisches TTS) + Sprech-/ASR-Produktion — Richtung Content-Pipeline, braucht Anbieter-Entscheidungen.
 
 Jeder Loop: bauen → Kaskade A→E → bei Bedarf B ansehen → committen → Katalog fortschreiben. P2/P3 offen bleiben transparent, kein Weichzeichnen.
