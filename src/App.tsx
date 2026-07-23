@@ -3,6 +3,7 @@ import type { Chunk, ChunkState, ReviewResult, Segment } from './domain/chunk';
 import { seedContentSource } from './modules/content/contentPipeline';
 import { getAllChunkStates, logEvent, putChunkState } from './storage/db';
 import { initialState, schedule } from './modules/memory/memoryEngine';
+import { bandStatus, recentSuccessRate, recommendedNewCount } from './modules/memory/difficulty';
 import { buildQueue, pickSegmentForChunk } from './session/buildQueue';
 import { ComprehensionLoop } from './modules/comprehension/ComprehensionLoop';
 import { MemoryField } from './modules/progress/MemoryField';
@@ -17,6 +18,7 @@ export default function App() {
   const [pos, setPos] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [successRate, setSuccessRate] = useState<number | null>(null);
   // Guards against a fast double-tap grading the same item twice (P3 race).
   const submitting = useRef(false);
 
@@ -33,10 +35,15 @@ export default function App() {
         const byId: Record<string, ChunkState> = {};
         for (const p of persisted) byId[p.chunkId] = p;
         for (const c of cs) if (!byId[c.id]) byId[c.id] = initialState(c.id, now);
+        // Adaptive difficulty: hold the ~80–85 % success band by tuning how
+        // many NEW chunks enter this session (docs/04-product.md, anti-cliff).
+        const rate = recentSuccessRate(Object.values(byId));
+        const maxNew = recommendedNewCount(rate);
         setChunks(cs);
         setSegments(segs);
         setStates(byId);
-        setQueue(buildQueue(Object.values(byId), now));
+        setSuccessRate(rate);
+        setQueue(buildQueue(Object.values(byId), now, maxNew));
         setPos(0);
       } catch (e) {
         // Never fail silently (docs/TEST-UND-PRUEF-STANDARD.md §3.1): surface it.
@@ -102,6 +109,11 @@ export default function App() {
         <p className="mt-2 text-xs text-slate-400">
           {metrics.dueNow} jetzt fällig · Verständnis-Abdeckung {Math.round(metrics.coverage * 100)} %
         </p>
+        {successRate !== null && (
+          <p className="mt-1 text-xs text-slate-500">
+            Flow-Band: {bandStatus(successRate)} ({Math.round(successRate * 100)} % zuletzt)
+          </p>
+        )}
         <div className="mt-3">
           <MemoryField states={stateList} />
         </div>

@@ -18,7 +18,7 @@ Schwere: **P1** blockierend · **P2** wichtig · **P3** klein. Beleg = Datei/Dok
 | ID | Befund | Beleg | Schwere | Status |
 |---|---|---|---|---|
 | W1 | „stabil" war **geschätzt** (Intervall ≥ 90) statt **gemessen** → Goodhart-Risiko am Kernwert | `metrics.ts` | P2 | **behoben (Loop 1)** — `provenStableAt` |
-| W2 | **Adaptives Erfolgsband ~80–85 %** ist im Konzept versprochen, aber **nicht im Code** (Schwierigkeit/Level fix) | `04-product.md` vs. `App.tsx` | P2 | offen (M-2) |
+| W2 | **Adaptives Erfolgsband ~80–85 %** ist im Konzept versprochen, aber **nicht im Code** (Schwierigkeit/Level fix) | `04-product.md` vs. `App.tsx` | P2 | **behoben (Loop 5)** — `difficulty.ts` (Neuzufuhr); Intervall-Ebene später |
 | W3 | „Verständnis-Abdeckung" zählt jeden letzten `good` (auch Wiedererkennen) → misst nicht „Verständnis im neuen Kontext auf Zielstufe" | `metrics.ts`, `07-measurement.md` | P3 | offen |
 | W4 | Interleaving nur implizit (Wartung mischt), keine bewusste Typ-Durchmischung | `buildQueue.ts` | P3 | für M1 ok |
 
@@ -73,7 +73,7 @@ Legende Träger: **🤖 autonom** (ich) · **🧑 du/Entscheidung** · **👥 Me
 | ✅8 | Hilfenutzung erfassen (Krücke gezogen?) als Signal | D4 | P3 | 🤖 | **erledigt (Loop 4)** — `helpUsed` im Session-Log |
 | ✅9 | Schreibfehler beim Bewerten sichtbar machen | E2 | P3 | 🤖 | **erledigt (Loop 3)** |
 | ✅10 | A11y-Runde (aria-Labels, `lang="sv"`) | E4 | P3 | 🤖 | **erledigt (Loop 3)** |
-| 11 | **Adaptives Erfolgsband** real bauen (Neuzufuhr/Intervalle an Erfolgsquote koppeln) | W2 | P2 | 🤖 (größer) | Difficulty-Controller-Modul, eigener Loop |
+| ✅11 | **Adaptives Erfolgsband** real bauen (Neuzufuhr an Erfolgsquote koppeln) | W2 | P2 | 🤖 | **erledigt (Loop 5)** — `difficulty.ts`; Intervall-Feintuning bleibt später |
 | 12 | Echte **Produktionserfassung** (Texteingabe-Abgleich → später ASR) | D2 | P2 | 🤖 (größer) | eigener Loop; ASR in `11-ideas.md` |
 | 13 | Schwedisches **TTS** in der Pipeline (Audio-QS) | D3 | P2 | 🧑 (Anbieterwahl) + 🤖 | bei Content-Pipeline (nach M1) |
 
@@ -85,7 +85,7 @@ Legende Träger: **🤖 autonom** (ich) · **🧑 du/Entscheidung** · **👥 Me
 - **Loop 2** — #3, #4 (Reife-Signal + „gebaut vs. versprochen"). *Autonom, als Nächstes.*
 - **Loop 3 ✅** — #5, #7, #9, #10 (Abdeckung gewichtet, E2E in CI, Schreibfehler sichtbar, A11y). *Erledigt, verifiziert.*
 - **Loop 4 ✅** — #6 (Content-Entwurf auf 21 Segmente) + #8 (Hilfenutzung im Log). *Erledigt; Content wartet nur noch auf 👥 Muttersprache-Prüfung.*
-- **Loop 5** — #11 (adaptives Band). *Größer, eigener Loop.*
+- **Loop 5 ✅** — #11 (adaptives Erfolgsband über die Neuzufuhr). *Erledigt, verifiziert.*
 - **Loop 6+** — #12/#13 (Produktion/ASR, TTS) — Richtung Content-Pipeline (nach M1-Beweis).
 
 Jeder Loop: bauen → Kaskade A→E → bei Bedarf B ansehen → committen → Katalog fortschreiben. P2/P3 offen bleiben transparent, kein Weichzeichnen.

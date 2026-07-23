@@ -145,7 +145,7 @@ Damit Doku und Realität nicht auseinanderdriften — was *heute Code* ist und w
 | Ehrliche Messung (aktiv · reift · **bewiesen** stabil · Abdeckung) | ✅ gebaut |
 | Kontextvariation, Tages-Dosierung neuer Chunks | ✅ gebaut |
 | Installierbare PWA, offline, lokale Daten | ✅ gebaut |
-| Adaptives Erfolgsband ~80–85 % (Schwierigkeit passt sich an) | 🚧 konzipiert, noch nicht Code |
+| Adaptives Erfolgsband ~80–85 % (Neuzufuhr passt sich an) | ✅ gebaut (Session-Ebene; Intervall-Feintuning später) |
 | Echte Produktionserfassung (Tippen/Sprechen statt Selbstnote) | 🚧 konzipiert |
 | Natürliches schwedisches TTS/Audio-QS | 🚧 konzipiert (nach Content-Pipeline) |
 | KI-Content-Pipeline (der Moat) | 🚧 konzipiert (nach M1) |
