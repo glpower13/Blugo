@@ -169,7 +169,7 @@ Danach läuft der Ablauf automatisch und die App erscheint unter
 unter **Settings → Pages** und in der **Actions**-Übersicht. Diesen Link im Handy-Browser öffnen
 → „Zum Startbildschirm hinzufügen", fertig.
 
-> Hinweis: Die mitgelieferten schwedischen Segmente sind ein **Platzhalter** zum Ausprobieren des Loops — noch **nicht** die geprüften M1-Inhalte (siehe `docs/08-content-pipeline.md`).
+> Hinweis: Die mitgelieferten schwedischen Inhalte sind seit 2026-07-23 deutlich erweitert (**8 Themen, ~43 Wendungen, ~85 Kontext-Sätze**), aber weiterhin **nicht muttersprachlich geprüft** — Prüfstand: `docs/content-review-schwedisch.md`. Der dauerhafte Ausbau läuft über die KI-Content-Fabrik (`docs/08-content-pipeline.md`).
 
 ### Gebaut vs. konzipiert (Ehrlichkeit, kein Überzeichnen)
 

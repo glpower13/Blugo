@@ -1,6 +1,13 @@
 # Content-Prüfliste — Schwedisch (Seed für M1)
 
-> **Zweck:** die aktuell im Code liegenden **Platzhalter-Segmente** von einer
+> **⚠️ Erweiterung 2026-07-23:** Der Seed wurde deutlich vergrößert — jetzt **8 Themen,
+> ~43 Wendungen, ~85 Kontext-Sätze** (Quelle: `src/modules/content/seedSegments.ts`).
+> Die Tabellen A/B unten decken nur den **ursprünglichen** Kern (11 Wendungen) ab; der
+> **gesamte** neue Inhalt ist **ebenfalls NICHT muttersprachlich geprüft** und braucht
+> dieselbe Prüfung. Neue Themen: Zahlen & Zeit, Essen & Trinken, Familie & Herkunft,
+> Alltag & Small Talk + Ausbau der bestehenden. Bekannte Wackelkandidaten: siehe §„Erweiterung" unten.
+
+> **Zweck:** die im Code liegenden **noch ungeprüften Segmente** von einer
 > schwedischsprachigen (oder gleichwertig qualifizierten) Person prüfen lassen,
 > bevor sie als geprüfter M1-Inhalt gelten (`docs/08-content-pipeline.md`, QS;
 > `docs/09-roadmap.md`, „~20 handgeprüfte Segmente").
@@ -85,6 +92,24 @@ Legende: **✅ OK** · **✏️ Korrektur:** …
 - **`jag vill ha` → „ich möchte"**: idiomatisch richtig, wörtlich „ich will haben" — passt die Glosse?
 - Reicht die Zahl/Streuung für ein M1-Level, oder fehlen Alltagssituationen?
   (Ziel laut Roadmap: ~20 geprüfte Segmente — **aktuell 21** (11 Chunks).)
+
+## Erweiterung 2026-07-23 — neue Wendungen (ebenfalls ungeprüft)
+
+Die neuen Themen/Wendungen stehen kompakt in `src/modules/content/seedSegments.ts`
+(je ≥ 2 Kontexte). Statt sie hier komplett zu doppeln, hier die **bekannten Zweifelsfälle**
+zum gezielten Draufschauen:
+
+- **Partikel-/Funktionswort-Glossen** (Kontext-abhängig, nur Näherung): `till` (= zu/nach/noch),
+  `om` (= in/um), `med` (= mit), `få` (= bekommen).
+- **Idiomatische Wendungen** (wörtliche Glosse holprig, aber gewollt): `smaklig måltid`
+  („guten Appetit", wörtl. „schmackhafte Mahlzeit"), `ha det bra` („alles Gute/mach's gut"),
+  `hej då` („tschüss").
+- **`jobbar du med?`** → „was machst du beruflich?" (wörtl. „arbeitest du mit?").
+- **`gillar` vs. `tycker om`** für „mögen": bewusst `gillar` gewählt (ein Wort, weniger
+  Partikelverb-Verwirrung) — natürlich genug?
+- **Groß-/Kleinschreibung** von Ländernamen (`Tyskland`) / Satzanfängen.
+- **Register/Natürlichkeit** der neuen Alltagssätze (Wetter, Familie, Wegbeschreibung) —
+  sagt man das *wirklich* so?
 
 ## Nach der Freigabe (Checkliste)
 
