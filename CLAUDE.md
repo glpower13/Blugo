@@ -63,6 +63,10 @@ Bei Build-Start (M1, jetzt) und **per aktueller Recherche** getroffen — nicht 
 - **Entschieden (M1-Frontend):** Vite + React + TypeScript + Tailwind, PWA via `vite-plugin-pwa`, lokale Daten in IndexedDB (`idb`). Begründung: `docs/05-architecture.md`.
 - **Weiter vertagt:** schwedisches TTS/ASR und LLM für Generierung & Dekodierung — bleiben in `docs/05-architecture.md` als Anforderungen (was das Modell können muss), nicht als Produktnamen, bis die Content-Pipeline gebaut wird.
 
+## Test- & Prüf-Standard
+
+**Vor jedem „fertig" die Prüfkaskade aus `docs/TEST-UND-PRUEF-STANDARD.md` durchlaufen.** Minimal A→E nach jedem Baustein (Syntax → funktional → Regression → adversarialer Faktencheck), F (ISTQB) am Modul-Meilenstein, G (Stabilität) vor Release/bei kritischer Infrastruktur. „Läuft bei mir" ist kein Nachweis — nötig ist ein grüner, reproduzierbarer Lauf **plus eigenes Ansehen** (hell/dunkel). Der Projekt-Adapter (Befehle) steht in §8 dieser Datei.
+
 ## Definition of Done für M0 *(erfüllt)*
 
 - `/docs` vollständig, in sich konsistent, ohne Widersprüche zu `README.md`.
