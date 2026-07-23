@@ -32,7 +32,9 @@ Für die Content-Pipeline (nach M1) — als Fähigkeiten formuliert, nicht als P
 - **TTS**: natürliches Schwedisch, variables Tempo.
 - **ASR** (später, für Produktion/Aussprache): schwedische Erkennung.
 
-Frontend, Speicherung und der M1-Scheduler sind entschieden — siehe „M1-Stack" oben.
+Diese Fähigkeiten sind **seit 2026-07-23 als anbieter-agnostische Ports im Code** vorhanden (`src/modules/content/ports.ts` + `aiRegistry.ts`, Ports & Adapters — Schritt B in `gremium-weltklasse.md`). Heute laufen Standard-Adapter (Seed-Inhalt, Web-Speech-TTS); ein konkreter Anbieter wird angesteckt, ohne die Aufrufer zu ändern. Details: `08-content-pipeline.md` §Port-Schicht.
+
+Frontend, Speicherung und der Scheduler (FSRS) sind entschieden — siehe „M1-Stack" oben.
 
 ## Querschnitt (bewusst vertagt)
 Auth, Cloud, Sync, Offline, Datenschutz, Security: als offene Fragen erfasst, nicht in M1 vorgebaut. Datenschutz (DSGVO) wird spätestens bei Nutzerdaten/Serverbetrieb konkret.

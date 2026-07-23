@@ -11,7 +11,31 @@ Für Schwedisch existiert kaum graded Content auf i+1; kuratierte Podcasts/Sende
 5. **Optional Bild/Kontext** — zur Verständlichmachung (Dual Coding, moderat).
 6. **Qualitätssicherung** — in M1 handgeprüft (~20 Segmente); später teilautomatisiert mit Stichprobenprüfung.
 
+## Port-Schicht (Ports & Adapters) — der Andockpunkt *(gebaut 2026-07-23, Schritt B)*
+
+Damit ein Anbieter später angebunden werden kann, **ohne die App umzubauen**, hängt
+die Pipeline an genormten **Ports** (Fähigkeits-Interfaces), nicht an Produkten
+(`src/modules/content/ports.ts`). Vier Fähigkeiten:
+
+| Port | Fähigkeit | Standard-Adapter heute | Anbieter-Adapter (Schritt C) |
+|---|---|---|---|
+| `ContentGenerator` | i+1-Segment on demand erzeugen (der Moat) | `seed` (bedient Seed-Kontexte) | LLM |
+| `Decoder` | interlineare Dekodierung SV→DE | `seed` (kennt nur Seed) | LLM |
+| `SpeechSynthesizer` | Schwedisch vorlesen (TTS) | `web-speech` (Browser-Stimme) | natürliches TTS |
+| `SpeechRecognizer` | Schwedisch erkennen (ASR) | — (nur Vertrag) | ASR (post-M1) |
+
+Die **Registry** (`src/modules/content/aiRegistry.ts`) ist der EINE Ort, an dem die
+App ihre KI-Fähigkeit bezieht; ein Adapter wird per `setAiPorts(...)` getauscht.
+Die aufrufenden Stellen (z. B. die Sprachausgabe im Comprehension-Loop) ändern sich
+dabei nicht. **Zukunftssicherheit:** Modelle wechseln monatlich — die App bleibt.
+**Ehrlich:** Die Seed-Adapter erfinden nichts; was der Seed nicht kennt, liefert er
+nicht (Fehler statt Halluzination).
+
+> **Sicherheit ab Schritt C:** Sobald ein echter Adapter Nutzertext an einen Dritten
+> schickt, greift `05-architecture.md` §Sicherheit (API-Keys server-seitig, nie im
+> Client; Rate-Limits; Consent/Datenschutz).
+
 ## Risiken / offene Punkte
 - Faktentreue & Natürlichkeit generierter Sätze → menschliche Stichprobe.
 - Qualität schwedischer Dekodierung/Idiomatik → Prüfheuristiken.
-- Konkrete Modellwahl (LLM/TTS) → erst M1, per Live-Recherche.
+- Konkrete Modellwahl (LLM/TTS) → Anbieter-Entscheidung offen (`10-open-questions.md`); die Port-Schicht hält alle Wege offen.

@@ -167,6 +167,7 @@ Damit Doku und Realität nicht auseinanderdriften — was *heute Code* ist und w
 | Installierbare PWA, offline, lokale Daten | ✅ gebaut |
 | Adaptives Erfolgsband ~80–85 % (Neuzufuhr passt sich an) | ✅ gebaut (Session-Ebene; Intervall-Feintuning später) |
 | Echte Produktionserfassung (Tippen statt Selbstnote) | ✅ Tippen gebaut · Sprechen/ASR später |
+| KI-Port-Schicht (anbieter-agnostischer Andockpunkt, Ports & Adapters) | ✅ gebaut · Anbieter-Adapter 🚧 |
 | Natürliches schwedisches TTS/Audio-QS | 🚧 konzipiert (nach Content-Pipeline) |
 | KI-Content-Pipeline (der Moat) | 🚧 konzipiert (nach M1) |
 

@@ -4,7 +4,7 @@
 
 import { useEffect, useState } from 'react';
 import type { Chunk, ReviewResult, Segment } from '../../domain/chunk';
-import { speakSwedish, ttsAvailable } from './tts';
+import { aiRegistry } from '../content/aiRegistry';
 import { gradeTyped } from './answerCheck';
 
 const GRADE_LABEL: Record<ReviewResult, string> = {
@@ -49,9 +49,9 @@ export function ComprehensionLoop({ segment, chunk, stage, onResult }: Props) {
         <p lang="sv" className="text-2xl font-semibold text-slate-100">
           {segment.sv}
         </p>
-        {ttsAvailable() && (
+        {aiRegistry.synthesizer.isAvailable() && (
           <button
-            onClick={() => speakSwedish(segment.sv)}
+            onClick={() => void aiRegistry.synthesizer.speak({ text: segment.sv })}
             className="shrink-0 rounded-full bg-brand/20 px-3 py-2 text-sm text-brand"
             aria-label="Vorlesen"
           >
