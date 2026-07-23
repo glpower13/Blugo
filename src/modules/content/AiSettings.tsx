@@ -59,8 +59,8 @@ export function AiSettings({ onClose }: { onClose: () => void }) {
   const isCloud = settings.provider === 'anthropic';
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
-      <div className="w-full max-w-md rounded-2xl bg-surface p-5 shadow-xl">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-md">
+      <div className="glass rise w-full max-w-md rounded-2xl p-5">
         <div className="mb-3 flex items-center justify-between">
           <h2 className="text-base font-semibold text-paper">KI-Einstellungen</h2>
           <button onClick={close} className="text-muted" aria-label="Schließen">
@@ -144,7 +144,7 @@ export function AiSettings({ onClose }: { onClose: () => void }) {
         <div className="mt-5 flex gap-2">
           <button
             onClick={save}
-            className="flex-1 rounded-lg bg-brand px-4 py-2 font-medium text-base"
+            className="flex-1 rounded-lg bg-brand px-4 py-2 font-medium text-ink"
           >
             Speichern
           </button>

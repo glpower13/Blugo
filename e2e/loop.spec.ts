@@ -13,7 +13,7 @@ test('comprehension loop runs to completion without errors', async ({ page }) =>
   await page.goto('/');
 
   // App-Shell
-  await expect(page.locator('h1')).toHaveText('NEUROLANG');
+  await expect(page.locator('h1')).toHaveText('neurolang');
   await expect(page.getByText('reift', { exact: true })).toBeVisible();
   await expect(page.getByText(/Verständnis-Abdeckung/)).toBeVisible();
 

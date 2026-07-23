@@ -140,7 +140,7 @@ export function ComprehensionLoop({ segment, chunk, stage, onResult, known }: Pr
   }
 
   return (
-    <section className="rounded-2xl bg-surface p-5 shadow-lg">
+    <section className="glass rise rounded-2xl p-5">
       <p className="mb-1 text-xs uppercase tracking-wide text-muted">
         Begegnung · Level {segment.level} · {stage === 'production' ? 'Produktion' : 'Wiedererkennen'}
       </p>
@@ -344,7 +344,7 @@ export function ComprehensionLoop({ segment, chunk, stage, onResult, known }: Pr
                       setTyped('');
                       setWhy({ state: 'idle', text: '' });
                     }}
-                    className="rounded-lg bg-brand px-4 py-2 font-medium text-base"
+                    className="rounded-lg bg-brand px-4 py-2 font-medium text-ink"
                   >
                     Nochmal versuchen
                   </button>
@@ -395,7 +395,7 @@ export function ComprehensionLoop({ segment, chunk, stage, onResult, known }: Pr
                   autoCorrect="off"
                   className="flex-1 rounded-lg border border-line bg-base px-3 py-2 text-paper"
                 />
-                <button type="submit" className="rounded-lg bg-brand px-4 py-2 font-medium text-base">
+                <button type="submit" className="rounded-lg bg-brand px-4 py-2 font-medium text-ink">
                   Prüfen
                 </button>
               </form>
@@ -403,7 +403,7 @@ export function ComprehensionLoop({ segment, chunk, stage, onResult, known }: Pr
           ) : (
             <button
               onClick={() => setRevealed(true)}
-              className="rounded-lg bg-brand px-4 py-2 font-medium text-base"
+              className="rounded-lg bg-brand px-4 py-2 font-medium text-ink"
             >
               Auflösen
             </button>
@@ -435,7 +435,7 @@ function GradeButton({ label, tone, onClick }: { label: string; tone: string; on
     <button
       onClick={onClick}
       aria-label={`Selbsteinschätzung: ${label}`}
-      className={`rounded-lg py-2.5 text-sm font-medium text-base ${tone}`}
+      className={`rounded-lg py-2.5 text-sm font-medium text-ink ${tone}`}
     >
       {label}
     </button>

@@ -1,61 +1,62 @@
 # Design-Handschrift — der Nordstern für das Aussehen
 
-> **Auftrag (Nutzer):** ein „viel, viel besseres, herausragenderes" Aussehen, **absolut High-End / Premium, sehr edel** — aber **nicht** das typische Übertriebene. Diese Datei legt die **Identität** fest (jetzt), an der jede spätere Design-Arbeit gemessen wird. Erste Umsetzung: 2026-07-23.
+> **Auftrag (Nutzer):** ein **absolut High-End / Premium** Aussehen, **sehr edel** — eine **Glasoberfläche (Glassmorphism)** in Richtung **iPhone-Sperrbildschirm**, mit Tiefe und dezenten Animationen. Ausdrücklich **nicht** flach/billig („wie von einem Kind gemacht"). Diese Datei legt die **Identität** fest, an der jede Design-Arbeit gemessen wird. Umsetzung (Glas-Richtung): 2026-07-23.
 
 ---
 
 ## 0. In einfachen Worten
 
-Edel wirkt die App nicht durch **mehr** (mehr Farben, mehr Effekte, mehr Glanz), sondern durch **Ruhe und Sorgfalt**: eine warme, zurückhaltende Bühne, **eine** edle Akzentfarbe, eine Schrift mit Charakter und viel Luft. Weniger, aber genauer. Das liest sich hochwertig, weil es *bewusst* wirkt — nicht wie eine Vorlage.
+Die App liegt auf einer **tiefen, atmosphärischen Bühne** (weiche, langsam driftende Farb-Lichter — wie ein iPhone-Sperrbildschirm). Darüber schweben **Milchglas-Karten**: durchscheinend, mit feiner Lichtkante, weichem Schatten und viel Ruhe. Edel wirkt das durch **Tiefe, Licht und Zurückhaltung**, nicht durch bunte Effekte.
 
 ## 1. Das Leitprinzip
 
-**Zurückhaltung + Handwerk statt Effekte.** Jede Entscheidung soll man *spüren*, ohne sie zu bemerken. Das passt zur einen Design-Regel des Projekts: edel heißt **wahrhaftig**, nicht dekoriert (CLAUDE.md; `06-motivation.md`).
+**High-End-Glas mit Zurückhaltung.** Tiefe und Material (Unschärfe, Lichtbrechung, Schichten) statt Deko. Jede Bewegung ist weich und *erzählt* einen Zustand — sie lärmt nie. Passt zur einen Design-Regel: edel heißt **wahrhaftig**, nicht dekoriert (CLAUDE.md; `06-motivation.md`).
 
-## 2. Bewusst gemieden (was 2026 „billig"/nach Vorlage wirkt)
+## 2. Bewusst gemieden
 
-- Generisches **KI-Indigo/Violett**, blaue Farbverläufe, „AI-Glow".
-- Schwebende Partikel, Glas-Overkill, Neon, Konfetti/Dopamin-Effekte.
+- **Billiges** Glas: milchige Kästen ohne etwas dahinter (Glas braucht einen lebendigen Hintergrund zum Brechen), harte Kanten, zu viele Ebenen.
+- Grelle Verläufe, Neon, schwebende Partikel, „AI-Glow", Konfetti/Dopamin-Effekte.
 - Laute, verspielte Animationen; „Badges" und Zahlen ohne Bedeutung.
 
 ## 3. Die Handschrift (Identität)
 
-**Farbe — warmes Tinten-Dunkel + ein Messing-Akzent.**
-Weg vom kalten Marineblau, hin zu einem **warmen, tiefen Tinten-Schwarz** mit kaum sichtbarem Wärme-Verlauf (Materialgefühl). Genau **ein** edler Akzent: **gedämpftes Messing/Gold** — souverän, ruhig, hochwertig; sparsam eingesetzt (Wortmarke, primäre Aktion, aktiver Fokus). Tokens in `tailwind.config.js`:
+**Bühne — atmosphärischer Tiefen-Hintergrund.**
+Ein fast schwarzer Grund (`#06060a`) mit **weichen, langsam driftenden Farb-Lichtern** (Violett, Blau, Türkis, ein warmer Schimmer) — die „Aurora", die dem Glas Farbe zum Brechen gibt (`index.css`, `body::before`, `@keyframes aurora`). Ruhig, edel, nie grell.
+
+**Flächen — Milchglas (frosted).**
+Karten sind **durchscheinend** (`rgba(255,255,255,0.08)`) mit **Unschärfe** (`backdrop-filter: blur(30px) saturate(180%)`), einer **feinen Lichtkante** oben (`inset`-Glanz) und weichem, tiefem Schatten. Klasse `.glass` (Karten) und `.glass-soft` (innere Panels/Chips) in `index.css`. Große Radien.
+
+**Farbe — ein Akzent, mit Bedeutung.**
+Genau **ein** edler Akzent: **Champagner-Gold** (`brand #E7C08A`) — glüht auf dem Glas, souverän, sparsam (Wortmarke, primäre Aktion, aktiver Fokus). Farbe trägt sonst nur **Bedeutung**: Grün (`success`) = *bewiesen* stabil (das eine Wahrheitssignal), Ampel `warn`/`danger` nur für die Selbsteinschätzung. Text in **Apple-Label-Farben** (`paper #F5F5F7`, `muted`, `faint`). Solides Tiefdunkel (`ink`) für Text auf goldenen Flächen.
 
 | Rolle | Token | Wert |
 |---|---|---|
-| Hintergrund (Tinte) | `base` | `#16130F` |
-| Fläche (gehoben) | `surface` | `#201B15` |
-| Haarlinie / Rand | `line` | `#312A22` |
-| **Akzent (Messing)** | `brand` | `#C6A15A` |
-| Text (warmes Off-White) | `paper` | `#ECE3D5` |
-| Text sekundär | `muted` | `#A99D89` |
-| Text sehr leise | `faint` | `#786E5F` |
-| **Wahrheit: bewiesen stabil** | `success` | `#77B893` |
-| Ampel „schwer" / „nochmal" | `warn` / `danger` | `#D8A657` / `#C97A6D` |
+| Bühne (Grund) | — | `#06060a` + Aurora |
+| Karte (Milchglas) | `.glass` | weiß-alpha 0.08 + blur |
+| Kante | `line` | `rgba(255,255,255,0.12)` |
+| **Akzent (Champagner-Gold)** | `brand` | `#E7C08A` |
+| Text auf Gold | `ink` | `#0B0A12` |
+| Text (Apple-Weiß) | `paper` | `#F5F5F7` |
+| Text sekundär / tertiär | `muted` / `faint` | iOS-Label-Alpha |
+| **Wahrheit: bewiesen stabil** | `success` | `#5FD0A0` |
+| Ampel „schwer"/„nochmal" | `warn`/`danger` | `#F0B354` / `#F28C7C` |
 
-> **Farbe trägt Bedeutung, nicht Deko:** Messing = Identität/Aktion. Grün = *bewiesenes* Können (das eine Wahrheitssignal). Die Ampel nur für die Selbsteinschätzung. Nichts Buntes „weil hübsch".
+**Typografie — Apple-System (SF).**
+`-apple-system`/SF Pro — die iPhone-Anmutung, offline-sicher (kein Fremd-Server, `05-architecture.md`). Große, klare Hierarchie; weite Laufweite bei Kapitälchen-Labels für den komponierten, edlen Eindruck.
 
-**Typografie — eine Stimme mit Charakter.**
-Eine ruhige **Editorial-Serif** als Markenstimme (Wortmarke, Überschriften, der schwedische Begegnungssatz) trägt die Emotion; eine klare **humanistische Sans** fürs Funktionale. Bewusst **Systemschriften** (offline-sicher, kein Fremd-Server zur Laufzeit — passt zu `05-architecture.md`); eine lizenzierte, mitgelieferte Marken-Serif ist ein späterer, bewusster Schritt. Weite Laufweite (`tracking`) bei Kapitälchen-Labels für den edlen, komponierten Eindruck.
-
-**Raum & Material.** Echter Weißraum, großzügige Radien, **weiche, tiefe** Schatten statt harter Kanten, Haarlinien statt dicker Rahmen. Ruhe vor Dichte.
-
-**Bewegung.** Sparsam und weich (`cubic-bezier`, sanftes Fade). Bewegung *erzählt* (Zustandswechsel), sie lärmt nie. `prefers-reduced-motion` respektiert.
-
-**Spezifisch statt generisch.** Für genau diesen Job gestaltet — ruhiges, konzentriertes Erhalten. Eine dezente nordische Sensibilität (passend zu Schwedisch) als Haltung, nicht als Klischee (keine Flaggenfarben).
+**Bewegung — ruhig & tastbar.**
+Langsame Aurora-Drift; Karten steigen beim Erscheinen sanft auf (`.rise`); Knöpfe geben ein dezentes Eindrücken auf Tap. Weiche Kurve (`cubic-bezier`). `prefers-reduced-motion` schaltet alles ab.
 
 ## 4. Erste Umsetzung (2026-07-23)
 
-Gebaut: warme Token-Palette + Verlauf (`tailwind.config.js`, `index.css`), Messing-Akzent statt Indigo, Editorial-Serif für Wortmarke/Kennzahlen/Begegnungssatz/Überschriften, weite Kapitälchen-Labels, weiche Schatten/Haarlinien, ruhige Bewegungskurve, dunkle Statusleiste (`theme-color`). Die gesamte Oberfläche (Kopf, Kennzahlen, Themen, Lern-Loop) wurde auf die neuen Tokens umgestellt.
+Gebaut: Aurora-Tiefenhintergrund + `.glass`/`.glass-soft` (`index.css`, `tailwind.config.js`), Champagner-Gold-Akzent, Apple-System-Schrift, ruhige Bewegung (Aurora-Drift, `.rise`, Tap-Feedback), dunkle Statusleiste (`theme-color #06060a`). Alle Flächen (Kopf, Kennzahlen, Themen, Lern-Loop, Einstellungs-Sheet mit unscharfem Hintergrund) auf Glas + Tokens umgestellt.
 
-Bewusst **dunkel-only**: eine edle, warme Dunkelbühne ist die Produktentscheidung (`index.css` `color-scheme: dark`).
+Bewusst **dunkel-only** (`index.css` `color-scheme: dark`).
 
 ## 5. Bewusst später (nicht jetzt)
 
-- Eine **eigene, lizenzierte Marken-Serif** mitliefern (statt Systemschrift).
 - Eigene **Icons** statt Emoji (⚙️/▶︎/🐢/🗣️/🤖) — „ruhige Souveränität".
-- Feiner Feinschliff (Mikro-Interaktionen, Sound-Design-Frage), **wenn echte Inhalte** stehen — sonst poliert man Platzhalter (`gremium-naechste-schritte.md` §4).
+- Optional eine eigene, lizenzierte **Marken-Schrift** statt reiner Systemschrift.
+- Feinschliff (Mikro-Interaktionen, ggf. sanfte Parallaxe der Aurora), **wenn echte Inhalte** stehen — sonst poliert man Platzhalter (`gremium-naechste-schritte.md` §4).
 
 > **Anschluss:** Vision `gremium-naechste-schritte.md` §4 · Motivation/Ehrlichkeit `06-motivation.md` · Produkt-Ruhe `04-product.md` · Architektur (offline, keine Fremd-Server) `05-architecture.md`.

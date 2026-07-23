@@ -16,7 +16,7 @@ interface Props {
 export function CategoryOverview({ progress, focusId, onFocus }: Props) {
   if (progress.length === 0) return null;
   return (
-    <section className="rounded-2xl bg-surface p-4">
+    <section className="glass rise rounded-2xl p-5">
       <div className="mb-3 flex items-baseline justify-between">
         <h2 className="font-display text-base font-semibold tracking-wide text-paper">Themen</h2>
         {focusId && (
@@ -34,7 +34,7 @@ export function CategoryOverview({ progress, focusId, onFocus }: Props) {
           const isFocus = p.category.id === focusId;
           const share = p.total === 0 ? 0 : p.stable / p.total;
           return (
-            <li key={p.category.id} className="rounded-xl border border-line bg-base p-3">
+            <li key={p.category.id} className="glass-soft rounded-xl p-3.5">
               <div className="flex items-start justify-between gap-3">
                 <div>
                   <p className="text-sm font-medium text-paper">{p.category.title}</p>
@@ -46,7 +46,7 @@ export function CategoryOverview({ progress, focusId, onFocus }: Props) {
                   className={
                     'shrink-0 rounded-full px-3 py-1.5 text-xs font-medium ' +
                     (isFocus
-                      ? 'bg-brand text-base'
+                      ? 'bg-brand text-ink'
                       : 'border border-brand/50 text-brand')
                   }
                 >

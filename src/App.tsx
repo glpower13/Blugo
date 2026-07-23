@@ -143,21 +143,18 @@ export default function App() {
 
   return (
     <main className="mx-auto flex min-h-dvh max-w-md flex-col gap-4 px-4 pb-10 pt-6">
-      <header className="flex items-start justify-between gap-3">
+      <header className="flex items-start justify-between gap-3 px-1 pt-1">
         <div>
-          <h1 className="font-display text-2xl font-semibold tracking-[0.14em] text-paper">
-            NEURO<span className="text-brand">LANG</span>
+          <h1 className="font-display text-[1.7rem] font-semibold leading-none tracking-[0.02em] text-paper">
+            neuro<span className="font-light text-brand">lang</span>
           </h1>
-          <div className="mt-1.5 flex items-center gap-2">
-            <span className="h-px w-6 bg-brand-soft" aria-hidden />
-            <p className="text-[0.7rem] uppercase tracking-[0.18em] text-muted">
-              Deutsch → Schwedisch · Erhalt statt Streak
-            </p>
-          </div>
+          <p className="mt-2 text-[0.72rem] font-medium uppercase tracking-[0.22em] text-muted">
+            Deutsch → Schwedisch
+          </p>
         </div>
         <button
           onClick={() => setShowSettings(true)}
-          className="shrink-0 rounded-full border border-line bg-surface px-3 py-2 text-sm text-muted"
+          className="glass-soft shrink-0 rounded-full px-3 py-2 text-sm text-paper"
           aria-label="KI-Einstellungen"
           title="KI-Einstellungen"
         >
@@ -166,8 +163,8 @@ export default function App() {
       </header>
 
       {/* Ehrliche Fortschrittsanzeige (docs/07-measurement.md) */}
-      <section className="rounded-2xl bg-surface p-4">
-        <div className="flex items-baseline gap-4">
+      <section className="glass rise rounded-2xl p-5">
+        <div className="flex items-baseline gap-5">
           <Stat value={metrics.active} label="aktiv" />
           <Stat value={metrics.maturing} label="reift" />
           <Stat value={metrics.stable} label="stabil (bewiesen)" accent />
@@ -208,7 +205,7 @@ export default function App() {
       ) : null}
 
       {done && !error && (
-        <section className="rounded-2xl bg-surface p-5 text-center">
+        <section className="glass rise rounded-2xl p-6 text-center">
           <p className="font-display text-xl font-semibold text-success">Session erledigt.</p>
           <p className="mt-1 text-sm text-muted">
             Heute stabilisiert. Der Rest wartet — ohne zerbrechenden Streak.
