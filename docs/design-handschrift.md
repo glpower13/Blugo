@@ -41,8 +41,22 @@ Genau **ein** edler Akzent: **Champagner-Gold** (`brand #E7C08A`) — glüht auf
 | **Wahrheit: bewiesen stabil** | `success` | `#5FD0A0` |
 | Ampel „schwer"/„nochmal" | `warn`/`danger` | `#F0B354` / `#F28C7C` |
 
-**Typografie — Apple-System (SF).**
-`-apple-system`/SF Pro — die iPhone-Anmutung, offline-sicher (kein Fremd-Server, `05-architecture.md`). Große, klare Hierarchie; weite Laufweite bei Kapitälchen-Labels für den komponierten, edlen Eindruck.
+**Typografie — zwei Stimmen (aktualisiert 2026-07-24).**
+Weil die App zweisprachig ist, tragen **zwei** Schriften die Struktur — das ist Information, keine Deko:
+
+| Stimme | Schrift | Wofür |
+|---|---|---|
+| „Die App spricht **mit dir**" | **Fraunces Variable** (Serife, Achse `opsz`) | deutsche Titel & Überschriften, Wortmarke |
+| „Die **Sprache**, die du lernst" | **Manrope Variable** (Grotesk) | schwedische Sätze, Bedienelemente, Zahlen |
+
+Warum so: die Serife gibt der Oberfläche einen editorialen, hochwertigen Ton (die `opsz`-Achse verfeinert
+große Titel automatisch und hält kleine robust); die Grotesk hält das **Schwedische gestochen klar** —
+å/ä/ö dürfen den Lerner nie raten lassen, und Kennzahlen brauchen verlässliche Tabellenziffern (`tnum`).
+Nebeneffekt: man sieht auf einen Blick, was Oberfläche und was Lernstoff ist.
+
+**Offline-sicher:** beide Schriften werden **mitgeliefert** (`public/fonts`, nur Latin-Teilmenge,
+zusammen ~92 kB, im Service-Worker vorgehalten) — kein CDN, kein Fremd-Server (`05-architecture.md`).
+Lizenz SIL OFL 1.1 (`public/fonts/LICENSE-*.txt`). Systemschriften bleiben als Rückfallebene.
 
 **Bewegung — ruhig & tastbar.**
 Langsame Aurora-Drift; Karten steigen beim Erscheinen sanft auf (`.rise`); Knöpfe geben ein dezentes Eindrücken auf Tap. Weiche Kurve (`cubic-bezier`). `prefers-reduced-motion` schaltet alles ab.
@@ -66,7 +80,8 @@ Fünf Hebel von „Top-40" auf Weltklasse (`gremium-design-weltklasse.md`):
 
 ## 6. Bewusst später (nicht jetzt)
 
-- Optional eine eigene, lizenzierte **Marken-Schrift** statt reiner Systemschrift.
+- ~~Optional eine eigene, lizenzierte **Marken-Schrift** statt reiner Systemschrift.~~
+  **Erledigt 2026-07-24:** Fraunces + Manrope, mitgeliefert (siehe §3 Typografie).
 - Feinschliff mit einem echten Art-Director am realen Gerät, **wenn echte Inhalte** stehen — sonst poliert man Platzhalter (`gremium-naechste-schritte.md` §4).
 
 > **Anschluss:** Vision `gremium-naechste-schritte.md` §4 · Motivation/Ehrlichkeit `06-motivation.md` · Produkt-Ruhe `04-product.md` · Architektur (offline, keine Fremd-Server) `05-architecture.md`.

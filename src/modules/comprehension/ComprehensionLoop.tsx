@@ -181,7 +181,7 @@ export function ComprehensionLoop({
         {showFull ? (
           <p
             lang="sv"
-            className="font-display text-[1.9rem] font-semibold leading-[1.12] tracking-[-0.01em] text-paper"
+            className="font-sans text-[1.9rem] font-bold leading-[1.14] tracking-[-0.015em] text-paper"
           >
             {segment.sv}
           </p>
@@ -189,7 +189,7 @@ export function ComprehensionLoop({
           // Produktion: Satz mit Lücke an der Stelle des Ziel-Chunks (Kontext ohne Lösung).
           <p
             lang="sv"
-            className="font-display text-[1.9rem] font-semibold leading-[1.12] tracking-[-0.01em] text-paper"
+            className="font-sans text-[1.9rem] font-bold leading-[1.14] tracking-[-0.015em] text-paper"
           >
             {cloze.before}
             <span
@@ -486,7 +486,7 @@ export function ComprehensionLoop({
           <>
             <p
               lang={stage === 'production' ? 'sv' : 'de'}
-              className="mb-1 font-display text-xl font-semibold text-paper"
+              className="mb-1 font-sans text-xl font-bold text-paper"
             >
               {stage === 'production' ? chunk.sv : chunk.de}
             </p>

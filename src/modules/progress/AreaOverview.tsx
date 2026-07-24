@@ -49,7 +49,9 @@ export function AreaOverview({ progress, focusTitle, onOpen, onClearFocus }: Pro
                 <div className="flex items-start gap-3">
                   <AreaBadge hue={hue} Icon={Icon} />
                   <div className="min-w-0 flex-1">
-                    <p className="text-[0.98rem] font-semibold text-paper">{p.area.title}</p>
+                    <p className="font-display text-[1.05rem] font-semibold tracking-[0.01em] text-paper">
+                      {p.area.title}
+                    </p>
                     <p className="mt-0.5 text-xs text-muted">{p.area.blurb}</p>
                   </div>
                   <IconChevron className="mt-0.5 h-5 w-5 shrink-0 text-faint" />

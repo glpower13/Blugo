@@ -531,7 +531,7 @@ function Stat({ value, label, accent }: { value: number; label: string; accent?:
   return (
     <div>
       <div
-        className={`tnum font-display text-[2.4rem] font-bold leading-none ${accent ? 'text-success glow-success' : 'text-paper'}`}
+        className={`tnum font-sans text-[2.4rem] font-bold leading-none ${accent ? 'text-success glow-success' : 'text-paper'}`}
       >
         {shown}
       </div>

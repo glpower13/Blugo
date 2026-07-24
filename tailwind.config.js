@@ -21,18 +21,13 @@ export default {
         danger: '#F28C7C', // „nochmal" / Fehler (Ampel, sparsam)
       },
       fontFamily: {
-        // Apple-System-Schrift (SF) — die iPhone-Anmutung; offline-sicher.
-        display: [
-          '-apple-system',
-          'BlinkMacSystemFont',
-          '"SF Pro Display"',
-          'system-ui',
-          'sans-serif',
-        ],
+        // Zwei Stimmen (src/index.css §Schrift-System): die Serife spricht DEUTSCH
+        // (Titel/Überschriften), die Grotesk trägt Bedienung UND das Schwedische.
+        display: ['"Fraunces Variable"', 'Georgia', 'Times New Roman', 'serif'],
         sans: [
+          '"Manrope Variable"',
           '-apple-system',
           'BlinkMacSystemFont',
-          '"SF Pro Text"',
           'system-ui',
           '"Segoe UI"',
           'Roboto',

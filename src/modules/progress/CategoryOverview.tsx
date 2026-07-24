@@ -48,7 +48,7 @@ export function CategoryOverview({ progress, focusId, onOpen, onClearFocus }: Pr
               >
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
-                    <p className="flex items-center gap-1.5 text-[0.98rem] font-semibold text-paper">
+                    <p className="flex items-center gap-1.5 font-display text-[1.05rem] font-semibold tracking-[0.01em] text-paper">
                       {isFocus && <span className="text-brand">★</span>}
                       {p.category.title}
                     </p>
