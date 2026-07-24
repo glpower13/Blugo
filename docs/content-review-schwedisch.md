@@ -143,6 +143,24 @@ oben schon gelistete Chunks; **neu zu prüfen sind die Partner-Zeilen** (Input):
   `nätter`, `tusen kronor`, `lycka till`, `ingen orsak` — idiomatisch & korrekt?
 - Register (`ni` vs. `du`) über eine Szene hinweg konsistent?
 
+## Erweiterung 2026-07-24 (abends) — fünf weitere Gespräche (ungeprüft)
+
+`seedDialogs.ts` enthält jetzt **8 Szenen**. Die „du"-Zeilen sind bereits oben gelistete
+Chunks; **neu zu prüfen sind wieder nur die Partner-Zeilen**:
+
+- **Im Café:** `Vad får det lov att vara?` (feste Bedienungs-Floskel — natürlich?),
+  `Kommer strax`, `Självklart`, `Trettiofem kronor`.
+- **Im Geschäft:** `Behöver du hjälp?`, `Säg till om du undrar något`, `Visst!`,
+  `Provrummet är där borta`, `Utmärkt val!`.
+- **Im Supermarkt:** `Kan jag hjälpa dig?`, `Där borta, till höger`, `Något mer?`, `Här är den`.
+- **Beim Arzt:** `Vad kan jag hjälpa till med?`, `Var gör det ont?`, `Har du feber också?`,
+  **`Tål du penicillin?`** (medizinisches Register — richtig?), `Krya på dig!`.
+- **Am Schalter:** `Vart ska du åka?`, `Det blir hundra kronor`, `Om tjugo minuter`,
+  `Spår tre`, `Trevlig resa!`.
+
+Zusätzlich: die **Rollennamen** (Barista, Verkäuferin, Mitarbeiter, Ärztin, Schalter) sind
+deutsch und nur Anzeige — nicht zu prüfen.
+
 ## Nach der Freigabe (Checkliste)
 
 - [ ] Korrekturen in `src/modules/content/seedSegments.ts` eingepflegt.

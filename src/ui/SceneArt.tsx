@@ -23,7 +23,10 @@ interface Props {
 export function SceneArt({ scene, hue }: Props) {
   const id = `sc-${scene}`;
   return (
-    <div className="pointer-events-none relative h-28 w-full overflow-hidden sm:h-32" aria-hidden="true">
+    <div
+      className="scene-in pointer-events-none relative h-28 w-full overflow-hidden sm:h-32"
+      aria-hidden="true"
+    >
       <svg
         viewBox="0 0 400 120"
         preserveAspectRatio="xMidYMax slice"
@@ -71,6 +74,8 @@ function Scene({ scene, hue }: { scene: DialogScene; hue: string }) {
       return <Station hue={hue} />;
     case 'shop':
       return <Shop hue={hue} />;
+    case 'clinic':
+      return <Clinic hue={hue} />;
     default:
       return <Generic hue={hue} />;
   }
@@ -234,6 +239,48 @@ function Shop({ hue }: { hue: string }) {
       {/* Vordergrund: Boden */}
       <rect x="0" y="94" width="400" height="26" fill={FRONT} fillOpacity="0.92" />
       <path d="M0 94h400" stroke={hue} strokeOpacity="0.4" strokeWidth="1.6" />
+    </g>
+  );
+}
+
+/** ARZT/APOTHEKE — Hauptmotiv: Stethoskop, dazu Kreuz-Schild und Medikamenten-Regal. */
+function Clinic({ hue }: { hue: string }) {
+  return (
+    <g>
+      {/* Wand mit beleuchtetem Kreuz-Schild */}
+      <rect x="0" y="0" width="400" height="88" fill={BACK} fillOpacity="0.5" />
+      <rect x="40" y="16" width="52" height="52" rx="8" fill={hue} fillOpacity="0.22" />
+      <path d="M66 28v28M52 42h28" stroke={hue} strokeOpacity="0.9" strokeWidth="9" strokeLinecap="round" />
+
+      {/* Regal mit Medikamenten-Fläschchen */}
+      <path d="M296 62h84" stroke={hue} strokeOpacity="0.35" strokeWidth="2" />
+      <path d="M306 62V44h13v18M328 62V38h12v24M350 62V47h14v15" fill={hue} fillOpacity="0.4" />
+
+      {/* HAUPTMOTIV: Stethoskop */}
+      <path
+        d="M150 20v14a26 26 0 0 0 52 0V20"
+        fill="none"
+        stroke={hue}
+        strokeOpacity="0.85"
+        strokeWidth="5"
+        strokeLinecap="round"
+      />
+      <circle cx="150" cy="17" r="6" fill={hue} fillOpacity="0.9" />
+      <circle cx="202" cy="17" r="6" fill={hue} fillOpacity="0.9" />
+      <path
+        d="M176 60c0 18 26 12 26 26"
+        fill="none"
+        stroke={hue}
+        strokeOpacity="0.85"
+        strokeWidth="5"
+        strokeLinecap="round"
+      />
+      <circle cx="204" cy="88" r="15" fill={hue} fillOpacity="0.85" />
+      <circle cx="204" cy="88" r="15" fill="none" stroke={hue} strokeOpacity="0.95" strokeWidth="2.4" />
+
+      {/* Vordergrund: Tresen */}
+      <rect x="0" y="94" width="400" height="26" fill={FRONT} fillOpacity="0.92" />
+      <path d="M0 94h400" stroke={hue} strokeOpacity="0.45" strokeWidth="1.8" />
     </g>
   );
 }
