@@ -41,4 +41,31 @@ Eine **„du"-Zeile** referenziert einen echten Chunk (`chunkId`) und speist bei
 - Natürlicheres schwedisches TTS als Web-Speech (Anforderung, `05-architecture.md`).
 - Szenenbild: aktuell dezenter Farb-Schimmer; später evtl. echte, ruhige Illustration (offline-sicher, edel).
 
+## 6. Nachtrag 2026-07-24 — Wayfinding v2 (Orientierung sichtbar machen)
+
+**Auftrag (Nutzer):** „Man muss sehen, in welchem Ast man ist — und farblich, ob ich im
+Dialog oder im normalen Modus bin. Das muss premium wirken, nicht wie aus Versehen."
+Nach einer v1-Vorschau (zu viele bunte Tupfer → „gemacht") entschied das Gremium **v2: Ruhe
+schafft Orientierung**.
+
+Gebaut:
+1. **Icon + Farbe je Bereich** (`src/ui/areaTheme.tsx`, `areaVisual()`): jeder Bereich hat
+   ein feines Icon (Spross/Flieger/Tasse/Leute/Tasche/Kreuz) + eine gedämpfte Kennfarbe.
+   Reine Präsentation, kein Domänen-Modell; Fallback für neue Bereiche.
+2. **Leiser Bereichs-Schimmer** (`AreaWash`) am oberen Rand jeder Detail-Ansicht — die Farbe
+   liegt zart über dem Screen, **nicht** als Sticker auf jeder Karte (Restraint = premium).
+3. **Kontextueller Kopf** statt Web-Brotkrumen: Icon + Bereichsname (in Farbe) + großer Titel;
+   der Zurück-Knopf **benennt** die Ebene darüber und trägt die Farbe.
+4. **Modus-Abzeichen:** „● Gespräch" (Teal, Chat-Icon) im Dialog vs. „◎ Üben" (Gold, Ziel-Icon)
+   im normalen Loop — der Modus ist auf einen Blick klar.
+5. **Wahrheits-Farbe bleibt konsistent:** der „bewiesen stabil"-Balken/Ring ist überall Mint —
+   Bereichsfarben orientieren nur, sie belohnen nichts (die eine Design-Regel). Gold nur für Aktionen.
+
+**Laden schneller & stabiler:** `AiSettings` und `DialogScene` werden per `React.lazy` erst bei
+Bedarf geladen (kleineres Startbündel), ein Shimmer-Lade-Gerüst ersetzt den „weißen Blitz", und
+eine `ErrorBoundary` fängt Render-Fehler mit „Neu laden" ab (nie eine weiße Seite).
+
+**Copyright:** dezente Fußzeile „© 2026 Andreas Fink · neurolang" (voller Name als
+Rechteinhaber, Nutzerentscheidung).
+
 > **Anschluss:** Struktur/Baum `gremium-struktur.md` · Feedback/Erklärung `gremium-feedback.md` · Messung `07-measurement.md` · Content-QS `content-review-schwedisch.md`.

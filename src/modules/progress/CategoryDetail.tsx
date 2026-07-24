@@ -6,6 +6,7 @@ import type { Category, Chunk, ChunkState } from '../../domain/chunk';
 import type { Dialog } from '../../domain/dialog';
 import { isStable } from './metrics';
 import { IconBack, IconChat, IconChevron, IconPlay } from '../../ui/icons';
+import { areaVisual, AreaWash, AreaBadge } from '../../ui/areaTheme';
 
 interface Props {
   category: Category;
@@ -46,23 +47,40 @@ export function CategoryDetail({
 }: Props) {
   const items = chunks.filter((c) => c.categoryId === category.id);
   const stable = items.filter((c) => isStable(states[c.id])).length;
+  const { hue, Icon } = areaVisual(category.areaId);
 
   return (
-    <div className="flex flex-col gap-4">
-      {/* Navigations-Leiste mit Zurück zum Bereich (eine Ebene höher) */}
+    <div className="relative isolate flex flex-col gap-4">
+      <AreaWash hue={hue} />
+      {/* Navigations-Leiste mit Zurück zum Bereich (eine Ebene höher, benannt) */}
       <nav className="flex items-center gap-2 px-1">
         <button
           onClick={onBack}
-          className="glass-soft flex items-center gap-1 rounded-full py-1.5 pl-2 pr-3 text-sm text-paper"
+          className="glass-soft flex items-center gap-1.5 rounded-full py-1.5 pl-2.5 pr-3.5 text-sm"
           aria-label="Zurück zum Bereich"
         >
-          <IconBack className="h-4 w-4" /> {backLabel}
+          <IconBack className="h-4 w-4 text-paper" />
+          <span style={{ color: hue }} className="font-medium">
+            {backLabel}
+          </span>
         </button>
       </nav>
 
       <section className="glass rounded-2xl p-5">
-        <p className="text-[0.68rem] font-medium uppercase tracking-[0.16em] text-faint">Thema</p>
-        <h1 className="mt-1 font-display text-2xl font-semibold text-paper">{category.title}</h1>
+        {/* Kontextueller Kopf: Bereichs-Icon + Bereichsname (Farbe), großer Themen-Titel. */}
+        <div className="flex items-center gap-3">
+          <AreaBadge hue={hue} Icon={Icon} size="sm" />
+          <div className="min-w-0">
+            <p
+              className="truncate text-[0.66rem] font-semibold uppercase tracking-[0.16em]"
+              style={{ color: hue }}
+            >
+              {backLabel}
+            </p>
+            <p className="text-[0.62rem] font-medium uppercase tracking-[0.18em] text-faint">Thema</p>
+          </div>
+        </div>
+        <h1 className="mt-2.5 font-display text-2xl font-semibold text-paper">{category.title}</h1>
         <p className="mt-1 text-sm text-muted">{category.blurb}</p>
         <p className="mt-3 text-sm text-muted">
           <span className="text-success">{stable}</span> von {items.length} bewiesen stabil

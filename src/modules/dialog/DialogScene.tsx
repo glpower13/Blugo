@@ -8,7 +8,8 @@ import type { ReviewResult } from '../../domain/chunk';
 import type { Dialog, DialogTurn } from '../../domain/dialog';
 import { aiRegistry } from '../content/aiRegistry';
 import { analyzeAnswer, type AnswerAnalysis } from '../comprehension/answerCheck';
-import { IconBack, IconPlay, IconSlow, IconSparkle } from '../../ui/icons';
+import { IconBack, IconChat, IconPlay, IconSlow, IconSparkle } from '../../ui/icons';
+import { AreaWash } from '../../ui/areaTheme';
 
 const SCENE_GLOW: Record<Dialog['scene'], string> = {
   cafe: 'radial-gradient(70% 42% at 50% 0%, rgba(231,168,90,.16), transparent 60%)',
@@ -21,11 +22,15 @@ const SCENE_GLOW: Record<Dialog['scene'], string> = {
 interface Props {
   dialog: Dialog;
   backLabel: string;
+  areaHue: string; // Kennfarbe des Bereichs (Bereichs-Schimmer, Orientierung)
   onProduce: (turn: DialogTurn, result: ReviewResult, helpUsed: boolean) => void;
   onExit: () => void;
 }
 
-export function DialogScene({ dialog, backLabel, onProduce, onExit }: Props) {
+// Modus-Signatur „Gespräch" (Teal) — unterscheidet den Dialog klar vom Üben-Modus.
+const DIALOG_ACCENT = '#63C9B6';
+
+export function DialogScene({ dialog, backLabel, areaHue, onProduce, onExit }: Props) {
   const [step, setStep] = useState(0);
   const bottomRef = useRef<HTMLDivElement>(null);
 
@@ -40,15 +45,19 @@ export function DialogScene({ dialog, backLabel, onProduce, onExit }: Props) {
   }, [step, done]);
 
   return (
-    <div className="mx-auto flex w-full max-w-xl flex-col gap-4">
-      {/* Kopf: Zurück + Szene-Titel + Fortschritt */}
+    <div className="relative isolate mx-auto flex w-full max-w-xl flex-col gap-4">
+      <AreaWash hue={areaHue} />
+      {/* Kopf: Zurück (Thema benannt) + Fortschritt */}
       <nav className="flex items-center justify-between gap-2 px-1">
         <button
           onClick={onExit}
-          className="glass-soft flex items-center gap-1 rounded-full py-1.5 pl-2 pr-3 text-sm text-paper"
+          className="glass-soft flex items-center gap-1.5 rounded-full py-1.5 pl-2.5 pr-3.5 text-sm"
           aria-label="Gespräch verlassen"
         >
-          <IconBack className="h-4 w-4" /> {backLabel}
+          <IconBack className="h-4 w-4 text-paper" />
+          <span style={{ color: areaHue }} className="font-medium">
+            {backLabel}
+          </span>
         </button>
         {!done && (
           <span className="text-xs font-medium uppercase tracking-wide text-faint">
@@ -65,10 +74,21 @@ export function DialogScene({ dialog, backLabel, onProduce, onExit }: Props) {
           style={{ background: SCENE_GLOW[dialog.scene] }}
         />
         <div className="relative">
-          <p className="text-[0.68rem] font-medium uppercase tracking-[0.16em] text-faint">
-            Gespräch · {dialog.partnerName}
+          {/* Modus-Abzeichen: unverkennbar ein GESPRÄCH (nicht der Üben-Modus). */}
+          <span
+            className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[0.7rem] font-bold uppercase tracking-[0.1em]"
+            style={{
+              color: DIALOG_ACCENT,
+              background: `${DIALOG_ACCENT}1f`,
+              border: `1px solid ${DIALOG_ACCENT}66`,
+            }}
+          >
+            <IconChat className="h-3.5 w-3.5" /> Gespräch
+          </span>
+          <p className="mt-2 text-[0.66rem] font-medium uppercase tracking-[0.16em] text-faint">
+            {dialog.partnerName}
           </p>
-          <h1 className="mt-1 font-display text-xl font-semibold leading-tight text-paper">
+          <h1 className="mt-0.5 font-display text-xl font-semibold leading-tight text-paper">
             {dialog.title}
           </h1>
 

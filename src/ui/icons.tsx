@@ -78,6 +78,80 @@ export function IconChevron({ className }: P) {
   );
 }
 
+// ── Bereichs-Icons (Wayfinding v2): Icon + Farbe je Bereich, unverwechselbar. ──
+
+/** Erste Schritte — Spross (Anfang, Wachstum). */
+export function IconSprout({ className }: P) {
+  return (
+    <svg {...box(className)} fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 21v-8" />
+      <path d="M12 13c0-3.3 2.2-5.5 5.5-5.5C17.5 10.8 15.3 13 12 13Z" />
+      <path d="M12 15.5c0-2.6-2.1-4.5-5-4.5 0 2.6 2.1 4.5 5 4.5Z" />
+    </svg>
+  );
+}
+
+/** Reisen & Unterwegs — Papierflieger. */
+export function IconPlane({ className }: P) {
+  return (
+    <svg {...box(className)} fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M3 13.5 20 6l-6.5 15-2.3-6.2L3 13.5Z" />
+    </svg>
+  );
+}
+
+/** Essen & Café — Tasse. */
+export function IconCup({ className }: P) {
+  return (
+    <svg {...box(className)} fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M5 9h11v4a4 4 0 0 1-4 4H9a4 4 0 0 1-4-4V9Z" />
+      <path d="M16 10h2.2a2 2 0 1 1 0 4H16" />
+    </svg>
+  );
+}
+
+/** Menschen & Alltag — zwei Personen. */
+export function IconPeople({ className }: P) {
+  return (
+    <svg {...box(className)} fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="9" cy="9" r="2.6" />
+      <circle cx="16" cy="10" r="2.1" />
+      <path d="M4.5 18c0-2.5 2-4 4.5-4s4.5 1.5 4.5 4" />
+      <path d="M14.5 18c0-1.8 1.3-3 3-3 1.4 0 2.5.9 2.9 2.2" />
+    </svg>
+  );
+}
+
+/** Einkaufen — Tasche. */
+export function IconBag({ className }: P) {
+  return (
+    <svg {...box(className)} fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M6 8h12l-1.2 11.5H7.2L6 8Z" />
+      <path d="M9 8a3 3 0 0 1 6 0" />
+    </svg>
+  );
+}
+
+/** Notfall & Gesundheit — Kreuz. */
+export function IconCross({ className }: P) {
+  return (
+    <svg {...box(className)} fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+      <rect x="4" y="5" width="16" height="14" rx="3" />
+      <path d="M12 9v6M9 12h6" />
+    </svg>
+  );
+}
+
+/** Üben — Ziel/Abruf (Modus-Abzeichen gegenüber „Gespräch"). */
+export function IconTarget({ className }: P) {
+  return (
+    <svg {...box(className)} fill="none" stroke="currentColor" strokeWidth="1.9">
+      <circle cx="12" cy="12" r="8" />
+      <circle cx="12" cy="12" r="3" fill="currentColor" stroke="none" />
+    </svg>
+  );
+}
+
 /** Gespräch — Sprechblase (Dialog-Modus). */
 export function IconChat({ className }: P) {
   return (
