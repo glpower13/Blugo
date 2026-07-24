@@ -11,7 +11,9 @@ import { analyzeAnswer, type AnswerAnalysis } from '../comprehension/answerCheck
 import { fillName } from '../../session/profile';
 import { IconBack, IconChat, IconPlay, IconSlow, IconSparkle } from '../../ui/icons';
 import { AreaWash } from '../../ui/areaTheme';
+import { SceneArt } from '../../ui/SceneArt';
 
+// Farbstimmung der Szene (liegt UNTER dem Szenenbild, gibt ihm Tiefe).
 const SCENE_GLOW: Record<Dialog['scene'], string> = {
   cafe: 'radial-gradient(70% 42% at 50% 0%, rgba(231,168,90,.16), transparent 60%)',
   hotel: 'radial-gradient(70% 42% at 50% 0%, rgba(150,130,205,.15), transparent 60%)',
@@ -69,12 +71,14 @@ export function DialogScene({ dialog, backLabel, areaHue, learnerName, onProduce
       </nav>
 
       <section className="glass relative overflow-hidden rounded-2xl p-5">
-        {/* dezente Szenen-Stimmung (Dual Coding, edel) */}
+        {/* Szenen-Stimmung + gezeichnete Kulisse (Dual Coding: Bild stützt die
+            Situation, ohne dem Text die Aufmerksamkeit zu nehmen). */}
         <div
           aria-hidden="true"
           className="pointer-events-none absolute inset-0"
           style={{ background: SCENE_GLOW[dialog.scene] }}
         />
+        <SceneArt scene={dialog.scene} hue={areaHue} />
         <div className="relative">
           {/* Modus-Abzeichen: unverkennbar ein GESPRÄCH (nicht der Üben-Modus). */}
           <span
