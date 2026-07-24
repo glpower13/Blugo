@@ -3,16 +3,19 @@
 // plus Fokus-Wahl und „dieses Thema üben". Navigation: Übersicht → hier hinein.
 
 import type { Category, Chunk, ChunkState } from '../../domain/chunk';
+import type { Dialog } from '../../domain/dialog';
 import { isStable } from './metrics';
-import { IconBack, IconPlay } from '../../ui/icons';
+import { IconBack, IconChat, IconChevron, IconPlay } from '../../ui/icons';
 
 interface Props {
   category: Category;
   chunks: Chunk[];
   states: Record<string, ChunkState>;
+  dialogs: Dialog[]; // Gespräche zu diesem Thema (Dialog-Modus)
   isFocus: boolean;
   backLabel: string; // Titel der Ebene darüber (der Bereich), für den Zurück-Knopf
   onToggleFocus: () => void;
+  onOpenDialog: (dialogId: string) => void;
   onBack: () => void;
   onPractice: () => void;
 }
@@ -33,9 +36,11 @@ export function CategoryDetail({
   category,
   chunks,
   states,
+  dialogs,
   isFocus,
   backLabel,
   onToggleFocus,
+  onOpenDialog,
   onBack,
   onPractice,
 }: Props) {
@@ -103,6 +108,35 @@ export function CategoryDetail({
           <IconPlay className="h-3.5 w-3.5" /> Dieses Thema üben
         </button>
       </section>
+
+      {/* Gespräch(e) zu diesem Thema (Dialog-Modus): echtes Können im Kontext. */}
+      {dialogs.length > 0 && (
+        <section className="glass rounded-2xl p-5">
+          <div className="flex items-center gap-2">
+            <IconChat className="h-4 w-4 text-brand" />
+            <h2 className="font-display text-base font-semibold text-paper">Im Gespräch üben</h2>
+          </div>
+          <p className="mt-1 text-sm text-muted">
+            Eine echte Szene führt dich: hören, verstehen, selbst antworten.
+          </p>
+          <ul className="mt-3 flex flex-col gap-2">
+            {dialogs.map((d) => (
+              <li key={d.id}>
+                <button
+                  onClick={() => onOpenDialog(d.id)}
+                  className="glass-soft flex w-full items-center gap-3 rounded-xl p-3.5 text-left"
+                >
+                  <div className="min-w-0 flex-1">
+                    <p className="font-medium text-paper">{d.title}</p>
+                    <p className="mt-0.5 text-xs text-muted">{d.blurb}</p>
+                  </div>
+                  <IconChevron className="h-5 w-5 shrink-0 text-faint" />
+                </button>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
     </div>
   );
 }

@@ -131,6 +131,18 @@ Gezielt draufschauen (bekannte Zweifelsfälle des neuen Batches):
   natürlichste Alltagswörter?
 - **`mätt` → „satt"**, **`kvittot` → „der Beleg"**, **`påse` → „Tüte"**: Wortwahl ok?
 
+## Erweiterung 2026-07-24 — Dialog-Szenen (ebenfalls ungeprüft)
+
+Neu: **3 Gespräche** (Dialog-Modus) in `src/modules/content/seedDialogs.ts` —
+Im Restaurant, Im Hotel, Nach dem Weg fragen. Die „du"-Zeilen sind vorhandene,
+oben schon gelistete Chunks; **neu zu prüfen sind die Partner-Zeilen** (Input):
+
+- Natürlichkeit der Kellner-/Rezeptions-/Passant-Repliken (`Hej och välkommen!`,
+  `Varsågod. Här är menyn.`, `Perfekt. För hur många nätter?`, `Ta bussen. Hållplatsen är där.`, …).
+- Neue Wörter in Partner-Zeilen: `välkommen`, `köttbullar`, `utmärkt`, `söker`,
+  `nätter`, `tusen kronor`, `lycka till`, `ingen orsak` — idiomatisch & korrekt?
+- Register (`ni` vs. `du`) über eine Szene hinweg konsistent?
+
 ## Nach der Freigabe (Checkliste)
 
 - [ ] Korrekturen in `src/modules/content/seedSegments.ts` eingepflegt.

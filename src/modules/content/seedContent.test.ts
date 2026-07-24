@@ -3,6 +3,7 @@
 
 import { describe, expect, it } from 'vitest';
 import { seedAreas, seedCategories, seedChunks, seedSegments } from './seedSegments';
+import { seedDialogs } from './seedDialogs';
 
 describe('seed content — Integrität', () => {
   it('IDs sind eindeutig (Bereiche, Kategorien, Chunks, Segmente)', () => {
@@ -59,6 +60,60 @@ describe('seed content — Integrität', () => {
     const used = new Set(seedChunks.map((c) => c.categoryId));
     for (const cat of seedCategories) {
       expect(used.has(cat.id), `Leere Kategorie: ${cat.id}`).toBe(true);
+    }
+  });
+});
+
+describe('seed dialogs — Integrität', () => {
+  const catIds = new Set(seedCategories.map((c) => c.id));
+  const chunkIds = new Set(seedChunks.map((c) => c.id));
+  const chunkById = new Map(seedChunks.map((c) => [c.id, c]));
+
+  it('Dialog- und Turn-IDs sind eindeutig', () => {
+    const ids = seedDialogs.map((d) => d.id);
+    expect(new Set(ids).size).toBe(ids.length);
+    for (const d of seedDialogs) {
+      const turnIds = d.turns.map((t) => t.id);
+      expect(new Set(turnIds).size, `Doppelte Turn-ID in ${d.id}`).toBe(turnIds.length);
+    }
+  });
+
+  it('jeder Dialog gehört zu einer existierenden Kategorie', () => {
+    for (const d of seedDialogs) {
+      expect(catIds.has(d.categoryId), `Dialog ${d.id} → unbekannte Kategorie ${d.categoryId}`).toBe(
+        true,
+      );
+    }
+  });
+
+  it('jede „du"-Zeile referenziert einen existierenden Chunk (echter Abruf)', () => {
+    for (const d of seedDialogs) {
+      for (const t of d.turns) {
+        if (t.speaker === 'you') {
+          expect(t.chunkId, `„du"-Zeile ${d.id}/${t.id} ohne chunkId`).toBeTruthy();
+          expect(chunkIds.has(t.chunkId!), `${d.id}/${t.id} → unbekannter Chunk ${t.chunkId}`).toBe(
+            true,
+          );
+        }
+      }
+    }
+  });
+
+  it('das Ziel einer „du"-Zeile passt zum Chunk (Produktion prüfbar)', () => {
+    const norm = (s: string) => s.trim().toLowerCase().replace(/[.!?,;:]+$/g, '');
+    for (const d of seedDialogs) {
+      for (const t of d.turns) {
+        if (t.speaker === 'you' && t.chunkId) {
+          const chunk = chunkById.get(t.chunkId)!;
+          expect(norm(t.sv), `${d.id}/${t.id}: sv ≠ Chunk-sv`).toBe(norm(chunk.sv));
+        }
+      }
+    }
+  });
+
+  it('jeder Dialog hat mindestens eine „du"-Zeile (sonst kein Abruf)', () => {
+    for (const d of seedDialogs) {
+      expect(d.turns.some((t) => t.speaker === 'you'), `Dialog ohne Produktion: ${d.id}`).toBe(true);
     }
   });
 });

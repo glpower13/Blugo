@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
 import type { Area, Category, Chunk, ChunkState, ReviewResult, Segment } from './domain/chunk';
+import type { Dialog, DialogTurn } from './domain/dialog';
 import { seedContentSource } from './modules/content/contentPipeline';
 import { getAllChunkStates, logEvent, putChunkState } from './storage/db';
 import { initialState, schedule } from './modules/memory/memoryEngine';
@@ -10,9 +11,11 @@ import { loadFocus, saveFocus } from './session/focus';
 import { knownPhrases } from './session/knownChunks';
 import { ComprehensionLoop } from './modules/comprehension/ComprehensionLoop';
 import { MemoryField } from './modules/progress/MemoryField';
+import { MemoryRing } from './modules/progress/MemoryRing';
 import { AreaOverview } from './modules/progress/AreaOverview';
 import { AreaDetail } from './modules/progress/AreaDetail';
 import { CategoryDetail } from './modules/progress/CategoryDetail';
+import { DialogScene } from './modules/dialog/DialogScene';
 import { computeMetrics } from './modules/progress/metrics';
 import { areaProgress, categoryProgress } from './modules/progress/categories';
 import { InstallButton } from './ui/InstallButton';
@@ -31,11 +34,13 @@ type View =
   | { name: 'home' }
   | { name: 'area'; id: string }
   | { name: 'category'; id: string }
+  | { name: 'dialog'; id: string }
   | { name: 'session' };
 
 export default function App() {
   const [areas, setAreas] = useState<Area[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
+  const [dialogs, setDialogs] = useState<Dialog[]>([]);
   const [chunks, setChunks] = useState<Chunk[]>([]);
   const [segments, setSegments] = useState<Segment[]>([]);
   const [states, setStates] = useState<Record<string, ChunkState>>({});
@@ -68,9 +73,10 @@ export default function App() {
     initAiSettings(); // gespeicherte KI-Auswahl laden und auf die Registry anwenden
     (async () => {
       try {
-        const [ars, cats, cs, segs, persisted] = await Promise.all([
+        const [ars, cats, dlgs, cs, segs, persisted] = await Promise.all([
           seedContentSource.getAreas(),
           seedContentSource.getCategories(),
+          seedContentSource.getDialogs(),
           seedContentSource.getChunks(),
           seedContentSource.getSegments(),
           getAllChunkStates(),
@@ -84,6 +90,7 @@ export default function App() {
         const rate = recentSuccessRate(Object.values(byId));
         setAreas(ars);
         setCategories(cats);
+        setDialogs(dlgs);
         setChunks(cs);
         setSegments(segs);
         setStates(byId);
@@ -112,6 +119,12 @@ export default function App() {
     () => (focusId ? (categories.find((c) => c.id === focusId)?.title ?? null) : null),
     [focusId, categories],
   );
+  // Dialoge je Thema (für den „Gespräch"-Einstieg im Thema-Detail).
+  const dialogsByCategory = useMemo(() => {
+    const map: Record<string, Dialog[]> = {};
+    for (const d of dialogs) (map[d.categoryId] ??= []).push(d);
+    return map;
+  }, [dialogs]);
 
   // Animierte Ansichts-Navigation (View Transitions): der Inhalt gleitet
   // richtungsabhängig. Fällt sauber auf sofortiges Umschalten zurück, wo die
@@ -204,13 +217,43 @@ export default function App() {
     }
   }
 
+  // Eine „du"-Zeile im Gespräch ist ein echter Abruf ihres Chunks → dieselbe
+  // Memory-Engine wie der Loop (die eine Design-Regel: echtes Können, kein Schein).
+  const handleDialogProduce = useCallback(
+    (dialogId: string, turn: DialogTurn, result: ReviewResult, helpUsed: boolean) => {
+      const chunkId = turn.chunkId;
+      if (!chunkId) return;
+      const state = states[chunkId];
+      if (!state) return;
+      const now = Date.now();
+      const segId = `dialog:${dialogId}:${turn.id}`;
+      const next = schedule(state, result, segId, now);
+      void (async () => {
+        try {
+          await putChunkState(next);
+          await logEvent(chunkId, { at: now, result, segmentId: segId, helpUsed });
+          setStates((prev) => ({ ...prev, [chunkId]: next }));
+        } catch (e) {
+          console.error('Persist failed', e);
+          setError('Die Bewertung konnte nicht gespeichert werden. Bitte die App neu laden.');
+        }
+      })();
+    },
+    [states],
+  );
+
   const done = !loading && pos >= queue.length;
   const activeArea = view.name === 'area' ? areaProg.find((a) => a.area.id === view.id) : undefined;
   const activeCategory =
     view.name === 'category' ? categories.find((c) => c.id === view.id) : undefined;
+  const activeDialog = view.name === 'dialog' ? dialogs.find((d) => d.id === view.id) : undefined;
   // Der Bereich, zu dem das offene Thema gehört (für „Zurück"-Ziel + Beschriftung).
   const parentArea = activeCategory
     ? areas.find((a) => a.id === activeCategory.areaId)
+    : undefined;
+  // Das Thema, zu dem das offene Gespräch gehört (für „Zurück"-Ziel).
+  const dialogCategory = activeDialog
+    ? categories.find((c) => c.id === activeDialog.categoryId)
     : undefined;
 
   return (
@@ -251,12 +294,15 @@ export default function App() {
               <div className="flex flex-col gap-4">
                 {/* Ehrliche Fortschrittsanzeige (docs/07-measurement.md) */}
                 <section className="glass rounded-2xl p-5">
-                  <div className="flex items-baseline gap-5">
-                    <Stat value={metrics.active} label="aktiv" />
-                    <Stat value={metrics.maturing} label="reift" />
-                    <Stat value={metrics.stable} label="stabil (bewiesen)" accent />
+                  <div className="flex items-center gap-5">
+                    <MemoryRing stable={metrics.stable} total={chunks.length} />
+                    <div className="flex flex-1 items-baseline justify-between gap-3">
+                      <Stat value={metrics.active} label="aktiv" />
+                      <Stat value={metrics.maturing} label="reift" />
+                      <Stat value={metrics.stable} label="stabil" accent />
+                    </div>
                   </div>
-                  <p className="mt-2 text-xs text-muted">
+                  <p className="mt-3 text-xs text-muted">
                     {metrics.dueNow} jetzt fällig · Verständnis-Abdeckung{' '}
                     {Math.round(metrics.coverage * 100)} %
                   </p>
@@ -318,9 +364,11 @@ export default function App() {
               category={activeCategory}
               chunks={chunks}
               states={states}
+              dialogs={dialogsByCategory[activeCategory.id] ?? []}
               isFocus={focusId === activeCategory.id}
               backLabel={parentArea?.title ?? 'Zurück'}
               onToggleFocus={() => setFocus(focusId === activeCategory.id ? null : activeCategory.id)}
+              onOpenDialog={(id) => navigate('push', () => setView({ name: 'dialog', id }))}
               onBack={() =>
                 navigate('pop', () =>
                   setView(parentArea ? { name: 'area', id: parentArea.id } : { name: 'home' }),
@@ -331,6 +379,26 @@ export default function App() {
               }
             />
           </div>
+        )}
+
+        {/* ───────── GESPRÄCH (Dialog-Modus) ───────── */}
+        {view.name === 'dialog' && activeDialog && (
+          <DialogScene
+            dialog={activeDialog}
+            backLabel={dialogCategory?.title ?? 'Zurück'}
+            onProduce={(turn, result, helpUsed) =>
+              handleDialogProduce(activeDialog.id, turn, result, helpUsed)
+            }
+            onExit={() =>
+              navigate('pop', () =>
+                setView(
+                  dialogCategory
+                    ? { name: 'category', id: dialogCategory.id }
+                    : { name: 'home' },
+                ),
+              )
+            }
+          />
         )}
 
         {/* ───────── LERN-SESSION (fokussiert) ───────── */}
