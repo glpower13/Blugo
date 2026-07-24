@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
 import type { Area, Category, Chunk, ChunkState, ReviewResult, Segment } from './domain/chunk';
 import type { Dialog, DialogTurn } from './domain/dialog';
@@ -15,14 +15,20 @@ import { MemoryRing } from './modules/progress/MemoryRing';
 import { AreaOverview } from './modules/progress/AreaOverview';
 import { AreaDetail } from './modules/progress/AreaDetail';
 import { CategoryDetail } from './modules/progress/CategoryDetail';
-import { DialogScene } from './modules/dialog/DialogScene';
+// Erst bei Bedarf laden (kleineres Startbündel → schnellere erste Anzeige).
+const DialogScene = lazy(() =>
+  import('./modules/dialog/DialogScene').then((m) => ({ default: m.DialogScene })),
+);
 import { computeMetrics } from './modules/progress/metrics';
 import { areaProgress, categoryProgress } from './modules/progress/categories';
 import { InstallButton } from './ui/InstallButton';
 import { Backdrop } from './ui/Backdrop';
-import { IconSettings, IconBack, IconPlay } from './ui/icons';
+import { IconSettings, IconBack, IconPlay, IconTarget } from './ui/icons';
+import { areaVisual } from './ui/areaTheme';
 import { useCountUp } from './ui/useCountUp';
-import { AiSettings } from './modules/content/AiSettings';
+const AiSettings = lazy(() =>
+  import('./modules/content/AiSettings').then((m) => ({ default: m.AiSettings })),
+);
 import { initAiSettings } from './modules/content/aiSettings';
 
 // Ein Scope grenzt eine Session ein: ein ganzer Bereich oder ein einzelnes Thema.
@@ -316,7 +322,7 @@ export default function App() {
                   </div>
                 </section>
 
-                {loading && <p className="text-muted">Lädt…</p>}
+                {loading && <div className="shimmer h-[60px] w-full rounded-2xl" />}
 
                 {!loading && !error && (
                   <button
@@ -329,6 +335,15 @@ export default function App() {
                 )}
               </div>
 
+              {loading && (
+                <section className="glass flex flex-col gap-3 rounded-2xl p-5" aria-hidden="true">
+                  <div className="shimmer h-5 w-24 rounded" />
+                  <div className="shimmer h-16 w-full rounded-xl" />
+                  <div className="shimmer h-16 w-full rounded-xl" />
+                  <div className="shimmer h-16 w-full rounded-xl" />
+                </section>
+              )}
+
               {!loading && !error && areaProg.length > 0 && (
                 <AreaOverview
                   progress={areaProg}
@@ -339,8 +354,11 @@ export default function App() {
               )}
             </div>
 
-            <div className="mt-auto pt-4">
+            <div className="mt-auto flex flex-col gap-3 pt-4">
               <InstallButton />
+              <p className="text-center text-[0.7rem] tracking-wide text-faint">
+                © 2026 Andreas Fink · neurolang
+              </p>
             </div>
           </>
         )}
@@ -383,35 +401,50 @@ export default function App() {
 
         {/* ───────── GESPRÄCH (Dialog-Modus) ───────── */}
         {view.name === 'dialog' && activeDialog && (
-          <DialogScene
-            dialog={activeDialog}
-            backLabel={dialogCategory?.title ?? 'Zurück'}
-            onProduce={(turn, result, helpUsed) =>
-              handleDialogProduce(activeDialog.id, turn, result, helpUsed)
+          <Suspense
+            fallback={
+              <div className="glass mx-auto w-full max-w-xl rounded-2xl p-6 text-center text-muted">
+                Gespräch lädt…
+              </div>
             }
-            onExit={() =>
-              navigate('pop', () =>
-                setView(
-                  dialogCategory
-                    ? { name: 'category', id: dialogCategory.id }
-                    : { name: 'home' },
-                ),
-              )
-            }
-          />
+          >
+            <DialogScene
+              dialog={activeDialog}
+              backLabel={dialogCategory?.title ?? 'Zurück'}
+              areaHue={areaVisual(dialogCategory?.areaId).hue}
+              onProduce={(turn, result, helpUsed) =>
+                handleDialogProduce(activeDialog.id, turn, result, helpUsed)
+              }
+              onExit={() =>
+                navigate('pop', () =>
+                  setView(
+                    dialogCategory
+                      ? { name: 'category', id: dialogCategory.id }
+                      : { name: 'home' },
+                  ),
+                )
+              }
+            />
+          </Suspense>
         )}
 
         {/* ───────── LERN-SESSION (fokussiert) ───────── */}
         {view.name === 'session' && (
           <div className="mx-auto flex w-full max-w-xl flex-col gap-4">
             <nav className="flex items-center justify-between gap-2 px-1">
-              <button
-                onClick={() => navigate('pop', () => setView({ name: 'home' }))}
-                className="glass-soft flex items-center gap-1 rounded-full py-1.5 pl-2 pr-3 text-sm text-paper"
-                aria-label="Session verlassen"
-              >
-                <IconBack className="h-4 w-4" /> Übersicht
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => navigate('pop', () => setView({ name: 'home' }))}
+                  className="glass-soft flex items-center gap-1 rounded-full py-1.5 pl-2 pr-3 text-sm text-paper"
+                  aria-label="Session verlassen"
+                >
+                  <IconBack className="h-4 w-4" /> Übersicht
+                </button>
+                {/* Modus-Abzeichen: klar der Üben-Modus (nicht das Gespräch). */}
+                <span className="inline-flex items-center gap-1.5 rounded-full border border-brand/40 bg-brand/10 px-3 py-1 text-[0.7rem] font-bold uppercase tracking-[0.1em] text-brand">
+                  <IconTarget className="h-3.5 w-3.5" /> Üben
+                </span>
+              </div>
               {!done && queue.length > 0 && (
                 <span className="text-xs font-medium uppercase tracking-wide text-faint">
                   {Math.min(pos + 1, queue.length)} / {queue.length}
@@ -452,7 +485,11 @@ export default function App() {
           </div>
         )}
 
-        {showSettings && <AiSettings onClose={() => setShowSettings(false)} />}
+        {showSettings && (
+          <Suspense fallback={null}>
+            <AiSettings onClose={() => setShowSettings(false)} />
+          </Suspense>
+        )}
       </main>
     </>
   );

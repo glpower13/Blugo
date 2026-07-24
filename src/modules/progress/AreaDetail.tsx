@@ -5,6 +5,7 @@
 import type { AreaProgress } from './categories';
 import { CategoryOverview } from './CategoryOverview';
 import { IconBack, IconPlay } from '../../ui/icons';
+import { areaVisual, AreaWash, AreaBadge } from '../../ui/areaTheme';
 
 interface Props {
   areaProgress: AreaProgress;
@@ -24,9 +25,11 @@ export function AreaDetail({
   onPractice,
 }: Props) {
   const { area, total, stable, dueNow } = areaProgress;
+  const { hue, Icon } = areaVisual(area.id);
 
   return (
-    <div className="mx-auto flex w-full max-w-2xl flex-col gap-4">
+    <div className="relative isolate mx-auto flex w-full max-w-2xl flex-col gap-4">
+      <AreaWash hue={hue} />
       {/* Navigations-Leiste mit Zurück zur Übersicht */}
       <nav className="flex items-center gap-2 px-1">
         <button
@@ -39,9 +42,22 @@ export function AreaDetail({
       </nav>
 
       <section className="glass rounded-2xl p-5">
-        <p className="text-[0.68rem] font-medium uppercase tracking-[0.16em] text-faint">Bereich</p>
-        <h1 className="mt-1 font-display text-2xl font-semibold text-paper">{area.title}</h1>
-        <p className="mt-1 text-sm text-muted">{area.blurb}</p>
+        {/* Kontextueller Kopf: Icon + Bereichsname; großer Titel darunter. */}
+        <div className="flex items-center gap-3">
+          <AreaBadge hue={hue} Icon={Icon} />
+          <div>
+            <p
+              className="text-[0.66rem] font-semibold uppercase tracking-[0.18em]"
+              style={{ color: hue }}
+            >
+              Bereich
+            </p>
+            <h1 className="font-display text-2xl font-semibold leading-tight text-paper">
+              {area.title}
+            </h1>
+          </div>
+        </div>
+        <p className="mt-2 text-sm text-muted">{area.blurb}</p>
         <p className="mt-3 text-sm text-muted">
           <span className="text-success">{stable}</span> von {total} bewiesen stabil
           {dueNow > 0 && <> · {dueNow} fällig</>}

@@ -6,6 +6,7 @@
 import { useEffect, useState } from 'react';
 import type { AreaProgress } from './categories';
 import { IconChevron } from '../../ui/icons';
+import { areaVisual, AreaBadge } from '../../ui/areaTheme';
 
 interface Props {
   progress: AreaProgress[];
@@ -38,22 +39,26 @@ export function AreaOverview({ progress, focusTitle, onOpen, onClearFocus }: Pro
         {progress.map((p) => {
           const share = p.total === 0 ? 0 : p.stable / p.total;
           const themes = p.categories.length;
+          const { hue, Icon } = areaVisual(p.area.id);
           return (
             <li key={p.area.id}>
               <button
                 onClick={() => onOpen(p.area.id)}
                 className="glass-soft block w-full rounded-xl p-3.5 text-left"
               >
-                <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0">
+                <div className="flex items-start gap-3">
+                  <AreaBadge hue={hue} Icon={Icon} />
+                  <div className="min-w-0 flex-1">
                     <p className="text-[0.98rem] font-semibold text-paper">{p.area.title}</p>
                     <p className="mt-0.5 text-xs text-muted">{p.area.blurb}</p>
                   </div>
                   <IconChevron className="mt-0.5 h-5 w-5 shrink-0 text-faint" />
                 </div>
 
-                {/* Ehrlicher Balken: Anteil BEWIESEN stabiler Wendungen (nicht „erledigt"). */}
-                <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-line">
+                {/* Ehrlicher Balken: Anteil BEWIESEN stabiler Wendungen — immer Mint
+                    (die Wahrheits-Farbe), konsistent mit Ring & Themen. Bereichsfarbe
+                    trägt nur das Icon-Plättchen. */}
+                <div className="mt-2.5 h-1.5 w-full overflow-hidden rounded-full bg-line">
                   <div
                     className="h-full rounded-full bg-success transition-[width] duration-700 ease-out"
                     style={{ width: `${filled ? Math.round(share * 100) : 0}%` }}
