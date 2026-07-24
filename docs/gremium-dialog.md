@@ -144,4 +144,31 @@ Alle Partner-Zeilen sind **nicht muttersprachlich geprüft** (`content-review-sc
 - Das **Szenenbild blendet ruhig auf** (0,9 s, leichter Zoom-out) — Atem, kein Zappeln.
 - Beides respektiert `prefers-reduced-motion`: dann ist alles sofort da, ohne Bewegung.
 
+## 10. Nachtrag 2026-07-24 — aus Piktogrammen werden Bilder
+
+Rückmeldung zur zweiten Fassung: **„schäbige Mini-Darstellung — mach mal was
+Vernünftiges."** Zutreffend: es waren *erkennbare Icons*, aber keine Bilder. Ein
+einzelnes freistehendes Objekt auf einer Fläche erzählt keinen Ort.
+
+**Was ein Piktogramm von einem BILD unterscheidet — die vier Hebel:**
+1. **Tiefe.** Vier Ebenen mit Luftperspektive: fern blass und kühl, nah fast schwarz.
+   Vorher lag alles auf einer Fläche.
+2. **Licht.** Lampen werfen Kegel, auf Tresen und Boden liegen Lichtpfützen,
+   Fensterflächen leuchten. Erst dadurch wirkt ein Raum bewohnt.
+3. **Menschen.** Eine Silhouette macht aus einer Kulisse einen **Ort, an dem gerade
+   jemand steht und mit dir spricht** — der mit Abstand größte Sprung. Jede Figur
+   bekommt Gegenlicht, sonst verschwindet sie im Dunkeln.
+4. **Dichte.** Regale, Flaschen, Kleiderstangen, Koffer, Gleise, Anzeigetafel: Details,
+   die die Situation erzählen.
+
+**Jetzt je Szene:** *Café* — Barista am Tresen, Rückbuffet mit Espressomaschine,
+Stadt hinter der Fensterfront · *Hotel* — Rezeptionist, Schlüsselfächer, Bogenfenster,
+Koffer im Vordergrund · *Bahnhof* — Wartende mit Gepäck, Zug mit beleuchteten Fenstern
+und Fahrgästen, Anzeigetafel, Uhr, Sicherheitslinie · *Geschäft* — Verkäuferin,
+Kleiderstange, Wandregale, Deckenstrahler · *Praxis* — Ärztin mit Stethoskop,
+Untersuchungsliege, Kreuz-Schild, Medikamentenregal.
+
+Bildband auf **176 px** erhöht (vorher 112), damit die Szene Raum hat. Weiterhin reines
+SVG: ~26 kB für den ganzen Dialog-Baustein inkl. aller fünf Szenen, offline-fest.
+
 > **Anschluss:** Struktur/Baum `gremium-struktur.md` · Feedback/Erklärung `gremium-feedback.md` · Messung `07-measurement.md` · Content-QS `content-review-schwedisch.md`.
