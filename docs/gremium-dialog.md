@@ -95,4 +95,25 @@ Gebaut:
 sonst hinge die geprüfte Antwort am Namen. Zwei Integritäts-Tests erzwingen das (+ `sv`/`de` nutzen
 den Platzhalter konsistent), dazu Unit-Tests für `cleanName`/`fillName` und ein e2e-Durchlauf.
 
+## 8. Nachtrag 2026-07-24 — Szenenbilder (aus §5 „Offen" eingelöst)
+
+Bisher trug nur ein Farbschimmer die Szene. Jetzt gibt es eine **gezeichnete Kulisse**
+je Szene (`src/ui/SceneArt.tsx`) — dieselbe Bildsprache wie der Nordlicht-Hintergrund:
+**SVG** (offline-sicher, gestochen scharf, ~4 kB für alle Szenen zusammen), feine
+Linien und Silhouetten in der **Kennfarbe des Bereichs**.
+
+Motive: **Café** (Fensterfront, Hängelampen, Tresen, Tasse mit Dampf) · **Hotel**
+(Bogenfenster mit Vorhängen, Rezeptionstresen, Tischlampe, Empfangsklingel) ·
+**Bahnhof** (Bahnsteigdach, Säulen, fluchtende Gleise, Bahnhofsuhr) · **Geschäft**
+(Markise, Regale, Preisschild) · **neutral** (ruhige Bögen).
+
+**Komposition statt Tapete:** Die Kulisse sitzt als **Vignette oben rechts** und löst
+sich per Doppel-Maske nach links und unten auf — so behält der Titel freie, ruhige
+Fläche und das Bild wirkt gesetzt, nicht untergelegt. (Erste Fassung lag hinter dem
+Titel und nahm ihm die Schärfe; verworfen.)
+
+**Warum überhaupt Bild:** Bedeutung über Ohr **und** Auge (Dual Coding, Evidenz: stark)
+— das Bild deutet die Situation an, statt sie zu übersetzen. Es bleibt bewusst
+zurückhaltend: **nie Inhalt, immer nur Atmosphäre** (die eine Design-Regel).
+
 > **Anschluss:** Struktur/Baum `gremium-struktur.md` · Feedback/Erklärung `gremium-feedback.md` · Messung `07-measurement.md` · Content-QS `content-review-schwedisch.md`.
