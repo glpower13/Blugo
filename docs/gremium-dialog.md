@@ -68,4 +68,31 @@ eine `ErrorBoundary` fängt Render-Fehler mit „Neu laden" ab (nie eine weiße 
 **Copyright:** dezente Fußzeile „© 2026 Andreas Fink · neurolang" (voller Name als
 Rechteinhaber, Nutzerentscheidung).
 
+## 7. Nachtrag 2026-07-24 — Namens-Personalisierung
+
+**Auftrag (Nutzer):** „Vorne in der App den Namen eintragen und im Dialog beim Üben mit
+dem Vornamen angesprochen werden."
+
+**Urteil des Gremiums: bauen — und zwar nicht nur als Gimmick.** Persönlich relevanter
+Input wird nachweislich besser behalten (**Selbstbezugs-Effekt, Evidenz: stark**). Wenn
+der Kellner „Hej Andreas, välkommen!" sagt, ist die Situation echter → besseres Encoding.
+
+**Bricht es die eine Design-Regel?** Nein. Der Name ist **keine Belohnung und keine Zahl** —
+er personalisiert nur den *Input*. Es entsteht kein Indikator, der vom Können abkoppeln könnte.
+
+Gebaut:
+1. **`src/session/profile.ts`** — Vorname lokal (localStorage + In-Memory-Fallback), `cleanName()`
+   (getrimmt, einzeilig, max. 24) und `fillName()`: ersetzt `{name}`; **ohne** Namen wird der
+   Platzhalter *samt* führendem Leerzeichen entfernt, damit der Satz natürlich bleibt
+   („Hej {name}, välkommen!" → „Hej, välkommen!").
+2. **`src/ui/NameEditor.tsx`** — kleines, edles Overlay; erklärt, dass der Name auf dem Gerät bleibt.
+3. **Übersicht:** Einstieg „＋ Dein Name", danach die Begrüßung „Hej, *Andreas*! ✎" (antippbar zum Ändern).
+4. **Gespräch:** Partner-Zeilen tragen `{name}` in **Anrede/Gruß** (Restaurant r1/r10, Hotel h1/h9,
+   Weg w2) — bewusst nie mitten im schwedischen Satz, sonst klänge es holprig. Auch die
+   Sprachausgabe liest den personalisierten Satz.
+
+**Leitplanke (Tests):** `{name}` darf **nie** in einer „du"-Zeile oder ihren Vorschlägen stehen —
+sonst hinge die geprüfte Antwort am Namen. Zwei Integritäts-Tests erzwingen das (+ `sv`/`de` nutzen
+den Platzhalter konsistent), dazu Unit-Tests für `cleanName`/`fillName` und ein e2e-Durchlauf.
+
 > **Anschluss:** Struktur/Baum `gremium-struktur.md` · Feedback/Erklärung `gremium-feedback.md` · Messung `07-measurement.md` · Content-QS `content-review-schwedisch.md`.

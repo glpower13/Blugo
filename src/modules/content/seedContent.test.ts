@@ -116,4 +116,31 @@ describe('seed dialogs — Integrität', () => {
       expect(d.turns.some((t) => t.speaker === 'you'), `Dialog ohne Produktion: ${d.id}`).toBe(true);
     }
   });
+
+  it('der Namens-Platzhalter steht NUR in Partner-Zeilen (nie im Lernziel)', () => {
+    for (const d of seedDialogs) {
+      for (const t of d.turns) {
+        if (t.speaker === 'you') {
+          // Sonst wäre die geprüfte Antwort vom Namen abhängig — das darf nie sein.
+          expect(t.sv.includes('{name}'), `„du"-Zeile mit Platzhalter: ${d.id}/${t.id}`).toBe(false);
+          expect(t.de.includes('{name}'), `„du"-Zeile mit Platzhalter: ${d.id}/${t.id}`).toBe(false);
+          for (const s of t.suggestions ?? []) {
+            expect(s.includes('{name}'), `Vorschlag mit Platzhalter: ${d.id}/${t.id}`).toBe(false);
+          }
+        }
+      }
+    }
+  });
+
+  it('sv und de einer Partner-Zeile nutzen den Platzhalter konsistent', () => {
+    for (const d of seedDialogs) {
+      for (const t of d.turns) {
+        if (t.speaker === 'partner') {
+          expect(t.sv.includes('{name}'), `sv/de-Platzhalter uneinheitlich: ${d.id}/${t.id}`).toBe(
+            t.de.includes('{name}'),
+          );
+        }
+      }
+    }
+  });
 });
