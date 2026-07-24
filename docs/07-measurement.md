@@ -17,3 +17,36 @@ Die Leitzahl ist nicht „Lektionen" oder „Streak", sondern **zuverlässig beh
 ## Dashboard-Leitsatz
 Eine dominante, ehrliche Zahl + das lebende Gedächtnisfeld. Beispiel:
 > „340 aktiv · 60 langfristig stabil · du verstehst 82 % von Level-2 in nativem Tempo."
+
+## Nachtrag 2026-07-24 — der Fortschrittsbalken in zwei Zonen
+
+**Beobachtung des Nutzers:** „Warum bewegt sich der Balken nicht?"
+
+**Befund (kein Fehler, sondern Design):** Der Balken zählte ausschließlich
+**bewiesen stabil** (`provenStableAt`). Dafür müssen drei Dinge zusammenkommen
+(`memoryEngine.ts`): ein **Produktions**-Abruf, ein davor bereits erreichtes
+Intervall von **≥ 90 Tagen** (`STABLE_INTERVAL_DAYS`) — und der muss gelingen.
+Realistisch bewegt sich so ein Balken **frühestens nach ~3 Monaten**.
+
+**Das Problem:** Ein Indikator, der monatelang bei null steht, ist als Rückmeldung
+unbrauchbar — er wirkt kaputt, und der Lerner sieht nicht, dass er sehr wohl
+vorankommt. Ehrlichkeit ohne Lesbarkeit hilft niemandem.
+
+**Entscheidung:** Der Balken bekommt **zwei Zonen** (`HonestBar.tsx`):
+
+| Zone | Bedeutung | Bedingung |
+|---|---|---|
+| kräftig (Mint) | **bewiesen** | Produktion nach ≥ 90 Tagen überstanden (`isStable`) |
+| blasser (Mint 40 %) | **reift** | Produktion und ≥ 21 Tage überstanden, noch nicht bewiesen (`isMaturing`) |
+
+Beides ist **gemessenes Können**, nur an zwei Horizonten — der Balken lebt damit
+nach Wochen statt nach Monaten. Derselbe Aufbau im Ring auf der Übersicht
+(blasser Bogen hinter dem kräftigen).
+
+**Was bewusst NICHT im Balken steht:** „aktiv/angefasst". Das wäre bloße
+Anwesenheit, und die darf nie wie Fortschritt aussehen (die eine Design-Regel).
+Sie bleibt eine nüchterne Zahl im Text.
+
+**Leitplanke:** Die beiden Zonen sind per Definition disjunkt (`isMaturing`
+schließt `isStable` aus) — zwei Tests in `categories.test.ts` sichern, dass keine
+Wendung doppelt zählt und der Balken nie über 100 % läuft.

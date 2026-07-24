@@ -3,10 +3,10 @@
 // Zeigt die EHRLICHE Abdeckung des Bereichs (bewiesen stabil von gesamt) — bewusst
 // KEIN „Kurs erledigt"-Balken (docs/07-measurement.md; die eine Design-Regel).
 
-import { useEffect, useState } from 'react';
 import type { AreaProgress } from './categories';
 import { IconChevron } from '../../ui/icons';
 import { areaVisual, AreaBadge } from '../../ui/areaTheme';
+import { HonestBar } from './HonestBar';
 
 interface Props {
   progress: AreaProgress[];
@@ -16,12 +16,6 @@ interface Props {
 }
 
 export function AreaOverview({ progress, focusTitle, onOpen, onClearFocus }: Props) {
-  // Balken füllen sich beim Erscheinen weich (von 0 auf ihren Anteil).
-  const [filled, setFilled] = useState(false);
-  useEffect(() => {
-    const id = requestAnimationFrame(() => setFilled(true));
-    return () => cancelAnimationFrame(id);
-  }, []);
   if (progress.length === 0) return null;
 
   return (
@@ -37,7 +31,6 @@ export function AreaOverview({ progress, focusTitle, onOpen, onClearFocus }: Pro
 
       <ul className="flex flex-col gap-3">
         {progress.map((p) => {
-          const share = p.total === 0 ? 0 : p.stable / p.total;
           const themes = p.categories.length;
           const { hue, Icon } = areaVisual(p.area.id);
           return (
@@ -57,18 +50,20 @@ export function AreaOverview({ progress, focusTitle, onOpen, onClearFocus }: Pro
                   <IconChevron className="mt-0.5 h-5 w-5 shrink-0 text-faint" />
                 </div>
 
-                {/* Ehrlicher Balken: Anteil BEWIESEN stabiler Wendungen — immer Mint
-                    (die Wahrheits-Farbe), konsistent mit Ring & Themen. Bereichsfarbe
-                    trägt nur das Icon-Plättchen. */}
-                <div className="mt-2.5 h-1.5 w-full overflow-hidden rounded-full bg-line">
-                  <div
-                    className="h-full rounded-full bg-success transition-[width] duration-700 ease-out"
-                    style={{ width: `${filled ? Math.round(share * 100) : 0}%` }}
-                  />
-                </div>
+                {/* Ehrlicher Balken in zwei Zonen: kräftig = bewiesen stabil,
+                    blasser = reift. Beides GEMESSEN, nur an zwei Horizonten;
+                    bloße Anwesenheit taucht bewusst nirgends auf. Immer Mint
+                    (die Wahrheitsfarbe) — die Bereichsfarbe trägt nur das Icon. */}
+                <HonestBar stable={p.stable} maturing={p.maturing} total={p.total} />
                 <p className="mt-1.5 text-xs text-muted">
                   {themes} {themes === 1 ? 'Thema' : 'Themen'} ·{' '}
-                  <span className="text-success">{p.stable}</span> von {p.total} bewiesen stabil
+                  <span className="text-success">{p.stable}</span> von {p.total} bewiesen
+                  {p.maturing > 0 && (
+                    <>
+                      {' · '}
+                      <span className="text-success/70">{p.maturing}</span> reifen
+                    </>
+                  )}
                   {p.dueNow > 0 && <> · {p.dueNow} fällig</>}
                 </p>
               </button>

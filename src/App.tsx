@@ -319,7 +319,11 @@ export default function App() {
                 {/* Ehrliche Fortschrittsanzeige (docs/07-measurement.md) */}
                 <section className="glass rounded-2xl p-5">
                   <div className="flex items-center gap-5">
-                    <MemoryRing stable={metrics.stable} total={chunks.length} />
+                    <MemoryRing
+                      stable={metrics.stable}
+                      maturing={metrics.maturing}
+                      total={chunks.length}
+                    />
                     <div className="flex flex-1 items-baseline justify-between gap-3">
                       <Stat value={metrics.active} label="aktiv" />
                       <Stat value={metrics.maturing} label="reift" />

@@ -59,7 +59,13 @@ export function AreaDetail({
         </div>
         <p className="mt-2 text-sm text-muted">{area.blurb}</p>
         <p className="mt-3 text-sm text-muted">
-          <span className="text-success">{stable}</span> von {total} bewiesen stabil
+          <span className="text-success">{stable}</span> von {total} bewiesen
+          {areaProgress.maturing > 0 && (
+            <>
+              {' · '}
+              <span className="text-success/70">{areaProgress.maturing}</span> reifen
+            </>
+          )}
           {dueNow > 0 && <> · {dueNow} fällig</>}
         </p>
 

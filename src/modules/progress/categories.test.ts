@@ -73,6 +73,36 @@ describe('categoryProgress', () => {
   });
 });
 
+describe('die zwei Balken-Zonen (bewiesen / reift)', () => {
+  // Der ehrliche Balken stapelt beide Zonen — sie dürfen sich NIE überschneiden,
+  // sonst zählt eine Wendung doppelt und der Balken lügt.
+  it('eine bewiesen stabile Wendung zählt nie zusätzlich als reifend', () => {
+    const states: Record<string, ChunkState> = {
+      c1: make('c1', {
+        status: 'maintenance',
+        stage: 'production',
+        intervalDays: 120, // erfüllt auch die „reift"-Bedingung (≥21, Produktion)
+        provenStableAt: NOW, // … ist aber BEWIESEN
+      }),
+    };
+    const a = categoryProgress(categories, chunks, states, NOW).find((x) => x.category.id === 'a')!;
+    expect(a.stable).toBe(1);
+    expect(a.maturing).toBe(0);
+    expect(a.stable + a.maturing).toBeLessThanOrEqual(a.total); // Balken bleibt ≤ 100 %
+  });
+
+  it('bewiesen + reift überschreitet nie die Gesamtzahl', () => {
+    const states: Record<string, ChunkState> = {
+      c1: make('c1', { status: 'maintenance', stage: 'production', intervalDays: 120, provenStableAt: NOW }),
+      c2: make('c2', { status: 'maintenance', stage: 'production', intervalDays: 40 }), // reift
+    };
+    const a = categoryProgress(categories, chunks, states, NOW).find((x) => x.category.id === 'a')!;
+    expect(a.stable).toBe(1);
+    expect(a.maturing).toBe(1);
+    expect(a.stable + a.maturing).toBeLessThanOrEqual(a.total);
+  });
+});
+
 describe('areaProgress', () => {
   const areas: Area[] = [
     { id: 'area-2', title: 'Zwei', blurb: '', order: 2 },

@@ -31,8 +31,12 @@ export function isStable(s: ChunkState): boolean {
   return s.provenStableAt != null;
 }
 
-/** On the way to stable: reliably in production with a grown interval, not yet proven. */
-function isMaturing(s: ChunkState): boolean {
+/**
+ * On the way to stable: reliably in production with a grown interval, not yet proven.
+ * Exported so every view names the same thing "reift" — the honest bar shows this
+ * as its faint zone (docs/07-measurement.md).
+ */
+export function isMaturing(s: ChunkState): boolean {
   return !isStable(s) && s.stage === 'production' && s.intervalDays >= 21;
 }
 
