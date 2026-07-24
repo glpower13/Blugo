@@ -136,6 +136,44 @@ test('tree drill-down: area → theme shows phrases and a focus can be set', asy
   expect(pageErrors, pageErrors.join('\n')).toHaveLength(0);
 });
 
+// Stufe B: Dialog-Modus — eine Szene öffnet (Hör-zuerst), man deckt auf, geht
+// weiter zur "Du bist dran"-Zeile, produziert per Vorschlag und bewertet ehrlich;
+// danach läuft das Gespräch weiter. Ohne Konsolen-/Seitenfehler.
+test('dialog mode: a scene runs and a produced line advances the conversation', async ({ page }) => {
+  const consoleErrors: string[] = [];
+  const pageErrors: string[] = [];
+  page.on('console', (m: ConsoleMessage) => {
+    if (m.type() === 'error') consoleErrors.push(m.text());
+  });
+  page.on('pageerror', (e) => pageErrors.push(String(e)));
+
+  await page.goto('/');
+
+  // Übersicht → Bereich → Thema → Gespräch
+  await page.getByRole('button', { name: /Essen & Café/ }).click();
+  await page.getByRole('button', { name: /Im Restaurant/ }).first().click();
+  await expect(page.getByRole('heading', { name: 'Im Restaurant' })).toBeVisible();
+  await page.getByRole('button', { name: /Im Restaurant: Tisch, bestellen, zahlen/ }).click();
+
+  // Hör-zuerst: aufdecken, dann zweimal weiter bis zur Produktion
+  await page.getByRole('button', { name: 'Aufdecken' }).click();
+  await page.getByRole('button', { name: 'Weiter' }).click();
+  await page.getByRole('button', { name: 'Weiter' }).click();
+
+  // "Du bist dran" → Vorschlag nutzen → prüfen → ehrlich bewerten
+  await expect(page.getByText('Du bist dran')).toBeVisible();
+  await page.getByRole('button', { name: 'Ja, tack.' }).click();
+  await page.getByRole('button', { name: 'Prüfen' }).click();
+  await expect(page.getByText('Wie saß es?')).toBeVisible();
+  await page.getByRole('button', { name: 'Selbsteinschätzung: Sitzt' }).click();
+
+  // Gespräch läuft weiter: die nächste Partner-Zeile erscheint
+  await expect(page.getByText(/Varsågod\. Här är menyn\./)).toBeVisible();
+
+  expect(consoleErrors, consoleErrors.join('\n')).toHaveLength(0);
+  expect(pageErrors, pageErrors.join('\n')).toHaveLength(0);
+});
+
 // Stufe B: die On-device-Aussprache-Hilfe öffnet in der Session, ohne Fehler.
 test('pronunciation help toggles open in the session', async ({ page }) => {
   const consoleErrors: string[] = [];

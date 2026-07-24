@@ -78,6 +78,15 @@ export function IconChevron({ className }: P) {
   );
 }
 
+/** Gespräch — Sprechblase (Dialog-Modus). */
+export function IconChat({ className }: P) {
+  return (
+    <svg {...box(className)} fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M5 5.5h14a1.5 1.5 0 0 1 1.5 1.5v7a1.5 1.5 0 0 1-1.5 1.5H9l-4 3.5V16H5a1.5 1.5 0 0 1-1.5-1.5V7A1.5 1.5 0 0 1 5 5.5Z" />
+    </svg>
+  );
+}
+
 /** KI — Funkeln (die zeitgemäße, edle „AI"-Signatur statt Roboter). */
 export function IconSparkle({ className }: P) {
   return (
