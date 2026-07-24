@@ -11,40 +11,174 @@
 // Themen (cat-*) + ~40 Wendungen (c-*) über Alltag, Café, Weg, Zahlen/Zeit,
 // Essen, Familie, Small Talk. Ausbau folgt über die KI-Content-Fabrik (der Moat).
 
-import type { Category, Chunk, Segment } from '../../domain/chunk';
+import type { Area, Category, Chunk, Segment } from '../../domain/chunk';
 
-// Thematic backbone (docs/gremium-struktur.md). Themes organize the content and
-// give the learner an honest per-theme coverage view + a focus choice for NEW
-// intake — NOT lessons to "complete" (the memory engine still drives the loop).
+// Erste Ebene des Baums: Lebens-BEREICHE (docs/gremium-struktur.md). Der Lerner
+// browst flach: Bereich → Thema → Wendung, statt eine Endlosliste zu scrollen.
+export const seedAreas: Area[] = [
+  {
+    id: 'area-basics',
+    title: 'Erste Schritte',
+    blurb: 'Die ersten Wörter: grüßen und sich verständigen.',
+    order: 1,
+  },
+  {
+    id: 'area-travel',
+    title: 'Reisen & Unterwegs',
+    blurb: 'Ankommen, den Weg finden, unterwegs klarkommen.',
+    order: 2,
+  },
+  {
+    id: 'area-food',
+    title: 'Essen & Café',
+    blurb: 'Bestellen, essen & trinken, zahlen, guten Appetit.',
+    order: 3,
+  },
+  {
+    id: 'area-people',
+    title: 'Menschen & Alltag',
+    blurb: 'Sich kennenlernen, Small Talk, Zeit & Zahlen.',
+    order: 4,
+  },
+  {
+    id: 'area-shopping',
+    title: 'Einkaufen',
+    blurb: 'Im Laden, Größen & Preise, an der Kasse zahlen.',
+    order: 5,
+  },
+  {
+    id: 'area-emergency',
+    title: 'Notfall & Gesundheit',
+    blurb: 'Wenn es wichtig wird: Arzt, Apotheke, Hilfe rufen.',
+    order: 6,
+  },
+];
+
+// Zweite Ebene: Themen (Unterpunkte) je Bereich (docs/gremium-struktur.md). Themen
+// organisieren den Stoff und geben eine ehrliche Abdeckung + eine Fokus-Wahl für
+// NEUEN Stoff — KEINE „Lektionen" zum Abschließen (die Memory-Engine treibt den Loop).
 export const seedCategories: Category[] = [
   {
     id: 'cat-greet',
+    areaId: 'area-basics',
     title: 'Begrüßen & Kennenlernen',
     blurb: 'Hallo sagen, sich vorstellen, nach dem Befinden fragen.',
     order: 1,
   },
   {
     id: 'cat-understand',
+    areaId: 'area-basics',
     title: 'Sich verständigen',
     blurb: 'Nachfragen, wenn du etwas nicht verstehst.',
     order: 2,
   },
   {
+    id: 'cat-around',
+    areaId: 'area-travel',
+    title: 'Nach dem Weg fragen',
+    blurb: 'Um Hilfe bitten, nach dem Weg und der Toilette fragen.',
+    order: 1,
+  },
+  {
     id: 'cat-cafe',
-    title: 'Im Café & Einkaufen',
+    areaId: 'area-food',
+    title: 'Im Café',
     blurb: 'Etwas bestellen, nach dem Preis fragen, danke sagen.',
+    order: 1,
+  },
+  {
+    id: 'cat-food',
+    areaId: 'area-food',
+    title: 'Essen & Trinken',
+    blurb: 'Hunger, Durst, bestellen, guten Appetit.',
+    order: 2,
+  },
+  {
+    id: 'cat-family',
+    areaId: 'area-people',
+    title: 'Familie & Herkunft',
+    blurb: 'Woher du kommst, wo du wohnst, Familie.',
+    order: 1,
+  },
+  {
+    id: 'cat-daily',
+    areaId: 'area-people',
+    title: 'Alltag & Small Talk',
+    blurb: 'Wetter, Beruf, Alter, sich verabschieden.',
+    order: 2,
+  },
+  {
+    id: 'cat-numbers',
+    areaId: 'area-people',
+    title: 'Zahlen & Zeit',
+    blurb: 'Nach der Uhrzeit und dem Tag fragen.',
+    order: 3,
+  },
+
+  // ── Erweiterung 2026-07-23 · neue Themen (nicht muttersprachlich geprüft) ──
+  {
+    id: 'cat-politeness',
+    areaId: 'area-basics',
+    title: 'Höflich & Basics',
+    blurb: 'Ja, nein, danke, bitte, Entschuldigung.',
     order: 3,
   },
   {
-    id: 'cat-around',
-    title: 'Unterwegs & Hilfe',
-    blurb: 'Um Hilfe bitten, nach dem Weg fragen.',
-    order: 4,
+    id: 'cat-transport',
+    areaId: 'area-travel',
+    title: 'Bus, Bahn & Taxi',
+    blurb: 'Tickets, Abfahrt, Gleis, Haltestelle.',
+    order: 2,
   },
-  { id: 'cat-numbers', title: 'Zahlen & Zeit', blurb: 'Nach der Uhrzeit und dem Tag fragen.', order: 5 },
-  { id: 'cat-food', title: 'Essen & Trinken', blurb: 'Hunger, Durst, bestellen, guten Appetit.', order: 6 },
-  { id: 'cat-family', title: 'Familie & Herkunft', blurb: 'Woher du kommst, wo du wohnst, Familie.', order: 7 },
-  { id: 'cat-daily', title: 'Alltag & Small Talk', blurb: 'Wetter, Beruf, Alter, sich verabschieden.', order: 8 },
+  {
+    id: 'cat-hotel',
+    areaId: 'area-travel',
+    title: 'Im Hotel',
+    blurb: 'Zimmer, Preis, Frühstück, Schlüssel.',
+    order: 3,
+  },
+  {
+    id: 'cat-restaurant',
+    areaId: 'area-food',
+    title: 'Im Restaurant',
+    blurb: 'Tisch, Karte, bestellen, satt & zahlen.',
+    order: 3,
+  },
+  {
+    id: 'cat-shop',
+    areaId: 'area-shopping',
+    title: 'Im Geschäft',
+    blurb: 'Schauen, Größe, anprobieren, nehmen.',
+    order: 1,
+  },
+  {
+    id: 'cat-pay',
+    areaId: 'area-shopping',
+    title: 'Bezahlen',
+    blurb: 'Karte oder bar, Beleg, zu teuer.',
+    order: 2,
+  },
+  {
+    id: 'cat-groceries',
+    areaId: 'area-shopping',
+    title: 'Im Supermarkt',
+    blurb: 'Finden, fragen, Kilo & Tüte, Kasse.',
+    order: 3,
+  },
+  {
+    id: 'cat-health',
+    areaId: 'area-emergency',
+    title: 'Beim Arzt & Apotheke',
+    blurb: 'Krank, Schmerzen, Arzt, Apotheke.',
+    order: 1,
+  },
+  {
+    id: 'cat-help-emergency',
+    areaId: 'area-emergency',
+    title: 'Notfall & Hilfe',
+    blurb: 'Hilfe, Polizei, Krankenwagen, verlaufen.',
+    order: 2,
+  },
 ];
 
 export const seedChunks: Chunk[] = [
@@ -198,6 +332,9 @@ export const seedChunks: Chunk[] = [
   { id: 'c-klockan', categoryId: 'cat-numbers', sv: 'vad är klockan?', de: 'wie spät ist es?', decoding: [{ sv: 'vad', de: 'was' }, { sv: 'är', de: 'ist' }, { sv: 'klockan', de: 'die Uhr' }] },
   { id: 'c-vilkendag', categoryId: 'cat-numbers', sv: 'vilken dag är det?', de: 'welcher Tag ist es?', decoding: [{ sv: 'vilken', de: 'welcher' }, { sv: 'dag', de: 'Tag' }, { sv: 'är', de: 'ist' }, { sv: 'det', de: 'es' }] },
   { id: 'c-entimme', categoryId: 'cat-numbers', sv: 'om en timme', de: 'in einer Stunde', decoding: [{ sv: 'om', de: 'in' }, { sv: 'en', de: 'einer' }, { sv: 'timme', de: 'Stunde' }] },
+  { id: 'c-klockantre', categoryId: 'cat-numbers', sv: 'klockan är tre', de: 'es ist drei Uhr', decoding: [{ sv: 'klockan', de: 'die Uhr' }, { sv: 'är', de: 'ist' }, { sv: 'tre', de: 'drei' }] },
+  { id: 'c-tiominuter', categoryId: 'cat-numbers', sv: 'det tar tio minuter', de: 'das dauert zehn Minuten', decoding: [{ sv: 'det', de: 'es' }, { sv: 'tar', de: 'nimmt' }, { sv: 'tio', de: 'zehn' }, { sv: 'minuter', de: 'Minuten' }] },
+  { id: 'c-vaddatum', categoryId: 'cat-numbers', sv: 'vilket datum är det?', de: 'welches Datum ist es?', decoding: [{ sv: 'vilket', de: 'welches' }, { sv: 'datum', de: 'Datum' }, { sv: 'är', de: 'ist' }, { sv: 'det', de: 'es' }] },
 
   // Essen & Trinken
   { id: 'c-hungrig', categoryId: 'cat-food', sv: 'jag är hungrig', de: 'ich bin hungrig', decoding: [{ sv: 'jag', de: 'ich' }, { sv: 'är', de: 'bin' }, { sv: 'hungrig', de: 'hungrig' }] },
@@ -220,6 +357,78 @@ export const seedChunks: Chunk[] = [
   { id: 'c-regnar', categoryId: 'cat-daily', sv: 'det regnar', de: 'es regnet', decoding: [{ sv: 'det', de: 'es' }, { sv: 'regnar', de: 'regnet' }] },
   { id: 'c-hadetbra', categoryId: 'cat-daily', sv: 'ha det bra', de: 'alles Gute', decoding: [{ sv: 'ha', de: 'hab' }, { sv: 'det', de: 'es' }, { sv: 'bra', de: 'gut' }] },
   { id: 'c-trevligt', categoryId: 'cat-daily', sv: 'trevligt att träffas', de: 'schön, dich kennenzulernen', decoding: [{ sv: 'trevligt', de: 'nett' }, { sv: 'att', de: 'zu' }, { sv: 'träffas', de: 'treffen' }] },
+
+  // ── Erweiterung 2026-07-23 · neue Wendungen (nicht muttersprachlich geprüft) ──
+
+  // Höflich & Basics (cat-politeness)
+  { id: 'c-jatack', categoryId: 'cat-politeness', sv: 'ja, tack', de: 'ja, bitte', decoding: [{ sv: 'ja', de: 'ja' }, { sv: 'tack', de: 'bitte' }] },
+  { id: 'c-nejtack', categoryId: 'cat-politeness', sv: 'nej, tack', de: 'nein, danke', decoding: [{ sv: 'nej', de: 'nein' }, { sv: 'tack', de: 'danke' }] },
+  { id: 'c-varsagod', categoryId: 'cat-politeness', sv: 'varsågod', de: 'bitte (hier)', decoding: [{ sv: 'varsågod', de: 'bitte' }] },
+  { id: 'c-ingenfara', categoryId: 'cat-politeness', sv: 'ingen fara', de: 'kein Problem', decoding: [{ sv: 'ingen', de: 'keine' }, { sv: 'fara', de: 'Gefahr' }] },
+  { id: 'c-forlat', categoryId: 'cat-politeness', sv: 'förlåt', de: 'Entschuldigung', decoding: [{ sv: 'förlåt', de: 'verzeih' }] },
+  { id: 'c-ursaktamig', categoryId: 'cat-politeness', sv: 'ursäkta mig', de: 'entschuldigen Sie', decoding: [{ sv: 'ursäkta', de: 'entschuldige' }, { sv: 'mig', de: 'mich' }] },
+
+  // Bus, Bahn & Taxi (cat-transport)
+  { id: 'c-biljett', categoryId: 'cat-transport', sv: 'en biljett, tack', de: 'ein Ticket, bitte', decoding: [{ sv: 'en', de: 'ein' }, { sv: 'biljett', de: 'Ticket' }, { sv: 'tack', de: 'bitte' }] },
+  { id: 'c-nartag', categoryId: 'cat-transport', sv: 'när går tåget?', de: 'wann fährt der Zug?', decoding: [{ sv: 'när', de: 'wann' }, { sv: 'går', de: 'fährt' }, { sv: 'tåget', de: 'der Zug' }] },
+  { id: 'c-narbuss', categoryId: 'cat-transport', sv: 'när går bussen?', de: 'wann fährt der Bus?', decoding: [{ sv: 'när', de: 'wann' }, { sv: 'går', de: 'fährt' }, { sv: 'bussen', de: 'der Bus' }] },
+  { id: 'c-spar', categoryId: 'cat-transport', sv: 'vilket spår?', de: 'welches Gleis?', decoding: [{ sv: 'vilket', de: 'welches' }, { sv: 'spår', de: 'Gleis' }] },
+  { id: 'c-flygplatsen', categoryId: 'cat-transport', sv: 'till flygplatsen, tack', de: 'zum Flughafen, bitte', decoding: [{ sv: 'till', de: 'zum' }, { sv: 'flygplatsen', de: 'der Flughafen' }, { sv: 'tack', de: 'bitte' }] },
+  { id: 'c-hallplats', categoryId: 'cat-transport', sv: 'var är hållplatsen?', de: 'wo ist die Haltestelle?', decoding: [{ sv: 'var', de: 'wo' }, { sv: 'är', de: 'ist' }, { sv: 'hållplatsen', de: 'die Haltestelle' }] },
+
+  // Im Hotel (cat-hotel)
+  { id: 'c-bokatrum', categoryId: 'cat-hotel', sv: 'jag har bokat ett rum', de: 'ich habe ein Zimmer gebucht', decoding: [{ sv: 'jag', de: 'ich' }, { sv: 'har', de: 'habe' }, { sv: 'bokat', de: 'gebucht' }, { sv: 'ett', de: 'ein' }, { sv: 'rum', de: 'Zimmer' }] },
+  { id: 'c-ledigtrum', categoryId: 'cat-hotel', sv: 'har ni ett ledigt rum?', de: 'haben Sie ein freies Zimmer?', decoding: [{ sv: 'har', de: 'haben' }, { sv: 'ni', de: 'Sie' }, { sv: 'ett', de: 'ein' }, { sv: 'ledigt', de: 'freies' }, { sv: 'rum', de: 'Zimmer' }] },
+  { id: 'c-vadnatt', categoryId: 'cat-hotel', sv: 'vad kostar en natt?', de: 'was kostet eine Nacht?', decoding: [{ sv: 'vad', de: 'was' }, { sv: 'kostar', de: 'kostet' }, { sv: 'en', de: 'eine' }, { sv: 'natt', de: 'Nacht' }] },
+  { id: 'c-narfrukost', categoryId: 'cat-hotel', sv: 'när är frukost?', de: 'wann gibt es Frühstück?', decoding: [{ sv: 'när', de: 'wann' }, { sv: 'är', de: 'ist' }, { sv: 'frukost', de: 'Frühstück' }] },
+  { id: 'c-nyckeln', categoryId: 'cat-hotel', sv: 'kan jag få nyckeln?', de: 'kann ich den Schlüssel haben?', decoding: [{ sv: 'kan', de: 'kann' }, { sv: 'jag', de: 'ich' }, { sv: 'få', de: 'bekommen' }, { sv: 'nyckeln', de: 'der Schlüssel' }] },
+  { id: 'c-varrummet', categoryId: 'cat-hotel', sv: 'var är rummet?', de: 'wo ist das Zimmer?', decoding: [{ sv: 'var', de: 'wo' }, { sv: 'är', de: 'ist' }, { sv: 'rummet', de: 'das Zimmer' }] },
+
+  // Im Restaurant (cat-restaurant)
+  { id: 'c-bordtva', categoryId: 'cat-restaurant', sv: 'ett bord för två', de: 'ein Tisch für zwei', decoding: [{ sv: 'ett', de: 'ein' }, { sv: 'bord', de: 'Tisch' }, { sv: 'för', de: 'für' }, { sv: 'två', de: 'zwei' }] },
+  { id: 'c-menyn', categoryId: 'cat-restaurant', sv: 'kan jag få menyn?', de: 'kann ich die Karte haben?', decoding: [{ sv: 'kan', de: 'kann' }, { sv: 'jag', de: 'ich' }, { sv: 'få', de: 'bekommen' }, { sv: 'menyn', de: 'die Speisekarte' }] },
+  { id: 'c-tardenhar', categoryId: 'cat-restaurant', sv: 'jag tar den här', de: 'ich nehme das hier', decoding: [{ sv: 'jag', de: 'ich' }, { sv: 'tar', de: 'nehme' }, { sv: 'den', de: 'das' }, { sv: 'här', de: 'hier' }] },
+  { id: 'c-rekommenderar', categoryId: 'cat-restaurant', sv: 'vad rekommenderar du?', de: 'was empfiehlst du?', decoding: [{ sv: 'vad', de: 'was' }, { sv: 'rekommenderar', de: 'empfiehlst' }, { sv: 'du', de: 'du' }] },
+  { id: 'c-vargott', categoryId: 'cat-restaurant', sv: 'det var gott', de: 'das war lecker', decoding: [{ sv: 'det', de: 'das' }, { sv: 'var', de: 'war' }, { sv: 'gott', de: 'lecker' }] },
+  { id: 'c-matt', categoryId: 'cat-restaurant', sv: 'jag är mätt', de: 'ich bin satt', decoding: [{ sv: 'jag', de: 'ich' }, { sv: 'är', de: 'bin' }, { sv: 'mätt', de: 'satt' }] },
+
+  // Im Geschäft (cat-shop)
+  { id: 'c-tittarbara', categoryId: 'cat-shop', sv: 'jag tittar bara', de: 'ich schaue nur', decoding: [{ sv: 'jag', de: 'ich' }, { sv: 'tittar', de: 'schaue' }, { sv: 'bara', de: 'nur' }] },
+  { id: 'c-iblatt', categoryId: 'cat-shop', sv: 'har ni den i blått?', de: 'haben Sie das in Blau?', decoding: [{ sv: 'har', de: 'haben' }, { sv: 'ni', de: 'Sie' }, { sv: 'den', de: 'das' }, { sv: 'i', de: 'in' }, { sv: 'blått', de: 'Blau' }] },
+  { id: 'c-storlek', categoryId: 'cat-shop', sv: 'vilken storlek?', de: 'welche Größe?', decoding: [{ sv: 'vilken', de: 'welche' }, { sv: 'storlek', de: 'Größe' }] },
+  { id: 'c-prova', categoryId: 'cat-shop', sv: 'kan jag prova?', de: 'kann ich anprobieren?', decoding: [{ sv: 'kan', de: 'kann' }, { sv: 'jag', de: 'ich' }, { sv: 'prova', de: 'probieren' }] },
+  { id: 'c-provrum', categoryId: 'cat-shop', sv: 'var är provrummet?', de: 'wo ist die Umkleide?', decoding: [{ sv: 'var', de: 'wo' }, { sv: 'är', de: 'ist' }, { sv: 'provrummet', de: 'die Umkleidekabine' }] },
+  { id: 'c-tarden', categoryId: 'cat-shop', sv: 'jag tar den', de: 'ich nehme es', decoding: [{ sv: 'jag', de: 'ich' }, { sv: 'tar', de: 'nehme' }, { sv: 'den', de: 'es' }] },
+
+  // Bezahlen (cat-pay)
+  { id: 'c-medkort', categoryId: 'cat-pay', sv: 'kan jag betala med kort?', de: 'kann ich mit Karte zahlen?', decoding: [{ sv: 'kan', de: 'kann' }, { sv: 'jag', de: 'ich' }, { sv: 'betala', de: 'zahlen' }, { sv: 'med', de: 'mit' }, { sv: 'kort', de: 'Karte' }] },
+  { id: 'c-kontant', categoryId: 'cat-pay', sv: 'jag betalar kontant', de: 'ich zahle bar', decoding: [{ sv: 'jag', de: 'ich' }, { sv: 'betalar', de: 'zahle' }, { sv: 'kontant', de: 'bar' }] },
+  { id: 'c-blirdet', categoryId: 'cat-pay', sv: 'hur mycket blir det?', de: 'wie viel macht das?', decoding: [{ sv: 'hur', de: 'wie' }, { sv: 'mycket', de: 'viel' }, { sv: 'blir', de: 'wird' }, { sv: 'det', de: 'es' }] },
+  { id: 'c-kvitto', categoryId: 'cat-pay', sv: 'kan jag få kvittot?', de: 'kann ich den Beleg haben?', decoding: [{ sv: 'kan', de: 'kann' }, { sv: 'jag', de: 'ich' }, { sv: 'få', de: 'bekommen' }, { sv: 'kvittot', de: 'der Beleg' }] },
+  { id: 'c-fordyrt', categoryId: 'cat-pay', sv: 'det är för dyrt', de: 'das ist zu teuer', decoding: [{ sv: 'det', de: 'das' }, { sv: 'är', de: 'ist' }, { sv: 'för', de: 'zu' }, { sv: 'dyrt', de: 'teuer' }] },
+
+  // Im Supermarkt (cat-groceries)
+  { id: 'c-finnsmjolk', categoryId: 'cat-groceries', sv: 'var finns mjölk?', de: 'wo gibt es Milch?', decoding: [{ sv: 'var', de: 'wo' }, { sv: 'finns', de: 'gibt es' }, { sv: 'mjölk', de: 'Milch' }] },
+  { id: 'c-harbrod', categoryId: 'cat-groceries', sv: 'har ni bröd?', de: 'haben Sie Brot?', decoding: [{ sv: 'har', de: 'haben' }, { sv: 'ni', de: 'Sie' }, { sv: 'bröd', de: 'Brot' }] },
+  { id: 'c-kiloapplen', categoryId: 'cat-groceries', sv: 'ett kilo äpplen, tack', de: 'ein Kilo Äpfel, bitte', decoding: [{ sv: 'ett', de: 'ein' }, { sv: 'kilo', de: 'Kilo' }, { sv: 'äpplen', de: 'Äpfel' }, { sv: 'tack', de: 'bitte' }] },
+  { id: 'c-pase', categoryId: 'cat-groceries', sv: 'en påse, tack', de: 'eine Tüte, bitte', decoding: [{ sv: 'en', de: 'eine' }, { sv: 'påse', de: 'Tüte' }, { sv: 'tack', de: 'bitte' }] },
+  { id: 'c-kassan', categoryId: 'cat-groceries', sv: 'var är kassan?', de: 'wo ist die Kasse?', decoding: [{ sv: 'var', de: 'wo' }, { sv: 'är', de: 'ist' }, { sv: 'kassan', de: 'die Kasse' }] },
+
+  // Beim Arzt & Apotheke (cat-health)
+  { id: 'c-sjuk', categoryId: 'cat-health', sv: 'jag är sjuk', de: 'ich bin krank', decoding: [{ sv: 'jag', de: 'ich' }, { sv: 'är', de: 'bin' }, { sv: 'sjuk', de: 'krank' }] },
+  { id: 'c-onthär', categoryId: 'cat-health', sv: 'jag har ont här', de: 'mir tut es hier weh', decoding: [{ sv: 'jag', de: 'ich' }, { sv: 'har', de: 'habe' }, { sv: 'ont', de: 'Schmerz' }, { sv: 'här', de: 'hier' }] },
+  { id: 'c-lakare', categoryId: 'cat-health', sv: 'jag behöver en läkare', de: 'ich brauche einen Arzt', decoding: [{ sv: 'jag', de: 'ich' }, { sv: 'behöver', de: 'brauche' }, { sv: 'en', de: 'einen' }, { sv: 'läkare', de: 'Arzt' }] },
+  { id: 'c-apoteket', categoryId: 'cat-health', sv: 'var är apoteket?', de: 'wo ist die Apotheke?', decoding: [{ sv: 'var', de: 'wo' }, { sv: 'är', de: 'ist' }, { sv: 'apoteket', de: 'die Apotheke' }] },
+  { id: 'c-huvudvark', categoryId: 'cat-health', sv: 'jag har huvudvärk', de: 'ich habe Kopfschmerzen', decoding: [{ sv: 'jag', de: 'ich' }, { sv: 'har', de: 'habe' }, { sv: 'huvudvärk', de: 'Kopfschmerzen' }] },
+  { id: 'c-allergisk', categoryId: 'cat-health', sv: 'jag är allergisk', de: 'ich bin allergisch', decoding: [{ sv: 'jag', de: 'ich' }, { sv: 'är', de: 'bin' }, { sv: 'allergisk', de: 'allergisch' }] },
+
+  // Notfall & Hilfe (cat-help-emergency)
+  { id: 'c-hjalp', categoryId: 'cat-help-emergency', sv: 'hjälp!', de: 'Hilfe!', decoding: [{ sv: 'hjälp', de: 'Hilfe' }] },
+  { id: 'c-ringpolis', categoryId: 'cat-help-emergency', sv: 'ring polisen!', de: 'ruf die Polizei!', decoding: [{ sv: 'ring', de: 'ruf an' }, { sv: 'polisen', de: 'die Polizei' }] },
+  { id: 'c-ambulans', categoryId: 'cat-help-emergency', sv: 'ring en ambulans!', de: 'ruf einen Krankenwagen!', decoding: [{ sv: 'ring', de: 'ruf an' }, { sv: 'en', de: 'einen' }, { sv: 'ambulans', de: 'Krankenwagen' }] },
+  { id: 'c-nodsituation', categoryId: 'cat-help-emergency', sv: 'det är en nödsituation', de: 'das ist ein Notfall', decoding: [{ sv: 'det', de: 'das' }, { sv: 'är', de: 'ist' }, { sv: 'en', de: 'ein' }, { sv: 'nödsituation', de: 'Notfall' }] },
+  { id: 'c-vilse', categoryId: 'cat-help-emergency', sv: 'jag har gått vilse', de: 'ich habe mich verlaufen', decoding: [{ sv: 'jag', de: 'ich' }, { sv: 'har', de: 'habe' }, { sv: 'gått', de: 'gegangen' }, { sv: 'vilse', de: 'verirrt' }] },
+  { id: 'c-tappatvaska', categoryId: 'cat-help-emergency', sv: 'jag hittar inte min väska', de: 'ich finde meine Tasche nicht', decoding: [{ sv: 'jag', de: 'ich' }, { sv: 'hittar', de: 'finde' }, { sv: 'inte', de: 'nicht' }, { sv: 'min', de: 'meine' }, { sv: 'väska', de: 'Tasche' }] },
 ];
 
 export const seedSegments: Segment[] = [
@@ -578,6 +787,12 @@ export const seedSegments: Segment[] = [
   // c-entimme
   { id: 's-entimme1', level: 1, sv: 'Vi ses om en timme.', de: 'Wir sehen uns in einer Stunde.', decoding: [{ sv: 'vi', de: 'wir' }, { sv: 'ses', de: 'sehen uns' }, { sv: 'om', de: 'in' }, { sv: 'en', de: 'einer' }, { sv: 'timme', de: 'Stunde' }], chunkIds: ['c-entimme'] },
   { id: 's-entimme2', level: 1, sv: 'Jag kommer om en timme.', de: 'Ich komme in einer Stunde.', decoding: [{ sv: 'jag', de: 'ich' }, { sv: 'kommer', de: 'komme' }, { sv: 'om', de: 'in' }, { sv: 'en', de: 'einer' }, { sv: 'timme', de: 'Stunde' }], chunkIds: ['c-entimme'] },
+  { id: 's-klockantre1', level: 1, sv: 'Klockan är tre nu.', de: 'Es ist jetzt drei Uhr.', decoding: [{ sv: 'klockan', de: 'die Uhr' }, { sv: 'är', de: 'ist' }, { sv: 'tre', de: 'drei' }, { sv: 'nu', de: 'jetzt' }], chunkIds: ['c-klockantre'] },
+  { id: 's-klockantre2', level: 1, sv: 'Titta, klockan är tre!', de: 'Schau, es ist drei Uhr!', decoding: [{ sv: 'titta', de: 'schau' }, { sv: 'klockan', de: 'die Uhr' }, { sv: 'är', de: 'ist' }, { sv: 'tre', de: 'drei' }], chunkIds: ['c-klockantre'] },
+  { id: 's-tiominuter1', level: 1, sv: 'Det tar tio minuter.', de: 'Das dauert zehn Minuten.', decoding: [{ sv: 'det', de: 'es' }, { sv: 'tar', de: 'nimmt' }, { sv: 'tio', de: 'zehn' }, { sv: 'minuter', de: 'Minuten' }], chunkIds: ['c-tiominuter'] },
+  { id: 's-tiominuter2', level: 1, sv: 'Bussen tar tio minuter.', de: 'Der Bus dauert zehn Minuten.', decoding: [{ sv: 'bussen', de: 'der Bus' }, { sv: 'tar', de: 'nimmt' }, { sv: 'tio', de: 'zehn' }, { sv: 'minuter', de: 'Minuten' }], chunkIds: ['c-tiominuter'] },
+  { id: 's-vaddatum1', level: 1, sv: 'Ursäkta, vilket datum är det?', de: 'Entschuldigung, welches Datum ist es?', decoding: [{ sv: 'ursäkta', de: 'entschuldige' }, { sv: 'vilket', de: 'welches' }, { sv: 'datum', de: 'Datum' }, { sv: 'är', de: 'ist' }, { sv: 'det', de: 'es' }], chunkIds: ['c-vaddatum'] },
+  { id: 's-vaddatum2', level: 1, sv: 'Vilket datum är det idag?', de: 'Welches Datum ist heute?', decoding: [{ sv: 'vilket', de: 'welches' }, { sv: 'datum', de: 'Datum' }, { sv: 'är', de: 'ist' }, { sv: 'det', de: 'es' }, { sv: 'idag', de: 'heute' }], chunkIds: ['c-vaddatum'] },
 
   // c-hungrig
   { id: 's-hungrig1', level: 1, sv: 'Jag är hungrig.', de: 'Ich bin hungrig.', decoding: [{ sv: 'jag', de: 'ich' }, { sv: 'är', de: 'bin' }, { sv: 'hungrig', de: 'hungrig' }], chunkIds: ['c-hungrig'] },
@@ -629,4 +844,128 @@ export const seedSegments: Segment[] = [
   // c-trevligt
   { id: 's-trevligt1', level: 1, sv: 'Trevligt att träffas!', de: 'Schön, dich kennenzulernen!', decoding: [{ sv: 'trevligt', de: 'nett' }, { sv: 'att', de: 'zu' }, { sv: 'träffas', de: 'treffen' }], chunkIds: ['c-trevligt'] },
   { id: 's-trevligt2', level: 1, sv: 'Hej, trevligt att träffas!', de: 'Hallo, schön dich kennenzulernen!', decoding: [{ sv: 'hej', de: 'hallo' }, { sv: 'trevligt', de: 'nett' }, { sv: 'att', de: 'zu' }, { sv: 'träffas', de: 'treffen' }], chunkIds: ['c-trevligt'] },
+
+  // ── Erweiterung 2026-07-23 · je 2 Kontexte (nicht muttersprachlich geprüft) ──
+
+  // Höflich & Basics
+  { id: 's-jatack1', level: 1, sv: 'Ja, tack, gärna.', de: 'Ja, bitte, gern.', decoding: [{ sv: 'ja', de: 'ja' }, { sv: 'tack', de: 'bitte' }, { sv: 'gärna', de: 'gern' }], chunkIds: ['c-jatack'] },
+  { id: 's-jatack2', level: 1, sv: 'Kaffe? Ja, tack!', de: 'Kaffee? Ja, bitte!', decoding: [{ sv: 'kaffe', de: 'Kaffee' }, { sv: 'ja', de: 'ja' }, { sv: 'tack', de: 'bitte' }], chunkIds: ['c-jatack'] },
+  { id: 's-nejtack1', level: 1, sv: 'Nej, tack, jag är mätt.', de: 'Nein, danke, ich bin satt.', decoding: [{ sv: 'nej', de: 'nein' }, { sv: 'tack', de: 'danke' }, { sv: 'jag', de: 'ich' }, { sv: 'är', de: 'bin' }, { sv: 'mätt', de: 'satt' }], chunkIds: ['c-nejtack'] },
+  { id: 's-nejtack2', level: 1, sv: 'Mer kaffe? Nej, tack.', de: 'Mehr Kaffee? Nein, danke.', decoding: [{ sv: 'mer', de: 'mehr' }, { sv: 'kaffe', de: 'Kaffee' }, { sv: 'nej', de: 'nein' }, { sv: 'tack', de: 'danke' }], chunkIds: ['c-nejtack'] },
+  { id: 's-varsagod1', level: 1, sv: 'Varsågod, här är menyn.', de: 'Bitte, hier ist die Karte.', decoding: [{ sv: 'varsågod', de: 'bitte' }, { sv: 'här', de: 'hier' }, { sv: 'är', de: 'ist' }, { sv: 'menyn', de: 'die Speisekarte' }], chunkIds: ['c-varsagod'] },
+  { id: 's-varsagod2', level: 1, sv: 'Tack! – Varsågod.', de: 'Danke! – Bitte.', decoding: [{ sv: 'tack', de: 'danke' }, { sv: 'varsågod', de: 'bitte' }], chunkIds: ['c-varsagod'] },
+  { id: 's-ingenfara1', level: 1, sv: 'Ingen fara, det är okej.', de: 'Kein Problem, es ist okay.', decoding: [{ sv: 'ingen', de: 'keine' }, { sv: 'fara', de: 'Gefahr' }, { sv: 'det', de: 'es' }, { sv: 'är', de: 'ist' }, { sv: 'okej', de: 'okay' }], chunkIds: ['c-ingenfara'] },
+  { id: 's-ingenfara2', level: 1, sv: 'Förlåt! – Ingen fara.', de: 'Entschuldigung! – Kein Problem.', decoding: [{ sv: 'förlåt', de: 'verzeih' }, { sv: 'ingen', de: 'keine' }, { sv: 'fara', de: 'Gefahr' }], chunkIds: ['c-ingenfara', 'c-forlat'] },
+  { id: 's-forlat1', level: 1, sv: 'Förlåt, det var mitt fel.', de: 'Verzeihung, das war mein Fehler.', decoding: [{ sv: 'förlåt', de: 'verzeih' }, { sv: 'det', de: 'das' }, { sv: 'var', de: 'war' }, { sv: 'mitt', de: 'mein' }, { sv: 'fel', de: 'Fehler' }], chunkIds: ['c-forlat'] },
+  { id: 's-forlat2', level: 1, sv: 'Förlåt att jag är sen.', de: 'Entschuldigung, dass ich spät bin.', decoding: [{ sv: 'förlåt', de: 'verzeih' }, { sv: 'att', de: 'dass' }, { sv: 'jag', de: 'ich' }, { sv: 'är', de: 'bin' }, { sv: 'sen', de: 'spät' }], chunkIds: ['c-forlat'] },
+  { id: 's-ursaktamig1', level: 1, sv: 'Ursäkta mig, får jag komma förbi?', de: 'Entschuldigen Sie, darf ich vorbei?', decoding: [{ sv: 'ursäkta', de: 'entschuldige' }, { sv: 'mig', de: 'mich' }, { sv: 'får', de: 'darf' }, { sv: 'jag', de: 'ich' }, { sv: 'komma', de: 'kommen' }, { sv: 'förbi', de: 'vorbei' }], chunkIds: ['c-ursaktamig'] },
+  { id: 's-ursaktamig2', level: 1, sv: 'Ursäkta mig, har du en minut?', de: 'Entschuldigen Sie, haben Sie eine Minute?', decoding: [{ sv: 'ursäkta', de: 'entschuldige' }, { sv: 'mig', de: 'mich' }, { sv: 'har', de: 'hast' }, { sv: 'du', de: 'du' }, { sv: 'en', de: 'eine' }, { sv: 'minut', de: 'Minute' }], chunkIds: ['c-ursaktamig'] },
+
+  // Bus, Bahn & Taxi
+  { id: 's-biljett1', level: 1, sv: 'En biljett till Stockholm, tack.', de: 'Ein Ticket nach Stockholm, bitte.', decoding: [{ sv: 'en', de: 'ein' }, { sv: 'biljett', de: 'Ticket' }, { sv: 'till', de: 'nach' }, { sv: 'Stockholm', de: 'Stockholm' }, { sv: 'tack', de: 'bitte' }], chunkIds: ['c-biljett'] },
+  { id: 's-biljett2', level: 1, sv: 'Hej, en biljett, tack.', de: 'Hallo, ein Ticket, bitte.', decoding: [{ sv: 'hej', de: 'hallo' }, { sv: 'en', de: 'ein' }, { sv: 'biljett', de: 'Ticket' }, { sv: 'tack', de: 'bitte' }], chunkIds: ['c-biljett'] },
+  { id: 's-nartag1', level: 1, sv: 'Ursäkta, när går tåget?', de: 'Entschuldigung, wann fährt der Zug?', decoding: [{ sv: 'ursäkta', de: 'entschuldige' }, { sv: 'när', de: 'wann' }, { sv: 'går', de: 'fährt' }, { sv: 'tåget', de: 'der Zug' }], chunkIds: ['c-nartag'] },
+  { id: 's-nartag2', level: 1, sv: 'När går tåget till Malmö?', de: 'Wann fährt der Zug nach Malmö?', decoding: [{ sv: 'när', de: 'wann' }, { sv: 'går', de: 'fährt' }, { sv: 'tåget', de: 'der Zug' }, { sv: 'till', de: 'nach' }, { sv: 'Malmö', de: 'Malmö' }], chunkIds: ['c-nartag'] },
+  { id: 's-narbuss1', level: 1, sv: 'När går bussen till centrum?', de: 'Wann fährt der Bus ins Zentrum?', decoding: [{ sv: 'när', de: 'wann' }, { sv: 'går', de: 'fährt' }, { sv: 'bussen', de: 'der Bus' }, { sv: 'till', de: 'zu' }, { sv: 'centrum', de: 'Zentrum' }], chunkIds: ['c-narbuss'] },
+  { id: 's-narbuss2', level: 1, sv: 'Ursäkta, när går nästa buss?', de: 'Entschuldigung, wann fährt der nächste Bus?', decoding: [{ sv: 'ursäkta', de: 'entschuldige' }, { sv: 'när', de: 'wann' }, { sv: 'går', de: 'fährt' }, { sv: 'nästa', de: 'nächste' }, { sv: 'buss', de: 'Bus' }], chunkIds: ['c-narbuss'] },
+  { id: 's-spar1', level: 1, sv: 'Vilket spår går tåget från?', de: 'Von welchem Gleis fährt der Zug?', decoding: [{ sv: 'vilket', de: 'welchem' }, { sv: 'spår', de: 'Gleis' }, { sv: 'går', de: 'fährt' }, { sv: 'tåget', de: 'der Zug' }, { sv: 'från', de: 'von' }], chunkIds: ['c-spar'] },
+  { id: 's-spar2', level: 1, sv: 'Ursäkta, vilket spår?', de: 'Entschuldigung, welches Gleis?', decoding: [{ sv: 'ursäkta', de: 'entschuldige' }, { sv: 'vilket', de: 'welches' }, { sv: 'spår', de: 'Gleis' }], chunkIds: ['c-spar'] },
+  { id: 's-flygplatsen1', level: 1, sv: 'Till flygplatsen, tack.', de: 'Zum Flughafen, bitte.', decoding: [{ sv: 'till', de: 'zum' }, { sv: 'flygplatsen', de: 'der Flughafen' }, { sv: 'tack', de: 'bitte' }], chunkIds: ['c-flygplatsen'] },
+  { id: 's-flygplatsen2', level: 1, sv: 'Kör till flygplatsen, tack.', de: 'Fahren Sie zum Flughafen, bitte.', decoding: [{ sv: 'kör', de: 'fahr' }, { sv: 'till', de: 'zum' }, { sv: 'flygplatsen', de: 'der Flughafen' }, { sv: 'tack', de: 'bitte' }], chunkIds: ['c-flygplatsen'] },
+  { id: 's-hallplats1', level: 1, sv: 'Ursäkta, var är hållplatsen?', de: 'Entschuldigung, wo ist die Haltestelle?', decoding: [{ sv: 'ursäkta', de: 'entschuldige' }, { sv: 'var', de: 'wo' }, { sv: 'är', de: 'ist' }, { sv: 'hållplatsen', de: 'die Haltestelle' }], chunkIds: ['c-hallplats'] },
+  { id: 's-hallplats2', level: 1, sv: 'Var är närmaste hållplats?', de: 'Wo ist die nächste Haltestelle?', decoding: [{ sv: 'var', de: 'wo' }, { sv: 'är', de: 'ist' }, { sv: 'närmaste', de: 'nächste' }, { sv: 'hållplats', de: 'Haltestelle' }], chunkIds: ['c-hallplats'] },
+
+  // Im Hotel
+  { id: 's-bokatrum1', level: 1, sv: 'Hej, jag har bokat ett rum.', de: 'Hallo, ich habe ein Zimmer gebucht.', decoding: [{ sv: 'hej', de: 'hallo' }, { sv: 'jag', de: 'ich' }, { sv: 'har', de: 'habe' }, { sv: 'bokat', de: 'gebucht' }, { sv: 'ett', de: 'ein' }, { sv: 'rum', de: 'Zimmer' }], chunkIds: ['c-bokatrum'] },
+  { id: 's-bokatrum2', level: 1, sv: 'Jag har bokat ett rum för två.', de: 'Ich habe ein Zimmer für zwei gebucht.', decoding: [{ sv: 'jag', de: 'ich' }, { sv: 'har', de: 'habe' }, { sv: 'bokat', de: 'gebucht' }, { sv: 'ett', de: 'ein' }, { sv: 'rum', de: 'Zimmer' }, { sv: 'för', de: 'für' }, { sv: 'två', de: 'zwei' }], chunkIds: ['c-bokatrum'] },
+  { id: 's-ledigtrum1', level: 1, sv: 'Har ni ett ledigt rum?', de: 'Haben Sie ein freies Zimmer?', decoding: [{ sv: 'har', de: 'haben' }, { sv: 'ni', de: 'Sie' }, { sv: 'ett', de: 'ein' }, { sv: 'ledigt', de: 'freies' }, { sv: 'rum', de: 'Zimmer' }], chunkIds: ['c-ledigtrum'] },
+  { id: 's-ledigtrum2', level: 1, sv: 'Ursäkta, har ni ett ledigt rum ikväll?', de: 'Entschuldigung, haben Sie heute Abend ein freies Zimmer?', decoding: [{ sv: 'ursäkta', de: 'entschuldige' }, { sv: 'har', de: 'haben' }, { sv: 'ni', de: 'Sie' }, { sv: 'ett', de: 'ein' }, { sv: 'ledigt', de: 'freies' }, { sv: 'rum', de: 'Zimmer' }, { sv: 'ikväll', de: 'heute Abend' }], chunkIds: ['c-ledigtrum'] },
+  { id: 's-vadnatt1', level: 1, sv: 'Vad kostar en natt?', de: 'Was kostet eine Nacht?', decoding: [{ sv: 'vad', de: 'was' }, { sv: 'kostar', de: 'kostet' }, { sv: 'en', de: 'eine' }, { sv: 'natt', de: 'Nacht' }], chunkIds: ['c-vadnatt'] },
+  { id: 's-vadnatt2', level: 1, sv: 'Vad kostar en natt för två?', de: 'Was kostet eine Nacht für zwei?', decoding: [{ sv: 'vad', de: 'was' }, { sv: 'kostar', de: 'kostet' }, { sv: 'en', de: 'eine' }, { sv: 'natt', de: 'Nacht' }, { sv: 'för', de: 'für' }, { sv: 'två', de: 'zwei' }], chunkIds: ['c-vadnatt'] },
+  { id: 's-narfrukost1', level: 1, sv: 'När är frukost?', de: 'Wann gibt es Frühstück?', decoding: [{ sv: 'när', de: 'wann' }, { sv: 'är', de: 'ist' }, { sv: 'frukost', de: 'Frühstück' }], chunkIds: ['c-narfrukost'] },
+  { id: 's-narfrukost2', level: 1, sv: 'Ursäkta, när är frukost?', de: 'Entschuldigung, wann gibt es Frühstück?', decoding: [{ sv: 'ursäkta', de: 'entschuldige' }, { sv: 'när', de: 'wann' }, { sv: 'är', de: 'ist' }, { sv: 'frukost', de: 'Frühstück' }], chunkIds: ['c-narfrukost'] },
+  { id: 's-nyckeln1', level: 1, sv: 'Kan jag få nyckeln, tack?', de: 'Kann ich den Schlüssel haben, bitte?', decoding: [{ sv: 'kan', de: 'kann' }, { sv: 'jag', de: 'ich' }, { sv: 'få', de: 'bekommen' }, { sv: 'nyckeln', de: 'der Schlüssel' }, { sv: 'tack', de: 'bitte' }], chunkIds: ['c-nyckeln'] },
+  { id: 's-nyckeln2', level: 1, sv: 'Hej, kan jag få nyckeln till rum tre?', de: 'Hallo, kann ich den Schlüssel für Zimmer drei haben?', decoding: [{ sv: 'hej', de: 'hallo' }, { sv: 'kan', de: 'kann' }, { sv: 'jag', de: 'ich' }, { sv: 'få', de: 'bekommen' }, { sv: 'nyckeln', de: 'der Schlüssel' }, { sv: 'till', de: 'zu' }, { sv: 'rum', de: 'Zimmer' }, { sv: 'tre', de: 'drei' }], chunkIds: ['c-nyckeln'] },
+  { id: 's-varrummet1', level: 1, sv: 'Ursäkta, var är rummet?', de: 'Entschuldigung, wo ist das Zimmer?', decoding: [{ sv: 'ursäkta', de: 'entschuldige' }, { sv: 'var', de: 'wo' }, { sv: 'är', de: 'ist' }, { sv: 'rummet', de: 'das Zimmer' }], chunkIds: ['c-varrummet'] },
+  { id: 's-varrummet2', level: 1, sv: 'Var är rummet, tack?', de: 'Wo ist das Zimmer, bitte?', decoding: [{ sv: 'var', de: 'wo' }, { sv: 'är', de: 'ist' }, { sv: 'rummet', de: 'das Zimmer' }, { sv: 'tack', de: 'bitte' }], chunkIds: ['c-varrummet'] },
+
+  // Im Restaurant
+  { id: 's-bordtva1', level: 1, sv: 'Hej, ett bord för två, tack.', de: 'Hallo, einen Tisch für zwei, bitte.', decoding: [{ sv: 'hej', de: 'hallo' }, { sv: 'ett', de: 'einen' }, { sv: 'bord', de: 'Tisch' }, { sv: 'för', de: 'für' }, { sv: 'två', de: 'zwei' }, { sv: 'tack', de: 'bitte' }], chunkIds: ['c-bordtva'] },
+  { id: 's-bordtva2', level: 1, sv: 'Har ni ett bord för två?', de: 'Haben Sie einen Tisch für zwei?', decoding: [{ sv: 'har', de: 'haben' }, { sv: 'ni', de: 'Sie' }, { sv: 'ett', de: 'einen' }, { sv: 'bord', de: 'Tisch' }, { sv: 'för', de: 'für' }, { sv: 'två', de: 'zwei' }], chunkIds: ['c-bordtva'] },
+  { id: 's-menyn1', level: 1, sv: 'Kan jag få menyn, tack?', de: 'Kann ich die Karte haben, bitte?', decoding: [{ sv: 'kan', de: 'kann' }, { sv: 'jag', de: 'ich' }, { sv: 'få', de: 'bekommen' }, { sv: 'menyn', de: 'die Speisekarte' }, { sv: 'tack', de: 'bitte' }], chunkIds: ['c-menyn'] },
+  { id: 's-menyn2', level: 1, sv: 'Ursäkta, kan jag få menyn?', de: 'Entschuldigung, kann ich die Karte haben?', decoding: [{ sv: 'ursäkta', de: 'entschuldige' }, { sv: 'kan', de: 'kann' }, { sv: 'jag', de: 'ich' }, { sv: 'få', de: 'bekommen' }, { sv: 'menyn', de: 'die Speisekarte' }], chunkIds: ['c-menyn'] },
+  { id: 's-tardenhar1', level: 1, sv: 'Jag tar den här, tack.', de: 'Ich nehme das hier, bitte.', decoding: [{ sv: 'jag', de: 'ich' }, { sv: 'tar', de: 'nehme' }, { sv: 'den', de: 'das' }, { sv: 'här', de: 'hier' }, { sv: 'tack', de: 'bitte' }], chunkIds: ['c-tardenhar'] },
+  { id: 's-tardenhar2', level: 1, sv: 'Jag tar den här och en kaffe.', de: 'Ich nehme das hier und einen Kaffee.', decoding: [{ sv: 'jag', de: 'ich' }, { sv: 'tar', de: 'nehme' }, { sv: 'den', de: 'das' }, { sv: 'här', de: 'hier' }, { sv: 'och', de: 'und' }, { sv: 'en', de: 'einen' }, { sv: 'kaffe', de: 'Kaffee' }], chunkIds: ['c-tardenhar'] },
+  { id: 's-rekommenderar1', level: 1, sv: 'Vad rekommenderar du?', de: 'Was empfiehlst du?', decoding: [{ sv: 'vad', de: 'was' }, { sv: 'rekommenderar', de: 'empfiehlst' }, { sv: 'du', de: 'du' }], chunkIds: ['c-rekommenderar'] },
+  { id: 's-rekommenderar2', level: 1, sv: 'Vad rekommenderar du idag?', de: 'Was empfiehlst du heute?', decoding: [{ sv: 'vad', de: 'was' }, { sv: 'rekommenderar', de: 'empfiehlst' }, { sv: 'du', de: 'du' }, { sv: 'idag', de: 'heute' }], chunkIds: ['c-rekommenderar'] },
+  { id: 's-vargott1', level: 1, sv: 'Tack, det var gott!', de: 'Danke, das war lecker!', decoding: [{ sv: 'tack', de: 'danke' }, { sv: 'det', de: 'das' }, { sv: 'var', de: 'war' }, { sv: 'gott', de: 'lecker' }], chunkIds: ['c-vargott'] },
+  { id: 's-vargott2', level: 1, sv: 'Det var jättegott.', de: 'Das war sehr lecker.', decoding: [{ sv: 'det', de: 'das' }, { sv: 'var', de: 'war' }, { sv: 'jättegott', de: 'sehr lecker' }], chunkIds: ['c-vargott'] },
+  { id: 's-matt1', level: 1, sv: 'Nej tack, jag är mätt.', de: 'Nein danke, ich bin satt.', decoding: [{ sv: 'nej', de: 'nein' }, { sv: 'tack', de: 'danke' }, { sv: 'jag', de: 'ich' }, { sv: 'är', de: 'bin' }, { sv: 'mätt', de: 'satt' }], chunkIds: ['c-matt'] },
+  { id: 's-matt2', level: 1, sv: 'Tack, jag är mätt nu.', de: 'Danke, ich bin jetzt satt.', decoding: [{ sv: 'tack', de: 'danke' }, { sv: 'jag', de: 'ich' }, { sv: 'är', de: 'bin' }, { sv: 'mätt', de: 'satt' }, { sv: 'nu', de: 'jetzt' }], chunkIds: ['c-matt'] },
+
+  // Im Geschäft
+  { id: 's-tittarbara1', level: 1, sv: 'Tack, jag tittar bara.', de: 'Danke, ich schaue nur.', decoding: [{ sv: 'tack', de: 'danke' }, { sv: 'jag', de: 'ich' }, { sv: 'tittar', de: 'schaue' }, { sv: 'bara', de: 'nur' }], chunkIds: ['c-tittarbara'] },
+  { id: 's-tittarbara2', level: 1, sv: 'Nej tack, jag tittar bara.', de: 'Nein danke, ich schaue nur.', decoding: [{ sv: 'nej', de: 'nein' }, { sv: 'tack', de: 'danke' }, { sv: 'jag', de: 'ich' }, { sv: 'tittar', de: 'schaue' }, { sv: 'bara', de: 'nur' }], chunkIds: ['c-tittarbara'] },
+  { id: 's-iblatt1', level: 1, sv: 'Har ni den här i blått?', de: 'Haben Sie das hier in Blau?', decoding: [{ sv: 'har', de: 'haben' }, { sv: 'ni', de: 'Sie' }, { sv: 'den', de: 'das' }, { sv: 'här', de: 'hier' }, { sv: 'i', de: 'in' }, { sv: 'blått', de: 'Blau' }], chunkIds: ['c-iblatt'] },
+  { id: 's-iblatt2', level: 1, sv: 'Ursäkta, har ni den i blått?', de: 'Entschuldigung, haben Sie das in Blau?', decoding: [{ sv: 'ursäkta', de: 'entschuldige' }, { sv: 'har', de: 'haben' }, { sv: 'ni', de: 'Sie' }, { sv: 'den', de: 'das' }, { sv: 'i', de: 'in' }, { sv: 'blått', de: 'Blau' }], chunkIds: ['c-iblatt'] },
+  { id: 's-storlek1', level: 1, sv: 'Vilken storlek har du?', de: 'Welche Größe hast du?', decoding: [{ sv: 'vilken', de: 'welche' }, { sv: 'storlek', de: 'Größe' }, { sv: 'har', de: 'hast' }, { sv: 'du', de: 'du' }], chunkIds: ['c-storlek'] },
+  { id: 's-storlek2', level: 1, sv: 'Ursäkta, vilken storlek är den?', de: 'Entschuldigung, welche Größe ist das?', decoding: [{ sv: 'ursäkta', de: 'entschuldige' }, { sv: 'vilken', de: 'welche' }, { sv: 'storlek', de: 'Größe' }, { sv: 'är', de: 'ist' }, { sv: 'den', de: 'das' }], chunkIds: ['c-storlek'] },
+  { id: 's-prova1', level: 1, sv: 'Kan jag prova den?', de: 'Kann ich das anprobieren?', decoding: [{ sv: 'kan', de: 'kann' }, { sv: 'jag', de: 'ich' }, { sv: 'prova', de: 'probieren' }, { sv: 'den', de: 'das' }], chunkIds: ['c-prova'] },
+  { id: 's-prova2', level: 1, sv: 'Ursäkta, kan jag prova?', de: 'Entschuldigung, kann ich anprobieren?', decoding: [{ sv: 'ursäkta', de: 'entschuldige' }, { sv: 'kan', de: 'kann' }, { sv: 'jag', de: 'ich' }, { sv: 'prova', de: 'probieren' }], chunkIds: ['c-prova'] },
+  { id: 's-provrum1', level: 1, sv: 'Var är provrummet?', de: 'Wo ist die Umkleide?', decoding: [{ sv: 'var', de: 'wo' }, { sv: 'är', de: 'ist' }, { sv: 'provrummet', de: 'die Umkleidekabine' }], chunkIds: ['c-provrum'] },
+  { id: 's-provrum2', level: 1, sv: 'Ursäkta, var är provrummet?', de: 'Entschuldigung, wo ist die Umkleide?', decoding: [{ sv: 'ursäkta', de: 'entschuldige' }, { sv: 'var', de: 'wo' }, { sv: 'är', de: 'ist' }, { sv: 'provrummet', de: 'die Umkleidekabine' }], chunkIds: ['c-provrum'] },
+  { id: 's-tarden1', level: 1, sv: 'Tack, jag tar den.', de: 'Danke, ich nehme es.', decoding: [{ sv: 'tack', de: 'danke' }, { sv: 'jag', de: 'ich' }, { sv: 'tar', de: 'nehme' }, { sv: 'den', de: 'es' }], chunkIds: ['c-tarden'] },
+  { id: 's-tarden2', level: 1, sv: 'Den är fin, jag tar den.', de: 'Das ist schön, ich nehme es.', decoding: [{ sv: 'den', de: 'das' }, { sv: 'är', de: 'ist' }, { sv: 'fin', de: 'schön' }, { sv: 'jag', de: 'ich' }, { sv: 'tar', de: 'nehme' }, { sv: 'den', de: 'es' }], chunkIds: ['c-tarden'] },
+
+  // Bezahlen
+  { id: 's-medkort1', level: 1, sv: 'Kan jag betala med kort?', de: 'Kann ich mit Karte zahlen?', decoding: [{ sv: 'kan', de: 'kann' }, { sv: 'jag', de: 'ich' }, { sv: 'betala', de: 'zahlen' }, { sv: 'med', de: 'mit' }, { sv: 'kort', de: 'Karte' }], chunkIds: ['c-medkort'] },
+  { id: 's-medkort2', level: 1, sv: 'Ursäkta, kan jag betala med kort?', de: 'Entschuldigung, kann ich mit Karte zahlen?', decoding: [{ sv: 'ursäkta', de: 'entschuldige' }, { sv: 'kan', de: 'kann' }, { sv: 'jag', de: 'ich' }, { sv: 'betala', de: 'zahlen' }, { sv: 'med', de: 'mit' }, { sv: 'kort', de: 'Karte' }], chunkIds: ['c-medkort'] },
+  { id: 's-kontant1', level: 1, sv: 'Jag betalar kontant, tack.', de: 'Ich zahle bar, bitte.', decoding: [{ sv: 'jag', de: 'ich' }, { sv: 'betalar', de: 'zahle' }, { sv: 'kontant', de: 'bar' }, { sv: 'tack', de: 'bitte' }], chunkIds: ['c-kontant'] },
+  { id: 's-kontant2', level: 1, sv: 'Nej, jag betalar kontant.', de: 'Nein, ich zahle bar.', decoding: [{ sv: 'nej', de: 'nein' }, { sv: 'jag', de: 'ich' }, { sv: 'betalar', de: 'zahle' }, { sv: 'kontant', de: 'bar' }], chunkIds: ['c-kontant'] },
+  { id: 's-blirdet1', level: 1, sv: 'Hur mycket blir det?', de: 'Wie viel macht das?', decoding: [{ sv: 'hur', de: 'wie' }, { sv: 'mycket', de: 'viel' }, { sv: 'blir', de: 'wird' }, { sv: 'det', de: 'es' }], chunkIds: ['c-blirdet'] },
+  { id: 's-blirdet2', level: 1, sv: 'Ursäkta, hur mycket blir det?', de: 'Entschuldigung, wie viel macht das?', decoding: [{ sv: 'ursäkta', de: 'entschuldige' }, { sv: 'hur', de: 'wie' }, { sv: 'mycket', de: 'viel' }, { sv: 'blir', de: 'wird' }, { sv: 'det', de: 'es' }], chunkIds: ['c-blirdet'] },
+  { id: 's-kvitto1', level: 1, sv: 'Kan jag få kvittot, tack?', de: 'Kann ich den Beleg haben, bitte?', decoding: [{ sv: 'kan', de: 'kann' }, { sv: 'jag', de: 'ich' }, { sv: 'få', de: 'bekommen' }, { sv: 'kvittot', de: 'der Beleg' }, { sv: 'tack', de: 'bitte' }], chunkIds: ['c-kvitto'] },
+  { id: 's-kvitto2', level: 1, sv: 'Får jag kvittot, tack?', de: 'Bekomme ich den Beleg, bitte?', decoding: [{ sv: 'får', de: 'bekomme' }, { sv: 'jag', de: 'ich' }, { sv: 'kvittot', de: 'der Beleg' }, { sv: 'tack', de: 'bitte' }], chunkIds: ['c-kvitto'] },
+  { id: 's-fordyrt1', level: 1, sv: 'Nej, det är för dyrt.', de: 'Nein, das ist zu teuer.', decoding: [{ sv: 'nej', de: 'nein' }, { sv: 'det', de: 'das' }, { sv: 'är', de: 'ist' }, { sv: 'för', de: 'zu' }, { sv: 'dyrt', de: 'teuer' }], chunkIds: ['c-fordyrt'] },
+  { id: 's-fordyrt2', level: 1, sv: 'Oj, det är för dyrt.', de: 'Oh, das ist zu teuer.', decoding: [{ sv: 'oj', de: 'oh' }, { sv: 'det', de: 'das' }, { sv: 'är', de: 'ist' }, { sv: 'för', de: 'zu' }, { sv: 'dyrt', de: 'teuer' }], chunkIds: ['c-fordyrt'] },
+
+  // Im Supermarkt
+  { id: 's-finnsmjolk1', level: 1, sv: 'Ursäkta, var finns mjölk?', de: 'Entschuldigung, wo gibt es Milch?', decoding: [{ sv: 'ursäkta', de: 'entschuldige' }, { sv: 'var', de: 'wo' }, { sv: 'finns', de: 'gibt es' }, { sv: 'mjölk', de: 'Milch' }], chunkIds: ['c-finnsmjolk'] },
+  { id: 's-finnsmjolk2', level: 1, sv: 'Var finns mjölk och bröd?', de: 'Wo gibt es Milch und Brot?', decoding: [{ sv: 'var', de: 'wo' }, { sv: 'finns', de: 'gibt es' }, { sv: 'mjölk', de: 'Milch' }, { sv: 'och', de: 'und' }, { sv: 'bröd', de: 'Brot' }], chunkIds: ['c-finnsmjolk'] },
+  { id: 's-harbrod1', level: 1, sv: 'Har ni bröd?', de: 'Haben Sie Brot?', decoding: [{ sv: 'har', de: 'haben' }, { sv: 'ni', de: 'Sie' }, { sv: 'bröd', de: 'Brot' }], chunkIds: ['c-harbrod'] },
+  { id: 's-harbrod2', level: 1, sv: 'Ursäkta, har ni färskt bröd?', de: 'Entschuldigung, haben Sie frisches Brot?', decoding: [{ sv: 'ursäkta', de: 'entschuldige' }, { sv: 'har', de: 'haben' }, { sv: 'ni', de: 'Sie' }, { sv: 'färskt', de: 'frisches' }, { sv: 'bröd', de: 'Brot' }], chunkIds: ['c-harbrod'] },
+  { id: 's-kiloapplen1', level: 1, sv: 'Ett kilo äpplen, tack.', de: 'Ein Kilo Äpfel, bitte.', decoding: [{ sv: 'ett', de: 'ein' }, { sv: 'kilo', de: 'Kilo' }, { sv: 'äpplen', de: 'Äpfel' }, { sv: 'tack', de: 'bitte' }], chunkIds: ['c-kiloapplen'] },
+  { id: 's-kiloapplen2', level: 1, sv: 'Jag vill ha ett kilo äpplen.', de: 'Ich möchte ein Kilo Äpfel.', decoding: [{ sv: 'jag', de: 'ich' }, { sv: 'vill', de: 'will' }, { sv: 'ha', de: 'haben' }, { sv: 'ett', de: 'ein' }, { sv: 'kilo', de: 'Kilo' }, { sv: 'äpplen', de: 'Äpfel' }], chunkIds: ['c-kiloapplen', 'c-vill-ha'] },
+  { id: 's-pase1', level: 1, sv: 'En påse, tack.', de: 'Eine Tüte, bitte.', decoding: [{ sv: 'en', de: 'eine' }, { sv: 'påse', de: 'Tüte' }, { sv: 'tack', de: 'bitte' }], chunkIds: ['c-pase'] },
+  { id: 's-pase2', level: 1, sv: 'Kan jag få en påse, tack?', de: 'Kann ich eine Tüte haben, bitte?', decoding: [{ sv: 'kan', de: 'kann' }, { sv: 'jag', de: 'ich' }, { sv: 'få', de: 'bekommen' }, { sv: 'en', de: 'eine' }, { sv: 'påse', de: 'Tüte' }, { sv: 'tack', de: 'bitte' }], chunkIds: ['c-pase'] },
+  { id: 's-kassan1', level: 1, sv: 'Var är kassan?', de: 'Wo ist die Kasse?', decoding: [{ sv: 'var', de: 'wo' }, { sv: 'är', de: 'ist' }, { sv: 'kassan', de: 'die Kasse' }], chunkIds: ['c-kassan'] },
+  { id: 's-kassan2', level: 1, sv: 'Ursäkta, var är kassan?', de: 'Entschuldigung, wo ist die Kasse?', decoding: [{ sv: 'ursäkta', de: 'entschuldige' }, { sv: 'var', de: 'wo' }, { sv: 'är', de: 'ist' }, { sv: 'kassan', de: 'die Kasse' }], chunkIds: ['c-kassan'] },
+
+  // Beim Arzt & Apotheke
+  { id: 's-sjuk1', level: 1, sv: 'Jag är sjuk idag.', de: 'Ich bin heute krank.', decoding: [{ sv: 'jag', de: 'ich' }, { sv: 'är', de: 'bin' }, { sv: 'sjuk', de: 'krank' }, { sv: 'idag', de: 'heute' }], chunkIds: ['c-sjuk'] },
+  { id: 's-sjuk2', level: 1, sv: 'Hjälp, jag är sjuk.', de: 'Hilfe, ich bin krank.', decoding: [{ sv: 'hjälp', de: 'Hilfe' }, { sv: 'jag', de: 'ich' }, { sv: 'är', de: 'bin' }, { sv: 'sjuk', de: 'krank' }], chunkIds: ['c-sjuk'] },
+  { id: 's-onthar1', level: 1, sv: 'Jag har ont här.', de: 'Mir tut es hier weh.', decoding: [{ sv: 'jag', de: 'ich' }, { sv: 'har', de: 'habe' }, { sv: 'ont', de: 'Schmerz' }, { sv: 'här', de: 'hier' }], chunkIds: ['c-onthär'] },
+  { id: 's-onthar2', level: 1, sv: 'Det gör ont här.', de: 'Es tut hier weh.', decoding: [{ sv: 'det', de: 'es' }, { sv: 'gör', de: 'macht' }, { sv: 'ont', de: 'Schmerz' }, { sv: 'här', de: 'hier' }], chunkIds: ['c-onthär'] },
+  { id: 's-lakare1', level: 1, sv: 'Jag behöver en läkare.', de: 'Ich brauche einen Arzt.', decoding: [{ sv: 'jag', de: 'ich' }, { sv: 'behöver', de: 'brauche' }, { sv: 'en', de: 'einen' }, { sv: 'läkare', de: 'Arzt' }], chunkIds: ['c-lakare'] },
+  { id: 's-lakare2', level: 1, sv: 'Hjälp, jag behöver en läkare.', de: 'Hilfe, ich brauche einen Arzt.', decoding: [{ sv: 'hjälp', de: 'Hilfe' }, { sv: 'jag', de: 'ich' }, { sv: 'behöver', de: 'brauche' }, { sv: 'en', de: 'einen' }, { sv: 'läkare', de: 'Arzt' }], chunkIds: ['c-lakare'] },
+  { id: 's-apoteket1', level: 1, sv: 'Ursäkta, var är apoteket?', de: 'Entschuldigung, wo ist die Apotheke?', decoding: [{ sv: 'ursäkta', de: 'entschuldige' }, { sv: 'var', de: 'wo' }, { sv: 'är', de: 'ist' }, { sv: 'apoteket', de: 'die Apotheke' }], chunkIds: ['c-apoteket'] },
+  { id: 's-apoteket2', level: 1, sv: 'Var är närmaste apotek?', de: 'Wo ist die nächste Apotheke?', decoding: [{ sv: 'var', de: 'wo' }, { sv: 'är', de: 'ist' }, { sv: 'närmaste', de: 'nächste' }, { sv: 'apotek', de: 'Apotheke' }], chunkIds: ['c-apoteket'] },
+  { id: 's-huvudvark1', level: 1, sv: 'Jag har huvudvärk.', de: 'Ich habe Kopfschmerzen.', decoding: [{ sv: 'jag', de: 'ich' }, { sv: 'har', de: 'habe' }, { sv: 'huvudvärk', de: 'Kopfschmerzen' }], chunkIds: ['c-huvudvark'] },
+  { id: 's-huvudvark2', level: 1, sv: 'Jag har huvudvärk idag.', de: 'Ich habe heute Kopfschmerzen.', decoding: [{ sv: 'jag', de: 'ich' }, { sv: 'har', de: 'habe' }, { sv: 'huvudvärk', de: 'Kopfschmerzen' }, { sv: 'idag', de: 'heute' }], chunkIds: ['c-huvudvark'] },
+  { id: 's-allergisk1', level: 1, sv: 'Jag är allergisk.', de: 'Ich bin allergisch.', decoding: [{ sv: 'jag', de: 'ich' }, { sv: 'är', de: 'bin' }, { sv: 'allergisk', de: 'allergisch' }], chunkIds: ['c-allergisk'] },
+  { id: 's-allergisk2', level: 1, sv: 'Jag är allergisk mot mjölk.', de: 'Ich bin allergisch gegen Milch.', decoding: [{ sv: 'jag', de: 'ich' }, { sv: 'är', de: 'bin' }, { sv: 'allergisk', de: 'allergisch' }, { sv: 'mot', de: 'gegen' }, { sv: 'mjölk', de: 'Milch' }], chunkIds: ['c-allergisk'] },
+
+  // Notfall & Hilfe
+  { id: 's-hjalpe1', level: 1, sv: 'Hjälp! Ring polisen!', de: 'Hilfe! Ruf die Polizei!', decoding: [{ sv: 'hjälp', de: 'Hilfe' }, { sv: 'ring', de: 'ruf an' }, { sv: 'polisen', de: 'die Polizei' }], chunkIds: ['c-hjalp', 'c-ringpolis'] },
+  { id: 's-hjalpe2', level: 1, sv: 'Hjälp mig, tack!', de: 'Hilf mir, bitte!', decoding: [{ sv: 'hjälp', de: 'hilf' }, { sv: 'mig', de: 'mir' }, { sv: 'tack', de: 'bitte' }], chunkIds: ['c-hjalp'] },
+  { id: 's-ringpolis1', level: 1, sv: 'Ring polisen, snabbt!', de: 'Ruf die Polizei, schnell!', decoding: [{ sv: 'ring', de: 'ruf an' }, { sv: 'polisen', de: 'die Polizei' }, { sv: 'snabbt', de: 'schnell' }], chunkIds: ['c-ringpolis'] },
+  { id: 's-ringpolis2', level: 1, sv: 'Ring polisen, det är en nödsituation!', de: 'Ruf die Polizei, das ist ein Notfall!', decoding: [{ sv: 'ring', de: 'ruf an' }, { sv: 'polisen', de: 'die Polizei' }, { sv: 'det', de: 'das' }, { sv: 'är', de: 'ist' }, { sv: 'en', de: 'ein' }, { sv: 'nödsituation', de: 'Notfall' }], chunkIds: ['c-ringpolis', 'c-nodsituation'] },
+  { id: 's-ambulans1', level: 1, sv: 'Ring en ambulans!', de: 'Ruf einen Krankenwagen!', decoding: [{ sv: 'ring', de: 'ruf an' }, { sv: 'en', de: 'einen' }, { sv: 'ambulans', de: 'Krankenwagen' }], chunkIds: ['c-ambulans'] },
+  { id: 's-ambulans2', level: 1, sv: 'Snälla, ring en ambulans!', de: 'Bitte, ruf einen Krankenwagen!', decoding: [{ sv: 'snälla', de: 'bitte' }, { sv: 'ring', de: 'ruf an' }, { sv: 'en', de: 'einen' }, { sv: 'ambulans', de: 'Krankenwagen' }], chunkIds: ['c-ambulans'] },
+  { id: 's-nodsituation1', level: 1, sv: 'Det är en nödsituation!', de: 'Das ist ein Notfall!', decoding: [{ sv: 'det', de: 'das' }, { sv: 'är', de: 'ist' }, { sv: 'en', de: 'ein' }, { sv: 'nödsituation', de: 'Notfall' }], chunkIds: ['c-nodsituation'] },
+  { id: 's-nodsituation2', level: 1, sv: 'Hjälp, det är en nödsituation!', de: 'Hilfe, das ist ein Notfall!', decoding: [{ sv: 'hjälp', de: 'Hilfe' }, { sv: 'det', de: 'das' }, { sv: 'är', de: 'ist' }, { sv: 'en', de: 'ein' }, { sv: 'nödsituation', de: 'Notfall' }], chunkIds: ['c-nodsituation'] },
+  { id: 's-vilse1', level: 1, sv: 'Jag har gått vilse.', de: 'Ich habe mich verlaufen.', decoding: [{ sv: 'jag', de: 'ich' }, { sv: 'har', de: 'habe' }, { sv: 'gått', de: 'gegangen' }, { sv: 'vilse', de: 'verirrt' }], chunkIds: ['c-vilse'] },
+  { id: 's-vilse2', level: 1, sv: 'Ursäkta, jag har gått vilse.', de: 'Entschuldigung, ich habe mich verlaufen.', decoding: [{ sv: 'ursäkta', de: 'entschuldige' }, { sv: 'jag', de: 'ich' }, { sv: 'har', de: 'habe' }, { sv: 'gått', de: 'gegangen' }, { sv: 'vilse', de: 'verirrt' }], chunkIds: ['c-vilse'] },
+  { id: 's-tappatvaska1', level: 1, sv: 'Jag hittar inte min väska.', de: 'Ich finde meine Tasche nicht.', decoding: [{ sv: 'jag', de: 'ich' }, { sv: 'hittar', de: 'finde' }, { sv: 'inte', de: 'nicht' }, { sv: 'min', de: 'meine' }, { sv: 'väska', de: 'Tasche' }], chunkIds: ['c-tappatvaska'] },
+  { id: 's-tappatvaska2', level: 1, sv: 'Hjälp, jag hittar inte min väska!', de: 'Hilfe, ich finde meine Tasche nicht!', decoding: [{ sv: 'hjälp', de: 'Hilfe' }, { sv: 'jag', de: 'ich' }, { sv: 'hittar', de: 'finde' }, { sv: 'inte', de: 'nicht' }, { sv: 'min', de: 'meine' }, { sv: 'väska', de: 'Tasche' }], chunkIds: ['c-tappatvaska'] },
 ];

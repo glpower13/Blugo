@@ -101,9 +101,9 @@ test('AI decode and generate buttons appear in the session once a cloud provider
   expect(consoleErrors, consoleErrors.join('\n')).toHaveLength(0);
 });
 
-// Stufe B: Drill-down — eine Themen-Kachel öffnet das Detail (Wendungen, ehrliche
-// Abdeckung); dort lässt sich der Fokus setzen und man kommt zurück zur Übersicht.
-test('theme drill-down shows its phrases and a focus can be set', async ({ page }) => {
+// Stufe B: Baum-Drill-down — Übersicht → Bereich → Thema-Detail (Wendungen,
+// ehrliche Abdeckung); dort Fokus setzen und eine Ebene zurück zum Bereich.
+test('tree drill-down: area → theme shows phrases and a focus can be set', async ({ page }) => {
   const consoleErrors: string[] = [];
   const pageErrors: string[] = [];
   page.on('console', (m: ConsoleMessage) => {
@@ -112,9 +112,14 @@ test('theme drill-down shows its phrases and a focus can be set', async ({ page 
   page.on('pageerror', (e) => pageErrors.push(String(e)));
 
   await page.goto('/');
+  await expect(page.getByRole('heading', { name: 'Bereiche' })).toBeVisible();
+
+  // Ebene 1 → 2: in einen Bereich hineinklicken
+  await page.getByRole('button', { name: /Erste Schritte/ }).click();
+  await expect(page.getByRole('heading', { name: 'Erste Schritte' })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Themen' })).toBeVisible();
 
-  // In ein Thema hineinklicken → Detail mit den Wendungen
+  // Ebene 2 → 3: in ein Thema hineinklicken → Detail mit den Wendungen
   await page.getByRole('button', { name: /Begrüßen & Kennenlernen/ }).click();
   await expect(page.getByRole('heading', { name: 'Begrüßen & Kennenlernen' })).toBeVisible();
   await expect(page.getByText(/bewiesen stabil/).first()).toBeVisible();
@@ -123,8 +128,8 @@ test('theme drill-down shows its phrases and a focus can be set', async ({ page 
   await page.getByRole('button', { name: 'Als Fokus für neuen Stoff' }).click();
   await expect(page.getByRole('button', { name: /Im Fokus für neuen Stoff/ })).toBeVisible();
 
-  // Zurück zur Übersicht → dort erscheint die Fokus-Zeile
-  await page.getByRole('button', { name: 'Zurück zur Übersicht' }).click();
+  // Eine Ebene zurück zum Bereich → dort erscheint die Fokus-Zeile
+  await page.getByRole('button', { name: 'Zurück zum Bereich' }).click();
   await expect(page.getByText(/Fokus: Begrüßen & Kennenlernen/)).toBeVisible();
 
   expect(consoleErrors, consoleErrors.join('\n')).toHaveLength(0);

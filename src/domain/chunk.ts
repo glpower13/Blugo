@@ -8,8 +8,23 @@ export interface DecodingToken {
 }
 
 /**
- * A thematic grouping of chunks (Begrüßen, Im Café, …) — the content backbone
- * (docs/gremium-struktur.md, docs/08-content-pipeline.md).
+ * A top-level life area (Reisen, Einkaufen, …) — the FIRST level of the content
+ * tree (docs/gremium-struktur.md). An area groups several thematic subcategories
+ * so the learner browses a shallow tree (Bereich → Thema → Wendung), never an
+ * endless flat list. Like a category, it is an organizing + honest-coverage lens,
+ * NOT a "course" to finish (anti-Goodhart, CLAUDE.md "die eine Design-Regel").
+ */
+export interface Area {
+  id: string;
+  title: string; // German, learner-facing, e.g. "Reisen & Unterwegs"
+  blurb: string; // one short German line describing the area
+  order: number; // display order (ascending)
+}
+
+/**
+ * A thematic grouping of chunks (Begrüßen, Im Café, …) — the SECOND level of the
+ * content tree, a subcategory of an Area (docs/gremium-struktur.md,
+ * docs/08-content-pipeline.md).
  *
  * IMPORTANT (anti-Goodhart): a category is an ORGANIZING + honest-coverage lens
  * and an autonomy choice for what NEW material to draw next — it is NOT a "lesson"
@@ -18,9 +33,10 @@ export interface DecodingToken {
  */
 export interface Category {
   id: string;
-  title: string; // German, learner-facing, e.g. "Im Café & Einkaufen"
+  areaId: string; // which top-level area this theme belongs to (Area.id)
+  title: string; // German, learner-facing, e.g. "Im Café"
   blurb: string; // one short German line describing the theme
-  order: number; // display order (ascending)
+  order: number; // display order WITHIN its area (ascending)
 }
 
 /** A learnable chunk: a phrase, its idiomatic translation and its decoding. */

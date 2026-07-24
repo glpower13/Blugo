@@ -5,7 +5,7 @@
 // mere "lesson done". A category is a lens on real retention, not a bar to fill
 // for its own sake (anti-Goodhart, CLAUDE.md "die eine Design-Regel").
 
-import type { Category, Chunk, ChunkState } from '../../domain/chunk';
+import type { Area, Category, Chunk, ChunkState } from '../../domain/chunk';
 import { isStable } from './metrics';
 
 export interface CategoryProgress {
@@ -15,6 +15,17 @@ export interface CategoryProgress {
   maturing: number; // in production with a grown interval, not yet proven
   stable: number; // PROVEN retained after a long gap
   dueNow: number; // due for retrieval right now
+}
+
+/** Aggregated honest coverage of a whole area (its subcategories summed). */
+export interface AreaProgress {
+  area: Area;
+  categories: CategoryProgress[]; // its subcategories, in category.order
+  total: number;
+  active: number;
+  maturing: number;
+  stable: number;
+  dueNow: number;
 }
 
 function isActive(s: ChunkState): boolean {
@@ -60,4 +71,38 @@ export function categoryProgress(
       }
       return { category, total: ids.length, active, maturing, stable, dueNow };
     });
+}
+
+/**
+ * Progress per AREA, in `area.order` — the top level of the tree. Sums the honest
+ * per-category numbers of the area's subcategories (in `category.order`). Areas
+ * without a subcategory are dropped (no phantom buckets — same honesty rule).
+ */
+export function areaProgress(areas: Area[], catProgress: CategoryProgress[]): AreaProgress[] {
+  const byArea = new Map<string, CategoryProgress[]>();
+  for (const cp of catProgress) {
+    const list = byArea.get(cp.category.areaId) ?? [];
+    list.push(cp);
+    byArea.set(cp.category.areaId, list);
+  }
+
+  return [...areas]
+    .sort((a, b) => a.order - b.order)
+    .map((area) => {
+      const categories = (byArea.get(area.id) ?? []).sort(
+        (a, b) => a.category.order - b.category.order,
+      );
+      const sum = (pick: (c: CategoryProgress) => number) =>
+        categories.reduce((n, c) => n + pick(c), 0);
+      return {
+        area,
+        categories,
+        total: sum((c) => c.total),
+        active: sum((c) => c.active),
+        maturing: sum((c) => c.maturing),
+        stable: sum((c) => c.stable),
+        dueNow: sum((c) => c.dueNow),
+      };
+    })
+    .filter((ap) => ap.categories.length > 0);
 }

@@ -52,6 +52,21 @@ describe('anthropic — reine Bausteine', () => {
     expect(friendlyError(429)).toMatch(/warten/i);
     expect(friendlyError(500)).toMatch(/Problem/i);
   });
+
+  it('friendlyError erklärt 404 (Modell) und 400 mit Tipp', () => {
+    expect(friendlyError(404)).toMatch(/Modell/i);
+    expect(friendlyError(404)).toMatch(/anderes Modell/i); // handlungsleitend
+    expect(friendlyError(400)).toMatch(/abgelehnt/i);
+  });
+
+  it('friendlyError reicht die echte Anbieter-Meldung durch (der Schlüssel zur Diagnose)', () => {
+    expect(friendlyError(404, 'model: claude-opus-4-8 not found')).toContain(
+      'model: claude-opus-4-8 not found',
+    );
+    expect(friendlyError(400, 'invalid_request_error: max_tokens too large')).toContain(
+      'max_tokens too large',
+    );
+  });
 });
 
 describe('anthropic — Decoder-Adapter (simuliertes Netzwerk)', () => {
@@ -90,6 +105,21 @@ describe('anthropic — Decoder-Adapter (simuliertes Netzwerk)', () => {
     }));
     const dec = createAnthropicDecoder({ apiKey: 'k', model: 'claude-opus-4-8' });
     await expect(dec.decode('hej')).rejects.toThrow(/Netzwerk/);
+  });
+
+  it('decode() zeigt die ECHTE Anbieter-Fehlermeldung bei 404 (häufigster Cloud-Bug)', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async () => ({
+        ok: false,
+        status: 404,
+        json: async () => ({ error: { message: 'model: claude-opus-4-8 not found' } }),
+      })),
+    );
+    const dec = createAnthropicDecoder({ apiKey: 'k', model: 'claude-opus-4-8' });
+    // Nutzer sieht sowohl den Grund als auch den Tipp „anderes Modell".
+    await expect(dec.decode('hej')).rejects.toThrow(/not found/);
+    await expect(dec.decode('hej')).rejects.toThrow(/anderes Modell/i);
   });
 });
 
