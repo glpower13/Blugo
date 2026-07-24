@@ -473,7 +473,7 @@ function YouTurn({
       {phase === 'revealed' && (
         <>
           <div className="mb-3 flex items-center justify-between gap-3">
-            <p lang="sv" className="font-display text-xl font-semibold text-paper">
+            <p lang="sv" className="font-sans text-xl font-bold text-paper">
               {turn.sv}
             </p>
             {ttsOn && (

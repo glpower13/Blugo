@@ -61,7 +61,7 @@ export function MemoryRing({ stable, total }: Props) {
           />
         </svg>
         <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <span className="tnum font-display text-2xl font-bold leading-none text-success">
+          <span className="tnum font-sans text-2xl font-bold leading-none text-success">
             {stable}
           </span>
           <span className="mt-0.5 text-[0.6rem] font-medium text-faint">von {total}</span>

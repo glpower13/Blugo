@@ -145,7 +145,7 @@ export function CategoryDetail({
                   className="glass-soft flex w-full items-center gap-3 rounded-xl p-3.5 text-left"
                 >
                   <div className="min-w-0 flex-1">
-                    <p className="font-medium text-paper">{d.title}</p>
+                    <p className="font-display text-[1.02rem] font-semibold text-paper">{d.title}</p>
                     <p className="mt-0.5 text-xs text-muted">{d.blurb}</p>
                   </div>
                   <IconChevron className="h-5 w-5 shrink-0 text-faint" />
