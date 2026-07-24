@@ -122,7 +122,8 @@ test('tree drill-down: area → theme shows phrases and a focus can be set', asy
   // Ebene 2 → 3: in ein Thema hineinklicken → Detail mit den Wendungen
   await page.getByRole('button', { name: /Begrüßen & Kennenlernen/ }).click();
   await expect(page.getByRole('heading', { name: 'Begrüßen & Kennenlernen' })).toBeVisible();
-  await expect(page.getByText(/bewiesen stabil/).first()).toBeVisible();
+  // Ehrliche Abdeckungszeile („X von Y bewiesen", ggf. „· N reifen").
+  await expect(page.getByText(/von \d+ bewiesen/).first()).toBeVisible();
 
   // Fokus für neuen Stoff setzen
   await page.getByRole('button', { name: 'Als Fokus für neuen Stoff' }).click();

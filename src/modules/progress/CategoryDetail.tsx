@@ -4,7 +4,7 @@
 
 import type { Category, Chunk, ChunkState } from '../../domain/chunk';
 import type { Dialog } from '../../domain/dialog';
-import { isStable } from './metrics';
+import { isMaturing, isStable } from './metrics';
 import { IconBack, IconChat, IconChevron, IconPlay } from '../../ui/icons';
 import { areaVisual, AreaWash, AreaBadge } from '../../ui/areaTheme';
 
@@ -47,6 +47,7 @@ export function CategoryDetail({
 }: Props) {
   const items = chunks.filter((c) => c.categoryId === category.id);
   const stable = items.filter((c) => isStable(states[c.id])).length;
+  const maturing = items.filter((c) => states[c.id] && isMaturing(states[c.id])).length;
   const { hue, Icon } = areaVisual(category.areaId);
 
   return (
@@ -83,7 +84,13 @@ export function CategoryDetail({
         <h1 className="mt-2.5 font-display text-2xl font-semibold text-paper">{category.title}</h1>
         <p className="mt-1 text-sm text-muted">{category.blurb}</p>
         <p className="mt-3 text-sm text-muted">
-          <span className="text-success">{stable}</span> von {items.length} bewiesen stabil
+          <span className="text-success">{stable}</span> von {items.length} bewiesen
+          {maturing > 0 && (
+            <>
+              {' · '}
+              <span className="text-success/70">{maturing}</span> reifen
+            </>
+          )}
         </p>
 
         {/* Fokus für neuen Stoff (Autonomie) */}

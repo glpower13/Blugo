@@ -6,7 +6,7 @@
 // for its own sake (anti-Goodhart, CLAUDE.md "die eine Design-Regel").
 
 import type { Area, Category, Chunk, ChunkState } from '../../domain/chunk';
-import { isStable } from './metrics';
+import { isMaturing, isStable } from './metrics';
 
 export interface CategoryProgress {
   category: Category;
@@ -30,10 +30,6 @@ export interface AreaProgress {
 
 function isActive(s: ChunkState): boolean {
   return s.status !== 'new' || s.history.length > 0;
-}
-
-function isMaturing(s: ChunkState): boolean {
-  return !isStable(s) && s.stage === 'production' && s.intervalDays >= 21;
 }
 
 /**

@@ -7,6 +7,7 @@ import { useEffect, useState } from 'react';
 
 interface Props {
   stable: number; // bewiesen stabil
+  maturing: number; // schon produziert und ≥21 Tage überstanden, noch nicht bewiesen
   total: number; // Wendungen gesamt
 }
 
@@ -15,19 +16,27 @@ const STROKE = 9;
 const R = (SIZE - STROKE) / 2;
 const C = 2 * Math.PI * R;
 
-export function MemoryRing({ stable, total }: Props) {
+export function MemoryRing({ stable, maturing, total }: Props) {
   const share = total > 0 ? stable / total : 0;
+  // Der äußere (blasse) Bogen reicht bis „bewiesen + reift" — er liegt HINTER
+  // dem kräftigen, sodass der reifende Teil als Verlängerung sichtbar wird.
+  const shareWithMaturing = total > 0 ? (stable + maturing) / total : 0;
   // Beim Erscheinen weich von 0 auf den echten Anteil füllen (reduced-motion: sofort).
   const [fill, setFill] = useState(0);
+  const [fillOuter, setFillOuter] = useState(0);
   useEffect(() => {
     const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
     if (reduce) {
       setFill(share);
+      setFillOuter(shareWithMaturing);
       return;
     }
-    const id = requestAnimationFrame(() => setFill(share));
+    const id = requestAnimationFrame(() => {
+      setFill(share);
+      setFillOuter(shareWithMaturing);
+    });
     return () => cancelAnimationFrame(id);
-  }, [share]);
+  }, [share, shareWithMaturing]);
 
   const pct = Math.round(share * 100);
 
@@ -43,6 +52,22 @@ export function MemoryRing({ stable, total }: Props) {
             stroke="rgba(255,255,255,0.12)"
             strokeWidth={STROKE}
           />
+          {/* reift — blasser, liegt hinten und reicht weiter */}
+          <circle
+            cx={SIZE / 2}
+            cy={SIZE / 2}
+            r={R}
+            fill="none"
+            stroke="#5FD0A0"
+            strokeOpacity="0.4"
+            strokeWidth={STROKE}
+            strokeLinecap="round"
+            strokeDasharray={C}
+            strokeDashoffset={C * (1 - fillOuter)}
+            transform={`rotate(-90 ${SIZE / 2} ${SIZE / 2})`}
+            style={{ transition: 'stroke-dashoffset 900ms cubic-bezier(0.22,1,0.36,1)' }}
+          />
+          {/* bewiesen stabil — kräftig, liegt vorn */}
           <circle
             cx={SIZE / 2}
             cy={SIZE / 2}
