@@ -19,6 +19,7 @@ const SCENE_GLOW: Record<Dialog['scene'], string> = {
   hotel: 'radial-gradient(70% 42% at 50% 0%, rgba(150,130,205,.15), transparent 60%)',
   station: 'radial-gradient(70% 42% at 50% 0%, rgba(120,170,220,.15), transparent 60%)',
   shop: 'radial-gradient(70% 42% at 50% 0%, rgba(95,208,160,.13), transparent 60%)',
+  clinic: 'radial-gradient(70% 42% at 50% 0%, rgba(230,137,131,.14), transparent 60%)',
   generic: 'radial-gradient(70% 42% at 50% 0%, rgba(231,192,138,.12), transparent 60%)',
 };
 
@@ -106,26 +107,30 @@ export function DialogScene({ dialog, backLabel, areaHue, learnerName, onProduce
             ))}
 
             {/* Aktive Zeile */}
+            {/* Die aktive Zeile gleitet von ihrer Seite herein — das Gespräch baut
+                sich auf, statt zu springen (reduced-motion: sofort da). */}
             {!done && current.speaker === 'partner' && (
-              <PartnerTurn
-                key={current.id}
-                turn={current}
-                partnerName={dialog.partnerName}
-                name={learnerName}
-                ttsOn={ttsOn}
-                onNext={() => setStep((s) => s + 1)}
-              />
+              <div key={current.id} className="turn-in-left">
+                <PartnerTurn
+                  turn={current}
+                  partnerName={dialog.partnerName}
+                  name={learnerName}
+                  ttsOn={ttsOn}
+                  onNext={() => setStep((s) => s + 1)}
+                />
+              </div>
             )}
             {!done && current.speaker === 'you' && (
-              <YouTurn
-                key={current.id}
-                turn={current}
-                ttsOn={ttsOn}
-                onGrade={(result, helpUsed) => {
-                  onProduce(current, result, helpUsed);
-                  setStep((s) => s + 1);
-                }}
-              />
+              <div key={current.id} className="turn-in-right">
+                <YouTurn
+                  turn={current}
+                  ttsOn={ttsOn}
+                  onGrade={(result, helpUsed) => {
+                    onProduce(current, result, helpUsed);
+                    setStep((s) => s + 1);
+                  }}
+                />
+              </div>
             )}
 
             {done && (

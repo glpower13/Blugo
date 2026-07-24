@@ -196,6 +196,51 @@ body::after {
   }
 }
 
+/* Gespräch: eine neue Zeile gleitet von ihrer Seite herein — wie eine echte
+   Unterhaltung, die sich aufbaut. Die Antwort des Lerners kommt von rechts,
+   die Gesprächsperson von links (docs/gremium-dialog.md §9). */
+.turn-in-left {
+  animation: turn-in-left 0.42s both cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+.turn-in-right {
+  animation: turn-in-right 0.42s both cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+@keyframes turn-in-left {
+  from {
+    opacity: 0;
+    transform: translate3d(-14px, 8px, 0) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes turn-in-right {
+  from {
+    opacity: 0;
+    transform: translate3d(14px, 8px, 0) scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Szenenbild: blendet beim Öffnen ruhig auf (kein Zappeln, nur Atem). */
+.scene-in {
+  animation: scene-in 0.9s both cubic-bezier(0.22, 0.61, 0.36, 1);
+}
+@keyframes scene-in {
+  from {
+    opacity: 0;
+    transform: scale(1.045);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
 /* Wortmarke: ein Hauch Leuchten (edel, nicht grell). */
 .wordmark {
   text-shadow: 0 0 24px rgba(231, 192, 138, 0.18);
@@ -389,7 +434,10 @@ main.vt-page {
   body::before,
   .backdrop-art .ribbons,
   .star-stable,
-  .rise {
+  .rise,
+  .turn-in-left,
+  .turn-in-right,
+  .scene-in {
     animation: none;
   }
   * {

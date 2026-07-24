@@ -126,4 +126,22 @@ Motive: **Café** (Fensterfront, Hängelampen, Tresen, Tasse mit Dampf) · **Hot
 — das Bild deutet die Situation an, statt sie zu übersetzen. Es bleibt bewusst
 zurückhaltend: **nie Inhalt, immer nur Atmosphäre** (die eine Design-Regel).
 
+## 9. Nachtrag 2026-07-24 — fünf weitere Szenen + Mikro-Bewegung
+
+**Inhalt (aus §5 „Offen"):** jetzt **8 Gespräche** statt 3. Neu: **Im Café** (bestellen
+und zahlen) · **Im Geschäft** (anprobieren und kaufen) · **Im Supermarkt** (finden und
+zahlen) · **Beim Arzt** (sagen, was weh tut) · **Am Schalter** (Ticket kaufen).
+Damit hat jeder Bereich außer „Menschen & Alltag" mindestens ein Gespräch.
+
+Wie gehabt: jede **„du"-Zeile ist ein vorhandener Chunk** — die Integritäts-Tests
+erzwingen das, also fließt auch der neue Stoff in dieselbe Memory-Engine. Neue
+Kulisse **`clinic`** (Kreuz-Schild, Medikamenten-Regal, Hauptmotiv **Stethoskop**).
+Alle Partner-Zeilen sind **nicht muttersprachlich geprüft** (`content-review-schwedisch.md`).
+
+**Mikro-Bewegung (aus der Design-Liste):**
+- Eine neue Zeile **gleitet von ihrer Seite herein** (Gesprächsperson von links, deine
+  Antwort von rechts) — das Gespräch *baut sich auf*, statt zu springen.
+- Das **Szenenbild blendet ruhig auf** (0,9 s, leichter Zoom-out) — Atem, kein Zappeln.
+- Beides respektiert `prefers-reduced-motion`: dann ist alles sofort da, ohne Bewegung.
+
 > **Anschluss:** Struktur/Baum `gremium-struktur.md` · Feedback/Erklärung `gremium-feedback.md` · Messung `07-measurement.md` · Content-QS `content-review-schwedisch.md`.

@@ -13,7 +13,7 @@ import type { DecodingToken } from './chunk';
 export type Speaker = 'partner' | 'you';
 
 /** Kulisse für die (dezente, edle) Szenen-Stimmung — kein verspieltes Clipart. */
-export type DialogScene = 'cafe' | 'hotel' | 'station' | 'shop' | 'generic';
+export type DialogScene = 'cafe' | 'hotel' | 'station' | 'shop' | 'clinic' | 'generic';
 
 export interface DialogTurn {
   id: string;
