@@ -8,6 +8,7 @@ import type { ReviewResult } from '../../domain/chunk';
 import type { Dialog, DialogTurn } from '../../domain/dialog';
 import { aiRegistry } from '../content/aiRegistry';
 import { analyzeAnswer, type AnswerAnalysis } from '../comprehension/answerCheck';
+import { fillName } from '../../session/profile';
 import { IconBack, IconChat, IconPlay, IconSlow, IconSparkle } from '../../ui/icons';
 import { AreaWash } from '../../ui/areaTheme';
 
@@ -23,6 +24,7 @@ interface Props {
   dialog: Dialog;
   backLabel: string;
   areaHue: string; // Kennfarbe des Bereichs (Bereichs-Schimmer, Orientierung)
+  learnerName: string; // Vorname des Lerners (personalisiert die Anrede); '' = keiner
   onProduce: (turn: DialogTurn, result: ReviewResult, helpUsed: boolean) => void;
   onExit: () => void;
 }
@@ -30,7 +32,7 @@ interface Props {
 // Modus-Signatur „Gespräch" (Teal) — unterscheidet den Dialog klar vom Üben-Modus.
 const DIALOG_ACCENT = '#63C9B6';
 
-export function DialogScene({ dialog, backLabel, areaHue, onProduce, onExit }: Props) {
+export function DialogScene({ dialog, backLabel, areaHue, learnerName, onProduce, onExit }: Props) {
   const [step, setStep] = useState(0);
   const bottomRef = useRef<HTMLDivElement>(null);
 
@@ -95,7 +97,7 @@ export function DialogScene({ dialog, backLabel, areaHue, onProduce, onExit }: P
           {/* Verlauf: erledigte Zeilen kompakt */}
           <div className="mt-4 flex flex-col gap-3">
             {turns.slice(0, step).map((t) => (
-              <DoneBubble key={t.id} turn={t} partnerName={dialog.partnerName} />
+              <DoneBubble key={t.id} turn={t} partnerName={dialog.partnerName} name={learnerName} />
             ))}
 
             {/* Aktive Zeile */}
@@ -104,6 +106,7 @@ export function DialogScene({ dialog, backLabel, areaHue, onProduce, onExit }: P
                 key={current.id}
                 turn={current}
                 partnerName={dialog.partnerName}
+                name={learnerName}
                 ttsOn={ttsOn}
                 onNext={() => setStep((s) => s + 1)}
               />
@@ -144,7 +147,15 @@ export function DialogScene({ dialog, backLabel, areaHue, onProduce, onExit }: P
 }
 
 /** Erledigte Zeile — kompakte Sprechblase (Partner links, du rechts). */
-function DoneBubble({ turn, partnerName }: { turn: DialogTurn; partnerName: string }) {
+function DoneBubble({
+  turn,
+  partnerName,
+  name,
+}: {
+  turn: DialogTurn;
+  partnerName: string;
+  name: string;
+}) {
   if (turn.speaker === 'you') {
     return (
       <div className="flex justify-end">
@@ -162,9 +173,9 @@ function DoneBubble({ turn, partnerName }: { turn: DialogTurn; partnerName: stri
         {partnerName}
       </p>
       <p lang="sv" className="font-medium text-paper">
-        {turn.sv}
+        {fillName(turn.sv, name)}
       </p>
-      <p className="mt-0.5 text-xs text-muted">{turn.de}</p>
+      <p className="mt-0.5 text-xs text-muted">{fillName(turn.de, name)}</p>
     </div>
   );
 }
@@ -173,17 +184,21 @@ function DoneBubble({ turn, partnerName }: { turn: DialogTurn; partnerName: stri
 function PartnerTurn({
   turn,
   partnerName,
+  name,
   ttsOn,
   onNext,
 }: {
   turn: DialogTurn;
   partnerName: string;
+  name: string;
   ttsOn: boolean;
   onNext: () => void;
 }) {
   const [revealed, setRevealed] = useState(!turn.listenFirst);
   const [showDecode, setShowDecode] = useState(false);
   const [showTr, setShowTr] = useState(false);
+  const sv = fillName(turn.sv, name); // Anrede personalisieren (z. B. „Hej Andreas, …")
+  const de = fillName(turn.de, name);
 
   return (
     <div className="glass-soft max-w-[92%] rounded-2xl rounded-bl-md p-4">
@@ -195,12 +210,12 @@ function PartnerTurn({
         // Hör-zuerst: nur Klang, Text verdeckt, auf Tipp aufdecken (Dual Coding).
         <div className="flex flex-col items-start gap-3">
           <p className="select-none text-[1.4rem] font-semibold leading-tight text-paper blur-[6px]">
-            {turn.sv}
+            {sv}
           </p>
           <div className="flex flex-wrap items-center gap-2">
             {ttsOn && (
               <button
-                onClick={() => void aiRegistry.synthesizer.speak({ text: turn.sv })}
+                onClick={() => void aiRegistry.synthesizer.speak({ text: sv })}
                 className="btn-gold flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium text-ink"
                 aria-label="Hören"
               >
@@ -220,19 +235,19 @@ function PartnerTurn({
         <>
           <div className="flex items-start justify-between gap-3">
             <p lang="sv" className="text-[1.4rem] font-semibold leading-tight text-paper">
-              {turn.sv}
+              {sv}
             </p>
             {ttsOn && (
               <div className="flex shrink-0 gap-2">
                 <button
-                  onClick={() => void aiRegistry.synthesizer.speak({ text: turn.sv })}
+                  onClick={() => void aiRegistry.synthesizer.speak({ text: sv })}
                   className="flex items-center gap-1.5 rounded-full bg-brand/20 px-3 py-2 text-sm text-brand"
                   aria-label="Hören"
                 >
                   <IconPlay className="h-3 w-3" /> Hören
                 </button>
                 <button
-                  onClick={() => void aiRegistry.synthesizer.speak({ text: turn.sv, rate: 0.6 })}
+                  onClick={() => void aiRegistry.synthesizer.speak({ text: sv, rate: 0.6 })}
                   className="flex items-center rounded-full bg-brand/20 px-2.5 py-2 text-brand"
                   aria-label="Langsam hören"
                   title="Langsamer"
@@ -272,7 +287,7 @@ function PartnerTurn({
               ))}
             </div>
           )}
-          {showTr && <p className="mt-3 italic text-muted">{turn.de}</p>}
+          {showTr && <p className="mt-3 italic text-muted">{de}</p>}
 
           <button
             onClick={onNext}

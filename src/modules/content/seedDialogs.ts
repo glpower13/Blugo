@@ -23,12 +23,12 @@ export const seedDialogs: Dialog[] = [
       {
         id: 'r1',
         speaker: 'partner',
-        sv: 'Hej och välkommen!',
-        de: 'Hallo und willkommen!',
+        // „{name}" wird durch den Vornamen des Lerners ersetzt (oder sauber entfernt).
+        sv: 'Hej {name}, välkommen!',
+        de: 'Hallo {name}, willkommen!',
         listenFirst: true,
         decoding: [
           { sv: 'hej', de: 'hallo' },
-          { sv: 'och', de: 'und' },
           { sv: 'välkommen', de: 'willkommen' },
         ],
       },
@@ -113,8 +113,8 @@ export const seedDialogs: Dialog[] = [
       {
         id: 'r10',
         speaker: 'partner',
-        sv: 'Javisst. Ha en trevlig kväll!',
-        de: 'Aber sicher. Einen schönen Abend!',
+        sv: 'Javisst. Ha en trevlig kväll {name}!',
+        de: 'Aber sicher. Einen schönen Abend, {name}!',
         decoding: [
           { sv: 'javisst', de: 'aber sicher' },
           { sv: 'ha', de: 'hab' },
@@ -138,8 +138,8 @@ export const seedDialogs: Dialog[] = [
       {
         id: 'h1',
         speaker: 'partner',
-        sv: 'God kväll! Välkommen.',
-        de: 'Guten Abend! Willkommen.',
+        sv: 'God kväll {name}! Välkommen.',
+        de: 'Guten Abend {name}! Willkommen.',
         listenFirst: true,
         decoding: [
           { sv: 'god', de: 'guten' },
@@ -220,8 +220,8 @@ export const seedDialogs: Dialog[] = [
       {
         id: 'h9',
         speaker: 'partner',
-        sv: 'Tack själv. Ha det bra!',
-        de: 'Danke gleichfalls. Machen Sie es gut!',
+        sv: 'Tack själv {name}. Ha det bra!',
+        de: 'Danke gleichfalls {name}. Machen Sie es gut!',
         decoding: [
           { sv: 'tack', de: 'danke' },
           { sv: 'själv', de: 'selbst' },
@@ -253,8 +253,8 @@ export const seedDialogs: Dialog[] = [
       {
         id: 'w2',
         speaker: 'partner',
-        sv: 'Javisst! Vad söker du?',
-        de: 'Aber sicher! Was suchst du?',
+        sv: 'Javisst {name}! Vad söker du?',
+        de: 'Aber sicher {name}! Was suchst du?',
         decoding: [
           { sv: 'javisst', de: 'aber sicher' },
           { sv: 'vad', de: 'was' },

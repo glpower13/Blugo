@@ -174,6 +174,37 @@ test('dialog mode: a scene runs and a produced line advances the conversation', 
   expect(pageErrors, pageErrors.join('\n')).toHaveLength(0);
 });
 
+// Stufe B: Namens-Personalisierung — Vorname eintragen, Begrüßung erscheint, und
+// im Gespräch spricht die Person einen mit Namen an. Ohne Konsolen-/Seitenfehler.
+test('name personalisation: greeting on the home and address inside a dialog', async ({ page }) => {
+  const consoleErrors: string[] = [];
+  const pageErrors: string[] = [];
+  page.on('console', (m: ConsoleMessage) => {
+    if (m.type() === 'error') consoleErrors.push(m.text());
+  });
+  page.on('pageerror', (e) => pageErrors.push(String(e)));
+
+  await page.goto('/');
+
+  // Vorname eintragen
+  await page.getByRole('button', { name: /Dein Name/ }).click();
+  await page.getByLabel('Dein Vorname').fill('Andreas');
+  await page.getByRole('button', { name: 'Speichern' }).click();
+
+  // Begrüßung auf der Übersicht
+  await expect(page.getByText(/Hej, Andreas!/)).toBeVisible();
+
+  // Im Gespräch wird man mit Namen angesprochen (erste Zeile ist Hör-zuerst)
+  await page.getByRole('button', { name: /Essen & Café/ }).click();
+  await page.getByRole('button', { name: /Im Restaurant/ }).first().click();
+  await page.getByRole('button', { name: /Im Restaurant: Tisch, bestellen, zahlen/ }).click();
+  await page.getByRole('button', { name: 'Aufdecken' }).click();
+  await expect(page.getByText('Hej Andreas, välkommen!')).toBeVisible();
+
+  expect(consoleErrors, consoleErrors.join('\n')).toHaveLength(0);
+  expect(pageErrors, pageErrors.join('\n')).toHaveLength(0);
+});
+
 // Stufe B: die On-device-Aussprache-Hilfe öffnet in der Session, ohne Fehler.
 test('pronunciation help toggles open in the session', async ({ page }) => {
   const consoleErrors: string[] = [];

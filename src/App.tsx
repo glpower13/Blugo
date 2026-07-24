@@ -8,6 +8,7 @@ import { initialState, schedule } from './modules/memory/memoryEngine';
 import { bandStatus, recentSuccessRate, recommendedNewCount } from './modules/memory/difficulty';
 import { buildQueue, pickSegmentForChunk, type NewFocus } from './session/buildQueue';
 import { loadFocus, saveFocus } from './session/focus';
+import { loadName, saveName } from './session/profile';
 import { knownPhrases } from './session/knownChunks';
 import { ComprehensionLoop } from './modules/comprehension/ComprehensionLoop';
 import { MemoryField } from './modules/progress/MemoryField';
@@ -23,6 +24,7 @@ import { computeMetrics } from './modules/progress/metrics';
 import { areaProgress, categoryProgress } from './modules/progress/categories';
 import { InstallButton } from './ui/InstallButton';
 import { Backdrop } from './ui/Backdrop';
+import { NameEditor } from './ui/NameEditor';
 import { IconSettings, IconBack, IconPlay, IconTarget } from './ui/icons';
 import { areaVisual } from './ui/areaTheme';
 import { useCountUp } from './ui/useCountUp';
@@ -57,6 +59,9 @@ export default function App() {
   const [successRate, setSuccessRate] = useState<number | null>(null);
   const [showSettings, setShowSettings] = useState(false);
   const [focusId, setFocusId] = useState<string | null>(null);
+  // Vorname des Lerners (lokal): personalisiert Begrüßung & Gespräche.
+  const [name, setName] = useState<string>(() => loadName());
+  const [showName, setShowName] = useState(false);
   // Navigation: Übersicht → Thema-Detail (Drill-down) → fokussierte Lern-Session.
   const [view, setView] = useState<View>({ name: 'home' });
   // Guards against a fast double-tap grading the same item twice (P3 race).
@@ -284,6 +289,19 @@ export default function App() {
                 <p className="mt-2 text-[0.72rem] font-medium uppercase tracking-[0.22em] text-muted">
                   Deutsch → Schwedisch
                 </p>
+                {/* Persönliche Begrüßung / Namens-Einstieg (bleibt lokal). */}
+                <button
+                  onClick={() => setShowName(true)}
+                  className="mt-2 text-sm text-faint transition-colors hover:text-paper"
+                >
+                  {name ? (
+                    <span className="text-muted">
+                      Hej, <span className="font-medium text-brand">{name}</span>! ✎
+                    </span>
+                  ) : (
+                    <span>＋ Dein Name</span>
+                  )}
+                </button>
               </div>
               <button
                 onClick={() => setShowSettings(true)}
@@ -412,6 +430,7 @@ export default function App() {
               dialog={activeDialog}
               backLabel={dialogCategory?.title ?? 'Zurück'}
               areaHue={areaVisual(dialogCategory?.areaId).hue}
+              learnerName={name}
               onProduce={(turn, result, helpUsed) =>
                 handleDialogProduce(activeDialog.id, turn, result, helpUsed)
               }
@@ -489,6 +508,18 @@ export default function App() {
           <Suspense fallback={null}>
             <AiSettings onClose={() => setShowSettings(false)} />
           </Suspense>
+        )}
+
+        {showName && (
+          <NameEditor
+            initial={name}
+            onSave={(n) => {
+              saveName(n);
+              setName(n);
+              setShowName(false);
+            }}
+            onClose={() => setShowName(false)}
+          />
         )}
       </main>
     </>
