@@ -70,16 +70,17 @@ export function DialogScene({ dialog, backLabel, areaHue, learnerName, onProduce
         )}
       </nav>
 
-      <section className="glass relative overflow-hidden rounded-2xl p-5">
-        {/* Szenen-Stimmung + gezeichnete Kulisse (Dual Coding: Bild stützt die
-            Situation, ohne dem Text die Aufmerksamkeit zu nehmen). */}
+      <section className="glass relative overflow-hidden rounded-2xl">
+        {/* Farbstimmung über der ganzen Karte … */}
         <div
           aria-hidden="true"
           className="pointer-events-none absolute inset-0"
           style={{ background: SCENE_GLOW[dialog.scene] }}
         />
+        {/* … und ein eigenes Bildband für die Kulisse: so ist die Szene wirklich
+            ERKENNBAR (Dual Coding) und der Text darunter bleibt gestochen scharf. */}
         <SceneArt scene={dialog.scene} hue={areaHue} />
-        <div className="relative">
+        <div className="relative px-5 pb-5 pt-4">
           {/* Modus-Abzeichen: unverkennbar ein GESPRÄCH (nicht der Üben-Modus). */}
           <span
             className="inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[0.7rem] font-bold uppercase tracking-[0.1em]"

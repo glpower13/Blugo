@@ -1,14 +1,16 @@
-// Szenenbilder für den Dialog-Modus (docs/gremium-dialog.md §8).
+// Szenenbilder für den Dialog-Modus (docs/gremium-dialog.md §8, überarbeitet).
 //
-// Bildsprache wie der Nordlicht-Hintergrund: **SVG** (offline-sicher, gestochen
-// scharf, kByte statt MByte), reine Silhouetten und feine Linien in der Kennfarbe
-// des Bereichs. Bewusst SEHR zurückhaltend — die Szene soll die Situation
-// *andeuten* (Dual Coding: Bild + Sprache), nicht mit dem Text konkurrieren.
-// Nie Inhalt, immer nur Atmosphäre (die eine Design-Regel).
+// LEHRE aus der ersten Fassung: zarte Linien hinter dem Text waren zwar dezent,
+// aber man ERKANNTE die Szene nicht — und ein Bild, das man nicht erkennt, kann
+// die Situation auch nicht stützen (Dual Coding). Deshalb jetzt:
+//   1. ein eigenes BILDBAND oben in der Karte (das Bild bekommt Platz, der Text
+//      bleibt komplett unbehelligt und gestochen scharf),
+//   2. GEFÜLLTE Silhouetten in Tiefenebenen (Himmel → Kulisse → Vordergrund)
+//      statt dünner Striche,
+//   3. je Szene EIN unverwechselbares Hauptmotiv (Tasse · Zug · Klingel · Tüte).
 //
-// Aufbau je Szene: weiche Lichtquelle im Hintergrund → Architektur (Fenster,
-// Bahnsteig, Regal) → kleine erzählende Details (Tasse, Klingel, Uhr).
-// Unten läuft alles per Verlaufsmaske ins Glas aus.
+// Weiterhin: reines SVG (offline-sicher, gestochen scharf, wenige kByte) in der
+// Kennfarbe des Bereichs. Nie Inhalt, immer Atmosphäre (die eine Design-Regel).
 
 import type { DialogScene } from '../domain/dialog';
 
@@ -17,48 +19,37 @@ interface Props {
   hue: string; // Kennfarbe des Bereichs
 }
 
+/** Bildband am Kopf der Gesprächskarte (volle Breite, fester Höhenanteil). */
 export function SceneArt({ scene, hue }: Props) {
-  const id = `scene-${scene}`;
+  const id = `sc-${scene}`;
   return (
-    // Bewusste Komposition statt Tapete: die Kulisse sitzt als Vignette OBEN RECHTS
-    // und löst sich nach links und unten auf — so behält der Titel freie Fläche.
-    <div
-      className="pointer-events-none absolute right-0 top-0 h-44 w-[74%] overflow-hidden"
-      aria-hidden="true"
-    >
+    <div className="pointer-events-none relative h-28 w-full overflow-hidden sm:h-32" aria-hidden="true">
       <svg
-        viewBox="0 0 400 150"
+        viewBox="0 0 400 120"
         preserveAspectRatio="xMidYMax slice"
         xmlns="http://www.w3.org/2000/svg"
         className="h-full w-full"
       >
         <defs>
-          {/* Warme Lichtquelle der Szene (Fenster, Lampe, Bahnsteiglicht). */}
-          <radialGradient id={`${id}-glow`} cx="58%" cy="26%" r="62%">
-            <stop offset="0%" stopColor={hue} stopOpacity="0.3" />
+          {/* Lichtquelle der Szene (Fenster, Bahnsteiglicht, Ladenbeleuchtung). */}
+          <radialGradient id={`${id}-sky`} cx="50%" cy="8%" r="86%">
+            <stop offset="0%" stopColor={hue} stopOpacity="0.4" />
+            <stop offset="55%" stopColor={hue} stopOpacity="0.13" />
             <stop offset="100%" stopColor={hue} stopOpacity="0" />
           </radialGradient>
-          {/* Zwei Verläufe: nach unten UND nach links ausblenden → weiche Ecke. */}
-          <linearGradient id={`${id}-fade-y`} x1="0" y1="0" x2="0" y2="1">
+          {/* Unterkante weich ins Glas auslaufen lassen — kein harter Bildschnitt. */}
+          <linearGradient id={`${id}-fade`} x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%" stopColor="#fff" stopOpacity="1" />
-            <stop offset="58%" stopColor="#fff" stopOpacity="0.7" />
+            <stop offset="72%" stopColor="#fff" stopOpacity="1" />
             <stop offset="100%" stopColor="#fff" stopOpacity="0" />
           </linearGradient>
-          <linearGradient id={`${id}-fade-x`} x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0%" stopColor="#fff" stopOpacity="0" />
-            <stop offset="42%" stopColor="#fff" stopOpacity="0.55" />
-            <stop offset="100%" stopColor="#fff" stopOpacity="1" />
-          </linearGradient>
           <mask id={`${id}-mask`}>
-            <g style={{ mixBlendMode: 'multiply' }}>
-              <rect x="0" y="0" width="400" height="150" fill={`url(#${id}-fade-y)`} />
-              <rect x="0" y="0" width="400" height="150" fill={`url(#${id}-fade-x)`} />
-            </g>
+            <rect x="0" y="0" width="400" height="120" fill={`url(#${id}-fade)`} />
           </mask>
         </defs>
 
         <g mask={`url(#${id}-mask)`}>
-          <rect x="0" y="0" width="400" height="150" fill={`url(#${id}-glow)`} />
+          <rect x="0" y="0" width="400" height="120" fill={`url(#${id}-sky)`} />
           <Scene scene={scene} hue={hue} />
         </g>
       </svg>
@@ -66,15 +57,9 @@ export function SceneArt({ scene, hue }: Props) {
   );
 }
 
-/** Feine Linie in Bereichsfarbe (die Szene ist eine Zeichnung, kein Foto). */
-const line = (hue: string, opacity: number) => ({
-  fill: 'none',
-  stroke: hue,
-  strokeOpacity: opacity,
-  strokeWidth: 1.4,
-  strokeLinecap: 'round' as const,
-  strokeLinejoin: 'round' as const,
-});
+// Tiefenebenen: je weiter hinten, desto blasser; der Vordergrund ist fast schwarz.
+const BACK = '#0A121C';
+const FRONT = '#070B12';
 
 function Scene({ scene, hue }: { scene: DialogScene; hue: string }) {
   switch (scene) {
@@ -91,102 +76,190 @@ function Scene({ scene, hue }: { scene: DialogScene; hue: string }) {
   }
 }
 
-/** Café/Restaurant: großes Fenster, Hängelampen, Tresen, Tasse mit Dampf. */
+/** CAFÉ — Hauptmotiv: große Tasse mit Untertasse und Dampf, davor der Tresen. */
 function Cafe({ hue }: { hue: string }) {
   return (
     <g>
-      {/* Fensterfront mit Sprossen */}
-      <path d="M56 150 V44 h96 v106" {...line(hue, 0.3)} />
-      <path d="M104 44 V150 M56 92 h96" {...line(hue, 0.18)} />
-      <path d="M248 150 V44 h96 v106" {...line(hue, 0.3)} />
-      <path d="M296 44 V150 M248 92 h96" {...line(hue, 0.18)} />
-      {/* Hängelampen */}
-      <path d="M170 0 v34 M230 0 v26" {...line(hue, 0.26)} />
-      <path d="M158 34 h24 l-6 10 h-12 z" fill={hue} fillOpacity="0.3" />
-      <path d="M218 26 h24 l-6 10 h-12 z" fill={hue} fillOpacity="0.3" />
-      <circle cx="170" cy="48" r="7" fill={hue} fillOpacity="0.16" />
-      <circle cx="230" cy="40" r="7" fill={hue} fillOpacity="0.16" />
-      {/* Tresen */}
-      <path d="M0 122 h400" {...line(hue, 0.24)} />
-      {/* Tasse mit Dampf */}
-      <path d="M182 122 v-11 h22 v11" {...line(hue, 0.42)} />
-      <path d="M204 105 c9 0 9 10 0 10" {...line(hue, 0.34)} />
-      <path d="M188 98 c4-5 -4-9 0-14 M197 98 c4-5 -4-9 0-14" {...line(hue, 0.24)} />
+      {/* Kulisse: Fensterfront mit Sprossen */}
+      <rect x="18" y="14" width="104" height="74" rx="4" fill={hue} fillOpacity="0.1" />
+      <rect x="18" y="14" width="104" height="74" rx="4" fill="none" stroke={hue} strokeOpacity="0.3" strokeWidth="1.6" />
+      <path d="M70 14v74M18 51h104" stroke={hue} strokeOpacity="0.22" strokeWidth="1.4" />
+      <rect x="278" y="14" width="104" height="74" rx="4" fill={hue} fillOpacity="0.1" />
+      <rect x="278" y="14" width="104" height="74" rx="4" fill="none" stroke={hue} strokeOpacity="0.3" strokeWidth="1.6" />
+      <path d="M330 14v74M278 51h104" stroke={hue} strokeOpacity="0.22" strokeWidth="1.4" />
+
+      {/* Hängelampen mit Lichtkegel */}
+      <path d="M152 0v16M248 0v10" stroke={hue} strokeOpacity="0.5" strokeWidth="1.6" />
+      <path d="M138 16h28l-7 11h-14z" fill={hue} fillOpacity="0.65" />
+      <path d="M234 10h28l-7 11h-14z" fill={hue} fillOpacity="0.65" />
+      <path d="M145 27h14l14 34h-42z" fill={hue} fillOpacity="0.1" />
+      <path d="M241 21h14l14 40h-42z" fill={hue} fillOpacity="0.08" />
+
+      {/* Dampf über der Tasse */}
+      <path
+        d="M186 36c6-7-6-12 0-19M200 34c6-7-6-12 0-19M214 36c6-7-6-12 0-19"
+        fill="none"
+        stroke={hue}
+        strokeOpacity="0.5"
+        strokeWidth="2.4"
+        strokeLinecap="round"
+      />
+
+      {/* HAUPTMOTIV: Tasse mit Henkel + Untertasse */}
+      <path d="M172 52h56v20a14 14 0 0 1-14 14h-28a14 14 0 0 1-14-14z" fill={hue} fillOpacity="0.85" />
+      <path d="M228 56h8a13 13 0 0 1 0 26h-4" fill="none" stroke={hue} strokeOpacity="0.85" strokeWidth="5" strokeLinecap="round" />
+      <ellipse cx="200" cy="90" rx="46" ry="7" fill={hue} fillOpacity="0.6" />
+
+      {/* Vordergrund: Tresen */}
+      <rect x="0" y="94" width="400" height="26" fill={FRONT} fillOpacity="0.92" />
+      <path d="M0 94h400" stroke={hue} strokeOpacity="0.4" strokeWidth="1.6" />
     </g>
   );
 }
 
-/** Hotel: hohes Fenster mit Vorhang, Rezeptionstresen, Tischlampe, Klingel. */
+/** HOTEL — Hauptmotiv: Empfangsklingel + Schlüssel, davor der Tresen, hinten die Fassade. */
 function Hotel({ hue }: { hue: string }) {
+  const windows = [];
+  for (let r = 0; r < 3; r++) {
+    for (let c = 0; c < 9; c++) {
+      const lit = (r + c) % 3 !== 0;
+      windows.push(
+        <rect
+          key={`${r}-${c}`}
+          x={16 + c * 42}
+          y={10 + r * 24}
+          width={22}
+          height={14}
+          rx="2"
+          fill={hue}
+          fillOpacity={lit ? 0.4 : 0.12}
+        />,
+      );
+    }
+  }
   return (
     <g>
-      {/* Hohes Fenster mit Bogen */}
-      <path d="M150 150 V60 a50 50 0 0 1 100 0 v90" {...line(hue, 0.3)} />
-      <path d="M200 10 V150 M150 78 h100" {...line(hue, 0.16)} />
-      {/* Vorhänge links/rechts */}
-      <path d="M126 24 c10 40 8 84 0 126 M274 24 c-10 40 -8 84 0 126" {...line(hue, 0.2)} />
-      {/* Rezeptionstresen */}
-      <path d="M0 126 h400" {...line(hue, 0.26)} />
-      {/* Tischlampe */}
-      <path d="M64 126 v-14 M52 112 h24 l-5 -14 h-14 z" {...line(hue, 0.34)} />
-      <circle cx="64" cy="104" r="14" fill={hue} fillOpacity="0.12" />
-      {/* Empfangsklingel */}
-      <path d="M320 126 a14 14 0 0 1 28 0 z" {...line(hue, 0.4)} />
-      <path d="M334 108 v-5" {...line(hue, 0.4)} />
+      {/* Kulisse: Fassade mit erleuchteten Fenstern */}
+      <rect x="0" y="0" width="400" height="86" fill={BACK} fillOpacity="0.55" />
+      {windows}
+
+      {/* Vordergrund: Rezeptionstresen */}
+      <rect x="0" y="86" width="400" height="34" fill={FRONT} fillOpacity="0.94" />
+      <path d="M0 86h400" stroke={hue} strokeOpacity="0.45" strokeWidth="1.8" />
+
+      {/* HAUPTMOTIV: Empfangsklingel auf dem Tresen */}
+      <path d="M168 86a32 32 0 0 1 64 0z" fill={hue} fillOpacity="0.85" />
+      <rect x="160" y="86" width="80" height="5" rx="2.5" fill={hue} fillOpacity="0.7" />
+      <path d="M200 54v-7" stroke={hue} strokeOpacity="0.85" strokeWidth="3" strokeLinecap="round" />
+      <circle cx="200" cy="45" r="4.5" fill={hue} fillOpacity="0.9" />
+
+      {/* Schlüssel mit Anhänger daneben */}
+      <circle cx="292" cy="76" r="8" fill="none" stroke={hue} strokeOpacity="0.75" strokeWidth="3.4" />
+      <path d="M300 76h24M318 76v7M310 76v6" stroke={hue} strokeOpacity="0.75" strokeWidth="3.4" strokeLinecap="round" />
+
+      {/* Tischlampe links: Schirm, Fuß, Lichtschein */}
+      <ellipse cx="92" cy="70" rx="32" ry="20" fill={hue} fillOpacity="0.09" />
+      <path d="M78 70h28l-7-17H85z" fill={hue} fillOpacity="0.6" />
+      <path d="M92 70v16" stroke={hue} strokeOpacity="0.6" strokeWidth="3" strokeLinecap="round" />
+      <path d="M82 86h20" stroke={hue} strokeOpacity="0.6" strokeWidth="3" strokeLinecap="round" />
     </g>
   );
 }
 
-/** Bahnhof: Bahnsteigdach, Säulen, fluchtende Gleise, Bahnhofsuhr. */
+/** BAHNHOF — Hauptmotiv: einfahrender Zug, dazu Bahnsteig, Dach und Uhr. */
 function Station({ hue }: { hue: string }) {
   return (
     <g>
-      {/* Bahnsteigdach */}
-      <path d="M0 30 h400" {...line(hue, 0.26)} />
-      {/* Säulen mit Perspektive */}
-      <path d="M40 30 v100 M110 30 v96 M290 30 v96 M360 30 v100" {...line(hue, 0.22)} />
-      {/* Fluchtende Gleise → Tiefe */}
-      <path d="M0 150 L176 96 M400 150 L224 96" {...line(hue, 0.3)} />
-      <path d="M0 132 h400" {...line(hue, 0.2)} />
-      {/* Schwellen */}
-      <path d="M150 108 h100 M132 120 h136 M112 134 h176" {...line(hue, 0.12)} />
+      {/* Bahnsteigdach mit Trägern */}
+      <rect x="0" y="0" width="400" height="10" fill={BACK} fillOpacity="0.75" />
+      <path d="M26 10v40M120 10v34M374 10v40" stroke={hue} strokeOpacity="0.28" strokeWidth="2.4" />
+
       {/* Bahnhofsuhr */}
-      <circle cx="200" cy="52" r="17" {...line(hue, 0.42)} />
-      <path d="M200 52 v-9 M200 52 l7 5" {...line(hue, 0.42)} />
-      <path d="M200 35 v-5" {...line(hue, 0.26)} />
+      <circle cx="66" cy="34" r="17" fill={BACK} fillOpacity="0.8" />
+      <circle cx="66" cy="34" r="17" fill="none" stroke={hue} strokeOpacity="0.7" strokeWidth="2.2" />
+      <path d="M66 34v-9M66 34l7 5" stroke={hue} strokeOpacity="0.85" strokeWidth="2.2" strokeLinecap="round" />
+
+      {/* HAUPTMOTIV: Zug, der von rechts einfährt */}
+      <path d="M196 86V38a10 10 0 0 1 10-10h150a44 44 0 0 1 44 44v14z" fill={hue} fillOpacity="0.5" />
+      <path d="M196 86V38a10 10 0 0 1 10-10h150a44 44 0 0 1 44 44v14z" fill="none" stroke={hue} strokeOpacity="0.8" strokeWidth="2" />
+      {/* Frontscheibe + Seitenfenster */}
+      <path d="M352 36h6a34 34 0 0 1 32 30h-38z" fill={BACK} fillOpacity="0.85" />
+      <rect x="212" y="40" width="34" height="20" rx="3" fill={BACK} fillOpacity="0.8" />
+      <rect x="256" y="40" width="34" height="20" rx="3" fill={BACK} fillOpacity="0.8" />
+      <rect x="300" y="40" width="34" height="20" rx="3" fill={BACK} fillOpacity="0.8" />
+      {/* Scheinwerfer */}
+      <circle cx="382" cy="76" r="5" fill="#FFF3D6" fillOpacity="0.85" />
+      {/* Räder */}
+      <circle cx="240" cy="88" r="9" fill={FRONT} fillOpacity="0.95" />
+      <circle cx="300" cy="88" r="9" fill={FRONT} fillOpacity="0.95" />
+
+      {/* Bahnsteigkante + Gleis */}
+      <rect x="0" y="92" width="400" height="28" fill={FRONT} fillOpacity="0.92" />
+      <path d="M0 92h400" stroke={hue} strokeOpacity="0.5" strokeWidth="2" />
+      <path d="M0 104h400" stroke={hue} strokeOpacity="0.16" strokeWidth="1.4" />
     </g>
   );
 }
 
-/** Geschäft: Markise, Regale mit Waren, Preisschild. */
+/** GESCHÄFT — Hauptmotiv: Einkaufstüte, dazu gestreifte Markise und Regale. */
 function Shop({ hue }: { hue: string }) {
+  const stripes = [];
+  for (let i = 0; i < 8; i++) {
+    stripes.push(
+      <path
+        key={i}
+        d={`M${16 + i * 46} 8h46l-6 20h-46z`}
+        fill={hue}
+        fillOpacity={i % 2 ? 0.5 : 0.24}
+      />,
+    );
+  }
   return (
     <g>
-      {/* Markise mit Bögen */}
-      <path
-        d="M30 46 h340 v14 c-24 0 -24 12 -48 12 s-24 -12 -48 -12 -24 12 -48 12 -24 -12 -48 -12 -24 12 -48 12 -24 -12 -48 -12 -24 12 -48 12 z"
-        {...line(hue, 0.3)}
-      />
-      {/* Regalbretter */}
-      <path d="M60 104 h280 M60 138 h280" {...line(hue, 0.24)} />
-      {/* Waren als ruhige Silhouetten */}
-      <path d="M78 104 v-16 h14 v16 M104 104 v-22 h12 v22 M128 104 v-13 h16 v13" {...line(hue, 0.34)} />
-      <path d="M262 104 v-19 h13 v19 M286 104 v-14 h15 v14" {...line(hue, 0.34)} />
-      <path d="M84 138 v-15 h18 v15 M116 138 v-20 h13 v20 M274 138 v-17 h16 v17" {...line(hue, 0.26)} />
-      {/* Preisschild */}
-      <path d="M186 78 h28 l8 10 -8 10 h-28 z" {...line(hue, 0.4)} />
-      <circle cx="196" cy="88" r="2.2" fill={hue} fillOpacity="0.5" />
+      {/* Markise */}
+      <rect x="0" y="0" width="400" height="10" fill={BACK} fillOpacity="0.7" />
+      <g transform="translate(-16 0)">{stripes}</g>
+      <path d="M0 28h400" stroke={hue} strokeOpacity="0.45" strokeWidth="2" />
+
+      {/* Regale mit Waren im Hintergrund */}
+      <path d="M20 68h100M280 68h100" stroke={hue} strokeOpacity="0.3" strokeWidth="2" />
+      <path d="M34 68V52h14v16M60 68V46h12v22M86 68V56h14v12" fill={hue} fillOpacity="0.3" />
+      <path d="M294 68V50h13v18M320 68V57h15v11M348 68V46h12v22" fill={hue} fillOpacity="0.3" />
+
+      {/* HAUPTMOTIV: Einkaufstüte */}
+      <path d="M164 46h72l-8 48h-56z" fill={hue} fillOpacity="0.75" />
+      <path d="M164 46h72l-8 48h-56z" fill="none" stroke={hue} strokeOpacity="0.9" strokeWidth="2" />
+      <path d="M182 46a18 18 0 0 1 36 0" fill="none" stroke={hue} strokeOpacity="0.9" strokeWidth="3.4" />
+
+      {/* Vordergrund: Boden */}
+      <rect x="0" y="94" width="400" height="26" fill={FRONT} fillOpacity="0.92" />
+      <path d="M0 94h400" stroke={hue} strokeOpacity="0.4" strokeWidth="1.6" />
     </g>
   );
 }
 
-/** Neutral: ruhige Nordlicht-Bögen (wenn eine Szene keine eigene Kulisse hat). */
+/** NEUTRAL — ruhige Nordlicht-Bögen über einer Bergsilhouette. */
 function Generic({ hue }: { hue: string }) {
   return (
     <g>
-      <path d="M-20 96 C 80 52, 180 118, 300 66 S 420 46, 420 76" {...line(hue, 0.24)} />
-      <path d="M-20 122 C 90 84, 190 144, 310 96 S 420 78, 420 106" {...line(hue, 0.16)} />
-      <path d="M0 148 L70 118 L140 146 L210 112 L280 148 L350 120 L400 146" {...line(hue, 0.12)} />
+      <path
+        d="M-20 56C70 20 150 66 240 34s140-16 180 4"
+        fill="none"
+        stroke={hue}
+        strokeOpacity="0.4"
+        strokeWidth="3"
+        strokeLinecap="round"
+      />
+      <path
+        d="M-20 76C80 44 160 88 250 58s130-10 170 8"
+        fill="none"
+        stroke={hue}
+        strokeOpacity="0.22"
+        strokeWidth="2.4"
+        strokeLinecap="round"
+      />
+      <path d="M0 104l64-30 58 26 62-34 66 32 60-24 90 34v12H0z" fill={FRONT} fillOpacity="0.9" />
+      <path d="M0 104l64-30 58 26 62-34 66 32 60-24 90 34" fill="none" stroke={hue} strokeOpacity="0.35" strokeWidth="1.8" />
     </g>
   );
 }

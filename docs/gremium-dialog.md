@@ -107,10 +107,20 @@ Motive: **Café** (Fensterfront, Hängelampen, Tresen, Tasse mit Dampf) · **Hot
 **Bahnhof** (Bahnsteigdach, Säulen, fluchtende Gleise, Bahnhofsuhr) · **Geschäft**
 (Markise, Regale, Preisschild) · **neutral** (ruhige Bögen).
 
-**Komposition statt Tapete:** Die Kulisse sitzt als **Vignette oben rechts** und löst
-sich per Doppel-Maske nach links und unten auf — so behält der Titel freie, ruhige
-Fläche und das Bild wirkt gesetzt, nicht untergelegt. (Erste Fassung lag hinter dem
-Titel und nahm ihm die Schärfe; verworfen.)
+**Zwei verworfene Fassungen — und was sie gelehrt haben (Nutzer-Feedback):**
+1. *Zarte Linien hinter dem Text.* Dezent, aber der Titel verlor die Schärfe. Verworfen.
+2. *Vignette oben rechts, blass.* Rückmeldung des Nutzers: **„die sind sehr schlecht,
+   man muss sie vernünftig erkennen."** Zu Recht — ein Bild, das man **nicht erkennt**,
+   kann die Situation auch nicht stützen; der ganze Dual-Coding-Nutzen verpufft, und
+   übrig bleiben zufällig wirkende Striche. Verworfen.
+
+**Jetzt (dritte Fassung):**
+- **Eigenes Bildband** am Kopf der Karte (volle Breite, feste Höhe). Das Bild bekommt
+  echten Platz — und der Text darunter bleibt vollständig unbehelligt. Kein Kompromiss
+  mehr zwischen „sichtbar" und „lesbar", weil beide ihre eigene Zone haben.
+- **Gefüllte Silhouetten in Tiefenebenen** (Himmel → Kulisse → Vordergrund) statt
+  dünner Striche — das macht die Form auf einen Blick lesbar.
+- **Ein unverwechselbares Hauptmotiv je Szene:** Tasse · Zug · Empfangsklingel · Einkaufstüte.
 
 **Warum überhaupt Bild:** Bedeutung über Ohr **und** Auge (Dual Coding, Evidenz: stark)
 — das Bild deutet die Situation an, statt sie zu übersetzen. Es bleibt bewusst
