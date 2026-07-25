@@ -190,6 +190,23 @@ export function setSpeechLocalOnly(v: boolean): void {
 
 export const speechLocalOnly = (): boolean => localOnly;
 
+// Ob die On-Device-Erkennung bereitsteht, wird NICHT mehr von selbst abgefragt.
+//
+// WARUM: `SpeechRecognition.available({ processLocally: true })` hat in aktuellen
+// Chromium-Fassungen dokumentierte Fehler — in unserer CI hat der Aufruf den
+// ganzen Renderer zum Absturz gebracht, sobald die Einstellungs-Fläche ihn beim
+// Aufbau ausgelöst hat. Eine Abfrage, die im Vorbeigehen die Seite abschießen
+// kann, darf nicht im Hintergrund laufen. Sie passiert jetzt nur noch auf
+// ausdrücklichen Wunsch (Knopf in den Einstellungen); das Ergebnis wird
+// gespeichert und von hier aus benutzt.
+let onDeviceReady = false;
+
+export function setOnDeviceReady(v: boolean): void {
+  onDeviceReady = v;
+}
+
+export const isOnDeviceReady = (): boolean => onDeviceReady;
+
 /**
  * Hört EINEN Satz mit. Bevorzugt On-Device, fällt sonst auf die Server-Erkennung
  * zurück — und meldet über `mode`, was es geworden ist.
@@ -234,41 +251,35 @@ export function listenOnce(lang = 'sv-SE'): ListenHandle {
     };
     rec.onend = finish;
 
-    // On-Device nur setzen, wenn es WIRKLICH bereitsteht: `processLocally = true`
-    // ohne vorhandenes Sprachpaket lässt `start()` scheitern.
-    void onDeviceStatus(lang)
-      .then((s) => {
-        if (settled) return;
-        if (s === 'ready') {
-          rec.processLocally = true;
-          mode = 'on-device';
-        } else if (localOnly) {
-          failure =
-            'Du hast „nur auf dem Gerät erkennen" eingestellt, und für Schwedisch fehlt das ' +
-            'Sprachpaket. In den Einstellungen kannst du es holen oder die Einstellung lösen.';
-        }
-      })
-      .catch(() => {})
-      .finally(() => {
-        if (settled) return;
-        if (failure) {
-          finish();
-          return;
-        }
-        try {
-          rec.start();
-          timer = setTimeout(() => {
-            try {
-              rec.stop();
-            } catch {
-              finish();
-            }
-          }, MAX_MS);
-        } catch {
-          failure = speechErrorMessage('audio-capture');
-          finish();
-        }
-      });
+    // On-Device nur setzen, wenn es NACHWEISLICH bereitsteht (einmal in den
+    // Einstellungen geprüft): `processLocally = true` ohne vorhandenes
+    // Sprachpaket lässt `start()` scheitern.
+    if (onDeviceReady) {
+      rec.processLocally = true;
+      mode = 'on-device';
+    } else if (localOnly) {
+      failure =
+        'Du hast „nur auf dem Gerät erkennen" eingestellt, aber für Schwedisch ist noch kein ' +
+        'Sprachpaket geprüft. Schau in den Einstellungen unter „Sprechen" nach.';
+    }
+
+    if (failure) {
+      finish();
+    } else {
+      try {
+        rec.start();
+        timer = setTimeout(() => {
+          try {
+            rec.stop();
+          } catch {
+            finish();
+          }
+        }, MAX_MS);
+      } catch {
+        failure = speechErrorMessage('audio-capture');
+        finish();
+      }
+    }
   });
 
   return {
