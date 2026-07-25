@@ -78,7 +78,26 @@ dadurch bleibt der Nachschub kohärent und die Abdeckung lesbar.
   Stoff bevorzugt kommt (`buildQueue` · `NewFocus`); **fällige Wiederholungen bleiben
   unberührt** — Erhalt geht vor. Design-Entscheidung: `gremium-struktur.md`.
 
+## QS des Inhalts: Prüfkette statt einzelner Prüfer *(entschieden 2026-07-25)*
+
+Die muttersprachliche Prüfung ist der Flaschenhals der ganzen Pipeline. Entscheidung
+(Herleitung: `gremium-content-pruefung.md`): **aufteilen statt ersetzen.**
+
+1. **Maschinell, für alles** — `npm run check:content` (`tools/check-swedish.py`) prüft
+   jedes schwedische Wort gegen Korpus-Häufigkeiten (`wordfreq`, Zipf-Skala) und ein
+   Wörterbuch (Hunspell `dictionary-sv`, ~154.000 Einträge) und schreibt
+   `content-pruefbericht.md`. Nicht belegte Wörter lassen den Lauf **fehlschlagen**.
+2. **Rückübersetzung** — geplant, prüft die Bedeutungstreue.
+3. **Menschlich, nur wo nötig** — Wortstellung, Idiomatik, Register, Dekodierungen
+   (`content-review-schwedisch.md`).
+4. **Ehrliche Kennzeichnung** am Inhalt: *ungeprüft* · *maschinell vorgeprüft* ·
+   *muttersprachlich geprüft*. Nie mehr behaupten, als gemessen ist.
+
+Für KI-erzeugten Stoff gilt derselbe Weg: Stufe 1 ist automatisierbar, die Kennzeichnung
+„🤖 KI-erzeugt · nicht geprüft" bleibt, bis eine Stufe sie wirklich deckt.
+
 ## Risiken / offene Punkte
 - Faktentreue & Natürlichkeit generierter Sätze → menschliche Stichprobe.
-- Qualität schwedischer Dekodierung/Idiomatik → Prüfheuristiken.
+- Qualität schwedischer Dekodierung/Idiomatik → Prüfheuristiken; Wortexistenz ist seit
+  2026-07-25 maschinell abgedeckt (Stufe 1), Wortfolgen noch nicht.
 - Konkrete Modellwahl (LLM/TTS) → Anbieter-Entscheidung offen (`10-open-questions.md`); die Port-Schicht hält alle Wege offen.
