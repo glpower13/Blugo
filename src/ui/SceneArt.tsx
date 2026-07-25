@@ -1,751 +1,596 @@
 // Szenenbilder für den Dialog-Modus (docs/gremium-dialog.md §8/§10).
 //
-// DRITTE Überarbeitung nach klarer Rückmeldung („schäbige Mini-Darstellung —
-// mach was Vernünftiges"). Was ein Piktogramm von einem BILD unterscheidet:
-//   1. TIEFE — vier Ebenen mit Luftperspektive (fern = blass & kühl,
-//      nah = fast schwarz), nicht alles auf einer Fläche.
-//   2. LICHT — Lampen werfen Kegel, auf Tresen/Boden liegen Lichtpfützen,
-//      Fensterflächen leuchten. Erst dadurch wirkt ein Raum bewohnt.
-//   3. MENSCHEN — eine Silhouette macht aus einer Kulisse einen ORT, an dem
-//      gerade jemand steht und mit dir spricht. Das ist der größte Sprung.
-//   4. DICHTE — Regale, Flaschen, Stühle, Koffer, Gleise: Details, die die
-//      Situation erzählen, statt eines einzelnen freistehenden Objekts.
+// VIERTE FASSUNG — auf dasselbe Niveau gehoben wie die Bereichsbilder.
+// Vorher: eine Bereichsfarbe plus Fast-Schwarz und flache Silhouetten. Auf
+// demselben Bildschirm sah man dadurch zwei Qualitätsstufen nebeneinander.
 //
-// Weiterhin reines SVG (offline-sicher, gestochen scharf, wenige kByte) in der
-// Kennfarbe des Bereichs. Nie Inhalt, immer Atmosphäre (die eine Design-Regel).
+// Jetzt aus `sceneKit.tsx`: Eigenfarbe statt Bereichston, Volumen mit Licht- und
+// Schattenseite, echte Weichzeichnung für die Ferne, Lichtstreuung an Lampen,
+// Korn und Vignette — und Menschen mit Körper, Kleidungsfarbe und Kontaktschatten.
+//
+// Jede Szene hat ihre eigene Tageszeit. Der Bereichston (`hue`) tönt nur noch das
+// Umgebungslicht bzw. Bildschirme, damit die Karte zum Bereich passt, ohne das
+// ganze Bild einzufärben.
+//
+// Reines SVG: offline, gestochen scharf, wenige kByte. Nie Inhalt, immer Atmosphäre.
 
 import type { DialogScene } from '../domain/dialog';
+import { C, Figure, Pendant, Pool, Spruce, SceneDefs, Finish } from './sceneKit';
+
+const W = 400;
+const H = 180;
 
 interface Props {
   scene: DialogScene;
-  hue: string; // Kennfarbe des Bereichs
+  hue: string; // Kennfarbe des Bereichs — tönt nur das Umgebungslicht
 }
 
-// Tiefenebenen (Luftperspektive): je näher, desto dunkler und kontrastreicher.
-const NIGHT = '#060910'; // Vordergrund / Silhouetten
-const MIDDARK = '#0A111C'; // Mittelgrund
+/** Himmel/Raumlicht je Szene — echte Tageszeit, nicht der Bereichston. */
+const SKIES: Record<string, [string, string][]> = {
+  cafe: [
+    ['0%', '#2A1D14'],
+    ['58%', '#3A281B'],
+    ['100%', '#241811'],
+  ],
+  hotel: [
+    ['0%', '#1A1726'],
+    ['60%', '#241E33'],
+    ['100%', '#161320'],
+  ],
+  station: [
+    ['0%', '#0E1B2E'],
+    ['48%', '#1C3049'],
+    ['100%', '#2A3E52'],
+  ],
+  shop: [
+    ['0%', '#242A33'],
+    ['62%', '#2C333E'],
+    ['100%', '#1C2129'],
+  ],
+  clinic: [
+    ['0%', '#182430'],
+    ['60%', '#20303C'],
+    ['100%', '#16222C'],
+  ],
+  garage: [
+    ['0%', '#151E30'],
+    ['54%', '#22293A'],
+    ['100%', '#2E2A26'],
+  ],
+  gaming: [
+    ['0%', '#12121E'],
+    ['58%', '#181828'],
+    ['100%', '#0E0E18'],
+  ],
+  track: [
+    ['0%', '#0C1626'],
+    ['52%', '#182A3E'],
+    ['100%', '#243646'],
+  ],
+  lake: [
+    ['0%', '#1E3348'],
+    ['40%', '#456276'],
+    ['72%', '#93A69A'],
+    ['100%', '#C9C08A'],
+  ],
+  stadium: [
+    ['0%', '#0A1420'],
+    ['54%', '#12222E'],
+    ['100%', '#1A2E28'],
+  ],
+  generic: [
+    ['0%', '#1B2440'],
+    ['100%', '#2C3A4E'],
+  ],
+};
 
 /** Bildband am Kopf der Gesprächskarte. */
 export function SceneArt({ scene, hue }: Props) {
   const id = `sc-${scene}`;
+  const sky = SKIES[scene] ?? SKIES.generic;
   return (
     <div
       className="scene-in pointer-events-none relative h-44 w-full overflow-hidden sm:h-52"
       aria-hidden="true"
     >
       <svg
-        viewBox="0 0 400 180"
-        preserveAspectRatio="xMidYMax slice"
+        viewBox={`0 0 ${W} ${H}`}
+        preserveAspectRatio="xMidYMid slice"
         xmlns="http://www.w3.org/2000/svg"
         className="h-full w-full"
       >
-        <defs>
-          {/* Raumlicht von oben — der Grundton der Szene. */}
-          <linearGradient id={`${id}-air`} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor={hue} stopOpacity="0.34" />
-            <stop offset="52%" stopColor={hue} stopOpacity="0.1" />
-            <stop offset="100%" stopColor={hue} stopOpacity="0.02" />
-          </linearGradient>
-          {/* Lichtkegel einer Lampe. */}
-          <linearGradient id={`${id}-beam`} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor={hue} stopOpacity="0.34" />
-            <stop offset="100%" stopColor={hue} stopOpacity="0" />
-          </linearGradient>
-          {/* Leuchtende Fensterfläche. */}
-          <linearGradient id={`${id}-pane`} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor={hue} stopOpacity="0.3" />
-            <stop offset="100%" stopColor={hue} stopOpacity="0.08" />
+        <SceneDefs id={id}>
+          <linearGradient id={`${id}-sky`} x1="0" y1="0" x2="0" y2="1">
+            {sky.map((s, i) => (
+              <stop key={i} offset={s[0]} stopColor={s[1]} />
+            ))}
           </linearGradient>
           {/* Unterkante weich ins Glas auslaufen lassen. */}
           <linearGradient id={`${id}-fade`} x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%" stopColor="#fff" stopOpacity="1" />
-            <stop offset="78%" stopColor="#fff" stopOpacity="1" />
+            <stop offset="76%" stopColor="#fff" stopOpacity="1" />
             <stop offset="100%" stopColor="#fff" stopOpacity="0" />
           </linearGradient>
           <mask id={`${id}-mask`}>
-            <rect x="0" y="0" width="400" height="180" fill={`url(#${id}-fade)`} />
+            <rect width={W} height={H} fill={`url(#${id}-fade)`} />
           </mask>
-        </defs>
+        </SceneDefs>
 
         <g mask={`url(#${id}-mask)`}>
-          <rect x="0" y="0" width="400" height="180" fill={`url(#${id}-air)`} />
+          <rect width={W} height={H} fill={`url(#${id}-sky)`} />
           <Scene scene={scene} hue={hue} id={id} />
+          <Finish id={id} w={W} h={H} />
         </g>
       </svg>
     </div>
   );
 }
 
-/* ── Wiederkehrende Bausteine ────────────────────────────────────────────── */
-
-/** Menschliche Silhouette (Kopf + Schultern) — macht die Kulisse zum ORT. */
-function Person({
-  x,
-  y,
-  s = 1,
-  fill = NIGHT,
-  opacity = 1,
-}: {
-  x: number;
-  y: number;
-  s?: number;
-  fill?: string;
-  opacity?: number;
-}) {
-  return (
-    <g transform={`translate(${x} ${y}) scale(${s})`} fill={fill} fillOpacity={opacity}>
-      <circle cx="0" cy="-30" r="10.5" />
-      <path d="M-15 0c0-13 6-21 15-21s15 8 15 21z" />
-    </g>
-  );
-}
-
-/** Lichtkegel unter einer Lampe. */
-function Beam({ x, y, w, h, id }: { x: number; y: number; w: number; h: number; id: string }) {
-  return <path d={`M${x - 6} ${y}h12l${w / 2} ${h}h-${w}z`} fill={`url(#${id}-beam)`} />;
-}
-
-/** Lichtpfütze auf einer waagerechten Fläche. */
-function Pool({ cx, cy, rx, hue }: { cx: number; cy: number; rx: number; hue: string }) {
-  return <ellipse cx={cx} cy={cy} rx={rx} ry={rx * 0.16} fill={hue} fillOpacity="0.16" />;
-}
-
 function Scene({ scene, hue, id }: { scene: DialogScene; hue: string; id: string }) {
+  const far = `url(#${id}-far)`;
+  const glow = `url(#${id}-glow)`;
+
   switch (scene) {
+    // ── CAFÉ: Tresen mit Kanelbullar, Pendelleuchten, Barista ──────────────
     case 'cafe':
-      return <Cafe hue={hue} id={id} />;
-    case 'hotel':
-      return <Hotel hue={hue} id={id} />;
-    case 'station':
-      return <Station hue={hue} id={id} />;
-    case 'shop':
-      return <Shop hue={hue} id={id} />;
-    case 'clinic':
-      return <Clinic hue={hue} id={id} />;
-    case 'garage':
-      return <Garage hue={hue} id={id} />;
-    case 'gaming':
-      return <Gaming hue={hue} id={id} />;
-    case 'track':
-      return <Track hue={hue} id={id} />;
-    case 'lake':
-      return <Lake hue={hue} />;
-    case 'stadium':
-      return <Stadium hue={hue} id={id} />;
-    default:
-      return <Generic hue={hue} />;
-  }
-}
-
-/* ── CAFÉ: Innenraum mit Barista hinter dem Tresen ───────────────────────── */
-function Cafe({ hue, id }: { hue: string; id: string }) {
-  return (
-    <g>
-      {/* FERN: Fensterfront, dahinter Stadt bei Nacht */}
-      <rect x="0" y="0" width="400" height="118" fill={MIDDARK} fillOpacity="0.5" />
-      <g>
-        <rect x="14" y="18" width="118" height="76" rx="3" fill={`url(#${id}-pane)`} />
-        <rect x="268" y="18" width="118" height="76" rx="3" fill={`url(#${id}-pane)`} />
-        {/* Häuser draußen */}
-        <path d="M20 94V64h20v30M46 94V52h16v42M70 94V72h22v22M100 94V58h24v36" fill={NIGHT} fillOpacity="0.5" />
-        <path d="M274 94V70h22v24M302 94V54h18v40M326 94V66h20v28M352 94V60h28v34" fill={NIGHT} fillOpacity="0.5" />
-        {/* winzige erleuchtete Fenster */}
-        {[
-          [50, 60],
-          [56, 72],
-          [78, 80],
-          [108, 66],
-          [114, 78],
-          [308, 62],
-          [314, 74],
-          [332, 74],
-          [360, 68],
-          [370, 80],
-        ].map(([cx, cy], i) => (
-          <rect key={i} x={cx} y={cy} width="4" height="5" fill={hue} fillOpacity="0.55" />
-        ))}
-        {/* Sprossen */}
-        <path d="M73 18v76M14 56h118M327 18v76M268 56h118" stroke={hue} strokeOpacity="0.25" strokeWidth="1.6" />
-        <rect x="14" y="18" width="118" height="76" rx="3" fill="none" stroke={hue} strokeOpacity="0.4" strokeWidth="2" />
-        <rect x="268" y="18" width="118" height="76" rx="3" fill="none" stroke={hue} strokeOpacity="0.4" strokeWidth="2" />
-      </g>
-
-      {/* MITTE: Rückbuffet mit Regal, Flaschen und Espressomaschine */}
-      <rect x="140" y="52" width="120" height="66" rx="3" fill={MIDDARK} fillOpacity="0.9" />
-      <path d="M146 84h108" stroke={hue} strokeOpacity="0.3" strokeWidth="1.8" />
-      {[152, 164, 176, 188, 232, 244].map((x, i) => (
-        <rect key={i} x={x} y={i % 2 ? 68 : 64} width="7" height={i % 2 ? 16 : 20} rx="2" fill={hue} fillOpacity="0.4" />
-      ))}
-      {/* Espressomaschine */}
-      <rect x="200" y="62" width="26" height="22" rx="3" fill={hue} fillOpacity="0.5" />
-      <rect x="206" y="84" width="4" height="7" fill={hue} fillOpacity="0.5" />
-
-      {/* Hängelampen mit Lichtkegeln */}
-      {[
-        [96, 0, 24],
-        [200, 0, 16],
-        [304, 0, 24],
-      ].map(([x, y, len], i) => (
-        <g key={i}>
-          <path d={`M${x} ${y}v${len}`} stroke={hue} strokeOpacity="0.5" strokeWidth="1.8" />
-          <path d={`M${x - 14} ${len}h28l-7 11h-14z`} fill={hue} fillOpacity="0.7" />
-          <Beam x={x} y={len + 11} w={46} h={40} id={id} />
-        </g>
-      ))}
-
-      {/* MENSCH: Barista hinter dem Tresen — mit Gegenlicht, damit die
-          Silhouette gegen das dunkle Buffet überhaupt lesbar ist. */}
-      <ellipse cx="200" cy="104" rx="46" ry="34" fill={hue} fillOpacity="0.22" />
-      <Person x={200} y={118} s={1.15} opacity={0.95} />
-
-      {/* NAH: Tresenplatte mit Lichtpfützen, Tasse und Pflanze */}
-      <rect x="0" y="118" width="400" height="62" fill={NIGHT} fillOpacity="0.96" />
-      <path d="M0 118h400" stroke={hue} strokeOpacity="0.55" strokeWidth="2.2" />
-      <Pool cx={96} cy={121} rx={40} hue={hue} />
-      <Pool cx={304} cy={121} rx={40} hue={hue} />
-
-      {/* Tasse mit Untertasse + Dampf */}
-      <g transform="translate(300 118)">
-        <path d="M-22 0v-16h34v16z" fill={hue} fillOpacity="0.85" />
-        <path d="M12 -13h5a8 8 0 0 1 0 15h-3" fill="none" stroke={hue} strokeOpacity="0.85" strokeWidth="3.4" strokeLinecap="round" />
-        <ellipse cx="-5" cy="1" rx="27" ry="4" fill={hue} fillOpacity="0.6" />
-        <path
-          d="M-14 -22c4-5-4-8 0-13M-4 -22c4-5-4-8 0-13M6 -22c4-5-4-8 0-13"
-          fill="none"
-          stroke={hue}
-          strokeOpacity="0.45"
-          strokeWidth="2"
-          strokeLinecap="round"
-        />
-      </g>
-      {/* Pflanze links auf dem Tresen: Topf + runde Blätterkrone */}
-      <g transform="translate(70 118)">
-        <path d="M-10 0l2-15h16l2 15z" fill={hue} fillOpacity="0.6" />
-        <ellipse cx="-7" cy="-24" rx="9" ry="7" fill={hue} fillOpacity="0.42" />
-        <ellipse cx="7" cy="-26" rx="8" ry="6.5" fill={hue} fillOpacity="0.36" />
-        <ellipse cx="0" cy="-33" rx="7.5" ry="6" fill={hue} fillOpacity="0.3" />
-      </g>
-    </g>
-  );
-}
-
-/* ── HOTEL: Lobby mit Rezeptionist, Schlüsselfächern und Koffer ──────────── */
-function Hotel({ hue, id }: { hue: string; id: string }) {
-  return (
-    <g>
-      {/* FERN: hohe Bogenfenster, Nacht dahinter */}
-      <rect x="0" y="0" width="400" height="122" fill={MIDDARK} fillOpacity="0.55" />
-      {[36, 190].map((x, i) => (
-        <g key={i}>
-          <path d={`M${x} 112V44a30 30 0 0 1 60 0v68z`} fill={`url(#${id}-pane)`} />
-          <path d={`M${x} 112V44a30 30 0 0 1 60 0v68z`} fill="none" stroke={hue} strokeOpacity="0.4" strokeWidth="2" />
-          <path d={`M${x + 30} 14v98M${x} 74h60`} stroke={hue} strokeOpacity="0.24" strokeWidth="1.6" />
-        </g>
-      ))}
-      {/* Vorhänge */}
-      <path d="M20 12c9 34 8 70 0 100M126 12c-8 34-7 70 0 100M174 12c9 34 8 70 0 100M280 12c-8 34-7 70 0 100" stroke={hue} strokeOpacity="0.22" strokeWidth="3" fill="none" />
-
-      {/* Schlüsselfächer an der Wand rechts */}
-      <rect x="296" y="26" width="92" height="66" rx="3" fill={MIDDARK} fillOpacity="0.95" />
-      {Array.from({ length: 12 }).map((_, i) => (
-        <rect
-          key={i}
-          x={302 + (i % 4) * 22}
-          y={32 + Math.floor(i / 4) * 20}
-          width="17"
-          height="15"
-          rx="1.5"
-          fill={hue}
-          fillOpacity={i % 3 === 0 ? 0.42 : 0.16}
-        />
-      ))}
-      <rect x="296" y="26" width="92" height="66" rx="3" fill="none" stroke={hue} strokeOpacity="0.35" strokeWidth="1.6" />
-
-      {/* MENSCH: Rezeptionist hinter dem Tresen (mit Gegenlicht) */}
-      <ellipse cx="252" cy="108" rx="44" ry="32" fill={hue} fillOpacity="0.2" />
-      <Person x={252} y={122} s={1.12} opacity={0.95} />
-
-      {/* NAH: Rezeptionstresen */}
-      <rect x="0" y="122" width="400" height="58" fill={NIGHT} fillOpacity="0.96" />
-      <path d="M0 122h400" stroke={hue} strokeOpacity="0.55" strokeWidth="2.2" />
-      <Pool cx={110} cy={125} rx={46} hue={hue} />
-
-      {/* Tischlampe mit Lichtschein */}
-      <g transform="translate(110 122)">
-        <path d="M-15 0h30l-8-18h-14z" fill={hue} fillOpacity="0.65" />
-        <ellipse cx="0" cy="-20" rx="34" ry="20" fill={hue} fillOpacity="0.1" />
-      </g>
-      {/* Empfangsklingel */}
-      <g transform="translate(186 122)">
-        <path d="M-19 0a19 19 0 0 1 38 0z" fill={hue} fillOpacity="0.85" />
-        <rect x="-24" y="0" width="48" height="4" rx="2" fill={hue} fillOpacity="0.7" />
-        <path d="M0 -19v-5" stroke={hue} strokeOpacity="0.85" strokeWidth="2.6" strokeLinecap="round" />
-        <circle cx="0" cy="-26" r="3.4" fill={hue} fillOpacity="0.9" />
-      </g>
-      {/* Koffer im Vordergrund */}
-      <g transform="translate(44 180)">
-        <rect x="-24" y="-44" width="48" height="44" rx="4" fill={NIGHT} />
-        <rect x="-24" y="-44" width="48" height="44" rx="4" fill="none" stroke={hue} strokeOpacity="0.5" strokeWidth="2" />
-        <path d="M-9 -44v-9a9 9 0 0 1 18 0v9" fill="none" stroke={hue} strokeOpacity="0.5" strokeWidth="2.6" />
-        <path d="M-24 -28h48" stroke={hue} strokeOpacity="0.3" strokeWidth="1.6" />
-      </g>
-    </g>
-  );
-}
-
-/* ── BAHNHOF: Bahnsteig mit Zug, Wartenden, Anzeigetafel und Uhr ─────────── */
-function Station({ hue, id }: { hue: string; id: string }) {
-  return (
-    <g>
-      {/* FERN: Dachkonstruktion mit Trägern */}
-      <rect x="0" y="0" width="400" height="14" fill={MIDDARK} fillOpacity="0.85" />
-      <path d="M0 14h400" stroke={hue} strokeOpacity="0.3" strokeWidth="1.6" />
-      {[30, 130, 270, 372].map((x, i) => (
-        <path key={i} d={`M${x} 14v${i === 0 || i === 3 ? 108 : 52}`} stroke={hue} strokeOpacity="0.26" strokeWidth="2.6" />
-      ))}
-      {/* Deckenlampen mit Kegeln */}
-      {[80, 200, 320].map((x, i) => (
-        <g key={i}>
-          <path d={`M${x} 14v10`} stroke={hue} strokeOpacity="0.5" strokeWidth="1.6" />
-          <ellipse cx={x} cy="26" rx="9" ry="4" fill={hue} fillOpacity="0.7" />
-          <Beam x={x} y={30} w={40} h={34} id={id} />
-        </g>
-      ))}
-
-      {/* Anzeigetafel */}
-      <rect x="42" y="30" width="72" height="34" rx="3" fill={MIDDARK} fillOpacity="0.95" />
-      <rect x="42" y="30" width="72" height="34" rx="3" fill="none" stroke={hue} strokeOpacity="0.4" strokeWidth="1.6" />
-      {[0, 1, 2].map((r) => (
-        <g key={r}>
-          <rect x="48" y={36 + r * 9} width="30" height="4" rx="2" fill={hue} fillOpacity="0.45" />
-          <rect x="84" y={36 + r * 9} width="24" height="4" rx="2" fill={hue} fillOpacity="0.25" />
-        </g>
-      ))}
-      {/* Bahnhofsuhr */}
-      <g transform="translate(148 46)">
-        <circle r="16" fill={MIDDARK} fillOpacity="0.95" />
-        <circle r="16" fill="none" stroke={hue} strokeOpacity="0.6" strokeWidth="2" />
-        <path d="M0 0v-9M0 0l7 5" stroke={hue} strokeOpacity="0.9" strokeWidth="2.2" strokeLinecap="round" />
-      </g>
-
-      {/* MITTE: Zug am Bahnsteig */}
-      <g>
-        <path d="M196 122V60a12 12 0 0 1 12-12h148a44 44 0 0 1 44 44v30z" fill={hue} fillOpacity="0.42" />
-        <path d="M196 122V60a12 12 0 0 1 12-12h148a44 44 0 0 1 44 44v30z" fill="none" stroke={hue} strokeOpacity="0.75" strokeWidth="2" />
-        {/* Seitenfenster mit Licht + Fahrgästen */}
-        {[212, 258, 304].map((x, i) => (
-          <g key={i}>
-            <rect x={x} y="60" width="36" height="22" rx="3" fill={hue} fillOpacity="0.3" />
-            <rect x={x} y="60" width="36" height="22" rx="3" fill="none" stroke={hue} strokeOpacity="0.5" strokeWidth="1.4" />
-            <Person x={x + 18} y={82} s={0.42} opacity={0.55} />
+      return (
+        <>
+          <g filter={far} opacity="0.85">
+            <rect x="22" y="40" width="120" height="3.4" fill={C.wood} />
+            <rect x="22" y="70" width="120" height="3.4" fill={C.wood} />
+            {Array.from({ length: 7 }, (_, i) => (
+              <g key={i}>
+                <path d={`M${30 + i * 16} 40 l0 -10 q5 -2.6 10 0 l0 10 Z`} fill="#C9C4B8" />
+                <path d={`M${35 + i * 16} 40 l0 -10 q2.5 -1.3 5 0 l0 10 Z`} fill="#000" opacity="0.22" />
+              </g>
+            ))}
+            {Array.from({ length: 5 }, (_, i) => (
+              <rect key={i} x={32 + i * 22} y="52" width="14" height="18" rx="1.6" fill={C.brass} opacity="0.5" />
+            ))}
           </g>
-        ))}
-        {/* Führerstand */}
-        <path d="M352 56h6a36 36 0 0 1 34 34h-40z" fill={MIDDARK} fillOpacity="0.9" />
-        <path d="M352 56h6a36 36 0 0 1 34 34h-40z" fill="none" stroke={hue} strokeOpacity="0.5" strokeWidth="1.6" />
-        {/* Türen */}
-        <path d="M240 90v32M290 90v32" stroke={hue} strokeOpacity="0.3" strokeWidth="1.6" />
-        {/* Scheinwerfer + Lichtwurf */}
-        <circle cx="384" cy="106" r="5.5" fill="#FFF4DB" fillOpacity="0.9" />
-        <ellipse cx="384" cy="122" rx="26" ry="6" fill="#FFF4DB" fillOpacity="0.12" />
-        {/* Räder */}
-        <circle cx="238" cy="124" r="10" fill={NIGHT} />
-        <circle cx="304" cy="124" r="10" fill={NIGHT} />
-      </g>
-
-      {/* MENSCHEN: Wartende mit Koffer */}
-      <Person x={78} y={122} s={1.05} />
-      <Person x={104} y={122} s={0.92} opacity={0.85} />
-      <g transform="translate(122 122)">
-        <rect x="-9" y="-20" width="18" height="20" rx="2" fill={NIGHT} />
-        <path d="M-4 -20v-4a4 4 0 0 1 8 0v4" fill="none" stroke={NIGHT} strokeWidth="2" />
-      </g>
-      <Person x={166} y={122} s={0.98} opacity={0.9} />
-
-      {/* NAH: Bahnsteig mit Sicherheitslinie und Gleis */}
-      <rect x="0" y="122" width="400" height="58" fill={NIGHT} fillOpacity="0.96" />
-      <path d="M0 122h400" stroke={hue} strokeOpacity="0.6" strokeWidth="2.4" />
-      <path d="M0 132h400" stroke={hue} strokeOpacity="0.25" strokeWidth="3" strokeDasharray="14 10" />
-    </g>
-  );
-}
-
-/* ── GESCHÄFT: Laden mit Kleiderstange, Regalen und Verkäuferin ──────────── */
-function Shop({ hue, id }: { hue: string; id: string }) {
-  return (
-    <g>
-      {/* FERN: Wand mit Deckenstrahlern */}
-      <rect x="0" y="0" width="400" height="122" fill={MIDDARK} fillOpacity="0.5" />
-      <rect x="0" y="0" width="400" height="12" fill={MIDDARK} fillOpacity="0.9" />
-      {[60, 200, 340].map((x, i) => (
-        <g key={i}>
-          <ellipse cx={x} cy="14" rx="10" ry="4" fill={hue} fillOpacity="0.65" />
-          <Beam x={x} y={18} w={52} h={44} id={id} />
-        </g>
-      ))}
-
-      {/* Wandregale mit Waren */}
-      <path d="M14 60h116M14 96h116" stroke={hue} strokeOpacity="0.32" strokeWidth="2" />
-      {[
-        [22, 60, 16, 18],
-        [44, 60, 12, 24],
-        [62, 60, 18, 14],
-        [86, 60, 13, 22],
-        [106, 60, 16, 16],
-        [22, 96, 14, 20],
-        [42, 96, 18, 15],
-        [66, 96, 12, 23],
-        [84, 96, 16, 18],
-        [106, 96, 14, 21],
-      ].map(([x, y, w, h], i) => (
-        <rect key={i} x={x} y={y - h} width={w} height={h} rx="2" fill={hue} fillOpacity={0.24 + (i % 3) * 0.12} />
-      ))}
-
-      {/* Kleiderstange mit hängenden Stücken */}
-      <path d="M252 40h124" stroke={hue} strokeOpacity="0.5" strokeWidth="2.4" />
-      <path d="M260 22v18M368 22v18" stroke={hue} strokeOpacity="0.35" strokeWidth="2" />
-      {[266, 288, 310, 332, 354].map((x, i) => (
-        <g key={i}>
-          <path d={`M${x} 40v6`} stroke={hue} strokeOpacity="0.5" strokeWidth="1.4" />
-          <path
-            d={`M${x} 46l-11 8 4 40h14l4-40z`}
-            fill={hue}
-            fillOpacity={0.22 + (i % 3) * 0.1}
+          {[92, 200, 308].map((x) => (
+            <Pendant key={x} x={x} y={38} glow={glow} spread={50} floor={126} />
+          ))}
+          <Figure x={276} y={124} h={52} coat={5} flip lightFrom="left" seated />
+          <rect y="124" width={W} height="56" fill={C.wood} />
+          <rect y="124" width={W} height="4" fill={C.lampCore} opacity="0.45" />
+          <rect y="128" width={W} height="52" fill="#000" opacity="0.42" />
+          <rect x="126" y="98" width="128" height="26" fill="#0E0A07" opacity="0.5" />
+          <rect
+            x="126"
+            y="98"
+            width="128"
+            height="26"
+            fill={C.glass}
+            opacity="0.13"
+            stroke="#CFE6EC"
+            strokeOpacity="0.32"
+            strokeWidth="1"
           />
-        </g>
-      ))}
+          <rect x="126" y="98" width="128" height="7" fill="#fff" opacity="0.13" />
+          {Array.from({ length: 5 }, (_, i) => (
+            <g key={i} transform={`translate(${143 + i * 24} 116)`}>
+              <ellipse rx="8.6" ry="5" fill={C.bun} />
+              <ellipse cy="-1.6" rx="8.6" ry="4.2" fill="#D89A5C" />
+              <path d="M-5 -2.4 q5 -2.8 10 0" stroke={C.icing} strokeWidth="1.4" fill="none" opacity="0.85" />
+            </g>
+          ))}
+          <Figure x={66} y={146} h={54} coat={2} lightFrom="right" />
+          <g transform="translate(92 118)">
+            <path d="M-7.5 0 q0 8.5 7.5 8.5 q7.5 0 7.5 -8.5 Z" fill="#E4E0D6" />
+            <path d="M0 0 q7.5 0 7.5 8.5 q-3.8 0 -7.5 -8.5 Z" fill="#000" opacity="0.16" />
+            <ellipse rx="7.5" ry="1.9" fill="#3A2A1C" />
+          </g>
+        </>
+      );
 
-      {/* MENSCH: Verkäuferin (mit Gegenlicht) */}
-      <ellipse cx="186" cy="108" rx="44" ry="32" fill={hue} fillOpacity="0.2" />
-      <Person x={186} y={122} s={1.12} opacity={0.95} />
+    // ── HOTEL: Rezeption mit Schlüsselfächern, Lampe, Pflanze ──────────────
+    case 'hotel':
+      return (
+        <>
+          <rect x="30" y="26" width="150" height="76" rx="3" fill="#2A2438" />
+          {Array.from({ length: 18 }, (_, i) => (
+            <g key={i}>
+              <rect
+                x={38 + (i % 6) * 24}
+                y={34 + Math.floor(i / 6) * 24}
+                width="18"
+                height="18"
+                rx="1.5"
+                fill="#1A1626"
+              />
+              <rect
+                x={38 + (i % 6) * 24}
+                y={34 + Math.floor(i / 6) * 24}
+                width="18"
+                height="4"
+                fill="#fff"
+                opacity="0.07"
+              />
+              {i % 3 !== 2 && (
+                <circle
+                  cx={47 + (i % 6) * 24}
+                  cy={46 + Math.floor(i / 6) * 24}
+                  r="2.4"
+                  fill={C.brass}
+                  opacity="0.7"
+                />
+              )}
+            </g>
+          ))}
+          <Pendant x={310} y={44} glow={glow} spread={56} floor={126} />
+          <g transform="translate(212 126)">
+            <path d="M-11 0 L11 0 L8 -18 L-8 -18 Z" fill={C.wood} />
+            <ellipse cy="-18" rx="8" ry="2.4" fill="#2C1F14" />
+            <ellipse cx="-6" cy="-30" rx="9" ry="13" fill="#2E4426" />
+            <ellipse cx="6" cy="-34" rx="8" ry="14" fill="#3C5730" opacity="0.9" />
+            <ellipse cx="0" cy="-44" rx="6" ry="10" fill="#2E4426" />
+          </g>
+          <rect y="126" width={W} height="54" fill="#3A3048" />
+          <rect y="126" width={W} height="4" fill="#fff" opacity="0.12" />
+          <rect y="130" width={W} height="50" fill="#000" opacity="0.4" />
+          <rect x="252" y="112" width="42" height="14" rx="2" fill="#1A1626" />
+          <rect x="256" y="115" width="34" height="8" fill={C.glass} opacity="0.3" />
+          <Pool cx={310} cy={130} rx={72} o={0.12} />
+          <Figure x={330} y={148} h={54} coat={3} flip lightFrom="left" seated />
+          <Figure x={110} y={162} h={56} coat={0} lightFrom="right" />
+        </>
+      );
 
-      {/* NAH: Kassentresen mit Einkaufstüte */}
-      <rect x="0" y="122" width="400" height="58" fill={NIGHT} fillOpacity="0.96" />
-      <path d="M0 122h400" stroke={hue} strokeOpacity="0.55" strokeWidth="2.2" />
-      <Pool cx={200} cy={125} rx={54} hue={hue} />
-      <g transform="translate(96 122)">
-        <path d="M-26 0l6-40h40l6 40z" fill={hue} fillOpacity="0.75" />
-        <path d="M-26 0l6-40h40l6 40z" fill="none" stroke={hue} strokeOpacity="0.9" strokeWidth="2" />
-        <path d="M-11 -40a11 11 0 0 1 22 0" fill="none" stroke={hue} strokeOpacity="0.9" strokeWidth="3" />
-      </g>
-    </g>
-  );
-}
+    // ── BAHNHOF: Bahnsteig, Zug mit erleuchteten Fenstern, Anzeigetafel ────
+    case 'station':
+      return (
+        <>
+          <rect y="0" width={W} height="26" fill="#141E2A" />
+          <g stroke="#22303E" strokeWidth="2.6">
+            {[60, 160, 260, 360].map((x) => (
+              <line key={x} x1={x} y1="26" x2={x} y2="112" />
+            ))}
+          </g>
+          <rect x="118" y="30" width="128" height="30" rx="2" fill="#0A0F16" />
+          <g fill={C.lamp} opacity="0.85">
+            <rect x="126" y="37" width="34" height="4" rx="2" />
+            <rect x="126" y="46" width="52" height="4" rx="2" />
+            <rect x="206" y="37" width="30" height="4" rx="2" />
+            <rect x="216" y="46" width="20" height="4" rx="2" />
+          </g>
+          <rect x="118" y="30" width="128" height="30" rx="2" fill={C.lamp} opacity="0.09" filter={glow} />
+          <rect x="0" y="66" width={W} height="46" rx="6" fill="#5A6470" />
+          <rect x="0" y="66" width={W} height="9" fill="#fff" opacity="0.16" />
+          <rect x="0" y="100" width={W} height="12" fill="#000" opacity="0.35" />
+          <rect x="0" y="80" width={W} height="4" fill="#2E6E9E" opacity="0.7" />
+          <g fill={C.lamp} opacity="0.9">
+            {Array.from({ length: 9 }, (_, i) => (
+              <rect key={i} x={12 + i * 44} y="86" width="26" height="12" rx="1.5" />
+            ))}
+          </g>
+          <rect y="112" width={W} height="68" fill="#252A31" />
+          <rect y="112" width={W} height="5" fill="#C9A24A" opacity="0.8" />
+          <g fill="#000" opacity="0.16">
+            {Array.from({ length: 4 }, (_, i) => (
+              <rect key={i} y={124 + i * 15} width={W} height="7" />
+            ))}
+          </g>
+          <Pool cx={200} cy={122} rx={150} o={0.09} />
+          <Figure x={92} y={158} h={56} coat={0} lightFrom="right" />
+          <rect x="108" y="140" width="17" height="18" rx="2" fill="#33291E" />
+          <rect x="108" y="140" width="17" height="5" fill="#fff" opacity="0.12" />
+          <Figure x={306} y={150} h={46} coat={4} flip dim={0.35} lightFrom="left" />
+        </>
+      );
 
-/* ── ARZT: Praxis mit Ärztin, Liege, Kreuz-Schild und Regal ──────────────── */
-function Clinic({ hue, id }: { hue: string; id: string }) {
-  return (
-    <g>
-      {/* FERN: Wand mit Fenster und Deckenlicht */}
-      <rect x="0" y="0" width="400" height="122" fill={MIDDARK} fillOpacity="0.5" />
-      <rect x="286" y="18" width="100" height="62" rx="3" fill={`url(#${id}-pane)`} />
-      <rect x="286" y="18" width="100" height="62" rx="3" fill="none" stroke={hue} strokeOpacity="0.35" strokeWidth="1.8" />
-      <path d="M336 18v62M286 49h100" stroke={hue} strokeOpacity="0.2" strokeWidth="1.4" />
-      {[110, 250].map((x, i) => (
-        <g key={i}>
-          <ellipse cx={x} cy="12" rx="11" ry="4" fill={hue} fillOpacity="0.6" />
-          <Beam x={x} y={16} w={50} h={40} id={id} />
-        </g>
-      ))}
+    // ── LADEN: Regale, Kleiderstange, Kasse, Dalahäst ──────────────────────
+    case 'shop':
+      return (
+        <>
+          <rect x="14" y="34" width="120" height="4" fill={C.wood} />
+          <rect x="14" y="70" width="120" height="4" fill={C.wood} />
+          <rect x="14" y="106" width="120" height="4" fill={C.wood} />
+          {['#5E6E7A', '#7A6A52', '#4E6350', '#7A5A50', '#5A5470', '#6A6A52'].map((c, i) => (
+            <g key={i}>
+              <rect x={22 + i * 19} y="18" width="13" height="16" rx="1.5" fill={c} />
+              <rect x={22 + i * 19} y="18" width="4" height="16" fill="#fff" opacity="0.14" />
+            </g>
+          ))}
+          {['#6A5A44', '#4E6350', '#7A5A50'].map((c, i) => (
+            <rect key={i} x={26 + i * 36} y="52" width="28" height="18" rx="2" fill={c} />
+          ))}
+          {/* Dalahäst im Regal — der schwedische Augenzwinkerer */}
+          <g transform="translate(44 106) scale(1.6)">
+            <path
+              d="M3 0 L3 -6 L2 -9 Q2 -13 6 -14 L13 -14.5 Q13.5 -19 16 -21.5 L21 -23 L22.5 -20.5
+                 L20.5 -18.5 Q19.5 -16 19 -13.5 Q22 -12 22 -8 L22 -6 L20 0 L17.5 0 L18.5 -5.5
+                 L14 -4.5 L14 0 L11.5 0 L11.5 -4.5 L7 -4.5 L7 0 Z"
+              fill="#B33A2E"
+            />
+            <path d="M8 -13 q4 -2.6 8 -1 l-1 3 q-3.6 -1.2 -7 0.6 Z" fill="#2E6E9E" />
+            <circle cx="19.4" cy="-20.2" r="0.8" fill="#161616" />
+          </g>
+          <line x1="226" y1="28" x2="368" y2="28" stroke={C.steel} strokeWidth="2.8" />
+          {['#4A5A68', '#6A4A46', '#43584A', '#5A5062', '#6E6250', '#3E4A5A', '#66504A'].map((c, i) => (
+            <g key={i}>
+              <path d={`M${238 + i * 18} 28 l-7.5 16 q7.5 30 7.5 39 q0 2.6 14 0 q0 -9 7.5 -39 l-7.5 -16 Z`} fill={c} />
+              <path
+                d={`M${238 + i * 18} 28 l-7.5 16 q4.5 26 4.5 36 l4.5 0 q-1 -22 4.5 -36 l-5.5 -16 Z`}
+                fill="#fff"
+                opacity="0.1"
+              />
+            </g>
+          ))}
+          <rect y="126" width={W} height="54" fill="#242A32" />
+          <rect y="126" width={W} height="3.4" fill="#fff" opacity="0.09" />
+          <rect x="130" y="102" width="108" height="24" fill={C.wood} />
+          <rect x="130" y="102" width="108" height="4.4" fill="#fff" opacity="0.13" />
+          <rect x="196" y="88" width="26" height="14" rx="2" fill="#1A1E26" />
+          <rect x="200" y="91" width="18" height="8" fill={C.glass} opacity="0.35" />
+          <Figure x={172} y={102} h={50} coat={4} flip lightFrom="left" seated />
+          <Figure x={92} y={152} h={56} coat={1} lightFrom="right" />
+          <g transform="translate(112 130)">
+            <rect width="18" height="18" rx="1.6" fill="#5E4A38" />
+            <path d="M3.4 0 q5.6 -6.6 11.2 0" stroke="#8A7050" strokeWidth="1.7" fill="none" />
+          </g>
+        </>
+      );
 
-      {/* Kreuz-Schild an der Wand */}
-      <rect x="24" y="20" width="52" height="52" rx="9" fill={hue} fillOpacity="0.24" />
-      <rect x="24" y="20" width="52" height="52" rx="9" fill="none" stroke={hue} strokeOpacity="0.5" strokeWidth="2" />
-      <path d="M50 32v28M36 46h28" stroke={hue} strokeOpacity="0.95" strokeWidth="9" strokeLinecap="round" />
+    // ── PRAXIS: Fenster, Schrank, grünes Kreuz, Behandlungsliege ───────────
+    case 'clinic':
+      return (
+        <>
+          <rect x="24" y="24" width="96" height="70" rx="3" fill={C.glass} opacity="0.2" />
+          <rect
+            x="24"
+            y="24"
+            width="96"
+            height="70"
+            rx="3"
+            fill="none"
+            stroke="#CFE6EC"
+            strokeOpacity="0.3"
+            strokeWidth="1.4"
+          />
+          <line x1="72" y1="24" x2="72" y2="94" stroke="#0A1018" strokeWidth="2.4" />
+          <line x1="24" y1="58" x2="120" y2="58" stroke="#0A1018" strokeWidth="2.4" />
+          <rect x="266" y="34" width="110" height="60" rx="3" fill="#20303C" />
+          <rect x="266" y="34" width="110" height="60" rx="3" fill={C.glass} opacity="0.12" />
+          <rect x="266" y="62" width="110" height="3" fill="#2E4452" />
+          {['#7BE8B4', '#CFE6EC', '#E8C25A', '#CFE6EC', '#7BE8B4'].map((c, i) => (
+            <rect key={i} x={276 + i * 20} y="44" width="10" height="18" rx="1.6" fill={c} opacity="0.55" />
+          ))}
+          <g transform="translate(200 50)">
+            <circle r="20" fill={C.apotek} opacity="0.4" filter={glow} />
+            <rect x="-13" y="-4.6" width="26" height="9.2" rx="1.8" fill="#7BE8B4" />
+            <rect x="-4.6" y="-13" width="9.2" height="26" rx="1.8" fill="#7BE8B4" />
+          </g>
+          <rect y="118" width={W} height="62" fill="#1E2A34" />
+          <rect x="150" y="104" width="150" height="16" rx="4" fill="#D8DEE2" />
+          <rect x="150" y="104" width="150" height="5" rx="2.5" fill="#fff" opacity="0.35" />
+          <rect x="150" y="114" width="150" height="6" fill="#000" opacity="0.25" />
+          <g fill="#5A646E">
+            <rect x="162" y="120" width="5" height="24" />
+            <rect x="284" y="120" width="5" height="24" />
+          </g>
+          <Pool cx={200} cy={122} rx={120} color={C.glass} o={0.09} />
+          <Figure x={318} y={156} h={54} coat={4} flip lightFrom="left" />
+          <Figure x={96} y={160} h={56} coat={1} lightFrom="right" />
+        </>
+      );
 
-      {/* Regal mit Medikamenten */}
-      <path d="M96 92h96" stroke={hue} strokeOpacity="0.32" strokeWidth="2" />
-      {[
-        [102, 16, 22],
-        [124, 12, 28],
-        [142, 18, 20],
-        [166, 13, 25],
-      ].map(([x, w, h], i) => (
-        <rect key={i} x={x} y={92 - h} width={w} height={h} rx="2" fill={hue} fillOpacity={0.3 + (i % 2) * 0.15} />
-      ))}
+    // ── WERKSTATT: Auto mit offener Haube, Werkzeugtafel, Hängelampe ───────
+    case 'garage':
+      return (
+        <>
+          <rect x="26" y="34" width="110" height="48" rx="2" fill="#24242A" />
+          <g stroke={C.steel} strokeWidth="2.2">
+            <line x1="42" y1="42" x2="42" y2="64" />
+            <line x1="60" y1="42" x2="66" y2="64" />
+            <line x1="86" y1="42" x2="86" y2="60" />
+            <line x1="110" y1="44" x2="120" y2="64" />
+          </g>
+          <rect x="22" y="96" width="120" height="7" fill={C.wood} />
+          <rect x="22" y="96" width="120" height="2.4" fill={C.woodLit} opacity="0.7" />
+          <Pendant x={236} y={32} glow={glow} spread={70} floor={132} />
+          <path d="M186 110 L206 82 L272 82 L296 110 Z" fill="#5E6E7E" />
+          <path d="M210 86 L268 86 L284 108 L196 108 Z" fill="#0F1620" />
+          <path d="M210 86 L240 86 L240 108 L196 108 Z" fill="#9EB4C6" opacity="0.32" />
+          <rect x="176" y="110" width="132" height="22" rx="4" fill="#7A2E28" />
+          <rect x="176" y="110" width="132" height="7" rx="3.5" fill="#fff" opacity="0.15" />
+          <rect x="176" y="126" width="132" height="6" fill="#000" opacity="0.3" />
+          <path d="M176 110 L154 70 L165 68 L186 108 Z" fill="#8A3A32" />
+          <circle cx="198" cy="134" r="11" fill="#141418" />
+          <circle cx="198" cy="134" r="4.4" fill="#4A4E56" />
+          <circle cx="286" cy="134" r="11" fill="#141418" />
+          <circle cx="286" cy="134" r="4.4" fill="#4A4E56" />
+          <rect y="140" width={W} height="40" fill="#22242A" />
+          <Pool cx={236} cy={142} rx={120} o={0.13} />
+          <g stroke="#000" strokeOpacity="0.25" strokeWidth="0.9">
+            <path d="M0 152 H400 M0 166 H400" />
+          </g>
+          <Figure x={152} y={158} h={54} coat={2} lightFrom="right" />
+          <Figure x={344} y={162} h={56} coat={0} flip lightFrom="left" />
+        </>
+      );
 
-      {/* Untersuchungsliege */}
-      <g transform="translate(300 122)">
-        <rect x="-60" y="-24" width="120" height="12" rx="6" fill={hue} fillOpacity="0.4" />
-        <rect x="-60" y="-32" width="42" height="10" rx="5" fill={hue} fillOpacity="0.5" />
-        <path d="M-48 -12v12M44 -12v12" stroke={hue} strokeOpacity="0.35" strokeWidth="3" />
-      </g>
+    // ── ZOCKEN: Monitor als Lichtquelle, Headset, Tastatur ─────────────────
+    case 'gaming':
+      return (
+        <>
+          <g filter={far} opacity="0.75">
+            <rect x="20" y="52" width="72" height="48" rx="3" fill="#0A0D14" />
+            <rect x="24" y="56" width="64" height="40" fill={hue} opacity="0.22" />
+            <rect x="312" y="62" width="68" height="4" fill="#2A2A30" />
+            <rect x="320" y="46" width="13" height="16" rx="1.6" fill={hue} opacity="0.32" />
+            <rect x="340" y="46" width="13" height="16" rx="1.6" fill="#7A5A50" opacity="0.5" />
+          </g>
+          <rect x="122" y="26" width="164" height="94" rx="5" fill="#0A0D14" />
+          <rect x="128" y="32" width="152" height="82" fill={hue} opacity="0.34" />
+          <rect x="128" y="32" width="152" height="22" fill={hue} opacity="0.2" />
+          <g fill={hue} opacity="0.6">
+            <rect x="137" y="41" width="50" height="4.4" rx="2.2" />
+            <rect x="137" y="52" width="76" height="4.4" rx="2.2" />
+            <rect x="137" y="98" width="38" height="4.4" rx="2.2" />
+          </g>
+          <rect x="122" y="26" width="164" height="94" rx="5" fill={hue} opacity="0.1" filter={glow} />
+          <rect x="196" y="120" width="18" height="14" fill="#1A1E26" />
+          <rect x="176" y="134" width="58" height="5" rx="2.5" fill="#1A1E26" />
+          <rect y="138" width={W} height="42" fill="#2A2118" />
+          <rect y="138" width={W} height="4" fill={C.woodLit} opacity="0.55" />
+          <rect y="142" width={W} height="38" fill="#000" opacity="0.4" />
+          <Pool cx={200} cy={140} rx={140} color={hue} o={0.12} />
+          <rect x="140" y="148" width="126" height="15" rx="3" fill="#15181F" />
+          <g fill={hue} opacity="0.55">
+            {Array.from({ length: 11 }, (_, i) => (
+              <rect key={i} x={147 + i * 11} y="152" width="7" height="7" rx="1" />
+            ))}
+          </g>
+          <ellipse cx="292" cy="156" rx="9" ry="6" fill="#15181F" />
+          <Figure x={332} y={172} h={58} coat={3} flip lightFrom="left" />
+          {/* Headset über dem Kopf der Figur */}
+          <g>
+            <path d="M322 130 q10 -12 20 0" stroke={hue} strokeOpacity="0.65" strokeWidth="3" fill="none" />
+            <rect x="318" y="130" width="6" height="10" rx="2.4" fill={hue} opacity="0.65" />
+            <rect x="340" y="130" width="6" height="10" rx="2.4" fill={hue} opacity="0.65" />
+          </g>
+        </>
+      );
 
-      {/* MENSCH: Ärztin mit Stethoskop um den Hals (mit Gegenlicht) */}
-      <g>
-        <ellipse cx="210" cy="106" rx="46" ry="34" fill={hue} fillOpacity="0.2" />
-        <Person x={210} y={122} s={1.18} opacity={0.95} />
-        <path
-          d="M198 96c-4 14 4 22 12 24M222 96c4 14-4 22-12 24"
-          fill="none"
-          stroke={hue}
-          strokeOpacity="0.85"
-          strokeWidth="3.4"
-          strokeLinecap="round"
-        />
-        <circle cx="210" cy="122" r="5.5" fill={hue} fillOpacity="0.9" />
-      </g>
+    // ── RENNSTRECKE: Bolide, Curbs, Flutlicht, Zuschauer ───────────────────
+    case 'track':
+      return (
+        <>
+          <g filter={far} opacity="0.6">
+            <path d="M0 92 L128 64 L128 100 L0 100 Z" fill={C.far} />
+            {Array.from({ length: 14 }, (_, i) => (
+              <circle key={i} cx={10 + i * 9} cy={84 - i * 1.6} r="2.6" fill={hue} opacity="0.4" />
+            ))}
+          </g>
+          <line x1="332" y1="100" x2="332" y2="26" stroke={C.mid} strokeWidth="2.8" />
+          <rect x="314" y="18" width="38" height="9" rx="2" fill={C.mid} />
+          <circle cx="333" cy="24" r="16" fill={C.lampCore} opacity="0.55" filter={glow} />
+          <rect y="100" width={W} height="34" fill="#1C1F26" />
+          {Array.from({ length: 20 }, (_, i) => (
+            <rect key={i} x={i * 21} y="100" width="11" height="6" fill={i % 2 ? '#C4443A' : '#E8E4DC'} opacity="0.8" />
+          ))}
+          <Pool cx={210} cy={122} rx={110} o={0.12} />
+          <path d="M148 124 L172 108 L248 108 L272 124 Z" fill="#B8432E" />
+          <path d="M182 110 L228 110 L240 122 L170 122 Z" fill="#0F1620" />
+          <rect x="136" y="118" width="150" height="9" rx="3.4" fill="#8E3324" />
+          <rect x="136" y="118" width="150" height="3.4" rx="1.7" fill="#fff" opacity="0.18" />
+          <rect x="124" y="106" width="18" height="4.4" rx="1" fill="#1A1A1E" />
+          <rect x="278" y="100" width="22" height="4.4" rx="1" fill="#1A1A1E" />
+          <rect x="285" y="100" width="4.4" height="18" fill="#1A1A1E" />
+          <circle cx="164" cy="129" r="10" fill="#111114" />
+          <circle cx="254" cy="129" r="10" fill="#111114" />
+          <circle cx="204" cy="112" r="5.4" fill="#E8E4DC" opacity="0.85" />
+          <g fill={C.lampCore} opacity="0.3">
+            <rect x="292" y="112" width="52" height="2.2" rx="1.1" />
+            <rect x="300" y="120" width="66" height="2.2" rx="1.1" />
+            <rect x="296" y="128" width="42" height="2.2" rx="1.1" />
+          </g>
+          <rect y="134" width={W} height="46" fill="#1A1D24" />
+          <rect y="132" width={W} height="5" fill="#3A3E46" />
+          <rect y="132" width={W} height="1.6" fill="#fff" opacity="0.16" />
+          <Figure x={52} y={166} h={54} coat={0} lightFrom="right" />
+          <Figure x={86} y={170} h={48} coat={5} flip dim={0.25} lightFrom="right" />
+          <Figure x={352} y={168} h={52} coat={1} flip lightFrom="left" />
+        </>
+      );
 
-      {/* NAH: Schreibtisch */}
-      <rect x="0" y="122" width="400" height="58" fill={NIGHT} fillOpacity="0.96" />
-      <path d="M0 122h400" stroke={hue} strokeOpacity="0.55" strokeWidth="2.2" />
-      <Pool cx={110} cy={125} rx={44} hue={hue} />
-      {/* Klemmbrett + Stift */}
-      <g transform="translate(96 122)">
-        <rect x="-20" y="-28" width="40" height="28" rx="3" fill={hue} fillOpacity="0.5" />
-        <rect x="-8" y="-32" width="16" height="6" rx="2" fill={hue} fillOpacity="0.75" />
-        <path d="M-12 -20h24M-12 -13h16" stroke={NIGHT} strokeOpacity="0.55" strokeWidth="2.4" strokeLinecap="round" />
-      </g>
-    </g>
-  );
-}
+    // ── SEE: Steg, Angler, Bootshaus, Morgenlicht ──────────────────────────
+    case 'lake':
+      return (
+        <>
+          <circle cx="292" cy="86" r="16" fill="#FFE9B4" opacity="0.9" filter={glow} />
+          <circle cx="292" cy="86" r="8" fill="#FFF6DC" />
+          <g filter={far} opacity="0.55">
+            {[8, 32, 56, 80, 104, 320, 346, 372].map((x, i) => (
+              <Spruce key={x} x={x} y={100} h={24 + (i % 4) * 10} dim={0.35} />
+            ))}
+            <rect y="96" width={W} height="6" fill="#2A3E36" />
+          </g>
+          <path d="M336 96 L356 80 L376 96 Z" fill={C.slate} />
+          <rect x="340" y="96" width="32" height="22" fill={C.falu} />
+          <rect x="362" y="96" width="10" height="22" fill="#000" opacity="0.28" />
+          <rect x="348" y="102" width="9" height="11" fill="#141820" />
+          <rect y="100" width={W} height="80" fill="#20404C" />
+          <rect y="100" width={W} height="80" fill={`url(#${id}-lake)`} />
+          <defs>
+            <linearGradient id={`${id}-lake`} x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#C9C08A" stopOpacity="0.4" />
+              <stop offset="42%" stopColor="#2C4A54" stopOpacity="0.26" />
+              <stop offset="100%" stopColor="#0A171E" stopOpacity="0.7" />
+            </linearGradient>
+          </defs>
+          <g fill="#FFE9B4" opacity="0.3">
+            <rect x="264" y="108" width="52" height="1.6" rx="0.8" />
+            <rect x="250" y="118" width="78" height="1.6" rx="0.8" />
+            <rect x="270" y="130" width="56" height="1.6" rx="0.8" />
+            <rect x="242" y="144" width="94" height="1.6" rx="0.8" />
+          </g>
+          <path d="M0 140 L148 128 L148 142 L0 158 Z" fill={C.wood} />
+          <path d="M0 140 L148 128 L148 132 L0 145 Z" fill={C.woodLit} opacity="0.65" />
+          <rect x="40" y="144" width="6" height="30" fill="#2C1F14" />
+          <rect x="112" y="136" width="6" height="34" fill="#2C1F14" />
+          <Figure x={90} y={134} h={52} coat={2} lightFrom="right" />
+          <path d="M102 102 Q168 84 244 108" stroke="#D8D4C8" strokeWidth="1.6" fill="none" opacity="0.8" />
+          <line x1="244" y1="108" x2="246" y2="126" stroke="#D8D4C8" strokeWidth="0.9" opacity="0.6" />
+          <ellipse cx="246" cy="127" rx="13" ry="3" fill="none" stroke="#FFE9B4" strokeOpacity="0.4" strokeWidth="1.2" />
+          <ellipse cx="246" cy="127" rx="24" ry="5.4" fill="none" stroke="#FFE9B4" strokeOpacity="0.2" strokeWidth="1.2" />
+          <path d="M116 126 L132 126 L129 140 L119 140 Z" fill="#3A4A54" />
+        </>
+      );
 
-/* ── NEUTRAL: Nordlicht über einer Bergsilhouette ────────────────────────── */
-function Generic({ hue }: { hue: string }) {
-  return (
-    <g>
-      <path
-        d="M-20 74C70 32 160 88 250 46s130-22 170 4"
-        fill="none"
-        stroke={hue}
-        strokeOpacity="0.42"
-        strokeWidth="3.4"
-        strokeLinecap="round"
-      />
-      <path
-        d="M-20 100C80 60 170 118 260 74s130-14 170 10"
-        fill="none"
-        stroke={hue}
-        strokeOpacity="0.24"
-        strokeWidth="2.6"
-        strokeLinecap="round"
-      />
-      <path d="M0 140l70-38 62 30 66-40 70 38 62-28 70 34v44H0z" fill={MIDDARK} fillOpacity="0.85" />
-      <path d="M0 160l64-26 70 30 62-24 68 28 66-22 70 26v28H0z" fill={NIGHT} fillOpacity="0.95" />
-    </g>
-  );
-}
+    // ── STADION: Flutlicht, Rasen mit Mähstreifen, Tribüne ─────────────────
+    case 'stadium':
+      return (
+        <>
+          <path d="M0 76 L400 58 L400 100 L0 100 Z" fill={C.mid} />
+          <g fill={hue} opacity="0.3">
+            {Array.from({ length: 44 }, (_, i) => (
+              <circle key={i} cx={6 + i * 9} cy={80 - i * 0.4} r="2.4" />
+            ))}
+            {Array.from({ length: 40 }, (_, i) => (
+              <circle key={`b${i}`} cx={12 + i * 10} cy={92 - i * 0.36} r="2.2" opacity="0.7" />
+            ))}
+          </g>
+          {[56, 344].map((x) => (
+            <g key={x}>
+              <line x1={x} y1="100" x2={x} y2="20" stroke={C.night} strokeWidth="2.8" />
+              <rect x={x - 19} y="12" width="38" height="9" rx="2" fill={C.night} />
+              <circle cx={x} cy="18" r="17" fill={C.lampCore} opacity="0.5" filter={glow} />
+              <path
+                d={`M${x - 19} 21 L${x + 19} 21 L${x + 88} 130 L${x - 88} 130 Z`}
+                fill={C.lampCore}
+                opacity="0.07"
+              />
+            </g>
+          ))}
+          <rect y="100" width={W} height="80" fill="#24452C" />
+          <g fill="#000" opacity="0.14">
+            {Array.from({ length: 5 }, (_, i) => (
+              <rect key={i} y={104 + i * 16} width={W} height="8" />
+            ))}
+          </g>
+          <Pool cx={200} cy={120} rx={150} color="#DFF0D8" o={0.09} />
+          <g stroke="#E8EAE4" strokeOpacity="0.5" strokeWidth="1.8" fill="none">
+            <line x1="0" y1="130" x2="400" y2="130" />
+            <circle cx="200" cy="130" r="28" />
+            <path d="M14 112 L14 100 L58 100 L58 112" />
+          </g>
+          <Figure x={148} y={126} h={30} coat={0} dim={0.3} lightFrom="right" />
+          <Figure x={238} y={130} h={32} coat={1} flip dim={0.3} lightFrom="left" />
+          <rect y="152" width={W} height="28" fill={C.night} />
+          <Figure x={62} y={170} h={58} coat={4} lightFrom="right" />
+          <Figure x={334} y={172} h={54} coat={5} flip lightFrom="left" />
+        </>
+      );
 
-/* ── WERKSTATT: Auto auf Böcken, Werkzeugtafel, zwei Kumpels ─────────────── */
-function Garage({ hue, id }: { hue: string; id: string }) {
-  return (
-    <>
-      {/* Rückwand mit Werkzeugtafel */}
-      <rect y="0" width="400" height="180" fill={MIDDARK} opacity="0.5" />
-      <rect x="34" y="34" width="104" height="44" fill="#24242A" />
-      <g stroke="#8A8F96" strokeWidth="2">
-        <line x1="48" y1="42" x2="48" y2="62" />
-        <line x1="64" y1="42" x2="70" y2="62" />
-        <line x1="88" y1="42" x2="88" y2="58" />
-        <line x1="110" y1="44" x2="120" y2="62" />
-      </g>
-      <rect x="30" y="92" width="112" height="7" fill="#4A3524" />
-      {/* Hängelampe über dem Auto */}
-      <line x1="230" y1="0" x2="230" y2="24" stroke={NIGHT} strokeWidth="1.6" />
-      <ellipse cx="230" cy="27" rx="13" ry="4" fill="#FFE6BC" />
-      <Beam x={230} y={30} w={130} h={92} id={id} />
-      <Pool cx={230} cy={128} rx={62} hue={hue} />
-      {/* Auto mit offener Haube */}
-      <path d="M182 104 L200 80 L266 80 L288 104 Z" fill="#5E6E7E" />
-      <path d="M204 84 L262 84 L278 102 L192 102 Z" fill="#0F1620" />
-      <path d="M204 84 L234 84 L234 102 L192 102 Z" fill="#9EB4C6" opacity="0.32" />
-      <rect x="172" y="104" width="128" height="20" rx="4" fill="#7A2E28" />
-      <rect x="172" y="104" width="128" height="6" rx="3" fill="#fff" opacity="0.14" />
-      <path d="M172 104 L152 68 L162 66 L182 102 Z" fill="#8A3A32" />
-      <circle cx="194" cy="128" r="10" fill="#141418" />
-      <circle cx="194" cy="128" r="4" fill="#4A4E56" />
-      <circle cx="280" cy="128" r="10" fill="#141418" />
-      <circle cx="280" cy="128" r="4" fill="#4A4E56" />
-      {/* Boden */}
-      <rect y="136" width="400" height="44" fill={NIGHT} />
-      {/* Zwei Kumpels */}
-      <Person x={150} y={150} s={1.35} />
-      <Person x={330} y={152} s={1.25} fill={MIDDARK} />
-    </>
-  );
-}
-
-/* ── ZOCKEN: Schreibtisch, Monitor, Headset, Sprachchat ──────────────────── */
-function Gaming({ hue, id }: { hue: string; id: string }) {
-  return (
-    <>
-      <rect y="0" width="400" height="180" fill={MIDDARK} opacity="0.55" />
-      {/* Monitor als Hauptlichtquelle — das Gesicht wird von ihm beleuchtet */}
-      <rect x="128" y="28" width="152" height="86" rx="4" fill="#0A0D14" />
-      <rect x="134" y="34" width="140" height="74" fill={hue} opacity="0.34" />
-      <rect x="134" y="34" width="140" height="20" fill={hue} opacity="0.22" />
-      <g fill={hue} opacity="0.55">
-        <rect x="142" y="42" width="46" height="4" rx="2" />
-        <rect x="142" y="52" width="70" height="4" rx="2" />
-        <rect x="142" y="92" width="34" height="4" rx="2" />
-      </g>
-      <Beam x={204} y={112} w={190} h={44} id={id} />
-      <rect x="196" y="114" width="16" height="12" fill="#1A1E26" />
-      <rect x="180" y="126" width="48" height="4" rx="2" fill="#1A1E26" />
-      {/* Tastatur mit hinterleuchteten Tasten */}
-      <rect x="146" y="140" width="116" height="14" rx="3" fill="#15181F" />
-      <g fill={hue} opacity="0.5">
-        {Array.from({ length: 11 }, (_, i) => (
-          <rect key={i} x={152 + i * 10} y="144" width="6" height="6" rx="1" />
-        ))}
-      </g>
-      {/* Zwei Bildschirme im Hintergrund und ein Regal */}
-      <rect x="26" y="52" width="70" height="46" rx="3" fill="#0A0D14" />
-      <rect x="30" y="56" width="62" height="38" fill={hue} opacity="0.2" />
-      <rect x="308" y="60" width="66" height="4" fill="#2A2A30" />
-      <g fill={hue} opacity="0.3">
-        <rect x="316" y="46" width="12" height="14" rx="1.5" />
-        <rect x="334" y="46" width="12" height="14" rx="1.5" />
-      </g>
-      {/* Spieler mit Headset, vom Monitor angeleuchtet */}
-      <Person x={318} y={162} s={1.4} />
-      <path d="M310 118 q8 -10 16 0" stroke={hue} strokeOpacity="0.6" strokeWidth="2.6" fill="none" />
-      <rect x="306" y="118" width="5" height="8" rx="2" fill={hue} opacity="0.6" />
-      <rect x="325" y="118" width="5" height="8" rx="2" fill={hue} opacity="0.6" />
-      <rect y="156" width="400" height="24" fill={NIGHT} />
-    </>
-  );
-}
-
-/* ── RENNSTRECKE: Leitplanke, Boliden, Zuschauer ─────────────────────────── */
-function Track({ hue, id }: { hue: string; id: string }) {
-  return (
-    <>
-      {/* Tribüne in der Ferne */}
-      <path d="M0 88 L120 62 L120 96 L0 96 Z" fill="#111C2A" />
-      <g fill={hue} opacity="0.28">
-        {Array.from({ length: 14 }, (_, i) => (
-          <rect key={i} x={8 + i * 8} y={80 - i * 1.4} width="5" height="5" rx="1" />
-        ))}
-      </g>
-      {/* Flutlichtmast */}
-      <line x1="330" y1="96" x2="330" y2="30" stroke={MIDDARK} strokeWidth="2.4" />
-      <rect x="314" y="24" width="34" height="8" rx="2" fill={MIDDARK} />
-      <Beam x={330} y={32} w={150} h={70} id={id} />
-      {/* Streckenband mit Curbs */}
-      <rect y="96" width="400" height="30" fill="#1C1F26" />
-      <g>
-        {Array.from({ length: 20 }, (_, i) => (
-          <rect key={i} x={i * 21} y="96" width="11" height="5" fill={i % 2 ? '#C4443A' : '#E8E4DC'} opacity="0.75" />
-        ))}
-      </g>
-      <Pool cx={210} cy={118} rx={96} hue={hue} />
-      {/* Rennwagen: flach, mit Flügel und Startnummer */}
-      <g>
-        <path d="M150 118 L172 106 L246 106 L268 118 Z" fill="#B8432E" />
-        <path d="M182 108 L226 108 L236 116 L172 116 Z" fill="#0F1620" />
-        <rect x="140" y="112" width="140" height="8" rx="3" fill="#8E3324" />
-        <rect x="140" y="112" width="140" height="3" rx="1.5" fill="#fff" opacity="0.16" />
-        <rect x="130" y="102" width="16" height="4" rx="1" fill="#1A1A1E" />
-        <rect x="272" y="98" width="20" height="4" rx="1" fill="#1A1A1E" />
-        <rect x="278" y="98" width="4" height="16" fill="#1A1A1E" />
-        <circle cx="166" cy="122" r="9" fill="#111114" />
-        <circle cx="252" cy="122" r="9" fill="#111114" />
-        <circle cx="204" cy="110" r="5" fill="#E8E4DC" opacity="0.85" />
-      </g>
-      {/* Bewegungsstreifen — das Auto ist schnell */}
-      <g fill={hue} opacity="0.3">
-        <rect x="290" y="108" width="46" height="2" rx="1" />
-        <rect x="300" y="116" width="60" height="2" rx="1" />
-        <rect x="296" y="124" width="38" height="2" rx="1" />
-      </g>
-      {/* Zuschauer an der Leitplanke */}
-      <rect y="126" width="400" height="54" fill={NIGHT} />
-      <rect y="124" width="400" height="4" fill="#3A3E46" />
-      <Person x={54} y={158} s={1.3} />
-      <Person x={84} y={160} s={1.2} fill={MIDDARK} />
-      <Person x={352} y={156} s={1.25} />
-    </>
-  );
-}
-
-/* ── SEE: Steg, Angler, Bootshaus, Morgennebel ───────────────────────────── */
-function Lake({ hue }: { hue: string }) {
-  return (
-    <>
-      {/* Fernes bewaldetes Ufer */}
-      <rect y="86" width="400" height="8" fill="#22342C" />
-      {[10, 34, 58, 82, 300, 328, 356, 384].map((x, i) => (
-        <path
-          key={x}
-          d={`M${x} ${86 - (18 + (i % 3) * 8)} L${x + 8} 86 L${x - 8} 86 Z`}
-          fill="#1B2E22"
-        />
-      ))}
-      {/* Rotes Bootshaus — das schwedische Sommerbild */}
-      <path d="M330 86 L350 70 L370 86 Z" fill="#22242A" />
-      <rect x="334" y="86" width="32" height="22" fill="#8B3A2F" />
-      <rect x="356" y="86" width="10" height="22" fill={NIGHT} opacity="0.3" />
-      <rect x="342" y="92" width="9" height="11" fill="#141820" />
-      {/* Wasser mit Lichtband */}
-      <rect y="94" width="400" height="86" fill="#1B3944" />
-      <Pool cx={230} cy={110} rx={110} hue={hue} />
-      <g fill={hue} opacity="0.26">
-        <rect x="170" y="104" width="70" height="1.6" rx="0.8" />
-        <rect x="200" y="116" width="94" height="1.6" rx="0.8" />
-        <rect x="160" y="130" width="60" height="1.6" rx="0.8" />
-        <rect x="210" y="146" width="84" height="1.6" rx="0.8" />
-      </g>
-      {/* Steg */}
-      <path d="M0 132 L150 122 L150 136 L0 150 Z" fill="#4A3524" />
-      <path d="M0 132 L150 122 L150 126 L0 136 Z" fill="#7A5A38" opacity="0.65" />
-      <rect x="40" y="136" width="6" height="26" fill="#2C1F14" />
-      <rect x="112" y="130" width="6" height="30" fill="#2C1F14" />
-      {/* Angler mit Rute */}
-      <Person x={92} y={128} s={1.35} />
-      <path d="M104 100 Q170 84 244 106" stroke="#D8D4C8" strokeWidth="1.6" fill="none" opacity="0.8" />
-      <line x1="244" y1="106" x2="246" y2="124" stroke="#D8D4C8" strokeWidth="0.9" opacity="0.6" />
-      <ellipse cx="246" cy="125" rx="13" ry="3" fill="none" stroke={hue} strokeOpacity="0.4" strokeWidth="1.2" />
-      <ellipse cx="246" cy="125" rx="24" ry="5.4" fill="none" stroke={hue} strokeOpacity="0.2" strokeWidth="1.2" />
-      <path d="M118 118 L134 118 L131 132 L121 132 Z" fill="#3A4A54" />
-    </>
-  );
-}
-
-/* ── STADION: Flutlicht, Rasen, Tribüne, Zuschauer ───────────────────────── */
-function Stadium({ hue, id }: { hue: string; id: string }) {
-  return (
-    <>
-      {/* Tribünenrang mit Zuschauer-Punkten */}
-      <path d="M0 74 L400 58 L400 96 L0 96 Z" fill={MIDDARK} />
-      <g fill={hue} opacity="0.3">
-        {Array.from({ length: 44 }, (_, i) => (
-          <circle key={i} cx={6 + i * 9} cy={78 - i * 0.36} r="2.4" />
-        ))}
-        {Array.from({ length: 40 }, (_, i) => (
-          <circle key={`b${i}`} cx={12 + i * 10} cy={88 - i * 0.32} r="2.2" opacity="0.7" />
-        ))}
-      </g>
-      {/* Flutlichtmasten mit echtem Kegel */}
-      {[58, 342].map((x) => (
-        <g key={x}>
-          <line x1={x} y1="96" x2={x} y2="18" stroke={NIGHT} strokeWidth="2.6" />
-          <rect x={x - 18} y="12" width="36" height="8" rx="2" fill={NIGHT} />
-          <Beam x={x} y={20} w={170} h={82} id={id} />
-        </g>
-      ))}
-      {/* Rasen mit Mähstreifen und Mittellinie */}
-      <rect y="96" width="400" height="84" fill="#24452C" />
-      <g fill="#000" opacity="0.14">
-        {Array.from({ length: 5 }, (_, i) => (
-          <rect key={i} y={100 + i * 16} width="400" height="8" />
-        ))}
-      </g>
-      <Pool cx={200} cy={118} rx={140} hue={hue} />
-      <g stroke="#E8EAE4" strokeOpacity="0.5" strokeWidth="1.6" fill="none">
-        <line x1="0" y1="126" x2="400" y2="126" />
-        <circle cx="200" cy="126" r="26" />
-      </g>
-      {/* Tor am Rand */}
-      <g stroke="#E8EAE4" strokeOpacity="0.55" strokeWidth="2" fill="none">
-        <path d="M14 108 L14 96 L58 96 L58 108" />
-      </g>
-      {/* Spieler auf dem Rasen und Zuschauer im Vordergrund */}
-      <Person x={150} y={124} s={0.9} fill={MIDDARK} />
-      <Person x={236} y={128} s={0.95} fill={MIDDARK} />
-      <rect y="150" width="400" height="30" fill={NIGHT} />
-      <Person x={60} y={168} s={1.4} />
-      <Person x={330} y={170} s={1.3} />
-    </>
-  );
+    default:
+      return (
+        <>
+          <rect y="122" width={W} height="58" fill={C.night} />
+          <Pool cx={200} cy={126} rx={110} color={hue} o={0.16} />
+          <Figure x={200} y={156} h={56} coat={0} lightFrom="right" />
+        </>
+      );
+  }
 }
