@@ -163,7 +163,105 @@ export type Conflict = { sv: string; glosses: { de: string; where: string }[] };
  * Wörter, deren Glosse laut `content-review-schwedisch.md` bewusst vom Kontext
  * abhängt. Sie tauchen im Bericht auf, gelten aber nicht als Verdachtsfall.
  */
-const KNOWN_CONTEXT_DEPENDENT = new Set(['till', 'om', 'med', 'få', 'tack']);
+const KNOWN_CONTEXT_DEPENDENT = new Set([
+  // Ursprünglich aus `content-review-schwedisch.md`
+  'till', 'om', 'med', 'få', 'tack',
+  // Ergänzt 2026-07-25: Wörter, deren deutsche Entsprechung KEINE feste Größe
+  // ist, sondern vom Satz gebildet wird. `på` heißt auf/an/am/im/über/bei — das
+  // ist keine Uneinheitlichkeit, das ist der Unterschied zwischen zwei Sprachen.
+  // Genau deshalb steht das Dekodieren daneben: es zeigt die fremde Struktur.
+  // Präpositionen und Partikeln
+  'i', 'på', 'för', 'av', 'ut', 'in', 'upp', 'åt', 'vid', 'ur', 'efter', 'under',
+  'från', 'innan', 'än', 'ändå', 'först', 'mot', 'hos', 'genom', 'mellan', 'utan', 'ner',
+  // Hilfsverben und echte Homographen (var = wo/war, går = geht/gestern)
+  'har', 'ska', 'får', 'var', 'går', 'gör', 'är',
+  // Pronomen und Artikelwörter — Genus und Kasus kommen aus dem DEUTSCHEN Satz
+  'det', 'den', 'de', 'dem', 'som', 'en', 'ett', 'ingen', 'inget',
+  'mig', 'dig', 'sig', 'oss', 'er', 'henne', 'honom',
+  // Satz-Adverbien: „sedan" heißt seit/dann/danach, „då" dann/denn — die Nuance
+  // steht im deutschen Satz, nicht im schwedischen Wort.
+  'sedan', 'sen', 'då', 'ju', 'nog', 'väl', 'bara', 'redan', 'nu',
+]);
+
+/**
+ * Deutsche BEUGUNGSFAMILIEN der Funktionswörter.
+ *
+ * WARUM ES SIE BRAUCHT (Befund 2026-07-25): Die Konfliktliste hatte 248 Zeilen,
+ * und fast jede war harmlos — `är` als „ist/bin/bist/sind/seid" ist keine
+ * Uneinheitlichkeit, sondern deutsche Grammatik. Eine Liste, in der ein echter
+ * Fehler zwischen 240 Nicht-Fehlern steht, wird nicht gelesen; damit erfüllt
+ * sie ihren einzigen Zweck nicht (die menschliche Prüfung klein genug machen).
+ *
+ * Bewusst NUR unregelmäßige Funktionswörter: bei allem anderen reicht der
+ * gemeinsame Wortstamm. Nichts wird hier verschwiegen — die Beugungsfälle
+ * stehen weiter im Bericht, nur in einer zweiten Tabelle.
+ */
+const BEUGUNG: string[][] = [
+  ['bin', 'bist', 'ist', 'sind', 'seid', 'war', 'warst', 'waren', 'sei', 'wäre', 'sein'],
+  ['habe', 'hab', 'hast', 'hat', 'haben', 'habt', 'hatte', 'hattest', 'hatten'],
+  ['werde', 'wirst', 'wird', 'werden', 'werdet', 'wurde', 'wurden'],
+  ['kann', 'kannst', 'können', 'könnt', 'konnte', 'könnte'],
+  ['muss', 'musst', 'müssen', 'müsst', 'musste'],
+  ['soll', 'sollst', 'sollen', 'sollt', 'sollte', 'sollten'],
+  ['will', 'willst', 'wollen', 'wollt', 'wollte', 'wollten'],
+  ['darf', 'darfst', 'dürfen', 'dürft'],
+  ['mag', 'magst', 'mögen', 'mögt'],
+  ['der', 'die', 'das', 'den', 'dem', 'des'],
+  ['ein', 'eine', 'einen', 'einem', 'einer', 'eines', 'eins'],
+  ['mein', 'meine', 'meinen', 'meinem', 'meiner', 'meins'],
+  ['dein', 'deine', 'deinen', 'deinem', 'deiner', 'deins'],
+  ['gut', 'gute', 'guter', 'gutes', 'guten', 'gutem'],
+  ['sehe', 'siehst', 'sieht', 'sehen', 'seht', 'sah', 'sahen', 'gesehen'],
+  ['gebe', 'gibst', 'gibt', 'geben', 'gebt', 'gab', 'gib'],
+  ['nehme', 'nimmst', 'nimmt', 'nehmen', 'nehmt', 'nimm'],
+  ['esse', 'isst', 'essen', 'esst', 'iss', 'aß'],
+  ['spreche', 'sprichst', 'spricht', 'sprechen', 'sprecht', 'sprich'],
+  ['komme', 'kommst', 'kommt', 'kommen', 'komm', 'kam', 'kamst', 'kamen'],
+  ['weiss', 'weisst', 'wissen', 'wisst', 'wusste'],
+  ['fahre', 'fahrst', 'fahrt', 'fahren', 'fuhr', 'fuhren'],
+];
+
+const ARTIKEL = new Set(BEUGUNG[9].concat(BEUGUNG[10]));
+
+/** Glosse auf ihren Kern: Artikel weg, klein, getrimmt. */
+function kern(de: string): string {
+  const w = de.toLowerCase().trim().split(/\s+/).filter((x) => !ARTIKEL.has(x));
+  return (w.length ? w : [de.toLowerCase().trim()])
+    .join(' ')
+    // Umlaut falten: „hältst"/„halte" ist eine Beugung, der Umlaut verdeckt sie.
+    .replace(/ä/g, 'a')
+    .replace(/ö/g, 'o')
+    .replace(/ü/g, 'u')
+    .replace(/ß/g, 'ss');
+}
+
+/** Sind zwei Glossen nur zwei Formen DESSELBEN deutschen Wortes? */
+export function nurBeugung(a: string, b: string): boolean {
+  const x = kern(a);
+  const y = kern(b);
+  if (x === y) return true;
+  if (BEUGUNG.some((f) => f.includes(x) && f.includes(y))) return true;
+  // Gemeinsamer Stamm: „gehe/gehst/gehen", „meine/meinst".
+  const n = Math.min(x.length, y.length);
+  if (n < 3) return false;
+  let gleich = 0;
+  while (gleich < n && x[gleich] === y[gleich]) gleich++;
+  return gleich >= 3;
+}
+
+/**
+ * Unterscheiden sich die Glossen eines Wortes wirklich in der BEDEUTUNG?
+ * Wahr, sobald zwei von ihnen nicht als Beugung desselben Wortes durchgehen.
+ */
+export function istBedeutungsKonflikt(c: Conflict): boolean {
+  const de = c.glosses.map((g) => g.de);
+  for (let i = 0; i < de.length; i++) {
+    for (let j = i + 1; j < de.length; j++) {
+      if (!nurBeugung(de[i], de[j])) return true;
+    }
+  }
+  return false;
+}
 
 export function findConflicts(lines: Line[]): Conflict[] {
   // Nur Ein-Wort-Glossen: Mehrwort-Einträge sind feste Formeln („smaklig måltid"),
@@ -218,8 +316,14 @@ function report(lines: Line[]): { text: string; hardFindings: number } {
   const breaks = coverage.filter((c) => c.score < CONTEXT_FLOOR);
   const varied = coverage.filter((c) => c.score >= CONTEXT_FLOOR && c.score < 1);
   const conflicts = findConflicts(lines);
+  const beugung = conflicts.filter((c) => !istBedeutungsKonflikt(c));
+  const kontext = conflicts.filter(
+    (c) => istBedeutungsKonflikt(c) && KNOWN_CONTEXT_DEPENDENT.has(c.sv),
+  );
+  const bedeutung = conflicts.filter(
+    (c) => istBedeutungsKonflikt(c) && !KNOWN_CONTEXT_DEPENDENT.has(c.sv),
+  );
   const drift = findDrift(lines);
-  const suspicious = conflicts.filter((c) => !KNOWN_CONTEXT_DEPENDENT.has(c.sv));
 
   const out: string[] = [];
   const p = (s = '') => out.push(s);
@@ -252,7 +356,10 @@ function report(lines: Line[]): { text: string; hardFindings: number } {
   p(`- ❌ **A** Glossen-Lücken (hart): **${gaps.length}**`);
   p(`- ❌ **B** Kontext-Brüche (hart, Deckung < ${CONTEXT_FLOOR}): **${breaks.length}**`);
   p(`- ℹ️ **B2** starke Kontextvariation (erwünscht): **${varied.length}**`);
-  p(`- ⚠️ **C** Glossen-Konflikte: **${conflicts.length}** (davon bekannt kontextabhängig: ${conflicts.length - suspicious.length})`);
+  p(
+    `- ⚠️ **C** Glossen-Konflikte: **${conflicts.length}** — davon **${bedeutung.length} zu prüfen**, ` +
+      `${kontext.length} kontextabhängige Funktionswörter, ${beugung.length} nur deutsche Beugung`,
+  );
   p(`- ⚠️ **D** mögliche Bedeutungsdrift: **${drift.length}** (Deckung < ${DRIFT_THRESHOLD})`);
   p();
 
@@ -307,24 +414,49 @@ function report(lines: Line[]): { text: string; hardFindings: number } {
   }
   p();
 
-  p('## ⚠️ C — Glossen-Konflikte');
-  p();
-  p(
-    'Dasselbe schwedische Wort mit verschiedenen deutschen Glossen. **Vieles davon ist richtig** ' +
-      '— deutsche Beugung („bist"/„bin") und kontextabhängige Partikeln. Verdächtig ist, wo sich ' +
-      'die Bedeutungen wirklich unterscheiden.',
-  );
-  p();
-  if (!conflicts.length) {
-    p('Keine. ✅');
-  } else {
+  const tabelle = (rows: Conflict[]) => {
     p('| Schwedisch | Glossen | bekannt kontextabhängig |');
     p('|---|---|---|');
-    for (const c of conflicts) {
+    for (const c of rows) {
       const g = c.glosses.map((x) => `„${x.de}" (${x.where})`).join(' · ');
       p(`| **${c.sv}** | ${g} | ${KNOWN_CONTEXT_DEPENDENT.has(c.sv) ? 'ja' : '—'} |`);
     }
-  }
+  };
+
+  p('## ⚠️ C1 — zu prüfen');
+  p();
+  p(
+    'Dasselbe schwedische Wort, verschiedene deutsche Bedeutungen — und es ist **kein** ' +
+      'Funktionswort, bei dem das normal wäre. Hier erlebt ein Lerner den Unterschied als ' +
+      'Widerspruch. Das ist die Liste, die ein Mensch wirklich durchgehen sollte.',
+  );
+  p();
+  if (!bedeutung.length) p('Keine. ✅');
+  else tabelle(bedeutung);
+  p();
+
+  p('## ℹ️ C3 — Funktionswörter (Bedeutung kommt aus dem Satz)');
+  p();
+  p(
+    '`på` heißt auf/an/am/im/über/bei, `var` heißt wo/war/jede. Das ist keine Uneinheitlichkeit, ' +
+      'sondern der Unterschied zwischen zwei Sprachen — und genau der Grund, warum überhaupt ' +
+      'dekodiert wird. Vollständig aufgeführt, damit nichts stillschweigend verschwindet.',
+  );
+  p();
+  if (!kontext.length) p('Keine.');
+  else tabelle(kontext);
+  p();
+
+  p('## ℹ️ C2 — nur deutsche Beugung (erwartet)');
+  p();
+  p(
+    'Vollständigkeit statt Schönfärberei: Diese Fälle stehen hier, damit nichts verschwiegen ' +
+      'wird — aber „är" als „ist/bin/bist/sind" ist deutsche Grammatik, kein Befund. Die Trennung ' +
+      'gibt es, weil eine Liste aus 248 Zeilen nicht gelesen wird und damit ihren Zweck verfehlt.',
+  );
+  p();
+  if (!beugung.length) p('Keine.');
+  else tabelle(beugung);
   p();
 
   p('## ⚠️ D — mögliche Bedeutungsdrift');
@@ -355,10 +487,11 @@ export function main(): number {
   const { text, hardFindings } = report(lines);
   writeFileSync(REPORT, text, 'utf-8');
   const drift = findDrift(lines).length;
-  const conflicts = findConflicts(lines).length;
+  const alleKonflikte = findConflicts(lines);
+  const conflicts = alleKonflikte.filter(istBedeutungsKonflikt).length;
   console.log('Bericht geschrieben: docs/content-rueckuebersetzung.md');
   console.log(`  ${lines.length} Zeilen geprüft`);
-  console.log(`  hart: ${hardFindings} · Konflikte: ${conflicts} · Drift-Verdacht: ${drift}`);
+  console.log(`  hart: ${hardFindings} · Bedeutungs-Konflikte: ${conflicts} · Drift-Verdacht: ${drift}`);
   return hardFindings ? 1 : 0;
 }
 

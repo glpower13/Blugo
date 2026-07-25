@@ -67,7 +67,7 @@ const baseDialogs: Dialog[] = [
           { sv: 'varsågod', de: 'bitte' },
           { sv: 'här', de: 'hier' },
           { sv: 'är', de: 'ist' },
-          { sv: 'menyn', de: 'die Speisekarte' },
+          { sv: 'menyn', de: 'die Karte' },
         ],
       },
       {
@@ -284,7 +284,7 @@ const baseDialogs: Dialog[] = [
         decoding: [
           { sv: 'gå', de: 'geh' },
           { sv: 'rakt', de: 'gerade' },
-          { sv: 'fram', de: 'voraus' },
+          { sv: 'fram', de: 'vorwärts' },
           { sv: 'sen', de: 'dann' },
           { sv: 'till', de: 'nach' },
           { sv: 'höger', de: 'rechts' },
@@ -487,7 +487,7 @@ const baseDialogs: Dialog[] = [
           { sv: 'visst', de: 'klar' },
           { sv: 'provrummet', de: 'die Umkleidekabine' },
           { sv: 'är', de: 'ist' },
-          { sv: 'där', de: 'da' },
+          { sv: 'där', de: 'dort' },
           { sv: 'borta', de: 'drüben' },
         ],
       },
@@ -530,7 +530,7 @@ const baseDialogs: Dialog[] = [
           { sv: 'absolut', de: 'absolut' },
           { sv: 'här', de: 'hier' },
           { sv: 'är', de: 'ist' },
-          { sv: 'kvittot', de: 'der Beleg' },
+          { sv: 'kvittot', de: 'der Bon' },
         ],
       },
     ],
@@ -573,7 +573,7 @@ const baseDialogs: Dialog[] = [
         sv: 'Där borta, till höger.',
         de: 'Da drüben, nach rechts.',
         decoding: [
-          { sv: 'där', de: 'da' },
+          { sv: 'där', de: 'dort' },
           { sv: 'borta', de: 'drüben' },
           { sv: 'till', de: 'nach' },
           { sv: 'höger', de: 'rechts' },
@@ -632,7 +632,7 @@ const baseDialogs: Dialog[] = [
         de: 'Geradeaus. Mach es gut!',
         decoding: [
           { sv: 'rakt', de: 'gerade' },
-          { sv: 'fram', de: 'voraus' },
+          { sv: 'fram', de: 'vorwärts' },
           { sv: 'ha', de: 'hab' },
           { sv: 'det', de: 'es' },
           { sv: 'bra', de: 'gut' },
@@ -1000,7 +1000,7 @@ const baseDialogs: Dialog[] = [
         speaker: 'partner',
         sv: 'Samma som igår. Kolla chatten.',
         de: 'Dasselbe wie gestern. Schau in den Chat.',
-        decoding: [{ sv: 'samma', de: 'dasselbe' }, { sv: 'som', de: 'wie' }, { sv: 'igår', de: 'gestern' }, { sv: 'kolla', de: 'schau' }, { sv: 'chatten', de: 'den Chat' }],
+        decoding: [{ sv: 'samma', de: 'gleiche' }, { sv: 'som', de: 'wie' }, { sv: 'igår', de: 'gestern' }, { sv: 'kolla', de: 'schau' }, { sv: 'chatten', de: 'den Chat' }],
       },
       {
         id: 'z6',
@@ -1166,7 +1166,7 @@ const baseDialogs: Dialog[] = [
         speaker: 'partner',
         sv: 'Lite. Två små i morse.',
         de: 'Ein wenig. Zwei kleine heute Morgen.',
-        decoding: [{ sv: 'lite', de: 'wenig' }, { sv: 'två', de: 'zwei' }, { sv: 'små', de: 'kleine' }, { sv: 'i', de: 'in' }, { sv: 'morse', de: 'Frühe' }],
+        decoding: [{ sv: 'lite', de: 'wenig' }, { sv: 'två', de: 'zwei' }, { sv: 'små', de: 'kleine' }, { sv: 'i', de: 'in' }, { sv: 'morse', de: 'Morgen' }],
       },
       {
         id: 'f4',
@@ -1267,7 +1267,7 @@ const baseDialogs: Dialog[] = [
         speaker: 'partner',
         sv: 'Där! Han sköt!',
         de: 'Da! Er hat geschossen!',
-        decoding: [{ sv: 'där', de: 'da' }, { sv: 'han', de: 'er' }, { sv: 'sköt', de: 'schoss' }],
+        decoding: [{ sv: 'där', de: 'dort' }, { sv: 'han', de: 'er' }, { sv: 'sköt', de: 'schoss' }],
       },
       {
         id: 'm5',
@@ -1413,7 +1413,7 @@ const baseDialogs: Dialog[] = [
         sv: 'Hej då {name}!',
         de: 'Tschüss {name}!',
         decoding: [
-          { sv: 'hej', de: 'tschüss' },
+          { sv: 'hej', de: 'hallo' },
           { sv: 'då', de: 'dann' },
         ],
       },
@@ -1525,7 +1525,7 @@ const baseDialogs: Dialog[] = [
         decoding: [
           { sv: 'tack', de: 'danke' },
           { sv: 'vi', de: 'wir' },
-          { sv: 'ses', de: 'sehen' },
+          { sv: 'ses', de: 'sehen uns' },
           { sv: 'på', de: 'auf' },
           { sv: 'fredag', de: 'Freitag' },
         ],

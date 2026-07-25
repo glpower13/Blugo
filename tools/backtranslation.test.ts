@@ -5,6 +5,8 @@
 
 import { describe, expect, it } from 'vitest';
 import {
+  nurBeugung,
+  istBedeutungsKonflikt,
   CONTEXT_FLOOR,
   collectLines,
   findConflicts,
@@ -139,5 +141,33 @@ describe('D — Bedeutungsdrift', () => {
       line({ sv: 'hjälp mig', de: 'helfe mir', decoding: [{ sv: 'hjälp', de: 'helfen' }, { sv: 'mig', de: 'mir' }] }),
     ]);
     expect(d).toHaveLength(0);
+  });
+});
+
+
+// Die Trennung „nur Beugung" / „andere Bedeutung" ist der Grund, warum die
+// Konfliktliste überhaupt lesbar ist (248 Zeilen → 84). Wenn sie zu großzügig
+// wird, verschwinden echte Fehler still — deshalb diese Tests.
+describe('Beugung von Bedeutung trennen', () => {
+  it('erkennt deutsche Beugung als dieselbe Bedeutung', () => {
+    expect(nurBeugung('ist', 'bin')).toBe(true); // unregelmäßig, per Familie
+    expect(nurBeugung('hältst', 'halte')).toBe(true); // Umlaut gefaltet
+    expect(nurBeugung('der Bon', 'den Bon')).toBe(true); // Artikel ignoriert
+    expect(nurBeugung('gehe', 'gehen')).toBe(true); // gemeinsamer Stamm
+  });
+
+  it('lässt wirklich verschiedene Bedeutungen stehen', () => {
+    expect(nurBeugung('Karte', 'kurz')).toBe(false);
+    expect(nurBeugung('wo', 'war')).toBe(false);
+    expect(nurBeugung('Tor', 'Ziel')).toBe(false);
+    // Der Fall, der den Anstoß gab: „hallo" ist nicht „tschüss".
+    expect(nurBeugung('hallo', 'tschüss')).toBe(false);
+  });
+
+  it('meldet ein Wort erst, wenn sich ZWEI Glossen wirklich unterscheiden', () => {
+    const beugung = { sv: 'är', glosses: [{ de: 'ist', where: 'a' }, { de: 'bin', where: 'b' }] };
+    const bedeutung = { sv: 'kort', glosses: [{ de: 'Karte', where: 'a' }, { de: 'kurz', where: 'b' }] };
+    expect(istBedeutungsKonflikt(beugung)).toBe(false);
+    expect(istBedeutungsKonflikt(bedeutung)).toBe(true);
   });
 });
