@@ -10,9 +10,9 @@
 
 ## Ergebnis
 
-- Geprüfte schwedische Zeichenketten: **2358**
-- Verschiedene Wörter: **319**
-- ✅ alltagshäufig belegt (Zipf ≥ 3.0): **315**
+- Geprüfte schwedische Zeichenketten: **2791**
+- Verschiedene Wörter: **366**
+- ✅ alltagshäufig belegt (Zipf ≥ 3.0): **362**
 - ⚠️ selten belegt: **4**
 - ❌ nicht belegt (Tippfehler-Verdacht): **0**
 

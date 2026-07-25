@@ -294,3 +294,25 @@ test('tab bar stays pinned to the viewport when scrolled to the end', async ({ p
   // Unterkante der Leiste == Unterkante des Fensters (±2 px für Safe-Area/Rundung)
   expect(Math.abs(box!.y + box!.height - viewport.height)).toBeLessThanOrEqual(2);
 });
+
+// Stufe C (Regression): Kein Bedienelement darf über den Bildschirmrand ragen.
+// Der „Prüfen"-Knopf stand neben dem Eingabefeld; `flex-1` schrumpft nicht unter
+// die Textbreite des Platzhalters, also lief die Zeile über und der Knopf war
+// rechts abgeschnitten. Gilt für Gespräch UND Lern-Loop.
+test('no control overflows the screen edge in a dialogue', async ({ page }) => {
+  await page.goto('/');
+  await openTab(page, 'Gespräche');
+  await page.getByRole('button', { name: /Im Restaurant: Tisch, bestellen, zahlen/ }).click();
+  await page.getByRole('button', { name: 'Aufdecken' }).click();
+  await page.getByRole('button', { name: 'Weiter' }).click();
+  await page.getByRole('button', { name: 'Weiter' }).click();
+  await expect(page.getByText('Du bist dran')).toBeVisible();
+
+  const width = page.viewportSize()!.width;
+  for (const name of ['Prüfen', 'Ja, tack.']) {
+    const box = await page.getByRole('button', { name }).boundingBox();
+    expect(box, `Knopf „${name}" hat keine Box`).not.toBeNull();
+    expect(box!.x, `„${name}" ragt links heraus`).toBeGreaterThanOrEqual(0);
+    expect(box!.x + box!.width, `„${name}" ragt rechts heraus`).toBeLessThanOrEqual(width);
+  }
+});

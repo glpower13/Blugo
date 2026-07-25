@@ -220,6 +220,13 @@ const SKIES: Record<string, [string, string][]> = {
     ['52%', '#22293A'],
     ['100%', '#2E2A26'],
   ],
+  // Früher Morgen am See — Nebel über dem Wasser, erste Sonne
+  'area-outdoors': [
+    ['0%', '#1E3348'],
+    ['40%', '#456276'],
+    ['72%', '#93A69A'],
+    ['100%', '#C9C08A'],
+  ],
   default: [
     ['0%', '#1B2440'],
     ['100%', '#2C3A4E'],
@@ -658,6 +665,62 @@ function Scene({ areaId, id, hue }: { areaId: string; id: string; hue: string })
           {/* Zwei Kumpels: einer arbeitet am Motor, einer kommt dazu */}
           <Figure x={196} y={128} h={46} coat={2} lightFrom="right" />
           <Figure x={330} y={134} h={48} coat={0} flip lightFrom="left" />
+        </>
+      );
+
+    // ── Sport & Draußen: Angler am See im Morgennebel ─────────────────────
+    case 'area-outdoors':
+      return (
+        <>
+          {/* Sonne knapp über dem gegenüberliegenden Ufer */}
+          <circle cx="286" cy="86" r="15" fill="#FFE9B4" opacity="0.9" filter={glow} />
+          <circle cx="286" cy="86" r="7" fill="#FFF6DC" />
+          {/* Fernes Ufer mit Nadelwald, weichgezeichnet (Nebel) */}
+          <g filter={far} opacity="0.55">
+            {[8, 30, 52, 74, 96, 118, 322, 344, 366, 388].map((x, i) => (
+              <Spruce key={x} x={x} y={94} h={22 + (i % 4) * 9} dim={0.4} />
+            ))}
+            <rect y="90" width={W} height="6" fill="#2A3E36" />
+          </g>
+          {/* Rotes Bootshaus am Ufer — das schwedische Sommerbild */}
+          <g>
+            <path d="M340 90 L360 76 L380 90 Z" fill="#2A2A30" />
+            <rect x="344" y="90" width="32" height="20" fill={C.falu} />
+            <rect x="366" y="90" width="10" height="20" fill="#000" opacity="0.28" />
+            <rect x="352" y="96" width="9" height="10" fill="#141820" />
+          </g>
+          {/* See mit Sonnenstraße und Spiegelungen */}
+          <rect y="94" width={W} height="56" fill="#20404C" />
+          <rect y="94" width={W} height="56" fill={`url(#${id}-lake)`} />
+          <defs>
+            <linearGradient id={`${id}-lake`} x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#C9C08A" stopOpacity="0.4" />
+              <stop offset="42%" stopColor="#2C4A54" stopOpacity="0.28" />
+              <stop offset="100%" stopColor="#0A171E" stopOpacity="0.72" />
+            </linearGradient>
+          </defs>
+          <g fill="#FFE9B4" opacity="0.3">
+            <rect x="262" y="100" width="48" height="1.4" rx="0.7" />
+            <rect x="250" y="108" width="72" height="1.4" rx="0.7" />
+            <rect x="268" y="117" width="52" height="1.4" rx="0.7" />
+            <rect x="244" y="127" width="88" height="1.4" rx="0.7" />
+          </g>
+          {/* Steg, der ins Bild läuft */}
+          <path d="M0 126 L138 118 L138 128 L0 140 Z" fill="#4A3524" />
+          <path d="M0 126 L138 118 L138 121 L0 129 Z" fill="#7A5A38" opacity="0.7" />
+          <g fill="#2C1F14">
+            <rect x="36" y="128" width="5" height="22" />
+            <rect x="104" y="124" width="5" height="26" />
+          </g>
+          {/* Angler auf dem Steg mit gespannter Rute */}
+          <Figure x={86} y={122} h={44} coat={2} lightFrom="right" />
+          <path d="M96 100 Q150 88 212 104" stroke="#D8D4C8" strokeWidth="1.4" fill="none" opacity="0.8" />
+          <line x1="212" y1="104" x2="214" y2="118" stroke="#D8D4C8" strokeWidth="0.8" opacity="0.6" />
+          {/* Ringe im Wasser dort, wo die Schnur eintaucht */}
+          <ellipse cx="214" cy="119" rx="11" ry="2.6" fill="none" stroke="#FFE9B4" strokeOpacity="0.4" strokeWidth="1" />
+          <ellipse cx="214" cy="119" rx="20" ry="4.4" fill="none" stroke="#FFE9B4" strokeOpacity="0.22" strokeWidth="1" />
+          {/* Eimer neben ihm */}
+          <path d="M108 112 L122 112 L120 124 L110 124 Z" fill="#3A4A54" />
         </>
       );
 

@@ -221,6 +221,29 @@ schwerer zu treffen ist als Höflichkeitsfloskeln. Gezielt draufschauen:
 - **`loppet`** vs. `tävlingen` für „das Rennen" — welches Wort ist üblicher?
 - **Duzen durchgehend:** unter Freunden richtig, aber über alle drei Szenen konsistent?
 
+## Erweiterung 2026-07-25 (später) — Bereich „Sport & Draußen" (ebenfalls ungeprüft)
+
+Zweiter moderner Bereich: **4 Themen · 23 Wendungen · 46 Kontexte · 2 Gespräche**
+(Angeln · Fußball & Zuschauen · Trainieren · Raus in die Natur). Damit stehen
+insgesamt **8 Bereiche · 25 Themen · 150 Wendungen · 13 Gespräche**.
+
+Beide Maschinenstufen grün. **Zwei harte Funde hat die Rückübersetzung selbst
+gefangen** und sie wurden behoben: ein fehlendes `i` in `s-sovaute2` und die
+undekodierten Städtenamen in `dlg-stadium/m3`. Genau dafür läuft die Prüfung mit.
+
+Gezielt gegenlesen:
+
+- **`nappar det?`** als übliche Frage unter Anglern („beißt was?") — sagt man das so?
+- **`heja!`** als Anfeuerungsruf: allein stehend richtig, oder braucht es ein Team dahinter
+  (`heja Sverige!`)?
+- **`hur står det?`** für den Spielstand — natürlich, oder eher `vad står det?`
+- **`vi ligger under`** für „wir liegen zurück": geläufige Fußball-Wendung?
+- **`jag tränar tre gånger i veckan`** — Wortstellung und `i veckan` korrekt?
+- **`du är i bra form`** — sagt man das zu jemandem, oder klingt es steif?
+- **`ska vi springa?`** für „laufen gehen" vs. `ska vi ut och springa?`
+- **`vi sover ute i natt`** — natürlich für Draußen-Übernachten, oder eher `tälta`?
+- **`lycka till`** als Abschied beim Angeln: passt der Anlass?
+
 ## Nach der Freigabe (Checkliste)
 
 - [x] **Stufe 1** — maschinelle Vorprüfung grün (`content-pruefbericht.md`, 0 unbelegte Wörter).

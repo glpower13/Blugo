@@ -457,7 +457,9 @@ export function ComprehensionLoop({
                   e.preventDefault();
                   submitTyped();
                 }}
-                className="flex gap-2"
+                /* Wie im Gespräch: Knopf UNTER dem Feld. Nebeneinander lief die
+                   Zeile auf schmalen Geräten über den Rand hinaus. */
+                className="flex flex-col gap-2"
               >
                 <input
                   lang="sv"
@@ -467,9 +469,12 @@ export function ComprehensionLoop({
                   aria-label="Antwort auf Schwedisch"
                   autoCapitalize="off"
                   autoCorrect="off"
-                  className="flex-1 rounded-lg border border-line bg-base px-3 py-2 text-paper"
+                  className="w-full min-w-0 rounded-lg border border-line bg-base px-3 py-2 text-paper"
                 />
-                <button type="submit" className="btn-gold rounded-xl px-4 py-2 font-medium text-ink">
+                <button
+                  type="submit"
+                  className="btn-gold w-full rounded-xl px-4 py-2.5 font-medium text-ink"
+                >
                   Prüfen
                 </button>
               </form>

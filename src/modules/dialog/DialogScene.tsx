@@ -23,6 +23,8 @@ const SCENE_GLOW: Record<Dialog['scene'], string> = {
   garage: 'radial-gradient(70% 42% at 50% 0%, rgba(230,160,90,.15), transparent 60%)',
   gaming: 'radial-gradient(70% 42% at 50% 0%, rgba(140,140,235,.16), transparent 60%)',
   track: 'radial-gradient(70% 42% at 50% 0%, rgba(120,190,225,.14), transparent 60%)',
+  lake: 'radial-gradient(70% 42% at 50% 0%, rgba(120,190,180,.15), transparent 60%)',
+  stadium: 'radial-gradient(70% 42% at 50% 0%, rgba(130,200,140,.15), transparent 60%)',
   generic: 'radial-gradient(70% 42% at 50% 0%, rgba(231,192,138,.12), transparent 60%)',
 };
 
@@ -393,7 +395,12 @@ function YouTurn({
               e.preventDefault();
               check();
             }}
-            className="flex gap-2"
+            /* Knopf UNTER dem Feld, nicht daneben: nebeneinander lief die Zeile
+               über den Kartenrand hinaus (flex-1 schrumpft nicht unter die
+               Textbreite des Platzhalters), der Knopf war rechts abgeschnitten.
+               Untereinander ist er nie abschneidbar, voll breit anzutippen und
+               liegt tief genug für den Daumen. */
+            className="flex flex-col gap-2"
           >
             <input
               lang="sv"
@@ -403,9 +410,12 @@ function YouTurn({
               aria-label="Antwort auf Schwedisch"
               autoCapitalize="off"
               autoCorrect="off"
-              className="flex-1 rounded-lg border border-line bg-base px-3 py-2 text-paper"
+              className="w-full min-w-0 rounded-lg border border-line bg-base px-3 py-2 text-paper"
             />
-            <button type="submit" className="btn-gold rounded-xl px-4 py-2 font-medium text-ink">
+            <button
+              type="submit"
+              className="btn-gold w-full rounded-xl px-4 py-2.5 font-medium text-ink"
+            >
               Prüfen
             </button>
           </form>

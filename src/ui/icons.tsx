@@ -217,3 +217,18 @@ export function IconWheel({ className }: P) {
     </svg>
   );
 }
+
+/** Sport & Draußen — Berg mit Sonne (Natur, raus, Bewegung). */
+export function IconPeak({ className }: P) {
+  return (
+    <svg {...box(className)} fill="none">
+      <circle cx="17.4" cy="6.6" r="2.6" stroke="currentColor" strokeWidth="1.7" />
+      <path
+        d="M2.5 19.5 L8.6 9.4 L12.4 15.2 L14.6 11.9 L21.5 19.5 Z"
+        stroke="currentColor"
+        strokeWidth="1.7"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
