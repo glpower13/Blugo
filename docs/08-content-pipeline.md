@@ -85,7 +85,7 @@ Die muttersprachliche Prüfung ist der Flaschenhals der ganzen Pipeline. Entsche
 
 1. **Maschinell, für alles** — `npm run check:content` (`tools/check-swedish.py`) prüft
    jedes schwedische Wort gegen Korpus-Häufigkeiten (`wordfreq`, Zipf-Skala) und ein
-   Wörterbuch (Hunspell `dictionary-sv`, ~154.000 Einträge) und schreibt
+   Wörterbuch (Hunspell `dictionary-sv`, 152.719 Einträge) und schreibt
    `content-pruefbericht.md`. Nicht belegte Wörter lassen den Lauf **fehlschlagen**.
 2. **Rückübersetzung** — geplant, prüft die Bedeutungstreue.
 3. **Menschlich, nur wo nötig** — Wortstellung, Idiomatik, Register, Dekodierungen

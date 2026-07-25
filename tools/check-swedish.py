@@ -5,7 +5,7 @@ Maschinelle Vorprüfung des schwedischen Seed-Inhalts (docs/gremium-content-prue
 WAS DIESES WERKZEUG BEWEIST
     Jedes schwedische Wort im Inhalt ist ein **echtes, real verwendetes**
     schwedisches Wort — belegt über korpusbasierte Häufigkeiten (`wordfreq`,
-    Zipf-Skala 0..8) und gegengeprüft an einem Wörterbuch mit ~154.000
+    Zipf-Skala 0..8) und gegengeprüft an einem Wörterbuch mit 152.719
     Einträgen (Hunspell `dictionary-sv`). Tippfehler, erfundene Wörter und
     fehlende å/ä/ö fallen dabei zuverlässig auf.
 
@@ -156,11 +156,14 @@ def main() -> int:
     lines.append("")
     lines.append("## Was dieser Bericht beweist — und was nicht")
     lines.append("")
+    # Tausenderpunkt nur auf der ZAHL bilden — nicht auf dem Satz, sonst werden
+    # auch die Kommas des Fließtexts zu Punkten.
+    entries = f"{len(dictionary):,}".replace(",", ".")
     lines.append(
         "**Geprüft:** Jedes schwedische **Wort** ist ein echtes, real verwendetes "
         "schwedisches Wort. Grundlage: korpusbasierte Häufigkeiten (`wordfreq`, "
         "Zipf-Skala 0–8) plus Abgleich mit einem Wörterbuch "
-        f"({len(dictionary):,} Einträge, Hunspell `dictionary-sv`).".replace(",", ".")
+        f"({entries} Einträge, Hunspell `dictionary-sv`)."
     )
     lines.append("")
     lines.append(
