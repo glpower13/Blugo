@@ -10,10 +10,10 @@
 
 ## Ergebnis
 
-- Geprüfte schwedische Zeichenketten: **3430**
-- Verschiedene Wörter: **427**
-- ✅ alltagshäufig belegt (Zipf ≥ 3.0): **423**
-- ⚠️ selten belegt: **4**
+- Geprüfte schwedische Zeichenketten: **3423**
+- Verschiedene Wörter: **434**
+- ✅ alltagshäufig belegt (Zipf ≥ 3.0): **429**
+- ⚠️ selten belegt: **5**
 - ❌ nicht belegt (Tippfehler-Verdacht): **0**
 
 ## ❌ Nicht belegt — zuerst anschauen
@@ -29,6 +29,7 @@ Existiert, ist aber ungewöhnlich. Für Anfänger-Inhalt oft ein Zeichen, dass e
 | **punkterat** | 1.78 | — | „Däcket är punkterat." · „Titta, däcket är punkterat!" |
 | **provrummet** | 2.22 | — | „Ursäkta, var är provrummet?" · „Var är provrummet?" |
 | **trettiofem** | 2.68 | ja | „Trettiofem kronor, tack." · „trettiofem" |
+| **skruven** | 2.80 | — | „Tack! Nu drar jag åt den sista skruven." · „skruven" |
 | **smaklig** | 2.82 | ja | „Smaklig måltid!" · „Tack, smaklig måltid!" |
 
 ## Sätze mit auffälligen Wörtern
@@ -37,6 +38,7 @@ Existiert, ist aber ungewöhnlich. Für Anfänger-Inhalt oft ein Zeichen, dass e
 |---|---|
 | Däcket är punkterat. | punkterat |
 | Smaklig måltid! | smaklig |
+| Tack! Nu drar jag åt den sista skruven. | skruven |
 | Tack, smaklig måltid! | smaklig |
 | Titta, däcket är punkterat! | punkterat |
 | Trettiofem kronor, tack. | trettiofem |
@@ -47,6 +49,7 @@ Existiert, ist aber ungewöhnlich. Für Anfänger-Inhalt oft ein Zeichen, dass e
 | däcket är punkterat | punkterat |
 | provrummet | provrummet |
 | punkterat | punkterat |
+| skruven | skruven |
 | smaklig | smaklig |
 | smaklig måltid | smaklig |
 | trettiofem | trettiofem |

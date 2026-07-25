@@ -14,8 +14,8 @@
 - ❌ **A** Glossen-Lücken (hart): **0**
 - ❌ **B** Kontext-Brüche (hart, Deckung < 0.5): **0**
 - ℹ️ **B2** starke Kontextvariation (erwünscht): **9**
-- ⚠️ **C** Glossen-Konflikte: **59** (davon bekannt kontextabhängig: 3)
-- ⚠️ **D** mögliche Bedeutungsdrift: **55** (Deckung < 0.34)
+- ⚠️ **C** Glossen-Konflikte: **60** (davon bekannt kontextabhängig: 3)
+- ⚠️ **D** mögliche Bedeutungsdrift: **50** (Deckung < 0.34)
 
 ## ❌ A — Glossen-Lücken
 
@@ -47,22 +47,25 @@ Dasselbe schwedische Wort mit verschiedenen deutschen Glossen. **Vieles davon is
 
 | Schwedisch | Glossen | bekannt kontextabhängig |
 |---|---|---|
-| **till** | „noch" (Wendung c-entill) · „zu" (Wendung c-centrum) · „nach" (Wendung c-hoger) · „zum" (Wendung c-flygplatsen) · „bescheid" (Gespräch dlg-shop/g3) · „bei" (Gespräch dlg-arzt/a1) | ja |
 | **en** | „eine" (Wendung c-entill) · „einer" (Wendung c-entimme) · „einen" (Wendung c-bror) · „ein" (Wendung c-biljett) · „einem" (Wendung c-bormedkompis) | — |
-| **ett** | „ein" (Wendung c-bokatrum) · „einem" (Wendung c-jobbarpakontor) · „eine" (Wendung c-skickarmejl) · „einen" (Segment s-bordtva1) · „eins" (Gespräch dlg-stadium/m6) | — |
+| **till** | „noch" (Wendung c-entill) · „zu" (Wendung c-centrum) · „nach" (Wendung c-hoger) · „bescheid" (Gespräch dlg-shop/g3) · „bei" (Gespräch dlg-arzt/a1) | ja |
+| **den** | „das" (Wendung c-tardenhar) · „es" (Wendung c-hurfort) · „sie" (Gespräch dlg-groceries/m7) · „die" (Gespräch dlg-garage/g9) | — |
+| **ett** | „ein" (Wendung c-bokatrum) · „einem" (Wendung c-jobbarpakontor) · „eine" (Wendung c-skickarmejl) · „eins" (Gespräch dlg-stadium/m8) | — |
 | **är** | „ist" (Wendung c-var-toa) · „bin" (Wendung c-hungrig) · „bist" (Wendung c-gammal) | — |
-| **den** | „das" (Wendung c-tardenhar) · „es" (Wendung c-tarden) · „sie" (Gespräch dlg-groceries/m7) | — |
 | **fin** | „schön" (Segment s-tarden2) · „schöne" (Segment s-hurmangarum1) · „schöner" (Segment s-akaskidor1) | — |
 | **går** | „fährt" (Wendung c-nartag) · „geht" (Wendung c-hurfort) · „gehen" (Segment s-tapadigmossa2) | — |
 | **gör** | „machst" (Wendung c-vadgordu) · „macht" (Segment s-onthar2) · „mach" (Gespräch dlg-phone/t7) | — |
 | **har** | „hast" (Wendung c-harbarn) · „habe" (Wendung c-bror) · „haben" (Wendung c-ledigtrum) | — |
+| **hör** | „hörst" (Wendung c-horduemig) · „höre" (Wendung c-hordumig) · „hör" (Gespräch dlg-phone/t5) | — |
 | **kan** | „kann" (Wendung c-hjalpa) · „kannst" (Wendung c-upprepa) · „können" (Wendung c-bokaettmote) | — |
 | **kommer** | „kommst" (Wendung c-varifran) · „komme" (Wendung c-centrum) · „kommt" (Gespräch dlg-cafe/k3) | — |
 | **på** | „auf" (Wendung c-pasvenska) · „an" (Wendung c-hallerpa) · „am" (Segment s-sesses1) | — |
 | **sen** | „später" (Wendung c-ringerdig) · „spät" (Segment s-forlat2) · „dann" (Gespräch dlg-weg/w4) | — |
 | **ses** | „sehen uns" (Wendung c-vises) · „uns sehen" (Wendung c-sesses) · „sehen" (Segment s-ledigidag1) | — |
-| **vilken** | „welcher" (Wendung c-vilkendag) · „welche" (Wendung c-storlek) · „welches" (Wendung c-vilkenbil) | — |
+| **vilken** | „welcher" (Wendung c-vilkendag) · „welche" (Wendung c-storlek) · „welch ein" (Wendung c-vilkenbil) | — |
+| **vilket** | „welches" (Wendung c-vaddatum) · „welchem" (Segment s-spar1) · „welch ein" (Gespräch dlg-stadium/m6) | — |
 | **att** | „zu" (Wendung c-trevligt) · „dass" (Segment s-forlat2) | — |
+| **av** | „ab" (Segment s-valkommenin2) · „von" (Gespräch dlg-phone/t5) | — |
 | **behöver** | „brauche" (Wendung c-lakare) · „brauchst" (Gespräch dlg-shop/g1) | — |
 | **betalar** | „zahle" (Wendung c-kontant) · „zahlst" (Gespräch dlg-shop/g7) | — |
 | **bor** | „wohnst" (Wendung c-bordu) · „wohne" (Wendung c-borilagenhet) | — |
@@ -73,19 +76,17 @@ Dasselbe schwedische Wort mit verschiedenen deutschen Glossen. **Vieles davon is
 | **får** | „darf" (Segment s-ursaktamig1) · „bekomme" (Segment s-kvitto2) | — |
 | **fint** | „schönes" (Segment s-sovaute2) · „schön" (Segment s-koketlitet1) | — |
 | **för** | „für" (Wendung c-bordtva) · „zu" (Wendung c-fordyrt) | — |
-| **förlåt** | „verzeih" (Wendung c-forlat) · „entschuldige" (Segment s-vadjobbardu2) | — |
 | **från** | „aus" (Wendung c-frantyskland) · „von" (Segment s-spar1) | — |
 | **gå** | „geh" (Segment s-raktfram1) · „gehen" (Segment s-jagfryser1) | — |
 | **ha** | „haben" (Wendung c-vill-ha) · „hab" (Wendung c-hadetbra) | — |
 | **hej** | „tschüss" (Wendung c-hejda) · „hallo" (Segment s-cafe) | — |
 | **heter** | „heiße" (Wendung c-heter) · „heißt" (Segment s-namn1) | — |
 | **hjälp** | „hilfe" (Wendung c-hjalp) · „hilf" (Segment s-hjalpe2) | — |
-| **hör** | „hörst" (Wendung c-horduemig) · „höre" (Wendung c-hordumig) | — |
-| **ingen** | „keine" (Wendung c-ingenfara) · „kein" (Gespräch dlg-gaming/z9) | — |
+| **ingen** | „keine" (Wendung c-ingenfara) · „kein" (Gespräch dlg-arzt/a5) | — |
 | **jobbar** | „arbeitest" (Wendung c-jobbar) · „arbeite" (Wendung c-jobbarpakontor) | — |
-| **klockan** | „die uhr" (Wendung c-klockan) · „uhr" (Wendung c-motetborjar) | — |
+| **klockan** | „die uhr" (Wendung c-klockan) · „uhr" (Gespräch dlg-work/w7) | — |
 | **kom** | „komm" (Segment s-loppet2) · „kamst" (Gespräch dlg-garage/g1) | — |
-| **kul** | „lustig" (Wendung c-lateskul) · „schön" (Gespräch dlg-garage/g1) | — |
+| **kul** | „spaß" (Wendung c-lateskul) · „schön" (Gespräch dlg-garage/g1) | — |
 | **ligger** | „liegt" (Wendung c-stationen) · „liegen" (Wendung c-vihalleross) | — |
 | **mår** | „befindest" (Wendung c-hej) · „befinde" (Wendung c-marbra) | — |
 | **mig** | „mir" (Wendung c-hjalpa) · „mich" (Wendung c-ursaktamig) | — |
@@ -103,9 +104,9 @@ Dasselbe schwedische Wort mit verschiedenen deutschen Glossen. **Vieles davon is
 | **tack** | „danke" (Wendung c-tack) · „bitte" (Wendung c-entill) | ja |
 | **tar** | „nimmt" (Wendung c-tiominuter) · „nehme" (Wendung c-tardenhar) | — |
 | **trevlig** | „schönen" (Gespräch dlg-restaurant/r10) · „angenehme" (Gespräch dlg-ticket/t7) | — |
+| **ut** | „hinaus" (Segment s-tapadigmossa2) · „aus" (Gespräch dlg-lake/f9) | — |
 | **utmärkt** | „ausgezeichnet" (Gespräch dlg-restaurant/r8) · „ausgezeichnete" (Gespräch dlg-shop/g7) | — |
 | **var** | „wo" (Wendung c-var-toa) · „war" (Wendung c-vargott) | — |
-| **vilket** | „welches" (Wendung c-vaddatum) · „welchem" (Segment s-spar1) | — |
 
 ## ⚠️ D — mögliche Bedeutungsdrift
 
@@ -113,9 +114,7 @@ Der wörtliche Rückbau aus den Glossen deckt die behauptete Bedeutung kaum. **O
 
 | Deckung | Schwedisch | wörtlich zurück | behauptete Bedeutung | Wo |
 |---|---|---|---|---|
-| 0 % | Hej då ! | hallo dann | Tschüss ! | Gespräch dlg-phone/t9 |
 | 0 % | Där! Han sköt! | da er schoss | Da! Er hat geschossen! | Gespräch dlg-stadium/m4 |
-| 0 % | Det blåser mycket i dag. | es weht viel in Tag | Es ist heute sehr windig. | Segment s-blasermycket1 |
 | 0 % | En gång till! | ein Mal noch | Noch einmal! | Segment s-engang1 |
 | 0 % | Ha det bra! | hab es gut | Alles Gute! | Segment s-hadetbra1 |
 | 0 % | Vad håller du på med där? | was hältst du an mit dort | Was machst du da gerade? | Segment s-hallerpa2 |
@@ -138,31 +137,28 @@ Der wörtliche Rückbau aus den Glossen deckt die behauptete Bedeutung kaum. **O
 | 0 % | jag fryser | ich friere | mir ist kalt | Wendung c-jagfryser |
 | 0 % | vad jobbar du med? | was arbeitest du mit | was machst du beruflich? | Wendung c-jobbar |
 | 0 % | vad är klockan? | was ist die Uhr | wie spät ist es? | Wendung c-klockan |
-| 0 % | det är molnigt i dag | es ist wolkig in Tag | es ist heute bewölkt | Wendung c-molnigt |
 | 0 % | jag har ont här | ich habe Schmerz hier | mir tut es hier weh | Wendung c-onthär |
 | 0 % | jag är på väg | ich bin auf Weg | ich bin unterwegs | Wendung c-pavag |
 | 0 % | smaklig måltid | schmackhaft Mahlzeit | guten Appetit | Wendung c-smaklig |
 | 0 % | trevligt att träffas | nett zu treffen | schön, dich kennenzulernen | Wendung c-trevligt |
 | 0 % | jag vill ha | ich will haben | ich möchte | Wendung c-vill-ha |
-| 25 % | Det är molnigt i dag igen. | es ist wolkig in Tag wieder | Es ist heute schon wieder bewölkt. | Segment s-molnigt2 |
 | 33 % | Jag förstår. Var gör det ont? | ich verstehe wo macht es Schmerz | Ich verstehe. Wo tut es weh? | Gespräch dlg-arzt/a3 |
 | 33 % | Utmärkt! Smaklig måltid. | ausgezeichnet schmackhaft Mahlzeit | Ausgezeichnet! Guten Appetit. | Gespräch dlg-restaurant/r8 |
+| 33 % | Det blåser mycket idag. | es weht viel heute | Es ist heute sehr windig. | Segment s-blasermycket1 |
 | 33 % | Kom igen, en gång till! | komm wieder ein Mal noch | Komm schon, noch einmal! | Segment s-engang2 |
 | 33 % | Ingen fara, jag fixar det. | keine Gefahr ich richte das | Kein Problem, ich mache das. | Segment s-fixardet1 |
 | 33 % | Tack, ha det bra! | danke hab es gut | Danke, alles Gute! | Segment s-hadetbra2 |
 | 33 % | Hej! Vad håller du på med? | hallo was hältst du an mit | Hallo! Was machst du gerade? | Segment s-hallerpa1 |
-| 33 % | Det är halt på vägen i dag. | es ist glatt auf dem Weg in Tag | Es ist heute glatt auf der Straße. | Segment s-haltpavagen2 |
 | 33 % | Förlåt! – Ingen fara. | verzeih keine Gefahr | Entschuldigung! – Kein Problem. | Segment s-ingenfara2 |
 | 33 % | Jag fryser, ska vi gå in? | ich friere sollen wir gehen herein | Mir ist kalt, sollen wir reingehen? | Segment s-jagfryser1 |
 | 33 % | Loppet börjar snart. | das Rennen beginnt bald | Das Rennen fängt gleich an. | Segment s-loppet1 |
+| 33 % | Förlåt, jag måste lägga på. | verzeih ich muss legen auf | Entschuldigung, ich muss auflegen. | Segment s-maste-lagga-pa2 |
 | 33 % | Vänta lite, jag är på väg. | warte wenig ich bin auf Weg | Warte kurz, ich bin unterwegs. | Segment s-pavag2 |
 | 33 % | Tack, smaklig måltid! | danke schmackhaft Mahlzeit | Danke, guten Appetit! | Segment s-smaklig2 |
 | 33 % | Ska vi springa? | sollen wir laufen | Wollen wir laufen gehen? | Segment s-springa1 |
-| 33 % | Ta med paraply i dag. | nimm mit Regenschirm in Tag | Nimm heute einen Schirm mit. | Segment s-tamedparaply2 |
 | 33 % | Hej, trevligt att träffas! | hallo nett zu treffen | Hallo, schön dich kennenzulernen! | Segment s-trevligt2 |
 | 33 % | Vem vann? | wer gewann | Wer hat gewonnen? | Segment s-vemvann1 |
 | 33 % | kan vi boka ett möte? | können wir buchen ein Treffen | können wir einen Termin machen? | Wendung c-bokaettmote |
-| 33 % | jag är ledig i dag | ich bin frei in Tag | ich habe heute frei | Wendung c-ledigidag |
 | 33 % | loppet börjar snart | das Rennen beginnt bald | das Rennen fängt gleich an | Wendung c-loppet |
 | 33 % | kan jag få menyn? | kann ich bekommen die Speisekarte | kann ich die Karte haben? | Wendung c-menyn |
 | 33 % | ska vi ses? | sollen wir uns sehen | wollen wir uns treffen? | Wendung c-sesses |

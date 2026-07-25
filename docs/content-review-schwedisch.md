@@ -253,3 +253,65 @@ Gezielt gegenlesen:
 - [ ] Ggf. auf ~20 Segmente ergänzt (weitere Alltagssituationen).
 - [ ] `docs/09-roadmap.md`: M1-Punkt „~20 handgeprüfte Segmente" abhaken.
 - [ ] Kaskade erneut (A→C) grün; B angesehen.
+
+---
+
+## Durchgang 2026-07-25 — Sprachprüfung des Seed-Korpus
+
+Ein eigener Prüfdurchgang über alle 179 Wendungen, 615 Zeilen und 15 Gespräche.
+Behoben wurde nur, was **eindeutig** falsch war; alles Unsichere steht unten als
+Frage an die muttersprachliche Prüfung — nicht als stille Entscheidung.
+
+### Behoben (eindeutige Fehler)
+
+| Was | Vorher | Jetzt |
+|---|---|---|
+| **BIFF-Regel** — Negation im `att`-Nebensatz | „Problemet är att bilen **startar inte**." | „Problemet är att bilen **inte startar**." |
+| **`hej` in „hej då"** an zwei Stellen als „hallo" glossiert | wörtlich „hallo dann" für „tschüss" | `hej` = „tschüss" |
+| **9 fehlende Glossen** — Wiederholungen im Satz ohne Eintrag | „det är kallt ute men **det är** varmt inne" hatte `det är` nur einmal | jede Zeile vollständig, neuer Wächter `npm run check:decoding` |
+| **Komma nach vorangestelltem Adverbial** (im Schwedischen falsch) | „Imorgon, ska vi springa?" | „Ska vi springa imorgon?" |
+| **`först`** in „Han ligger först!" | „zuerst" (zeitlich) | „als Erster" |
+| **`till flygplatsen`** wörtlich „zum der Flughafen" | `till`=zum · `flygplatsen`=der Flughafen | `till`=zu · `flygplatsen`=dem Flughafen |
+| **`kul`** = „lustig" | `kul` ist Spaß/schön; „lustig" wäre `rolig` | „das klingt nach Spaß" |
+| **`tack` im Notfall** | „Hjälp mig, tack!" (Höflichkeitsfloskel beim Bestellen) | „Snälla, hjälp mig!" |
+| **`lycka till` zerlegt** | `lycka`=Glück + `till`=zu → „Glück zu" | eine Glosse „viel Erfolg" |
+| **Sie-Form, wo das Schwedische duzt** | „Entschuldigen **Sie**, haben **Sie** eine Minute?" bei `har du` | durchgehend geduzt |
+| **Uneinheitliche Glossen** | `förlåt` 8× „verzeih" / 2× „entschuldige"; `klockan` 12× „die Uhr" / 4× „Uhr"; `den` im selben Satz „das"/„es" | je eine Form |
+| **`idag` / `i dag`** gemischt (45 : 12) | beide Schreibungen nebeneinander | durchgehend **zusammen** (`idag`, `imorgon`, `ikväll`) |
+| **`partnerName: 'Schalter'`** | über der Sprechblase stand „SCHALTER" | „Mann am Schalter" |
+
+**Zur Schreibung `idag`:** Ehrlich dazu — Språkrådet empfiehlt die **getrennte**
+Schreibung (`i dag`). Gewählt ist trotzdem die zusammengeschriebene, weil sie im
+Alltagsschwedisch verbreitet und im Korpus bereits die Mehrheit war, und weil sie
+in der interlinearen Zeile **eine** Glosse ergibt („idag" = „heute") statt der
+irreführenden Zerlegung „in Tag". Beide Schreibungen sind korrektes Schwedisch.
+
+### Gespräche: sechs Stellen, an denen die Antwort nicht zur Frage passte
+
+- **Stadion:** Der Partner nannte den Spielstand, danach fragte der Lerner „hur står
+  det?". Der Partner sagt jetzt „Otroligt! Vilket skott."
+- **Hotel:** „För hur många nätter?" → „vad kostar en natt?" ließ die Frage offen.
+  Jetzt „Två nätter, stämmer det?".
+- **Arzt:** „Har du feber också?" blieb unbeantwortet. Jetzt „Ingen feber. Berätta mer."
+- **Büro:** „På fredag?" → „mötet börjar klockan nio". Jetzt „Vi säger på fredag."
+- **Telefon:** „Ska vi ses imorgon?" → „jag skickar ett meddelande". Jetzt
+  „Hör av dig imorgon."
+- **Werkstatt:** Der Partner fragte „Kan du hålla den här?" und sprach dann selbst
+  weiter — der Lerner kam nie zu Wort. Die Frage ist zur Aussage geworden.
+- **See:** „viel Erfolg!" als Antwort auf „Ein Hecht, schön, oder?" passte nicht.
+  Der Partner sagt jetzt „Nu kastar jag ut igen." — dann passt es.
+
+### Offen für die muttersprachliche Prüfung
+
+1. **`ni` = „ihr" statt „Sie" in der Dekodierung** (10 Stellen). Schwedisch hat seit
+   der du-Reform keine Höflichkeitsform; `ni` ist die Mehrzahl. Die idiomatische
+   deutsche Zeile bleibt „haben Sie …", weil ein deutscher Sprecher im Laden siezt.
+   *Umgesetzt* — bitte gegenlesen, ob die Trennung so trägt.
+2. **`vilken bil!`** — `vilken` ist die en-Form; die Glosse lautet jetzt „welch ein"
+   statt „welches". Trägt das?
+3. **Bestimmte Form ohne Artikel:** „ta på dig **mössa**" (üblicher: `mössan`),
+   „ta med **paraply**", „när är **frukost**?", „det var **nytt rekord**".
+   Nicht geändert — hier fehlt uns das Sprachgefühl.
+4. **Interne Kennungen passen nicht zum Inhalt** (`c-vadjobbardu` enthält „jag har
+   mycket att göra", `c-vihalleross` enthält „vi ligger under", `c-tappatvaska`
+   enthält „jag hittar inte min väska"). Kein Nutzerproblem, aber ein Wartungsrisiko.
