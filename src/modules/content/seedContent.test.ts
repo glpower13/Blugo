@@ -199,3 +199,37 @@ describe('Prüf-Stand (verification.generated.ts)', () => {
     expect(levels.filter((l) => l === 'unchecked')).toHaveLength(VERIFICATION_META.unchecked);
   });
 });
+
+// Kontextvariation ist Schritt 4 des Lern-Loops (docs/03-method.md). Über 90
+// Tage trifft der Lerner eine Wendung fünf- bis siebenmal; bei zwei Kontexten
+// liest er ab dem dritten Mal denselben Satz wieder. Gemessen lagen wir am
+// 2026-07-25 bei 2,06 — dieser Wächter hält den erreichten Stand.
+describe('Kontextvariation je Wendung', () => {
+  const kontexteVon = new Map<string, number>();
+  for (const s of seedSegments) {
+    for (const id of s.chunkIds) kontexteVon.set(id, (kontexteVon.get(id) ?? 0) + 1);
+  }
+
+  it('jede Wendung steht in mindestens zwei verschiedenen Sätzen', () => {
+    const zuDuenn = seedChunks.filter((c) => (kontexteVon.get(c.id) ?? 0) < 2);
+    expect(zuDuenn.map((c) => c.id)).toEqual([]);
+  });
+
+  it('die Kontexte einer Wendung sind wirklich verschieden', () => {
+    // Zwei identische Sätze wären zwei Einträge und ein Kontext.
+    const saetzeVon = new Map<string, string[]>();
+    for (const s of seedSegments) {
+      for (const id of s.chunkIds) saetzeVon.set(id, [...(saetzeVon.get(id) ?? []), s.sv]);
+    }
+    for (const [id, saetze] of saetzeVon) {
+      expect(new Set(saetze).size, `Wendung ${id} hat doppelte Kontexte`).toBe(saetze.length);
+    }
+  });
+
+  it('der Schnitt bleibt bei mindestens 2,5 Kontexten je Wendung', () => {
+    const summe = seedChunks.reduce((n, c) => n + (kontexteVon.get(c.id) ?? 0), 0);
+    const schnitt = summe / seedChunks.length;
+    // Kein Zielwert, sondern eine Sperrklinke: erreicht ist erreicht.
+    expect(schnitt).toBeGreaterThanOrEqual(2.5);
+  });
+});

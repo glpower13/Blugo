@@ -37,42 +37,42 @@ wir tragen nur ein, was wirklich gelesen wurde.
 - **Schwedisch:** hur mår du?
 - **Deutsch:** wie geht es dir?
 - **Wort für Wort:** hur = wie · mår = befindest · du = du
-- **Im Satz:** „Hej! Hur mår du idag?" / „God morgon! Hur mår du?"
+- **Im Satz:** „Hej! Hur mår du idag?" / „God morgon! Hur mår du?" / „God kväll! Hur mår du?"
 
 #### `c-heter` · offen
 
 - **Schwedisch:** jag heter
 - **Deutsch:** ich heiße
 - **Wort für Wort:** jag = ich · heter = heiße
-- **Im Satz:** „Jag heter Anna. Vad heter du?" / „Hej, jag heter Erik."
+- **Im Satz:** „Jag heter Anna. Vad heter du?" / „Hej, jag heter Erik." / „Välkommen! Jag heter Anna." / „Jag heter Anna. Trevligt att träffas!"
 
 #### `c-marbra` · offen
 
 - **Schwedisch:** jag mår bra
 - **Deutsch:** mir geht es gut
 - **Wort für Wort:** jag = ich · mår = befinde · bra = gut
-- **Im Satz:** „Tack, jag mår bra." / „Jag mår bra idag."
+- **Im Satz:** „Tack, jag mår bra." / „Jag mår bra idag." / „Jag mår bra, tack. Och du?"
 
 #### `c-hejda` · offen
 
 - **Schwedisch:** hej då
 - **Deutsch:** tschüss
 - **Wort für Wort:** hej = tschüss · då = dann
-- **Im Satz:** „Tack och hej då!" / „Hej då, vi ses!"
+- **Im Satz:** „Tack och hej då!" / „Hej då, vi ses!" / „Hej då, ha det bra!"
 
 #### `c-vises` · offen
 
 - **Schwedisch:** vi ses
 - **Deutsch:** wir sehen uns
 - **Wort für Wort:** vi = wir · ses = sehen uns
-- **Im Satz:** „Hej då, vi ses!" / „Vi ses imorgon." / „Okej, vi ses snart!"
+- **Im Satz:** „Hej då, vi ses!" / „Vi ses imorgon." / „Okej, vi ses snart!" / „Vi ses imorgon. Jag skickar ett meddelande." / „Jag kommer om en timme. Vi ses!"
 
 #### `c-varifran` · offen
 
 - **Schwedisch:** varifrån kommer du?
 - **Deutsch:** woher kommst du?
 - **Wort für Wort:** varifrån = woher · kommer = kommst · du = du
-- **Im Satz:** „Hej! Varifrån kommer du?" / „Och varifrån kommer du?"
+- **Im Satz:** „Hej! Varifrån kommer du?" / „Och varifrån kommer du?" / „Vad heter du, och varifrån kommer du?"
 
 ### Sich verständigen
 
@@ -81,42 +81,42 @@ wir tragen nur ein, was wirklich gelesen wurde.
 - **Schwedisch:** jag förstår inte
 - **Deutsch:** ich verstehe nicht
 - **Wort für Wort:** jag = ich · förstår = verstehe · inte = nicht
-- **Im Satz:** „Förlåt, jag förstår inte." / „Vänta, jag förstår inte riktigt."
+- **Im Satz:** „Förlåt, jag förstår inte." / „Vänta, jag förstår inte riktigt." / „Ursäkta, jag förstår inte. Kan du upprepa?" / „Jag förstår inte. Kan du prata långsammare?"
 
 #### `c-langsam` · offen
 
 - **Schwedisch:** kan du prata långsammare?
 - **Deutsch:** kannst du langsamer sprechen?
 - **Wort für Wort:** kan = kann · du = du · prata = sprechen · långsammare = langsamer
-- **Im Satz:** „Kan du prata långsammare, tack?" / „Ursäkta, kan du prata långsammare?"
+- **Im Satz:** „Kan du prata långsammare, tack?" / „Ursäkta, kan du prata långsammare?" / „Jag förstår inte. Kan du prata långsammare?"
 
 #### `c-engelska` · offen
 
 - **Schwedisch:** talar du engelska?
 - **Deutsch:** sprichst du Englisch?
 - **Wort für Wort:** talar = sprichst · du = du · engelska = Englisch
-- **Im Satz:** „Ursäkta, talar du engelska?" / „Hej, talar du engelska?"
+- **Im Satz:** „Ursäkta, talar du engelska?" / „Hej, talar du engelska?" / „Förlåt, jag förstår inte. Talar du engelska?"
 
 #### `c-upprepa` · offen
 
 - **Schwedisch:** kan du upprepa?
 - **Deutsch:** kannst du wiederholen?
 - **Wort für Wort:** kan = kannst · du = du · upprepa = wiederholen
-- **Im Satz:** „Ursäkta, kan du upprepa?" / „Kan du upprepa långsamt?"
+- **Im Satz:** „Ursäkta, kan du upprepa?" / „Kan du upprepa långsamt?" / „Ursäkta, jag förstår inte. Kan du upprepa?" / „Jag hör dig dåligt. Kan du upprepa?"
 
 #### `c-betyder` · offen
 
 - **Schwedisch:** vad betyder det?
 - **Deutsch:** was bedeutet das?
 - **Wort für Wort:** vad = was · betyder = bedeutet · det = das
-- **Im Satz:** „Vad betyder det?" / „Ursäkta, vad betyder ordet?"
+- **Im Satz:** „Vad betyder det?" / „Ursäkta, vad betyder ordet?" / „Jag förstår inte. Vad betyder det?"
 
 #### `c-pasvenska` · offen
 
 - **Schwedisch:** hur säger man det på svenska?
 - **Deutsch:** wie sagt man das auf Schwedisch?
 - **Wort für Wort:** hur = wie · säger = sagt · man = man · det = das · på = auf · svenska = Schwedisch
-- **Im Satz:** „Hur säger man det på svenska?" / „Förlåt, hur säger man det på svenska?"
+- **Im Satz:** „Hur säger man det på svenska?" / „Förlåt, hur säger man det på svenska?" / „Jag vet inte. Hur säger man det på svenska?"
 
 ### Höflich & Basics
 
@@ -125,28 +125,28 @@ wir tragen nur ein, was wirklich gelesen wurde.
 - **Schwedisch:** ja, tack
 - **Deutsch:** ja, bitte
 - **Wort für Wort:** ja = ja · tack = bitte
-- **Im Satz:** „Ja, tack, gärna." / „Kaffe? Ja, tack!"
+- **Im Satz:** „Ja, tack, gärna." / „Kaffe? Ja, tack!" / „Mer mjölk? Ja, tack."
 
 #### `c-nejtack` · offen
 
 - **Schwedisch:** nej, tack
 - **Deutsch:** nein, danke
 - **Wort für Wort:** nej = nein · tack = danke
-- **Im Satz:** „Nej, tack, jag är mätt." / „Mer kaffe? Nej, tack."
+- **Im Satz:** „Nej, tack, jag är mätt." / „Mer kaffe? Nej, tack." / „Vill du ha en påse? Nej, tack."
 
 #### `c-varsagod` · offen
 
 - **Schwedisch:** varsågod
 - **Deutsch:** bitte (hier)
 - **Wort für Wort:** varsågod = bitte
-- **Im Satz:** „Varsågod, här är menyn." / „Tack! – Varsågod."
+- **Im Satz:** „Varsågod, här är menyn." / „Tack! – Varsågod." / „Varsågod, här är kvittot." / „Varsågod! Smaklig måltid!"
 
 #### `c-ingenfara` · offen
 
 - **Schwedisch:** ingen fara
 - **Deutsch:** kein Problem
 - **Wort für Wort:** ingen = keine · fara = Gefahr
-- **Im Satz:** „Ingen fara, det är okej." / „Förlåt! – Ingen fara."
+- **Im Satz:** „Ingen fara, det är okej." / „Förlåt! – Ingen fara." / „Ingen fara, vi har tid."
 
 #### `c-forlat` · offen
 
@@ -160,7 +160,7 @@ wir tragen nur ein, was wirklich gelesen wurde.
 - **Schwedisch:** ursäkta mig
 - **Deutsch:** Entschuldigung
 - **Wort für Wort:** ursäkta = entschuldige · mig = mich
-- **Im Satz:** „Ursäkta mig, får jag komma förbi?" / „Ursäkta mig, har du en minut?"
+- **Im Satz:** „Ursäkta mig, får jag komma förbi?" / „Ursäkta mig, har du en minut?" / „Ursäkta mig, jag söker stationen."
 
 ### Telefon & Nachrichten
 
@@ -169,42 +169,42 @@ wir tragen nur ein, was wirklich gelesen wurde.
 - **Schwedisch:** jag ringer dig senare
 - **Deutsch:** ich rufe dich später an
 - **Wort für Wort:** jag = ich · ringer = rufe an · dig = dich · senare = später
-- **Im Satz:** „Jag ringer dig senare ikväll." / „Okej, jag ringer dig senare."
+- **Im Satz:** „Jag ringer dig senare ikväll." / „Okej, jag ringer dig senare." / „Jag måste lägga på. Jag ringer dig senare." / „Jag har dålig täckning. Jag ringer dig senare."
 
 #### `c-skickarmeddelande` · offen
 
 - **Schwedisch:** jag skickar ett meddelande
 - **Deutsch:** ich schicke eine Nachricht
 - **Wort für Wort:** jag = ich · skickar = schicke · ett = eine · meddelande = Nachricht
-- **Im Satz:** „Jag skickar ett meddelande när jag är hemma." / „Jag skickar ett meddelande ikväll."
+- **Im Satz:** „Jag skickar ett meddelande när jag är hemma." / „Jag skickar ett meddelande ikväll." / „Vi ses imorgon. Jag skickar ett meddelande."
 
 #### `c-hordumig` · offen
 
 - **Schwedisch:** jag hör dig dåligt
 - **Deutsch:** ich höre dich schlecht
 - **Wort für Wort:** jag = ich · hör = höre · dig = dich · dåligt = schlecht
-- **Im Satz:** „Hallå? Jag hör dig dåligt." / „Vänta, jag hör dig dåligt."
+- **Im Satz:** „Hallå? Jag hör dig dåligt." / „Vänta, jag hör dig dåligt." / „Jag hör dig dåligt. Kan du upprepa?"
 
 #### `c-daligtackning` · offen
 
 - **Schwedisch:** jag har dålig täckning
 - **Deutsch:** ich habe schlechten Empfang
 - **Wort für Wort:** jag = ich · har = habe · dålig = schlechte · täckning = Abdeckung
-- **Im Satz:** „Jag har dålig täckning här." / „Vänta, jag har dålig täckning."
+- **Im Satz:** „Jag har dålig täckning här." / „Vänta, jag har dålig täckning." / „Jag har dålig täckning. Jag ringer dig senare."
 
 #### `c-vemardet` · offen
 
 - **Schwedisch:** vem är det?
 - **Deutsch:** wer ist da?
 - **Wort für Wort:** vem = wer · är = ist · det = das
-- **Im Satz:** „Hej, vem är det?" / „Vem är det som ringer?"
+- **Im Satz:** „Hej, vem är det?" / „Vem är det som ringer?" / „Hallå? Vem är det?"
 
 #### `c-maste-lagga-pa` · offen
 
 - **Schwedisch:** jag måste lägga på
 - **Deutsch:** ich muss auflegen
 - **Wort für Wort:** jag = ich · måste = muss · lägga = legen · på = auf
-- **Im Satz:** „Jag måste lägga på nu, hej då." / „Förlåt, jag måste lägga på."
+- **Im Satz:** „Jag måste lägga på nu, hej då." / „Förlåt, jag måste lägga på." / „Jag måste lägga på. Jag ringer dig senare."
 
 ## Reisen & Unterwegs
 
@@ -215,49 +215,49 @@ wir tragen nur ein, was wirklich gelesen wurde.
 - **Schwedisch:** kan du hjälpa mig?
 - **Deutsch:** kannst du mir helfen?
 - **Wort für Wort:** kan = kann · du = du · hjälpa = helfen · mig = mir
-- **Im Satz:** „Ursäkta, kan du hjälpa mig? Vad kostar det?" / „Kan du hjälpa mig, tack?"
+- **Im Satz:** „Ursäkta, kan du hjälpa mig? Vad kostar det?" / „Kan du hjälpa mig, tack?" / „Ursäkta, kan du hjälpa mig? Jag har gått vilse."
 
 #### `c-var-toa` · offen
 
 - **Schwedisch:** var är toaletten?
 - **Deutsch:** wo ist die Toilette?
 - **Wort für Wort:** var = wo · är = ist · toaletten = die Toilette
-- **Im Satz:** „Ursäkta, var är toaletten?" / „Var är toaletten, tack?"
+- **Im Satz:** „Ursäkta, var är toaletten?" / „Var är toaletten, tack?" / „Var är toaletten? Jag hittar den inte."
 
 #### `c-stationen` · offen
 
 - **Schwedisch:** var ligger stationen?
 - **Deutsch:** wo liegt der Bahnhof?
 - **Wort für Wort:** var = wo · ligger = liegt · stationen = der Bahnhof
-- **Im Satz:** „Ursäkta, var ligger stationen?" / „Var ligger stationen, tack?"
+- **Im Satz:** „Ursäkta, var ligger stationen?" / „Var ligger stationen, tack?" / „Var ligger stationen? Jag måste åka till Stockholm."
 
 #### `c-centrum` · offen
 
 - **Schwedisch:** hur kommer jag till centrum?
 - **Deutsch:** wie komme ich ins Zentrum?
 - **Wort für Wort:** hur = wie · kommer = komme · jag = ich · till = zu · centrum = Zentrum
-- **Im Satz:** „Hur kommer jag till centrum?" / „Ursäkta, hur kommer jag till centrum?"
+- **Im Satz:** „Hur kommer jag till centrum?" / „Ursäkta, hur kommer jag till centrum?" / „Hur kommer jag till centrum? Går det en buss?"
 
 #### `c-hoger` · offen
 
 - **Schwedisch:** till höger
 - **Deutsch:** nach rechts
 - **Wort für Wort:** till = nach · höger = rechts
-- **Im Satz:** „Sväng till höger." / „Det är till höger."
+- **Im Satz:** „Sväng till höger." / „Det är till höger." / „Gå rakt fram och sväng till höger." / „Det är inte till höger, det är till vänster."
 
 #### `c-vanster` · offen
 
 - **Schwedisch:** till vänster
 - **Deutsch:** nach links
 - **Wort für Wort:** till = nach · vänster = links
-- **Im Satz:** „Sväng till vänster." / „Det är till vänster."
+- **Im Satz:** „Sväng till vänster." / „Det är till vänster." / „Det är inte till höger, det är till vänster."
 
 #### `c-raktfram` · offen
 
 - **Schwedisch:** rakt fram
 - **Deutsch:** geradeaus
 - **Wort für Wort:** rakt = gerade · fram = voraus
-- **Im Satz:** „Gå rakt fram." / „Kör rakt fram, tack."
+- **Im Satz:** „Gå rakt fram." / „Kör rakt fram, tack." / „Gå rakt fram och sväng till höger."
 
 ### Bus, Bahn & Taxi
 
@@ -266,42 +266,42 @@ wir tragen nur ein, was wirklich gelesen wurde.
 - **Schwedisch:** en biljett, tack
 - **Deutsch:** ein Ticket, bitte
 - **Wort für Wort:** en = ein · biljett = Ticket · tack = bitte
-- **Im Satz:** „En biljett till Stockholm, tack." / „Hej, en biljett, tack."
+- **Im Satz:** „En biljett till Stockholm, tack." / „Hej, en biljett, tack." / „En biljett till Malmö, tack. Vilket spår?"
 
 #### `c-nartag` · offen
 
 - **Schwedisch:** när går tåget?
 - **Deutsch:** wann fährt der Zug?
 - **Wort für Wort:** när = wann · går = fährt · tåget = der Zug
-- **Im Satz:** „Ursäkta, när går tåget?" / „När går tåget till Malmö?"
+- **Im Satz:** „Ursäkta, när går tåget?" / „När går tåget till Malmö?" / „När går tåget? Jag måste åka till Göteborg."
 
 #### `c-narbuss` · offen
 
 - **Schwedisch:** när går bussen?
 - **Deutsch:** wann fährt der Bus?
 - **Wort für Wort:** när = wann · går = fährt · bussen = der Bus
-- **Im Satz:** „När går bussen till centrum?" / „Ursäkta, när går nästa buss?"
+- **Im Satz:** „När går bussen till centrum?" / „Ursäkta, när går nästa buss?" / „När går bussen? Var är hållplatsen?"
 
 #### `c-spar` · offen
 
 - **Schwedisch:** vilket spår?
 - **Deutsch:** welches Gleis?
 - **Wort für Wort:** vilket = welches · spår = Gleis
-- **Im Satz:** „Vilket spår går tåget från?" / „Ursäkta, vilket spår?"
+- **Im Satz:** „Vilket spår går tåget från?" / „Ursäkta, vilket spår?" / „En biljett till Malmö, tack. Vilket spår?"
 
 #### `c-flygplatsen` · offen
 
 - **Schwedisch:** till flygplatsen, tack
 - **Deutsch:** zum Flughafen, bitte
 - **Wort für Wort:** till = zu · flygplatsen = dem Flughafen · tack = bitte
-- **Im Satz:** „Till flygplatsen, tack." / „Kör till flygplatsen, tack."
+- **Im Satz:** „Till flygplatsen, tack." / „Kör till flygplatsen, tack." / „Till flygplatsen, tack. Kan jag betala med kort?"
 
 #### `c-hallplats` · offen
 
 - **Schwedisch:** var är hållplatsen?
 - **Deutsch:** wo ist die Haltestelle?
 - **Wort für Wort:** var = wo · är = ist · hållplatsen = die Haltestelle
-- **Im Satz:** „Ursäkta, var är hållplatsen?" / „Var är närmaste hållplats?"
+- **Im Satz:** „Ursäkta, var är hållplatsen?" / „Var är närmaste hållplats?" / „När går bussen? Var är hållplatsen?"
 
 ### Im Hotel
 
@@ -310,42 +310,42 @@ wir tragen nur ein, was wirklich gelesen wurde.
 - **Schwedisch:** jag har bokat ett rum
 - **Deutsch:** ich habe ein Zimmer gebucht
 - **Wort für Wort:** jag = ich · har = habe · bokat = gebucht · ett = ein · rum = Zimmer
-- **Im Satz:** „Hej, jag har bokat ett rum." / „Jag har bokat ett rum för två."
+- **Im Satz:** „Hej, jag har bokat ett rum." / „Jag har bokat ett rum för två." / „Vilket datum är det? Jag har bokat ett rum."
 
 #### `c-ledigtrum` · offen
 
 - **Schwedisch:** har ni ett ledigt rum?
 - **Deutsch:** haben Sie ein freies Zimmer?
 - **Wort für Wort:** har = haben · ni = ihr · ett = ein · ledigt = freies · rum = Zimmer
-- **Im Satz:** „Har ni ett ledigt rum?" / „Ursäkta, har ni ett ledigt rum ikväll?"
+- **Im Satz:** „Har ni ett ledigt rum?" / „Ursäkta, har ni ett ledigt rum ikväll?" / „Har ni ett ledigt rum? Vad kostar en natt?"
 
 #### `c-vadnatt` · offen
 
 - **Schwedisch:** vad kostar en natt?
 - **Deutsch:** was kostet eine Nacht?
 - **Wort für Wort:** vad = was · kostar = kostet · en = eine · natt = Nacht
-- **Im Satz:** „Vad kostar en natt?" / „Vad kostar en natt för två?"
+- **Im Satz:** „Vad kostar en natt?" / „Vad kostar en natt för två?" / „Har ni ett ledigt rum? Vad kostar en natt?"
 
 #### `c-narfrukost` · offen
 
 - **Schwedisch:** när är frukost?
 - **Deutsch:** wann gibt es Frühstück?
 - **Wort für Wort:** när = wann · är = ist · frukost = Frühstück
-- **Im Satz:** „När är frukost?" / „Ursäkta, när är frukost?"
+- **Im Satz:** „När är frukost?" / „Ursäkta, när är frukost?" / „När är frukost? Jag är hungrig."
 
 #### `c-nyckeln` · offen
 
 - **Schwedisch:** kan jag få nyckeln?
 - **Deutsch:** kann ich den Schlüssel haben?
 - **Wort für Wort:** kan = kann · jag = ich · få = bekommen · nyckeln = der Schlüssel
-- **Im Satz:** „Kan jag få nyckeln, tack?" / „Hej, kan jag få nyckeln till rum tre?"
+- **Im Satz:** „Kan jag få nyckeln, tack?" / „Hej, kan jag få nyckeln till rum tre?" / „Kan jag få nyckeln? Var är rummet?"
 
 #### `c-varrummet` · offen
 
 - **Schwedisch:** var är rummet?
 - **Deutsch:** wo ist das Zimmer?
 - **Wort für Wort:** var = wo · är = ist · rummet = das Zimmer
-- **Im Satz:** „Ursäkta, var är rummet?" / „Var är rummet, tack?"
+- **Im Satz:** „Ursäkta, var är rummet?" / „Var är rummet, tack?" / „Kan jag få nyckeln? Var är rummet?"
 
 ## Essen & Café
 
@@ -356,14 +356,14 @@ wir tragen nur ein, was wirklich gelesen wurde.
 - **Schwedisch:** vad kostar det?
 - **Deutsch:** was kostet das?
 - **Wort für Wort:** vad = was · kostar = kostet · det = das
-- **Im Satz:** „Ursäkta, kan du hjälpa mig? Vad kostar det?" / „Ursäkta, vad kostar det?"
+- **Im Satz:** „Ursäkta, kan du hjälpa mig? Vad kostar det?" / „Ursäkta, vad kostar det?" / „Vad kostar det? Det är för dyrt."
 
 #### `c-tack` · offen
 
 - **Schwedisch:** tack så mycket
 - **Deutsch:** danke vielmals
 - **Wort für Wort:** tack = danke · så = so · mycket = viel
-- **Im Satz:** „Tack så mycket för hjälpen!" / „Tack så mycket, hej då!"
+- **Im Satz:** „Tack så mycket för hjälpen!" / „Tack så mycket, hej då!" / „Tack så mycket, det var gott!"
 
 #### `c-vill-ha` · offen
 
@@ -377,14 +377,14 @@ wir tragen nur ein, was wirklich gelesen wurde.
 - **Schwedisch:** kan jag få notan?
 - **Deutsch:** kann ich die Rechnung haben?
 - **Wort für Wort:** kan = kann · jag = ich · få = bekommen · notan = die Rechnung
-- **Im Satz:** „Ursäkta, kan jag få notan?" / „Kan jag få notan, tack?"
+- **Im Satz:** „Ursäkta, kan jag få notan?" / „Kan jag få notan, tack?" / „Kan jag få notan? Jag betalar kontant."
 
 #### `c-entill` · offen
 
 - **Schwedisch:** en till, tack
 - **Deutsch:** noch eine(n), bitte
 - **Wort für Wort:** en = eine · till = noch · tack = bitte
-- **Im Satz:** „En kaffe till, tack." / „En till, tack!"
+- **Im Satz:** „En kaffe till, tack." / „En till, tack!" / „En till, tack. Jag är törstig."
 
 ### Essen & Trinken
 
@@ -393,35 +393,35 @@ wir tragen nur ein, was wirklich gelesen wurde.
 - **Schwedisch:** jag är hungrig
 - **Deutsch:** ich bin hungrig
 - **Wort für Wort:** jag = ich · är = bin · hungrig = hungrig
-- **Im Satz:** „Jag är hungrig." / „Är du hungrig?"
+- **Im Satz:** „Jag är hungrig." / „Är du hungrig?" / „Jag är hungrig. Kan jag få menyn?" / „När är frukost? Jag är hungrig."
 
 #### `c-torstig` · offen
 
 - **Schwedisch:** jag är törstig
 - **Deutsch:** ich bin durstig
 - **Wort für Wort:** jag = ich · är = bin · törstig = durstig
-- **Im Satz:** „Jag är törstig." / „Är du törstig?"
+- **Im Satz:** „Jag är törstig." / „Är du törstig?" / „En till, tack. Jag är törstig." / „Jag är törstig. En kaffe, tack."
 
 #### `c-smaklig` · ⚠️ maschinell auffällig — selten belegt: smaklig
 
 - **Schwedisch:** smaklig måltid
 - **Deutsch:** guten Appetit
 - **Wort für Wort:** smaklig = schmackhaft · måltid = Mahlzeit
-- **Im Satz:** „Smaklig måltid!" / „Tack, smaklig måltid!"
+- **Im Satz:** „Smaklig måltid!" / „Tack, smaklig måltid!" / „Varsågod! Smaklig måltid!"
 
 #### `c-gillar` · offen
 
 - **Schwedisch:** jag gillar kaffe
 - **Deutsch:** ich mag Kaffee
 - **Wort für Wort:** jag = ich · gillar = mag · kaffe = Kaffee
-- **Im Satz:** „Jag gillar kaffe." / „Jag gillar kaffe med mjölk."
+- **Im Satz:** „Jag gillar kaffe." / „Jag gillar kaffe med mjölk." / „Jag gillar kaffe utan mjölk."
 
 #### `c-utanmjolk` · offen
 
 - **Schwedisch:** utan mjölk, tack
 - **Deutsch:** ohne Milch, bitte
 - **Wort für Wort:** utan = ohne · mjölk = Milch · tack = bitte
-- **Im Satz:** „En kaffe utan mjölk, tack." / „Utan mjölk, tack."
+- **Im Satz:** „En kaffe utan mjölk, tack." / „Utan mjölk, tack." / „Jag gillar kaffe utan mjölk."
 
 ### Im Restaurant
 
@@ -430,42 +430,42 @@ wir tragen nur ein, was wirklich gelesen wurde.
 - **Schwedisch:** ett bord för två
 - **Deutsch:** ein Tisch für zwei
 - **Wort für Wort:** ett = ein · bord = Tisch · för = für · två = zwei
-- **Im Satz:** „Hej, ett bord för två, tack." / „Har ni ett bord för två?"
+- **Im Satz:** „Hej, ett bord för två, tack." / „Har ni ett bord för två?" / „Hej! Ett bord för två. Vad rekommenderar du?"
 
 #### `c-menyn` · offen
 
 - **Schwedisch:** kan jag få menyn?
 - **Deutsch:** kann ich die Karte haben?
 - **Wort für Wort:** kan = kann · jag = ich · få = bekommen · menyn = die Speisekarte
-- **Im Satz:** „Kan jag få menyn, tack?" / „Ursäkta, kan jag få menyn?"
+- **Im Satz:** „Kan jag få menyn, tack?" / „Ursäkta, kan jag få menyn?" / „Jag är hungrig. Kan jag få menyn?"
 
 #### `c-tardenhar` · offen
 
 - **Schwedisch:** jag tar den här
 - **Deutsch:** ich nehme das hier
 - **Wort für Wort:** jag = ich · tar = nehme · den = das · här = hier
-- **Im Satz:** „Jag tar den här, tack." / „Jag tar den här och en kaffe."
+- **Im Satz:** „Jag tar den här, tack." / „Jag tar den här och en kaffe." / „Jag tar den här. Jag är hungrig!"
 
 #### `c-rekommenderar` · offen
 
 - **Schwedisch:** vad rekommenderar du?
 - **Deutsch:** was empfiehlst du?
 - **Wort für Wort:** vad = was · rekommenderar = empfiehlst · du = du
-- **Im Satz:** „Vad rekommenderar du?" / „Vad rekommenderar du idag?"
+- **Im Satz:** „Vad rekommenderar du?" / „Vad rekommenderar du idag?" / „Hej! Ett bord för två. Vad rekommenderar du?"
 
 #### `c-vargott` · offen
 
 - **Schwedisch:** det var gott
 - **Deutsch:** das war lecker
 - **Wort für Wort:** det = das · var = war · gott = lecker
-- **Im Satz:** „Tack, det var gott!" / „Det var jättegott."
+- **Im Satz:** „Tack, det var gott!" / „Det var jättegott." / „Tack så mycket, det var gott!" / „Det var gott, men jag är mätt."
 
 #### `c-matt` · offen
 
 - **Schwedisch:** jag är mätt
 - **Deutsch:** ich bin satt
 - **Wort für Wort:** jag = ich · är = bin · mätt = satt
-- **Im Satz:** „Nej tack, jag är mätt." / „Tack, jag är mätt nu."
+- **Im Satz:** „Nej tack, jag är mätt." / „Tack, jag är mätt nu." / „Det var gott, men jag är mätt."
 
 ## Menschen & Alltag
 
@@ -476,35 +476,35 @@ wir tragen nur ein, was wirklich gelesen wurde.
 - **Schwedisch:** min familj
 - **Deutsch:** meine Familie
 - **Wort für Wort:** min = meine · familj = Familie
-- **Im Satz:** „Det här är min familj." / „Jag älskar min familj."
+- **Im Satz:** „Det här är min familj." / „Jag älskar min familj." / „Min familj bor i Tyskland." / „Jag kommer från Tyskland och min familj bor där."
 
 #### `c-harbarn` · offen
 
 - **Schwedisch:** har du barn?
 - **Deutsch:** hast du Kinder?
 - **Wort für Wort:** har = hast · du = du · barn = Kinder
-- **Im Satz:** „Har du barn?" / „Har du barn också?"
+- **Im Satz:** „Har du barn?" / „Har du barn också?" / „Har du barn? Jag har en bror."
 
 #### `c-bror` · offen
 
 - **Schwedisch:** jag har en bror
 - **Deutsch:** ich habe einen Bruder
 - **Wort für Wort:** jag = ich · har = habe · en = einen · bror = Bruder
-- **Im Satz:** „Jag har en bror." / „Har du en bror?"
+- **Im Satz:** „Jag har en bror." / „Har du en bror?" / „Har du barn? Jag har en bror."
 
 #### `c-bordu` · offen
 
 - **Schwedisch:** var bor du?
 - **Deutsch:** wo wohnst du?
 - **Wort für Wort:** var = wo · bor = wohnst · du = du
-- **Im Satz:** „Var bor du?" / „Var bor du nu?"
+- **Im Satz:** „Var bor du?" / „Var bor du nu?" / „Var bor du? Jag bor i centrum." / „Hur gammal är du? Och var bor du?"
 
 #### `c-frantyskland` · offen
 
 - **Schwedisch:** jag kommer från Tyskland
 - **Deutsch:** ich komme aus Deutschland
 - **Wort für Wort:** jag = ich · kommer = komme · från = aus · Tyskland = Deutschland
-- **Im Satz:** „Jag kommer från Tyskland." / „Hej, jag kommer från Tyskland."
+- **Im Satz:** „Jag kommer från Tyskland." / „Hej, jag kommer från Tyskland." / „Jag kommer från Tyskland och min familj bor där."
 
 ### Alltag & Small Talk
 
@@ -513,42 +513,42 @@ wir tragen nur ein, was wirklich gelesen wurde.
 - **Schwedisch:** hur gammal är du?
 - **Deutsch:** wie alt bist du?
 - **Wort für Wort:** hur = wie · gammal = alt · är = bist · du = du
-- **Im Satz:** „Hur gammal är du?" / „Förlåt, hur gammal är du?"
+- **Im Satz:** „Hur gammal är du?" / „Förlåt, hur gammal är du?" / „Hur gammal är du? Och var bor du?"
 
 #### `c-jobbar` · offen
 
 - **Schwedisch:** vad jobbar du med?
 - **Deutsch:** was machst du beruflich?
 - **Wort für Wort:** vad = was · jobbar = arbeitest · du = du · med = mit
-- **Im Satz:** „Vad jobbar du med?" / „Och vad jobbar du med?"
+- **Im Satz:** „Vad jobbar du med?" / „Och vad jobbar du med?" / „Vad jobbar du med? Jag jobbar på ett kontor."
 
 #### `c-vader` · offen
 
 - **Schwedisch:** vilket vackert väder!
 - **Deutsch:** was für schönes Wetter!
 - **Wort für Wort:** vilket = welches · vackert = schönes · väder = Wetter
-- **Im Satz:** „Vilket vackert väder!" / „Idag är det vackert väder."
+- **Im Satz:** „Vilket vackert väder!" / „Idag är det vackert väder." / „Vilket vackert väder! Solen skiner."
 
 #### `c-regnar` · offen
 
 - **Schwedisch:** det regnar
 - **Deutsch:** es regnet
 - **Wort für Wort:** det = es · regnar = regnet
-- **Im Satz:** „Det regnar idag." / „Åh nej, det regnar."
+- **Im Satz:** „Det regnar idag." / „Åh nej, det regnar." / „Det regnar. Ta med paraply!"
 
 #### `c-hadetbra` · offen
 
 - **Schwedisch:** ha det bra
 - **Deutsch:** alles Gute
 - **Wort für Wort:** ha = hab · det = es · bra = gut
-- **Im Satz:** „Ha det bra!" / „Tack, ha det bra!"
+- **Im Satz:** „Ha det bra!" / „Tack, ha det bra!" / „Hej då, ha det bra!"
 
 #### `c-trevligt` · offen
 
 - **Schwedisch:** trevligt att träffas
 - **Deutsch:** schön, dich kennenzulernen
 - **Wort für Wort:** trevligt = nett · att = zu · träffas = treffen
-- **Im Satz:** „Trevligt att träffas!" / „Hej, trevligt att träffas!"
+- **Im Satz:** „Trevligt att träffas!" / „Hej, trevligt att träffas!" / „Jag heter Anna. Trevligt att träffas!"
 
 ### Zahlen & Zeit
 
@@ -557,42 +557,42 @@ wir tragen nur ein, was wirklich gelesen wurde.
 - **Schwedisch:** vad är klockan?
 - **Deutsch:** wie spät ist es?
 - **Wort für Wort:** vad = was · är = ist · klockan = die Uhr
-- **Im Satz:** „Ursäkta, vad är klockan?" / „Vad är klockan nu?"
+- **Im Satz:** „Ursäkta, vad är klockan?" / „Vad är klockan nu?" / „Vad är klockan? Jag måste åka nu."
 
 #### `c-vilkendag` · offen
 
 - **Schwedisch:** vilken dag är det?
 - **Deutsch:** welcher Tag ist es?
 - **Wort für Wort:** vilken = welcher · dag = Tag · är = ist · det = es
-- **Im Satz:** „Vilken dag är det idag?" / „Förlåt, vilken dag är det?"
+- **Im Satz:** „Vilken dag är det idag?" / „Förlåt, vilken dag är det?" / „Vilken dag är det? Jag är ledig imorgon."
 
 #### `c-entimme` · offen
 
 - **Schwedisch:** om en timme
 - **Deutsch:** in einer Stunde
 - **Wort für Wort:** om = in · en = einer · timme = Stunde
-- **Im Satz:** „Vi ses om en timme." / „Jag kommer om en timme."
+- **Im Satz:** „Vi ses om en timme." / „Jag kommer om en timme." / „Jag kommer om en timme. Vi ses!" / „Klockan är tre. Vi ses om en timme."
 
 #### `c-klockantre` · offen
 
 - **Schwedisch:** klockan är tre
 - **Deutsch:** es ist drei Uhr
 - **Wort für Wort:** klockan = die Uhr · är = ist · tre = drei
-- **Im Satz:** „Klockan är tre nu." / „Titta, klockan är tre!"
+- **Im Satz:** „Klockan är tre nu." / „Titta, klockan är tre!" / „Klockan är tre. Vi ses om en timme."
 
 #### `c-tiominuter` · offen
 
 - **Schwedisch:** det tar tio minuter
 - **Deutsch:** das dauert zehn Minuten
 - **Wort für Wort:** det = es · tar = nimmt · tio = zehn · minuter = Minuten
-- **Im Satz:** „Det tar tio minuter." / „Bussen tar tio minuter."
+- **Im Satz:** „Det tar tio minuter." / „Bussen tar tio minuter." / „Vänta lite, det tar tio minuter."
 
 #### `c-vaddatum` · offen
 
 - **Schwedisch:** vilket datum är det?
 - **Deutsch:** welches Datum ist es?
 - **Wort für Wort:** vilket = welches · datum = Datum · är = ist · det = es
-- **Im Satz:** „Ursäkta, vilket datum är det?" / „Vilket datum är det idag?"
+- **Im Satz:** „Ursäkta, vilket datum är det?" / „Vilket datum är det idag?" / „Vilket datum är det? Jag har bokat ett rum."
 
 ### Wetter & Jahreszeiten
 
@@ -749,28 +749,28 @@ wir tragen nur ein, was wirklich gelesen wurde.
 - **Schwedisch:** vilken storlek?
 - **Deutsch:** welche Größe?
 - **Wort für Wort:** vilken = welche · storlek = Größe
-- **Im Satz:** „Vilken storlek har du?" / „Ursäkta, vilken storlek är den?"
+- **Im Satz:** „Vilken storlek har du?" / „Ursäkta, vilken storlek är den?" / „Vilken storlek har ni?"
 
 #### `c-prova` · offen
 
 - **Schwedisch:** kan jag prova?
 - **Deutsch:** kann ich anprobieren?
 - **Wort für Wort:** kan = kann · jag = ich · prova = probieren
-- **Im Satz:** „Kan jag prova den?" / „Ursäkta, kan jag prova?"
+- **Im Satz:** „Kan jag prova den?" / „Ursäkta, kan jag prova?" / „Kan jag prova den? Var är provrummet?"
 
 #### `c-provrum` · ⚠️ maschinell auffällig — selten belegt: provrummet
 
 - **Schwedisch:** var är provrummet?
 - **Deutsch:** wo ist die Umkleide?
 - **Wort für Wort:** var = wo · är = ist · provrummet = die Umkleidekabine
-- **Im Satz:** „Var är provrummet?" / „Ursäkta, var är provrummet?"
+- **Im Satz:** „Var är provrummet?" / „Ursäkta, var är provrummet?" / „Kan jag prova den? Var är provrummet?"
 
 #### `c-tarden` · offen
 
 - **Schwedisch:** jag tar den
 - **Deutsch:** ich nehme es
 - **Wort für Wort:** jag = ich · tar = nehme · den = das
-- **Im Satz:** „Tack, jag tar den." / „Den är fin, jag tar den."
+- **Im Satz:** „Tack, jag tar den." / „Den är fin, jag tar den." / „Den är snygg. Jag tar den, tack."
 
 ### Bezahlen
 
@@ -779,35 +779,35 @@ wir tragen nur ein, was wirklich gelesen wurde.
 - **Schwedisch:** kan jag betala med kort?
 - **Deutsch:** kann ich mit Karte zahlen?
 - **Wort für Wort:** kan = kann · jag = ich · betala = zahlen · med = mit · kort = Karte
-- **Im Satz:** „Kan jag betala med kort?" / „Ursäkta, kan jag betala med kort?"
+- **Im Satz:** „Kan jag betala med kort?" / „Ursäkta, kan jag betala med kort?" / „Hur mycket blir det? Kan jag betala med kort?" / „Till flygplatsen, tack. Kan jag betala med kort?"
 
 #### `c-kontant` · offen
 
 - **Schwedisch:** jag betalar kontant
 - **Deutsch:** ich zahle bar
 - **Wort für Wort:** jag = ich · betalar = zahle · kontant = bar
-- **Im Satz:** „Jag betalar kontant, tack." / „Nej, jag betalar kontant."
+- **Im Satz:** „Jag betalar kontant, tack." / „Nej, jag betalar kontant." / „Jag betalar kontant. Kan jag få kvittot?" / „Kan jag få notan? Jag betalar kontant."
 
 #### `c-blirdet` · offen
 
 - **Schwedisch:** hur mycket blir det?
 - **Deutsch:** wie viel macht das?
 - **Wort für Wort:** hur = wie · mycket = viel · blir = wird · det = es
-- **Im Satz:** „Hur mycket blir det?" / „Ursäkta, hur mycket blir det?"
+- **Im Satz:** „Hur mycket blir det?" / „Ursäkta, hur mycket blir det?" / „Hur mycket blir det? Kan jag betala med kort?"
 
 #### `c-kvitto` · offen
 
 - **Schwedisch:** kan jag få kvittot?
 - **Deutsch:** kann ich den Beleg haben?
 - **Wort für Wort:** kan = kann · jag = ich · få = bekommen · kvittot = der Beleg
-- **Im Satz:** „Kan jag få kvittot, tack?" / „Får jag kvittot, tack?"
+- **Im Satz:** „Kan jag få kvittot, tack?" / „Får jag kvittot, tack?" / „Jag betalar kontant. Kan jag få kvittot?"
 
 #### `c-fordyrt` · offen
 
 - **Schwedisch:** det är för dyrt
 - **Deutsch:** das ist zu teuer
 - **Wort für Wort:** det = das · är = ist · för = zu · dyrt = teuer
-- **Im Satz:** „Nej, det är för dyrt." / „Oj, det är för dyrt."
+- **Im Satz:** „Nej, det är för dyrt." / „Oj, det är för dyrt." / „Det är för dyrt. Finns det något billigare?" / „Vad kostar det? Det är för dyrt."
 
 ### Im Supermarkt
 
@@ -816,35 +816,35 @@ wir tragen nur ein, was wirklich gelesen wurde.
 - **Schwedisch:** var finns mjölk?
 - **Deutsch:** wo gibt es Milch?
 - **Wort für Wort:** var = wo · finns = gibt es · mjölk = Milch
-- **Im Satz:** „Ursäkta, var finns mjölk?" / „Var finns mjölk och bröd?"
+- **Im Satz:** „Ursäkta, var finns mjölk?" / „Var finns mjölk och bröd?" / „Var finns mjölk? Jag hittar inte kassan."
 
 #### `c-harbrod` · offen
 
 - **Schwedisch:** har ni bröd?
 - **Deutsch:** haben Sie Brot?
 - **Wort für Wort:** har = haben · ni = ihr · bröd = Brot
-- **Im Satz:** „Har ni bröd?" / „Ursäkta, har ni färskt bröd?"
+- **Im Satz:** „Har ni bröd?" / „Ursäkta, har ni färskt bröd?" / „Har ni bröd och mjölk?"
 
 #### `c-kiloapplen` · offen
 
 - **Schwedisch:** ett kilo äpplen, tack
 - **Deutsch:** ein Kilo Äpfel, bitte
 - **Wort für Wort:** ett = ein · kilo = Kilo · äpplen = Äpfel · tack = bitte
-- **Im Satz:** „Ett kilo äpplen, tack." / „Jag vill ha ett kilo äpplen."
+- **Im Satz:** „Ett kilo äpplen, tack." / „Jag vill ha ett kilo äpplen." / „Ett kilo äpplen och en påse, tack."
 
 #### `c-pase` · offen
 
 - **Schwedisch:** en påse, tack
 - **Deutsch:** eine Tüte, bitte
 - **Wort für Wort:** en = eine · påse = Tüte · tack = bitte
-- **Im Satz:** „En påse, tack." / „Kan jag få en påse, tack?"
+- **Im Satz:** „En påse, tack." / „Kan jag få en påse, tack?" / „Ett kilo äpplen och en påse, tack."
 
 #### `c-kassan` · offen
 
 - **Schwedisch:** var är kassan?
 - **Deutsch:** wo ist die Kasse?
 - **Wort für Wort:** var = wo · är = ist · kassan = die Kasse
-- **Im Satz:** „Var är kassan?" / „Ursäkta, var är kassan?"
+- **Im Satz:** „Var är kassan?" / „Ursäkta, var är kassan?" / „Ursäkta, var är kassan? Jag har bara kort."
 
 ## Notfall & Gesundheit
 
@@ -855,42 +855,42 @@ wir tragen nur ein, was wirklich gelesen wurde.
 - **Schwedisch:** jag är sjuk
 - **Deutsch:** ich bin krank
 - **Wort für Wort:** jag = ich · är = bin · sjuk = krank
-- **Im Satz:** „Jag är sjuk idag." / „Hjälp, jag är sjuk."
+- **Im Satz:** „Jag är sjuk idag." / „Hjälp, jag är sjuk." / „Jag är sjuk och jag har feber."
 
 #### `c-onthär` · offen
 
 - **Schwedisch:** jag har ont här
 - **Deutsch:** mir tut es hier weh
 - **Wort für Wort:** jag = ich · har = habe · ont = Schmerz · här = hier
-- **Im Satz:** „Jag har ont här." / „Det gör ont här."
+- **Im Satz:** „Jag har ont här." / „Det gör ont här." / „Jag har ont här. Jag behöver en läkare."
 
 #### `c-lakare` · offen
 
 - **Schwedisch:** jag behöver en läkare
 - **Deutsch:** ich brauche einen Arzt
 - **Wort für Wort:** jag = ich · behöver = brauche · en = einen · läkare = Arzt
-- **Im Satz:** „Jag behöver en läkare." / „Hjälp, jag behöver en läkare."
+- **Im Satz:** „Jag behöver en läkare." / „Hjälp, jag behöver en läkare." / „Jag har ont här. Jag behöver en läkare."
 
 #### `c-apoteket` · offen
 
 - **Schwedisch:** var är apoteket?
 - **Deutsch:** wo ist die Apotheke?
 - **Wort für Wort:** var = wo · är = ist · apoteket = die Apotheke
-- **Im Satz:** „Ursäkta, var är apoteket?" / „Var är närmaste apotek?"
+- **Im Satz:** „Ursäkta, var är apoteket?" / „Var är närmaste apotek?" / „Var är apoteket? Jag behöver penicillin."
 
 #### `c-huvudvark` · offen
 
 - **Schwedisch:** jag har huvudvärk
 - **Deutsch:** ich habe Kopfschmerzen
 - **Wort für Wort:** jag = ich · har = habe · huvudvärk = Kopfschmerzen
-- **Im Satz:** „Jag har huvudvärk." / „Jag har huvudvärk idag."
+- **Im Satz:** „Jag har huvudvärk." / „Jag har huvudvärk idag." / „Jag har huvudvärk och jag är trött."
 
 #### `c-allergisk` · offen
 
 - **Schwedisch:** jag är allergisk
 - **Deutsch:** ich bin allergisch
 - **Wort für Wort:** jag = ich · är = bin · allergisk = allergisch
-- **Im Satz:** „Jag är allergisk." / „Jag är allergisk mot mjölk."
+- **Im Satz:** „Jag är allergisk." / „Jag är allergisk mot mjölk." / „Försiktigt, jag är allergisk mot penicillin."
 
 ### Notfall & Hilfe
 
@@ -899,7 +899,7 @@ wir tragen nur ein, was wirklich gelesen wurde.
 - **Schwedisch:** hjälp!
 - **Deutsch:** Hilfe!
 - **Wort für Wort:** hjälp = Hilfe
-- **Im Satz:** „Hjälp! Ring polisen!" / „Snälla, hjälp mig!"
+- **Im Satz:** „Hjälp! Ring polisen!" / „Snälla, hjälp mig!" / „Hjälp! Ring en ambulans!"
 
 #### `c-ringpolis` · offen
 
@@ -913,7 +913,7 @@ wir tragen nur ein, was wirklich gelesen wurde.
 - **Schwedisch:** ring en ambulans!
 - **Deutsch:** ruf einen Krankenwagen!
 - **Wort für Wort:** ring = ruf an · en = einen · ambulans = Krankenwagen
-- **Im Satz:** „Ring en ambulans!" / „Snälla, ring en ambulans!"
+- **Im Satz:** „Ring en ambulans!" / „Snälla, ring en ambulans!" / „Hjälp! Ring en ambulans!"
 
 #### `c-nodsituation` · offen
 
@@ -927,14 +927,14 @@ wir tragen nur ein, was wirklich gelesen wurde.
 - **Schwedisch:** jag har gått vilse
 - **Deutsch:** ich habe mich verlaufen
 - **Wort für Wort:** jag = ich · har = habe · gått = gegangen · vilse = verirrt
-- **Im Satz:** „Jag har gått vilse." / „Ursäkta, jag har gått vilse."
+- **Im Satz:** „Jag har gått vilse." / „Ursäkta, jag har gått vilse." / „Jag har gått vilse. Var är stationen?" / „Ursäkta, kan du hjälpa mig? Jag har gått vilse."
 
 #### `c-tappatvaska` · offen
 
 - **Schwedisch:** jag hittar inte min väska
 - **Deutsch:** ich finde meine Tasche nicht
 - **Wort für Wort:** jag = ich · hittar = finde · inte = nicht · min = meine · väska = Tasche
-- **Im Satz:** „Jag hittar inte min väska." / „Hjälp, jag hittar inte min väska!"
+- **Im Satz:** „Jag hittar inte min väska." / „Hjälp, jag hittar inte min väska!" / „Jag hittar inte min väska. Ring polisen!"
 
 ## Freunde & Freizeit
 
