@@ -41,6 +41,20 @@ export function recommendedNewCount(rate: number | null): number {
   return NEW_BASE; // inside the band → steady
 }
 
+/**
+ * Wie viel NEUER Stoff diese Sitzung wirklich zulässt — Empfehlung der Engine,
+ * gedeckelt durch die Einstellung des Lerners (docs/gremium-einstellungen.md).
+ *
+ * Bewusst nur ein DECKEL, keine Vorgabe: Die Einstellung kann bremsen, aber nie
+ * über das Erfolgsband hinaus beschleunigen. Sonst wäre sie eine Abkürzung an
+ * der Anti-Klippen-Logik vorbei — und die ist der Grund, warum es dieses Projekt
+ * gibt. `null` = keine Obergrenze, die Engine entscheidet allein.
+ */
+export function newCountFor(rate: number | null, cap: number | null): number {
+  const auto = recommendedNewCount(rate);
+  return cap === null ? auto : Math.min(auto, Math.max(0, cap));
+}
+
 export type BandStatus = 'unknown' | 'zu leicht' | 'im Flow-Band' | 'zu fordernd';
 
 /** Human-facing band status (docs/06-motivation.md: Flow-Band as a status signal). */

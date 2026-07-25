@@ -5,7 +5,7 @@ import type { Dialog, DialogTurn } from './domain/dialog';
 import { seedContentSource } from './modules/content/contentPipeline';
 import { getAllChunkStates, logEvent, putChunkState } from './storage/db';
 import { initialState, schedule } from './modules/memory/memoryEngine';
-import { recentSuccessRate, recommendedNewCount } from './modules/memory/difficulty';
+import { newCountFor, recentSuccessRate } from './modules/memory/difficulty';
 import { buildQueue, pickSegmentForChunk, type NewFocus } from './session/buildQueue';
 import { loadFocus, saveFocus } from './session/focus';
 import { loadName, saveName } from './session/profile';
@@ -189,7 +189,7 @@ export default function App() {
   // Was die NÄCHSTE Sitzung tatsächlich enthält.
   //
   // WARUM NICHT „fällig": Bei frischem Start sind alle 98 Wendungen fällig, die
-  // Sitzung lässt aber nur `recommendedNewCount` neue zu — der Knopf versprach 98
+  // Sitzung lässt aber nur `newCountFor` neue zu — der Knopf versprach 98
   // und lieferte 3. Sachlich richtig, als Ankündigung falsch (10-open-questions.md).
   //
   // Motivation: Eine Wand aus 98 ist genau die Klippe, gegen die dieses Projekt
@@ -199,11 +199,11 @@ export default function App() {
   // dieselbe Liste wird angezeigt und dann abgearbeitet.
   const plannedSession = useMemo(
     () =>
-      buildQueue(Object.values(states), Date.now(), recommendedNewCount(successRate), {
+      buildQueue(Object.values(states), Date.now(), newCountFor(successRate, prefs.newPerSession), {
         categoryByChunkId,
         categoryId: focusId,
       }),
-    [states, successRate, categoryByChunkId, focusId],
+    [states, successRate, prefs.newPerSession, categoryByChunkId, focusId],
   );
 
   // Dialoge je Thema (für den „Gespräch"-Einstieg im Thema-Detail).
@@ -259,11 +259,11 @@ export default function App() {
       const pool = Object.values(states).filter((s) => inScope(s.chunkId));
       // Bereich/Thema üben: der Scope IST die Wahl — kein zusätzlicher Fokus.
       const focus: NewFocus | undefined = undefined;
-      setQueue(buildQueue(pool, Date.now(), recommendedNewCount(successRate), focus));
+      setQueue(buildQueue(pool, Date.now(), newCountFor(successRate, prefs.newPerSession), focus));
       setPos(0);
       setView({ name: 'session' });
     },
-    [plannedSession, states, successRate, categoryByChunkId, areaByChunkId],
+    [plannedSession, states, successRate, prefs.newPerSession, categoryByChunkId, areaByChunkId],
   );
 
   const currentChunkId = queue[pos];
@@ -693,6 +693,8 @@ export default function App() {
                 segment={currentSegment}
                 chunk={currentChunk}
                 stage={currentState.stage}
+                state={currentState}
+                retention={prefs.retention}
                 onResult={handleResult}
                 known={known}
                 scaffoldOpen={scaffoldOpen}

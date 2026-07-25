@@ -3,13 +3,14 @@
 // zieht nur so viel Hilfe, wie er braucht (Autonomie, docs/06-motivation.md).
 
 import { useEffect, useState } from 'react';
-import type { Chunk, DecodingToken, ReviewResult, Segment } from '../../domain/chunk';
+import type { Chunk, ChunkState, DecodingToken, ReviewResult, Segment } from '../../domain/chunk';
 import { aiRegistry } from '../content/aiRegistry';
 import type { KnownPhrase } from '../content/ports';
 import { analyzeAnswer, type AnswerAnalysis } from './answerCheck';
 import { pronunciationTips } from './pronunciation';
 import { useSpeechInput } from './useSpeechInput';
 import { slowSpeechRate } from './tts';
+import { explainSchedule, whyNowSentence } from '../memory/explain';
 import { SpeakButton } from '../../ui/SpeakButton';
 import { IconPlay, IconSlow, IconWave, IconSparkle } from '../../ui/icons';
 
@@ -36,6 +37,10 @@ interface Props {
   segment: Segment;
   chunk: Chunk;
   stage: 'recognition' | 'production';
+  /** Gedächtnis-Zustand dieser Wendung — für die Selbstauskunft „Warum jetzt?". */
+  state?: ChunkState;
+  /** Erhalt-Ziel des Lerners, damit die Vorschau dieselbe Zahl nennt wie die Planung. */
+  retention?: number;
   // `spoken` = die Antwort kam GESPROCHEN und wurde exakt als der geprüfte Chunk
   // erkannt (P3). Nur dieser enge Fall wird vermerkt — siehe ReviewEvent.spoken.
   onResult: (result: ReviewResult, helpUsed: boolean, spoken: boolean) => void;
@@ -49,10 +54,14 @@ export function ComprehensionLoop({
   segment,
   chunk,
   stage,
+  state,
+  retention,
   onResult,
   known,
   scaffoldOpen = false,
 }: Props) {
+  // „Warum jetzt?" — die App legt ihre eigene Entscheidung offen (explain.ts).
+  const [showWhy, setShowWhy] = useState(false);
   const [showDecoding, setShowDecoding] = useState(scaffoldOpen);
   const [showIdiomatic, setShowIdiomatic] = useState(scaffoldOpen);
   const [showPron, setShowPron] = useState(false); // Aussprache-Hinweise (on-device)
@@ -81,6 +90,7 @@ export function ComprehensionLoop({
   // Reset helpers whenever a new item appears. Bei NEUEM Chunk ist die Stütze
   // (Dekodierung + Übersetzung) sofort offen — damit der Input verständlich ist.
   useEffect(() => {
+    setShowWhy(false);
     setShowDecoding(scaffoldOpen);
     setShowIdiomatic(scaffoldOpen);
     setShowPron(false);
@@ -198,9 +208,26 @@ export function ComprehensionLoop({
 
   return (
     <section className="glass rounded-2xl p-5">
-      <p className="mb-2 text-[0.68rem] font-medium uppercase tracking-[0.16em] text-faint">
-        Begegnung · Level {segment.level} · {stage === 'production' ? 'Produktion' : 'Wiedererkennen'}
-      </p>
+      <div className="mb-2 flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+        <p className="text-[0.68rem] font-medium uppercase tracking-[0.16em] text-faint">
+          Begegnung · Level {segment.level} ·{' '}
+          {stage === 'production' ? 'Produktion' : 'Wiedererkennen'}
+        </p>
+        {state && (
+          <button
+            onClick={() => setShowWhy((v) => !v)}
+            className="text-[0.68rem] text-muted underline underline-offset-2"
+          >
+            {showWhy ? 'Warum jetzt? ausblenden' : 'Warum jetzt?'}
+          </button>
+        )}
+      </div>
+
+      {/* Die Selbstauskunft. Keine Lern-App sagt dir, warum ausgerechnet diese
+          Karte vor dir liegt — man soll dem Algorithmus glauben. Bei einer App,
+          deren Versprechen „unsere Zahlen sind wahr" lautet, wäre das ein
+          Widerspruch: Was man nicht nachvollziehen kann, ist eine Behauptung. */}
+      {showWhy && state && <WhyNow state={state} retention={retention} />}
 
       {/* 1. Verständliche Begegnung (der Hero-Moment) */}
       <div className="flex items-start justify-between gap-3">
@@ -591,5 +618,51 @@ function GradeButton({ label, tone, onClick }: { label: string; tone: string; on
     >
       {label}
     </button>
+  );
+}
+
+/** Selbstauskunft der Engine zu genau dieser Wendung (docs/07-measurement.md). */
+function WhyNow({ state, retention }: { state: ChunkState; retention?: number }) {
+  const e = explainSchedule(state, Date.now(), retention);
+  return (
+    <div className="mb-3 rounded-xl border border-line bg-white/[0.03] p-3">
+      <p className="text-xs leading-relaxed text-paper">{whyNowSentence(e)}</p>
+      <dl className="mt-2 space-y-1 text-[0.7rem] leading-relaxed text-faint">
+        {!e.isNew && (
+          <div>
+            <dt className="inline text-muted">Zuletzt: </dt>
+            <dd className="inline">
+              vor {e.sinceLastDays} {e.sinceLastDays === 1 ? 'Tag' : 'Tagen'}
+            </dd>
+          </div>
+        )}
+        <div>
+          <dt className="inline text-muted">Stufe: </dt>
+          <dd className="inline">
+            {e.stage === 'production' ? 'du sagst sie selbst' : 'du erkennst sie'}
+            {e.successStreak > 0 && ` · ${e.successStreak}× in Folge gekonnt`}
+          </dd>
+        </div>
+        <div>
+          <dt className="inline text-muted">Wenn es jetzt sitzt: </dt>
+          <dd className="inline">
+            wieder in {e.nextIfGoodDays} {e.nextIfGoodDays === 1 ? 'Tag' : 'Tagen'}
+          </dd>
+        </div>
+        <div>
+          <dt className="inline text-muted">Bewiesen stabil: </dt>
+          <dd className="inline">
+            {e.proven ? 'ja — nach echter langer Pause selbst gesagt' : 'noch nicht'}
+          </dd>
+        </div>
+      </dl>
+      {!e.proven && e.missingForProof.length > 0 && (
+        <ul className="mt-2 list-inside list-disc text-[0.7rem] leading-relaxed text-faint">
+          {e.missingForProof.map((m) => (
+            <li key={m}>{m}</li>
+          ))}
+        </ul>
+      )}
+    </div>
   );
 }
