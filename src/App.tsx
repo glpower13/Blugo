@@ -9,6 +9,10 @@ import { recentSuccessRate, recommendedNewCount } from './modules/memory/difficu
 import { buildQueue, pickSegmentForChunk, type NewFocus } from './session/buildQueue';
 import { loadFocus, saveFocus } from './session/focus';
 import { loadName, saveName } from './session/profile';
+import { loadPreferences, savePreferences, type Preferences } from './session/preferences';
+import { setSpeechRate } from './modules/comprehension/tts';
+import { setSpeechLocalOnly } from './modules/comprehension/speech';
+import { clearAll, putChunkStates } from './storage/db';
 import { knownPhrases } from './session/knownChunks';
 import { ComprehensionLoop } from './modules/comprehension/ComprehensionLoop';
 import { AreaOverview } from './modules/progress/AreaOverview';
@@ -31,8 +35,8 @@ import { IconBack, IconTarget } from './ui/icons';
 import { areaVisual } from './ui/areaTheme';
 import { TabBar, TAB_IDS, type Tab } from './ui/TabBar';
 import { useSwipeTabs } from './ui/useSwipeTabs';
-const AiSettings = lazy(() =>
-  import('./modules/content/AiSettings').then((m) => ({ default: m.AiSettings })),
+const SettingsScreen = lazy(() =>
+  import('./modules/settings/SettingsScreen').then((m) => ({ default: m.SettingsScreen })),
 );
 import { initAiSettings } from './modules/content/aiSettings';
 import { aiRegistry } from './modules/content/aiRegistry';
@@ -84,6 +88,9 @@ export default function App() {
   const [error, setError] = useState<string | null>(null);
   const [successRate, setSuccessRate] = useState<number | null>(null);
   const [showSettings, setShowSettings] = useState(false);
+  // Einstellungen des Lerners (docs/gremium-einstellungen.md). Sie ändern den
+  // AUFWAND, nie den Maßstab — deshalb liegen sie neben der Engine, nicht darin.
+  const [prefs, setPrefs] = useState<Preferences>(() => loadPreferences());
   const [focusId, setFocusId] = useState<string | null>(null);
   // Vorname des Lerners (lokal): personalisiert Begrüßung & Gespräche.
   const [name, setName] = useState<string>(() => loadName());
@@ -143,6 +150,18 @@ export default function App() {
         setLoading(false);
       }
     })();
+  }, []);
+
+  // Tempo und Erkennungs-Haltung wirken in Modulen, die keine React-Zustände
+  // lesen können — deshalb einmal zentral durchreichen.
+  useEffect(() => {
+    setSpeechRate(prefs.speechRate);
+    setSpeechLocalOnly(prefs.speechLocalOnly);
+  }, [prefs.speechRate, prefs.speechLocalOnly]);
+
+  const updatePrefs = useCallback((p: Preferences) => {
+    setPrefs(p);
+    savePreferences(p);
   }, []);
 
   const stateList = useMemo(() => Object.values(states), [states]);
@@ -270,7 +289,10 @@ export default function App() {
     submitting.current = true;
     try {
       const now = Date.now();
-      const next = schedule(currentState, result, currentSegment.id, now, { spoken });
+      const next = schedule(currentState, result, currentSegment.id, now, {
+        spoken,
+        retention: prefs.retention,
+      });
       // Persist first; only advance the UI once the write succeeded, so a
       // storage failure is surfaced and never silently drops progress.
       await putChunkState(next);
@@ -309,7 +331,7 @@ export default function App() {
       if (!state) return;
       const now = Date.now();
       const segId = `dialog:${dialogId}:${turn.id}`;
-      const next = schedule(state, result, segId, now, { spoken });
+      const next = schedule(state, result, segId, now, { spoken, retention: prefs.retention });
       void (async () => {
         try {
           await putChunkState(next);
@@ -327,7 +349,7 @@ export default function App() {
         }
       })();
     },
-    [states],
+    [states, prefs.retention],
   );
 
   // Im Sparring produzierte Wendung: derselbe Weg wie überall (P4). Bewusst
@@ -339,7 +361,7 @@ export default function App() {
       if (!state) return;
       const now = Date.now();
       const segId = `sparring:${chunk.id}:${now}`;
-      const next = schedule(state, 'good', segId, now, { spoken });
+      const next = schedule(state, 'good', segId, now, { spoken, retention: prefs.retention });
       void (async () => {
         try {
           await putChunkState(next);
@@ -357,7 +379,7 @@ export default function App() {
         }
       })();
     },
-    [states],
+    [states, prefs.retention],
   );
 
   const done = !loading && pos >= queue.length;
@@ -704,9 +726,38 @@ export default function App() {
           `view-transition-name` ein `contain: layout`, das einen eigenen
           Stapelkontext aufmacht. Ein `z-50` darin kommt trotzdem nicht über die
           Reiterleiste daneben — der Fußtext lag hinter ihr. */}
-        {showSettings && (
+      {showSettings && (
         <Suspense fallback={null}>
-          <AiSettings onClose={() => setShowSettings(false)} />
+          <SettingsScreen
+            name={name}
+            onName={(n) => {
+              saveName(n);
+              setName(n);
+            }}
+            prefs={prefs}
+            onPrefs={updatePrefs}
+            states={stateList}
+            totalChunks={chunks.length}
+            onImport={async (next, importedName, importedPrefs) => {
+              await putChunkStates(next);
+              setStates(Object.fromEntries(next.map((s) => [s.chunkId, s])));
+              if (importedName) {
+                saveName(importedName);
+                setName(importedName);
+              }
+              updatePrefs(importedPrefs);
+            }}
+            onWipe={async () => {
+              await clearAll();
+              const fresh = Object.fromEntries(
+                chunks.map((c) => [c.id, initialState(c.id, Date.now())]),
+              );
+              setStates(fresh);
+              setQueue([]);
+              setPos(0);
+            }}
+            onClose={() => setShowSettings(false)}
+          />
         </Suspense>
       )}
 

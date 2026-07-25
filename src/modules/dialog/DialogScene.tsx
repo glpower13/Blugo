@@ -9,6 +9,7 @@ import type { Dialog, DialogTurn } from '../../domain/dialog';
 import { aiRegistry } from '../content/aiRegistry';
 import { analyzeAnswer, type AnswerAnalysis } from '../comprehension/answerCheck';
 import { useSpeechInput } from '../comprehension/useSpeechInput';
+import { slowSpeechRate } from '../comprehension/tts';
 import { SpeakButton } from '../../ui/SpeakButton';
 import { fillName } from '../../session/profile';
 import { IconBack, IconChat, IconPlay, IconSlow, IconSparkle } from '../../ui/icons';
@@ -269,7 +270,7 @@ function PartnerTurn({
                   <IconPlay className="h-3 w-3" /> Hören
                 </button>
                 <button
-                  onClick={() => void aiRegistry.synthesizer.speak({ text: sv, rate: 0.6 })}
+                  onClick={() => void aiRegistry.synthesizer.speak({ text: sv, rate: slowSpeechRate() })}
                   className="flex items-center rounded-full bg-brand/20 px-2.5 py-2 text-brand"
                   aria-label="Langsam hören"
                   title="Langsamer"

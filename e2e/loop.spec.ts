@@ -12,6 +12,16 @@ async function openTab(page: Page, label: string) {
   await page.getByRole('navigation', { name: 'Hauptbereiche' }).getByRole('button', { name: label }).click();
 }
 
+// Cloud-KI einrichten — seit der Einstellungs-Fläche EIN Ort statt eines Modals.
+async function configureCloud(page: Page) {
+  await page.getByRole('button', { name: 'KI-Einstellungen' }).click();
+  await expect(page.getByRole('heading', { name: 'Einstellungen' })).toBeVisible();
+  await page.getByText('Claude (Cloud)').click();
+  await page.getByPlaceholder('sk-ant-…').fill('sk-ant-test-000');
+  await page.getByRole('button', { name: 'Speichern' }).click();
+  await page.getByRole('button', { name: 'Einstellungen schließen' }).click();
+}
+
 async function openLearn(page: Page) {
   await openTab(page, 'Lernen');
   await expect(page.getByRole('heading', { name: 'Bereiche' })).toBeVisible();
@@ -73,14 +83,26 @@ test('AI settings overlay opens, shows the login, and closes cleanly', async ({ 
   await page.goto('/');
 
   await page.getByRole('button', { name: 'KI-Einstellungen' }).click();
-  await expect(page.getByRole('heading', { name: 'KI-Einstellungen' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Einstellungen' })).toBeVisible();
+
+  // Alle Abschnitte da — die Fläche ist EIN Ort, keine Resterampe.
+  await expect(page.getByRole('heading', { name: 'Lernen' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Deine Daten' })).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Über' })).toBeVisible();
+
+  // Der Erhalt-Ziel-Regler ist eingeklappt (progressive Offenlegung) …
+  await expect(page.getByRole('slider', { name: 'Erhalt-Ziel' })).toHaveCount(0);
+  await page.getByRole('button', { name: /Für Fortgeschrittene/ }).click();
+  await expect(page.getByRole('slider', { name: 'Erhalt-Ziel' })).toBeVisible();
+  // … und sagt ausdrücklich, dass er den Maßstab NICHT anfasst.
+  await expect(page.getByText(/nicht den Maßstab/)).toBeVisible();
 
   // Claude wählen → Schlüssel-Eingabe (Login) erscheint
   await page.getByText('Claude (Cloud)').click();
   await expect(page.getByPlaceholder('sk-ant-…')).toBeVisible();
 
-  // schließen → Overlay verschwindet
-  await page.getByRole('button', { name: 'Abbrechen' }).click();
+  // schließen → Fläche verschwindet
+  await page.getByRole('button', { name: 'Einstellungen schließen' }).click();
   await expect(page.getByText('Dein Claude-Zugangs-Schlüssel')).toHaveCount(0);
 
   expect(consoleErrors, consoleErrors.join('\n')).toHaveLength(0);
@@ -99,10 +121,7 @@ test('AI decode and generate buttons appear in the session once a cloud provider
   await expect(page.getByText('bewiesen stabil')).toBeVisible();
 
   // Cloud einrichten: Claude wählen, (Test-)Schlüssel eintragen, speichern
-  await page.getByRole('button', { name: 'KI-Einstellungen' }).click();
-  await page.getByText('Claude (Cloud)').click();
-  await page.getByPlaceholder('sk-ant-…').fill('sk-ant-test-000');
-  await page.getByRole('button', { name: 'Speichern' }).click();
+  await configureCloud(page);
 
   await startSession(page);
 
@@ -479,10 +498,7 @@ test('sparring says what it needs when no key is set, and works when one is', as
 
   // Mit eigenem Schlüssel führt derselbe Einstieg ins Gespräch.
   await openTab(page, 'Heute');
-  await page.getByRole('button', { name: 'KI-Einstellungen' }).click();
-  await page.getByText('Claude (Cloud)').click();
-  await page.getByPlaceholder('sk-ant-…').fill('sk-ant-test-000');
-  await page.getByRole('button', { name: 'Speichern' }).click();
+  await configureCloud(page);
   await openTab(page, 'Gespräche');
 
   const entry = page.getByRole('button', { name: /Rede mit jemandem/ });
@@ -509,10 +525,7 @@ test('a sparring conversation can be ended and accounts for itself honestly', as
   page.on('pageerror', (e) => pageErrors.push(String(e)));
 
   await page.goto('/');
-  await page.getByRole('button', { name: 'KI-Einstellungen' }).click();
-  await page.getByText('Claude (Cloud)').click();
-  await page.getByPlaceholder('sk-ant-…').fill('sk-ant-test-000');
-  await page.getByRole('button', { name: 'Speichern' }).click();
+  await configureCloud(page);
 
   // Einstieg direkt von „Heute" (Sprechen gehört auf die erste Seite).
   await page.getByRole('button', { name: /Sparring · sprechen/ }).click();
@@ -563,5 +576,39 @@ test('content verification is stated honestly, down to the single phrase', async
   await expect(page.getByText('0 muttersprachlich geprüft')).toBeVisible();
 
   expect(consoleErrors, consoleErrors.join('\n')).toHaveLength(0);
+  expect(pageErrors, pageErrors.join('\n')).toHaveLength(0);
+});
+
+// Stufe B: „Deine Daten" — der Burggraben aus docs/gremium-einstellungen.md §2.1.
+// Geprüft wird der ganze Weg: sichern → löschen → wieder einlesen. Wenn dieser
+// Weg bricht, ist der Lernstand eines Menschen weg; deshalb steht er im e2e.
+test('a learner can take their memory out as a file and read it back in', async ({ page }, info) => {
+  const pageErrors: string[] = [];
+  page.on('pageerror', (e) => pageErrors.push(String(e)));
+
+  await page.goto('/');
+  await expect(page.getByText('bewiesen stabil')).toBeVisible();
+  await page.getByRole('button', { name: 'KI-Einstellungen' }).click();
+
+  // Sichern — die Datei muss wirklich herunterkommen.
+  const [download] = await Promise.all([
+    page.waitForEvent('download'),
+    page.getByRole('button', { name: /^Sichern/ }).click(),
+  ]);
+  const file = info.outputPath('backup.json');
+  await download.saveAs(file);
+  expect(download.suggestedFilename()).toMatch(/^neurolang-\d{4}-\d{2}-\d{2}\.json$/);
+  await expect(page.getByText(/Gesichert:/)).toBeVisible();
+
+  // Alles löschen …
+  await page.getByRole('button', { name: 'Alles löschen' }).click();
+  await page.getByRole('button', { name: 'Ja, alles löschen' }).click();
+
+  // … und aus der Datei zurückholen.
+  await page.getByRole('button', { name: 'Sicherung einlesen' }).click();
+  await page.setInputFiles('input[type=file]', file);
+  await expect(page.getByText(/Eingelesen:/)).toBeVisible();
+  await expect(page.getByText(/weitergeführt/)).toBeVisible();
+
   expect(pageErrors, pageErrors.join('\n')).toHaveLength(0);
 });

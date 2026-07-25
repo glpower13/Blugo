@@ -15,34 +15,38 @@ import {
 
 type TestState = 'idle' | 'running' | 'ok' | 'error';
 
-export function AiSettings({ onClose }: { onClose: () => void }) {
+/**
+ * KI-Abschnitt der Einstellungen. War früher ein eigenes Modal; seit der
+ * Einstellungs-Fläche (docs/gremium-einstellungen.md) ist es ein Abschnitt unter
+ * anderen — eine App mit zwei Einstellungs-Orten hat keinen.
+ */
+export function AiSettingsSection({ onSaved }: { onSaved?: () => void }) {
   const [settings, setSettings] = useState<AiSettingsData>(() => loadSettings());
   const [test, setTest] = useState<{ state: TestState; msg: string }>({ state: 'idle', msg: '' });
+  const [saved, setSaved] = useState(false);
 
   function setProvider(provider: AiProvider) {
     setSettings((s) => ({ ...s, provider }));
     setTest({ state: 'idle', msg: '' });
+    setSaved(false);
   }
 
   function setKey(apiKey: string) {
     setSettings((s) => ({ ...s, anthropic: { ...s.anthropic, apiKey } }));
     setTest({ state: 'idle', msg: '' });
+    setSaved(false);
   }
 
   function setModel(model: string) {
     setSettings((s) => ({ ...s, anthropic: { ...s.anthropic, model } }));
-  }
-
-  function close() {
-    // Registry auf den GESPEICHERTEN Stand zurücksetzen (Test war nur temporär).
-    applySettings(loadSettings());
-    onClose();
+    setSaved(false);
   }
 
   function save() {
     saveSettings(settings);
     applySettings(settings);
-    onClose();
+    setSaved(true);
+    onSaved?.();
   }
 
   async function testConnection() {
@@ -59,15 +63,7 @@ export function AiSettings({ onClose }: { onClose: () => void }) {
   const isCloud = settings.provider === 'anthropic';
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-md">
-      <div className="glass rise max-h-[90vh] w-full max-w-md overflow-y-auto rounded-2xl p-5">
-        <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-base font-semibold text-paper">KI-Einstellungen</h2>
-          <button onClick={close} className="text-muted" aria-label="Schließen">
-            ✕
-          </button>
-        </div>
-
+    <div>
         <p className="mb-3 text-xs text-muted">
           Wähle, welche KI die App nutzt. Deine Auswahl bleibt auf dem Gerät.
         </p>
@@ -145,21 +141,15 @@ export function AiSettings({ onClose }: { onClose: () => void }) {
           </div>
         )}
 
-        <div className="mt-5 flex gap-2">
+        <div className="mt-5 flex items-center gap-3">
           <button
             onClick={save}
             className="btn-gold flex-1 rounded-xl px-4 py-2 font-medium text-ink"
           >
             Speichern
           </button>
-          <button
-            onClick={close}
-            className="rounded-lg border border-line px-4 py-2 text-paper"
-          >
-            Abbrechen
-          </button>
+          {saved && <span className="text-xs text-success">✓ gespeichert</span>}
         </div>
-      </div>
     </div>
   );
 }

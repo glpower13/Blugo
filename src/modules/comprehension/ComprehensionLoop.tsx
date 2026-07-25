@@ -9,6 +9,7 @@ import type { KnownPhrase } from '../content/ports';
 import { analyzeAnswer, type AnswerAnalysis } from './answerCheck';
 import { pronunciationTips } from './pronunciation';
 import { useSpeechInput } from './useSpeechInput';
+import { slowSpeechRate } from './tts';
 import { SpeakButton } from '../../ui/SpeakButton';
 import { IconPlay, IconSlow, IconWave, IconSparkle } from '../../ui/icons';
 
@@ -240,7 +241,7 @@ export function ComprehensionLoop({
               <IconPlay className="h-3 w-3" /> Hören
             </button>
             <button
-              onClick={() => void aiRegistry.synthesizer.speak({ text: segment.sv, rate: 0.6 })}
+              onClick={() => void aiRegistry.synthesizer.speak({ text: segment.sv, rate: slowSpeechRate() })}
               className="flex items-center rounded-full bg-brand/20 px-3 py-2 text-brand"
               aria-label="Langsam vorlesen"
               title="Langsamer"
