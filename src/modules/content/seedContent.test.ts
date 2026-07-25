@@ -237,3 +237,28 @@ describe('Kontextvariation je Wendung', () => {
     expect(schnitt).toBeGreaterThanOrEqual(2.5);
   });
 });
+
+// Der Lern-Loop übt eine Wendung ALLEIN. Ein Gespräch verlangt sie an der
+// richtigen Stelle, mit einer Antwort davor und danach — das ist ein anderer,
+// härterer Abruf. Am 2026-07-25 kam zum ersten Mal JEDE Wendung in mindestens
+// einem Gespräch vor (379 von 379). Dieser Wächter hält den Stand.
+describe('Gesprächs-Abdeckung', () => {
+  const imGespraech = new Set<string>();
+  for (const d of seedDialogs) {
+    for (const t of d.turns) if (t.chunkId) imGespraech.add(t.chunkId);
+  }
+
+  it('jedes Thema hat mindestens ein Gespräch', () => {
+    const mitSzene = new Set(seedDialogs.map((d) => d.categoryId));
+    const ohne = seedCategories.filter((k) => !mitSzene.has(k.id));
+    expect(ohne.map((k) => k.id)).toEqual([]);
+  });
+
+  it('mindestens 90 % der Wendungen kommen in einem Gespräch vor', () => {
+    // Sperrklinke mit etwas Luft: Neuer Stoff darf zuerst im Loop landen und
+    // sein Gespräch kurz danach bekommen — aber nie so viel, dass der
+    // Gesprächs-Modus wieder zur halben Fläche wird.
+    const anteil = seedChunks.filter((c) => imGespraech.has(c.id)).length / seedChunks.length;
+    expect(anteil).toBeGreaterThanOrEqual(0.9);
+  });
+});

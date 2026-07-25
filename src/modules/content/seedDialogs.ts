@@ -14,6 +14,7 @@ import { dialogs as a2 } from './seedDialogsA2';
 import { dialogs as b1 } from './seedDialogsB1';
 import { dialogs as b2 } from './seedDialogsB2';
 import { dialogs as rest } from './seedDialogsRest';
+import { dialogs as mix } from './seedDialogsMix';
 
 const baseDialogs: Dialog[] = [
   // ── Im Restaurant (cat-restaurant) ───────────────────────────────────────────
@@ -1536,4 +1537,4 @@ const baseDialogs: Dialog[] = [
 // ── Zusammenbau ──────────────────────────────────────────────────────────────
 // Die Szenen zu den neuen Themen liegen je Meilenstein in eigenen Dateien
 // (`seedDialogsA1.ts` …). Nach außen bleibt es EINE Liste.
-export const seedDialogs: Dialog[] = [...baseDialogs, ...a1, ...a2, ...b1, ...b2, ...rest];
+export const seedDialogs: Dialog[] = [...baseDialogs, ...a1, ...a2, ...b1, ...b2, ...rest, ...mix];

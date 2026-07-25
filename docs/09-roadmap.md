@@ -85,5 +85,18 @@ Dazu vier neue Kulissen (`office`, `home`, `street`, `school`): vorher liefen
 dunklem Grund. Jetzt hat jedes Gespräch einen Ort, den man in einem Blick
 erkennt.
 
-**Nächster Schritt am Inhalt (offen):** die restlichen 86 Wendungen, die noch
-in keinem Gespräch vorkommen — meist die zweite Hälfte großer Themen.
+**Und dann die letzten 86 (gleicher Tag).** Nach den 55 Themenszenen kamen
+86 Wendungen in keinem Gespräch vor, meist zwei pro Thema. Eine eigene Szene
+für zwei Wendungen wäre Füllmaterial gewesen; stattdessen ziehen 13 **gemischte
+Szenen** die Reste verwandter Themen zusammen — im Laden geht es dann um Größe,
+Umtausch UND Reklamation, so wie im echten Leben. Das ist nicht der Kompromiss,
+sondern der bessere Fall: Wer zwischen Themen wechseln muss, ruft härter ab
+(Interleaving, `02-science.md`).
+
+**Endstand Gespräche:** 68 Szenen · 794 Zeilen · **379 von 379 Wendungen** kommen
+in mindestens einem Gespräch vor · jedes der 55 Themen hat eine Szene.
+
+Zwei Sperrklinken in `seedContent.test.ts` halten das: jedes Thema braucht ein
+Gespräch, und mindestens 90 % der Wendungen müssen in einem vorkommen (etwas
+Luft, damit neuer Stoff zuerst im Loop landen darf — aber nie so viel, dass der
+Gesprächs-Modus wieder zur halben Fläche wird).

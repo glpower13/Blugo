@@ -1,7 +1,7 @@
 {
   "dictionaryEntries": 152719,
-  "wordsChecked": 1169,
-  "stringsChecked": 12313,
+  "wordsChecked": 1269,
+  "stringsChecked": 13329,
   "flagged": {
     "automaten": {
       "verdict": "selten",
@@ -18,10 +18,25 @@
       "zipf": 2.94,
       "inDict": true
     },
+    "framhjulet": {
+      "verdict": "selten",
+      "zipf": 2.25,
+      "inDict": false
+    },
     "fyrtiotvå": {
       "verdict": "selten",
       "zipf": 1.98,
       "inDict": true
+    },
+    "föräldramöte": {
+      "verdict": "selten",
+      "zipf": 2.98,
+      "inDict": true
+    },
+    "grannhuset": {
+      "verdict": "selten",
+      "zipf": 2.55,
+      "inDict": false
     },
     "handske": {
       "verdict": "selten",
@@ -41,6 +56,16 @@
     "offerten": {
       "verdict": "selten",
       "zipf": 2.06,
+      "inDict": false
+    },
+    "papperen": {
+      "verdict": "selten",
+      "zipf": 2.47,
+      "inDict": false
+    },
+    "pelaren": {
+      "verdict": "selten",
+      "zipf": 2.8,
       "inDict": false
     },
     "provrummet": {
@@ -66,6 +91,11 @@
     "smaklig": {
       "verdict": "selten",
       "zipf": 2.82,
+      "inDict": true
+    },
+    "tjugonde": {
+      "verdict": "selten",
+      "zipf": 2.95,
       "inDict": true
     },
     "trehundra": {
