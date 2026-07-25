@@ -234,11 +234,11 @@ export function ComprehensionLoop({
           `flex-wrap` + `min-w-0`: Ohne beides drückte die Knopfgruppe (shrink-0)
           bei 320 px und großer Systemschrift „Langsam vorlesen" bis zu 70 px aus
           dem Bild — nicht mehr antippbar (Layout-Audit 2026-07-25). */}
-      <div className="flex flex-wrap items-start justify-between gap-x-3 gap-y-2">
+      <div className="flex flex-col items-start gap-2 sm:flex-row sm:justify-between sm:gap-x-3">
         {showFull ? (
           <p
             lang="sv"
-            className="min-w-0 flex-1 hyphens-auto break-words font-sans text-[1.9rem] font-bold leading-[1.14] tracking-[-0.015em] text-paper"
+            className="w-full min-w-0 hyphens-auto break-words font-sans text-[min(1.9rem,8.5vw)] font-bold leading-[1.14] tracking-[-0.015em] text-paper sm:flex-1"
           >
             {segment.sv}
           </p>
@@ -246,7 +246,7 @@ export function ComprehensionLoop({
           // Produktion: Satz mit Lücke an der Stelle des Ziel-Chunks (Kontext ohne Lösung).
           <p
             lang="sv"
-            className="min-w-0 flex-1 hyphens-auto break-words font-sans text-[1.9rem] font-bold leading-[1.14] tracking-[-0.015em] text-paper"
+            className="w-full min-w-0 hyphens-auto break-words font-sans text-[min(1.9rem,8.5vw)] font-bold leading-[1.14] tracking-[-0.015em] text-paper sm:flex-1"
           >
             {cloze.before}
             <span
@@ -258,12 +258,12 @@ export function ComprehensionLoop({
             {cloze.after}
           </p>
         ) : (
-          <p className="min-w-0 flex-1 font-display text-xl font-semibold leading-snug text-muted">
+          <p className="w-full min-w-0 font-display text-xl font-semibold leading-snug text-muted sm:flex-1">
             Bilde den Satz auf Schwedisch.
           </p>
         )}
         {showFull && aiRegistry.synthesizer.isAvailable() && (
-          <div className="flex shrink-0 gap-2">
+          <div className="flex shrink-0 flex-wrap gap-2">
             <button
               onClick={() => void aiRegistry.synthesizer.speak({ text: segment.sv })}
               className="flex min-h-11 items-center gap-1.5 rounded-full bg-brand/20 px-4 text-sm text-brand"
@@ -407,8 +407,8 @@ export function ComprehensionLoop({
           <p className="mb-2 flex items-center gap-1.5 text-xs uppercase tracking-wide text-brand">
             <IconSparkle className="h-3.5 w-3.5" /> Neuer Kontext · KI-erzeugt · nicht geprüft
           </p>
-          <div className="flex flex-wrap items-start justify-between gap-x-3 gap-y-2">
-            <p lang="sv" className="min-w-0 flex-1 break-words text-lg font-medium text-paper">
+          <div className="flex flex-col items-start gap-2 sm:flex-row sm:justify-between sm:gap-x-3">
+            <p lang="sv" className="w-full min-w-0 break-words text-lg font-medium text-paper sm:flex-1">
               {genSegment.sv}
             </p>
             {aiRegistry.synthesizer.isAvailable() && (

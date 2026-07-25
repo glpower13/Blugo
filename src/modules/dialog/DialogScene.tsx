@@ -82,7 +82,7 @@ export function DialogScene({ dialog, backLabel, areaHue, learnerName, onProduce
           </span>
         </button>
         {!done && (
-          <span className="text-xs font-medium uppercase tracking-wide text-faint">
+          <span className="whitespace-nowrap text-xs font-medium uppercase tracking-wide text-muted">
             {Math.min(step + 1, turns.length)} / {turns.length}
           </span>
         )}
@@ -241,7 +241,7 @@ function PartnerTurn({
       {!revealed ? (
         // Hör-zuerst: nur Klang, Text verdeckt, auf Tipp aufdecken (Dual Coding).
         <div className="flex flex-col items-start gap-3">
-          <p className="max-w-full select-none break-words text-[1.4rem] font-semibold leading-tight text-paper blur-[6px]">
+          <p className="max-w-full select-none break-words text-[min(1.4rem,6.5vw)] font-semibold leading-tight text-paper blur-[6px]">
             {sv}
           </p>
           <div className="flex flex-wrap items-center gap-2">
@@ -268,15 +268,15 @@ function PartnerTurn({
           {/* `flex-wrap` + `min-w-0`: sonst schob die Knopfgruppe „Hören"
               bis zu 63 px aus dem Bild und `overflow-hidden` schnitt sie ab
               (Layout-Audit 2026-07-25). */}
-          <div className="flex flex-wrap items-start justify-between gap-x-3 gap-y-2">
+          <div className="flex flex-col items-start gap-2 sm:flex-row sm:justify-between sm:gap-x-3">
             <p
               lang="sv"
-              className="min-w-0 flex-1 break-words text-[1.4rem] font-semibold leading-tight text-paper"
+              className="w-full min-w-0 break-words text-[min(1.4rem,6.5vw)] font-semibold leading-tight text-paper sm:flex-1"
             >
               {sv}
             </p>
             {ttsOn && (
-              <div className="flex shrink-0 gap-2">
+              <div className="flex shrink-0 flex-wrap gap-2">
                 <button
                   onClick={() => void aiRegistry.synthesizer.speak({ text: sv })}
                   className="flex min-h-11 items-center gap-1.5 rounded-full bg-brand/20 px-4 text-sm text-brand"

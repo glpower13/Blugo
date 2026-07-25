@@ -65,8 +65,16 @@ export function ProgressView({
         {/* Beide Zahlen, weil eine allein irreführt: „100 %" bei drei angefassten
             Wendungen ist wahr und trotzdem eine Lüge (Ehrlichkeits-Audit). */}
         <p className="mt-3 text-xs text-muted">
-          {dueNow} jetzt fällig · Trefferquote {Math.round(coverage * 100)} % von{' '}
-          {coverageBase} begonnenen ({totalChunks} insgesamt)
+          {/* „0 % von 0 begonnenen" ist keine Auskunft, sondern eine Formel ohne
+              Inhalt. Solange nichts begonnen ist, sagen wir das schlicht. */}
+          {coverageBase === 0 ? (
+            <>Noch nichts begonnen — {totalChunks} Wendungen warten.</>
+          ) : (
+            <>
+              {dueNow} jetzt fällig · Trefferquote {Math.round(coverage * 100)} % von{' '}
+              {coverageBase} begonnenen ({totalChunks} insgesamt)
+            </>
+          )}
         </p>
         {successRate !== null && (
           <p className="mt-1 text-xs text-faint">

@@ -52,7 +52,7 @@ export function AreaDetail({
             >
               Bereich
             </p>
-            <h1 className="hyphens-auto break-words font-display text-2xl font-semibold leading-tight text-paper">
+            <h1 className="hyphens-auto break-words font-display text-[min(1.5rem,6.4vw)] font-semibold leading-tight text-paper">
               {area.title}
             </h1>
           </div>

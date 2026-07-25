@@ -742,7 +742,7 @@ export default function App() {
               {!done && queue.length > 0 && (
                 <span
                   aria-live="polite"
-                  className="text-xs font-medium uppercase tracking-wide text-muted"
+                  className="whitespace-nowrap text-xs font-medium uppercase tracking-wide text-muted"
                 >
                   {Math.min(pos + 1, queue.length)} / {queue.length}
                 </span>
