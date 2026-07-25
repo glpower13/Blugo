@@ -87,7 +87,12 @@ Die muttersprachliche Prüfung ist der Flaschenhals der ganzen Pipeline. Entsche
    jedes schwedische Wort gegen Korpus-Häufigkeiten (`wordfreq`, Zipf-Skala) und ein
    Wörterbuch (Hunspell `dictionary-sv`, 152.719 Einträge) und schreibt
    `content-pruefbericht.md`. Nicht belegte Wörter lassen den Lauf **fehlschlagen**.
-2. **Rückübersetzung** — geplant, prüft die Bedeutungstreue.
+2. **Rückübersetzung** — `npm run check:backtranslation` (`tools/backtranslation.ts`) baut
+   jeden Satz aus seinen Birkenbihl-Glossen zurück ins Deutsche und prüft die
+   Widerspruchsfreiheit: Glossen-Lücken und Kontext-Brüche lassen den Lauf
+   **fehlschlagen**, Glossen-Konflikte und Bedeutungsdrift landen als geordnete
+   Verdachtsliste in `content-rueckuebersetzung.md`. Bewusst **ohne KI-Übersetzer** —
+   derselbe Trainings-Bias wäre kein Beweis (`gremium-content-pruefung.md`).
 3. **Menschlich, nur wo nötig** — Wortstellung, Idiomatik, Register, Dekodierungen
    (`content-review-schwedisch.md`).
 4. **Ehrliche Kennzeichnung** am Inhalt: *ungeprüft* · *maschinell vorgeprüft* ·

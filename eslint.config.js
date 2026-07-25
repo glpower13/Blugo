@@ -19,4 +19,9 @@ export default tseslint.config(
       ...reactHooks.configs.recommended.rules,
     },
   },
+  // Prüfwerkzeuge (docs/gremium-content-pruefung.md) laufen in Node, nicht im Browser.
+  {
+    files: ['tools/**/*.ts'],
+    languageOptions: { globals: globals.node },
+  },
 );
