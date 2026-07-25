@@ -10,10 +10,10 @@
 
 ## Ergebnis
 
-- Geprüfte schwedische Zeichenketten: **4018**
-- Verschiedene Wörter: **434**
-- ✅ alltagshäufig belegt (Zipf ≥ 3.0): **429**
-- ⚠️ selten belegt: **5**
+- Geprüfte schwedische Zeichenketten: **9341**
+- Verschiedene Wörter: **873**
+- ✅ alltagshäufig belegt (Zipf ≥ 3.0): **867**
+- ⚠️ selten belegt: **6**
 - ❌ nicht belegt (Tippfehler-Verdacht): **0**
 
 ## ❌ Nicht belegt — zuerst anschauen
@@ -31,6 +31,7 @@ Existiert, ist aber ungewöhnlich. Für Anfänger-Inhalt oft ein Zeichen, dass e
 | **trettiofem** | 2.68 | ja | „Trettiofem kronor, tack." · „trettiofem" |
 | **skruven** | 2.80 | — | „Tack! Nu drar jag åt den sista skruven." · „skruven" |
 | **smaklig** | 2.82 | ja | „Smaklig måltid!" · „Tack, smaklig måltid!" |
+| **automaten** | 2.93 | — | „Tyvärr, kortet fungerar inte i automaten." · „automaten" |
 
 ## Sätze mit auffälligen Wörtern
 
@@ -43,11 +44,13 @@ Existiert, ist aber ungewöhnlich. Für Anfänger-Inhalt oft ein Zeichen, dass e
 | Tack, smaklig måltid! | smaklig |
 | Titta, däcket är punkterat! | punkterat |
 | Trettiofem kronor, tack. | trettiofem |
+| Tyvärr, kortet fungerar inte i automaten. | automaten |
 | Ursäkta, var är provrummet? | provrummet |
 | Utmärkt! Smaklig måltid. | smaklig |
 | Var är provrummet? | provrummet |
 | Varsågod! Smaklig måltid! | smaklig |
 | Visst! Provrummet är där borta. | provrummet |
+| automaten | automaten |
 | däcket är punkterat | punkterat |
 | provrummet | provrummet |
 | punkterat | punkterat |

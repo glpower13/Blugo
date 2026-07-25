@@ -556,7 +556,8 @@ test('a sparring conversation can be ended and accounts for itself honestly', as
 // Stufe B: Prüf-Stand des Inhalts (Stufe 4 der Prüfkette).
 // Die App darf über ihren eigenen Stoff nicht mehr behaupten, als geprüft ist.
 // Geprüft wird deshalb beides: dass die auffällige Wendung markiert ist, UND
-// dass im Fortschritt eine ehrliche 0 für „muttersprachlich geprüft" steht.
+// dass der Fortschritt die Grenze des Inhalts als SATZ benennt (seit 2026-07-25
+// ohne Zähler: eine Skala, auf der man nie vorankommt, ist keine Auskunft).
 test('content verification is stated honestly, down to the single phrase', async ({ page }) => {
   const consoleErrors: string[] = [];
   const pageErrors: string[] = [];
@@ -578,7 +579,7 @@ test('content verification is stated honestly, down to the single phrase', async
 
   await openTab(page, 'Fortschritt');
   await expect(page.getByText('Wie geprüft ist der Inhalt?')).toBeVisible();
-  await expect(page.getByText('0 muttersprachlich geprüft')).toBeVisible();
+  await expect(page.getByText('Was hier niemand geprüft hat')).toBeVisible();
 
   expect(consoleErrors, consoleErrors.join('\n')).toHaveLength(0);
   expect(pageErrors, pageErrors.join('\n')).toHaveLength(0);

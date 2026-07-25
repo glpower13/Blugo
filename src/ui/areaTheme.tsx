@@ -13,6 +13,9 @@ import {
   IconCross,
   IconWheel,
   IconPeak,
+  IconForm,
+  IconScales,
+  IconQuote,
 } from './icons';
 
 export interface AreaVisual {
@@ -32,6 +35,9 @@ const MAP: Record<string, AreaVisual> = {
   'area-emergency': { hue: '#E68983', Icon: IconCross }, // Rot
   'area-friends': { hue: '#D9A05B', Icon: IconWheel }, // Bernstein
   'area-outdoors': { hue: '#7FC7A8', Icon: IconPeak }, // Seegrün
+  'area-services': { hue: '#9FB6C9', Icon: IconForm }, // Stahlblau (Papierkram)
+  'area-society': { hue: '#C9A0C4', Icon: IconScales }, // Mauve (abwägen)
+  'area-language': { hue: '#C9B77F', Icon: IconQuote }, // Sand (Feinheiten)
 };
 
 export function areaVisual(areaId: string | undefined): AreaVisual {

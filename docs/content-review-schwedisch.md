@@ -318,40 +318,30 @@ irreführenden Zerlegung „in Tag". Beide Schreibungen sind korrektes Schwedisc
 
 ---
 
-## Der Weg für die Gegenlesung *(gebaut 2026-07-25)*
+## Muttersprachliche Gegenlesung — gestrichen *(Entscheidung 2026-07-25)*
 
-Bis hierher war „0 muttersprachlich geprüft" eine **Sackgasse**, keine Messung:
-Die Stufe `'native'` existierte als Typ, aber der Erzeuger schrieb fest
-`native: 0`. Selbst wenn morgen jemand alle 179 Wendungen gegengelesen hätte,
-hätte die App es nicht anzeigen können.
+Am selben Tag gebaut und am selben Tag wieder entfernt. Der Weg war fertig:
+Prüfbogen, Register, Wächter gegen erfundene Einträge. Was fehlte, war das
+Entscheidende — **eine Person, die gegenliest.** Die gibt es in diesem Projekt
+nicht, und danach sieht es auch nicht aus.
 
-Jetzt gibt es den Weg:
+Damit war „0 von 179 muttersprachlich geprüft" keine Messung mehr, sondern eine
+Skala, auf der man nie vorankommt. Eine solche Zahl sieht aus wie Fortschritt,
+den es geben könnte, und ist deshalb selbst irreführend — nach derselben Logik,
+mit der wir „aktiv" aus dem Fortschrittsbalken herausgehalten haben.
 
-| Schritt | Befehl / Datei |
-|---|---|
-| 1. Prüfbogen erzeugen | `npm run review:sheet` → `docs/pruefbogen-schwedisch.md` |
-| 2. Gegenlesen lassen | der Bogen zeigt je Wendung: Schwedisch, Deutsch, Wort-für-Wort, die Sätze, in denen sie vorkommt |
-| 3. Urteile eintragen | `content/muttersprachliche-pruefung.json` |
-| 4. Prüfen und übernehmen | `npm run verify` — der Wächter `check:native` prüft jeden Eintrag, `verify:build` hebt die Wendungen auf `'native'` |
+**Gestrichen:** die Stufe `'native'`, das Register, `check:native`,
+`review:sheet` und der Prüfbogen.
 
-**Was der Wächter erzwingt** — und warum: „Muttersprachlich geprüft" ist die am
-leichtesten zu fälschende Zahl der ganzen App, weil sie in einer JSON-Datei
-steht und niemand ihr ansieht, ob ein Mensch dahinterstand. Ein Eintrag zählt
-deshalb nur, wenn er belegbar ist:
+**Geblieben — bewusst:** der SATZ über die Grenze. In der App steht jetzt
+„**Was hier niemand geprüft hat**: Wortstellung, Idiomatik und Ton." Ohne ihn
+wirkte der Inhalt geprüfter, als er ist; als Zähler täuschte er einen Weg vor,
+den niemand geht. Ein Satz ist beides nicht.
 
-- die prüfende Person ist im Register benannt, **samt Herkunft** (ein bloßer
-  Name belegt keine Sprachkompetenz),
-- die Wendung existiert wirklich,
-- das Datum steht als ISO-Datum da,
-- ein Urteil „korrigiert" nennt die **alte Fassung** — sonst ist die Korrektur
-  nicht nachvollziehbar,
-- keine Wendung zweimal.
+**Was bleibt, ist die Richtung:** Jedes Wort gegen ein Wörterbuch mit 152.719
+Einträgen und gegen Korpushäufigkeiten · vollständige Dekodierung (`check:decoding`)
+· Rückübersetzungs-Abgleich (`check:backtranslation`). Das ist kein Ersatz für
+einen Menschen und wird auch nirgends als einer ausgegeben.
 
-Fünf Fälschungsversuche wurden beim Bau gegen den Wächter gefahren; alle fünf
-brachen den Lauf ab. Ohne belegbaren Eintrag bleibt die Zahl bei 0 — lieber gar
-keine Zahl als eine erfundene.
-
-**Reihenfolge-Empfehlung für die Gegenlesung:** zuerst die Punkte aus dem
-Durchgang oben (B3 Sie/du, B4 `ni`, B5 `vilken`, B11 bestimmte Formen) — dort
-steht bereits eine konkrete Frage. Danach die drei maschinell auffälligen
-Wendungen. Erst dann der Rest von vorn.
+Die offenen Sprachfragen weiter oben („Offen für die muttersprachliche
+Prüfung") bleiben stehen — falls doch einmal jemand gegenliest, ist die Liste da.

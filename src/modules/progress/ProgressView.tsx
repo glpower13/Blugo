@@ -11,6 +11,8 @@
 
 import type { ChunkState } from '../../domain/chunk';
 import { MemoryRing } from './MemoryRing';
+import { Milestones } from './Milestones';
+import type { MilestoneProgress } from './milestones';
 import { MemoryField } from './MemoryField';
 import { bandStatus } from '../memory/difficulty';
 import { VERIFICATION_META } from '../content/verification.generated';
@@ -26,6 +28,7 @@ interface Props {
   totalChunks: number;
   successRate: number | null;
   spoken: number; // Wendungen, die laut gesagt und richtig erkannt wurden (P3)
+  milestones: MilestoneProgress[];
 }
 
 export function ProgressView({
@@ -39,6 +42,7 @@ export function ProgressView({
   totalChunks,
   successRate,
   spoken,
+  milestones,
 }: Props) {
   return (
     <div className="mx-auto flex w-full max-w-md flex-col gap-4 md:max-w-xl">
@@ -93,6 +97,8 @@ export function ProgressView({
           <MemoryField states={states} />
         </div>
       </section>
+
+      <Milestones progress={milestones} />
 
       <section className="glass-soft rounded-2xl p-4">
         <h2 className="text-[0.7rem] font-semibold uppercase tracking-[0.14em] text-muted">
@@ -171,31 +177,20 @@ export function ProgressView({
               </dd>
             </div>
           )}
-          {/* Die Zahl war hier fest eingetippt — sie konnte sich also gar nicht
-              bewegen, selbst wenn jemand gegengelesen hätte. Jetzt kommt sie aus
-              dem Register (`content/muttersprachliche-pruefung.json`), und ein
-              Wächter lässt nur belegbare Einträge zu. */}
+          {/* KEINE Zahl für „muttersprachlich geprüft" (Entscheidung 2026-07-25).
+              Es gibt niemanden, der gegenliest — eine Skala, auf der man nie
+              vorankommt, ist keine Auskunft, sondern sieht nur so aus.
+              Der SATZ über die Grenze bleibt: Ohne ihn wirkte der Inhalt
+              geprüfter, als er ist. Kein Zähler, keine 0, kein Balken — eine
+              nüchterne Feststellung. */}
           <div>
-            <dt
-              className={`font-semibold ${VERIFICATION_META.native > 0 ? 'text-success' : 'text-danger'}`}
-            >
-              {VERIFICATION_META.native} muttersprachlich geprüft
-            </dt>
+            <dt className="font-semibold text-warn">Was hier niemand geprüft hat</dt>
             <dd className="text-faint">
-              {VERIFICATION_META.native === 0 ? (
-                <>
-                  Keine einzige Wendung hat bisher eine schwedischsprachige Person
-                  gegengelesen. Wortstellung, Idiomatik und Ton kann keine Maschine
-                  bestätigen — deshalb steht hier eine 0 und keine Beschönigung.
-                </>
-              ) : (
-                <>
-                  Von einer schwedischsprachigen Person gegengelesen — Wortstellung,
-                  Idiomatik und Ton. Das ist die einzige Stufe, die eine Maschine nicht
-                  vergeben kann. Die übrigen {totalChunks - VERIFICATION_META.native} warten
-                  noch darauf.
-                </>
-              )}
+              Wortstellung, Idiomatik und Ton. Dafür bräuchte es eine
+              schwedischsprachige Person, und die gibt es in diesem Projekt nicht.
+              Die Maschine sagt dir, dass jedes Wort echtes Schwedisch ist — ob der
+              Satz auch so gesagt wird, sagt sie nicht. Nimm den Inhalt als guten
+              Ausgangspunkt, nicht als letzte Instanz.
             </dd>
           </div>
         </dl>

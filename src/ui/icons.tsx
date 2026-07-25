@@ -233,6 +233,40 @@ export function IconPeak({ className }: P) {
   );
 }
 
+/** Ämter & Dienste — Formular mit Stempel (Bank, Post, Bewerbung). */
+export function IconForm({ className }: P) {
+  return (
+    <svg {...box(className)} fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M6 3.2h9l3.8 3.8V20.8H6Z" />
+      <path d="M14.6 3.4V7h3.6" />
+      <path d="M9 11h6M9 14.5h6M9 18h3" />
+    </svg>
+  );
+}
+
+/** Meinung & Gesellschaft — Waage (abwägen, nicht rechthaben). */
+export function IconScales({ className }: P) {
+  return (
+    <svg {...box(className)} fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M12 4.2v15.6M6.5 20.2h11" />
+      <path d="M4 7.4h16" />
+      <path d="M4 7.4 1.8 12.6a2.6 2.6 0 0 0 4.4 0Z" />
+      <path d="M20 7.4l-2.2 5.2a2.6 2.6 0 0 0 4.4 0Z" />
+    </svg>
+  );
+}
+
+/** Sprache & Feinheiten — Anführungszeichen (Nuance, Redewendung). */
+export function IconQuote({ className }: P) {
+  return (
+    <svg {...box(className)} fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M4.2 15.5c0-4.4 1.8-7 5-8.2M9.2 15.5c0-4.4 1.8-7 5-8.2" />
+      <path d="M4.2 15.5h5v-4.2h-5ZM9.2 15.5h5v-4.2h-5Z" />
+      <path d="M16.5 17.8h3.4" />
+    </svg>
+  );
+}
+
 /** Mikrofon — Spracheingabe (P1/P2, docs/gremium-sprachpartner.md). */
 export function IconMic({ className }: P) {
   return (

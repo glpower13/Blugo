@@ -13,7 +13,7 @@
 //   · „Erhalt-Ziel" — der Regler, der den Aufwand steuert, ohne den Maßstab
 //     anzufassen (der Beweis bleibt derselbe empirische Beweis).
 //   · „Prüfstand" statt „Über" — was die App über sich selbst weiß, inklusive
-//     der unbequemen 0.
+//     dessen, was hier niemand geprüft hat.
 //
 // KEINE EINSTELLUNG DARF DIE EHRLICHKEIT ABSCHALTEN. Es gibt hier kein
 // „Fortschritt großzügiger anzeigen" und keinen Motivationsmodus. Wer so etwas
@@ -610,13 +610,13 @@ function AboutSection({ totalChunks }: { totalChunks: number }) {
             {VERIFICATION_META.unchecked} auffällig markiert
           </dd>
         </div>
+        {/* Keine Zahl, ein Satz — siehe ProgressView. */}
         <div>
-          <dt className="font-semibold text-danger">0 muttersprachlich geprüft</dt>
+          <dt className="font-semibold text-warn">Was hier niemand geprüft hat</dt>
           <dd className="text-faint">
-            Keine Wendung hat bisher eine schwedischsprachige Person gegengelesen. Wir prüfen
-            jedes Wort gegen ein Wörterbuch mit{' '}
-            {VERIFICATION_META.dictionaryEntries.toLocaleString('de-DE')} Einträgen — Satzbau,
-            Idiomatik und Ton kann das nicht ersetzen.
+            Wortstellung, Idiomatik und Ton. Wir prüfen jedes Wort gegen ein Wörterbuch mit{' '}
+            {VERIFICATION_META.dictionaryEntries.toLocaleString('de-DE')} Einträgen — ob der Satz
+            auch so gesagt wird, kann das nicht ersetzen.
           </dd>
         </div>
         <div>

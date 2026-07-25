@@ -182,9 +182,13 @@ describe('Prüf-Stand (verification.generated.ts)', () => {
     }
   });
 
-  it('behauptet NIRGENDS eine muttersprachliche Prüfung — es gab noch keine', () => {
-    expect(VERIFICATION_META.native).toBe(0);
-    expect(Object.values(VERIFICATION)).not.toContain('native');
+  it('kennt nur die zwei Stufen, die eine Maschine wirklich vergeben kann', () => {
+    // Eine Stufe „muttersprachlich geprüft" gibt es bewusst nicht mehr
+    // (Entscheidung 2026-07-25): Es liest niemand gegen, und eine Skala, auf der
+    // man nie vorankommt, ist keine Auskunft. Der SATZ über die Grenze steht
+    // weiterhin in der App — nur eben nicht als Zähler.
+    expect(new Set(Object.values(VERIFICATION))).toEqual(new Set(['machine', 'unchecked']));
+    expect(Object.keys(VERIFICATION_META)).not.toContain('native');
   });
 
   it('begründet jede ungeprüfte Wendung', () => {

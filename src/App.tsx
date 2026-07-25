@@ -28,6 +28,7 @@ const DialogScene = lazy(() =>
 );
 import { computeMetrics, directionSplit, spokenAloud } from './modules/progress/metrics';
 import { areaProgress, categoryProgress } from './modules/progress/categories';
+import { milestoneProgress } from './modules/progress/milestones';
 import { InstallButton } from './ui/InstallButton';
 import { Backdrop } from './ui/Backdrop';
 import { NameEditor } from './ui/NameEditor';
@@ -186,6 +187,8 @@ export default function App() {
   // gedrückt wurde — und die Anti-Klippen-Logik, die daran hängt, reagierte erst
   // beim nächsten App-Start (Ehrlichkeits-Audit 2026-07-25).
   const successRate = useMemo(() => recentSuccessRate(stateList), [stateList]);
+  // Sprachliche Meilensteine (A1 … B2) — bewegen sich nur an BEWIESENEN Wendungen.
+  const milestones = useMemo(() => milestoneProgress(chunks, categories, states), [chunks, categories, states]);
   const metrics = useMemo(() => computeMetrics(stateList), [stateList]);
   // Laut Gesagtes (P3): eine Eigenschaft der Abrufe, keine zweite Währung.
   const spokenCount = useMemo(() => spokenAloud(stateList), [stateList]);
@@ -555,6 +558,7 @@ export default function App() {
             totalChunks={chunks.length}
             successRate={successRate}
             spoken={spokenCount}
+            milestones={milestones}
           />
         )}
 

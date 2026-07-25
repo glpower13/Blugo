@@ -41,10 +41,10 @@ except ImportError:  # pragma: no cover - Hinweis statt Absturz
     sys.exit("Fehlt: pip install wordfreq")
 
 ROOT = Path(__file__).resolve().parent.parent
-SEED_FILES = [
-    ROOT / "src/modules/content/seedSegments.ts",
-    ROOT / "src/modules/content/seedDialogs.ts",
-]
+# Alle Inhaltsdateien — `seedSegments.ts`, `seedDialogs.ts` und der Stoff je
+# Meilenstein (`seedA1.ts` …). Bewusst ein Muster statt einer Liste: eine neue
+# Niveau-Datei darf nie stillschweigend UNGEPRÜFT in die App laufen.
+SEED_FILES = sorted((ROOT / "src/modules/content").glob("seed*.ts"))
 REPORT = ROOT / "docs/content-pruefbericht.md"
 # Maschinenlesbares Ergebnis für Stufe 4 der Prüfkette (der Prüf-Stand je
 # Wendung in der App). Der Bericht ist für Menschen, diese Datei für

@@ -1,27 +1,32 @@
-// SEED CONTENT — deutlich erweitert 2026-07-23, aber weiterhin PROVISORISCH.
+// SEED CONTENT — der GRUNDSTOCK. Der Ausbau je Meilenstein liegt in
+// `seedA1.ts`, `seedA2.ts`, `seedB1.ts`, `seedB2.ts`; ganz unten werden alle
+// vier zu EINEM Baum zusammengesetzt.
 //
 // ⚠️ EHRLICH: Dieser Inhalt ist von der KI/uns verfasst, **NICHT muttersprachlich
 // geprüft**. Er macht den Loop erlebbar und gibt jedem Chunk ≥2 Kontexte (Kontext-
-// variation — docs/03-method.md, Schritt 4), ist aber noch NICHT die geprüfte
-// Produktions-Qualität. Vor echtem Einsatz: schwedische Muttersprache-QS
-// (docs/content-review-schwedisch.md, docs/08-content-pipeline.md). Die
-// Dekodierungen sind STRUKTURELLE Wort-für-Wort-Glossen (Birkenbihl), keine
-// schönen Übersetzungen — deshalb wirken sie absichtlich holprig.
+// variation — docs/03-method.md, Schritt 4). Wortstellung, Idiomatik und Ton hat
+// niemand gegengelesen — das bleibt so, es gibt niemanden dafür
+// (docs/content-review-schwedisch.md). Die Dekodierungen sind STRUKTURELLE
+// Wort-für-Wort-Glossen (Birkenbihl), keine schönen Übersetzungen — deshalb
+// wirken sie absichtlich holprig.
 //
-// Stand 2026-07-25: 8 Bereiche · 30 Themen · 179 Wendungen · 15 Gespräche.
-// Zuletzt ergänzt: Wetter & Jahreszeiten, Wohnen & Zuhause, Arbeit & Beruf,
-// Telefon & Nachrichten, Winter & Schnee. Weiterer Ausbau über die
-// KI-Content-Fabrik (der Moat).
+// Stand 2026-07-25: 11 Bereiche · 55 Themen · 379 Wendungen · 934 Segmente ·
+// 15 Gespräche · 2,89 Kontexte je Wendung. Verteilung über die sprachlichen
+// Meilensteine: A1 108 · A2 119 · B1 104 · B2 48.
 //
 // Der maschinelle Prüf-Stand JE WENDUNG steht in `verification.generated.ts`
 // (Stufe 4 der Prüfkette). Nach jeder Inhaltsänderung neu erzeugen:
 //   npm run check:content && npm run verify:build
 
 import type { Area, Category, Chunk, Segment } from '../../domain/chunk';
+import * as a1 from './seedA1';
+import * as a2 from './seedA2';
+import * as b1 from './seedB1';
+import * as b2 from './seedB2';
 
 // Erste Ebene des Baums: Lebens-BEREICHE (docs/gremium-struktur.md). Der Lerner
 // browst flach: Bereich → Thema → Wendung, statt eine Endlosliste zu scrollen.
-export const seedAreas: Area[] = [
+const baseAreas: Area[] = [
   {
     id: 'area-basics',
     title: 'Erste Schritte',
@@ -75,13 +80,14 @@ export const seedAreas: Area[] = [
 // Zweite Ebene: Themen (Unterpunkte) je Bereich (docs/gremium-struktur.md). Themen
 // organisieren den Stoff und geben eine ehrliche Abdeckung + eine Fokus-Wahl für
 // NEUEN Stoff — KEINE „Lektionen" zum Abschließen (die Memory-Engine treibt den Loop).
-export const seedCategories: Category[] = [
+const baseCategories: Category[] = [
   {
     id: 'cat-greet',
     areaId: 'area-basics',
     title: 'Begrüßen & Kennenlernen',
     blurb: 'Hallo sagen, sich vorstellen, nach dem Befinden fragen.',
     order: 1,
+    cefr: 'A1',
   },
   {
     id: 'cat-understand',
@@ -89,6 +95,7 @@ export const seedCategories: Category[] = [
     title: 'Sich verständigen',
     blurb: 'Nachfragen, wenn du etwas nicht verstehst.',
     order: 2,
+    cefr: 'A1',
   },
   {
     id: 'cat-around',
@@ -96,6 +103,7 @@ export const seedCategories: Category[] = [
     title: 'Nach dem Weg fragen',
     blurb: 'Um Hilfe bitten, nach dem Weg und der Toilette fragen.',
     order: 1,
+    cefr: 'A1',
   },
   {
     id: 'cat-cafe',
@@ -103,6 +111,7 @@ export const seedCategories: Category[] = [
     title: 'Im Café',
     blurb: 'Etwas bestellen, nach dem Preis fragen, danke sagen.',
     order: 1,
+    cefr: 'A1',
   },
   {
     id: 'cat-food',
@@ -110,6 +119,7 @@ export const seedCategories: Category[] = [
     title: 'Essen & Trinken',
     blurb: 'Hunger, Durst, bestellen, guten Appetit.',
     order: 2,
+    cefr: 'A1',
   },
   {
     id: 'cat-family',
@@ -117,6 +127,7 @@ export const seedCategories: Category[] = [
     title: 'Familie & Herkunft',
     blurb: 'Woher du kommst, wo du wohnst, Familie.',
     order: 1,
+    cefr: 'A1',
   },
   {
     id: 'cat-daily',
@@ -124,6 +135,7 @@ export const seedCategories: Category[] = [
     title: 'Alltag & Small Talk',
     blurb: 'Wetter, Beruf, Alter, sich verabschieden.',
     order: 2,
+    cefr: 'A2',
   },
   {
     id: 'cat-numbers',
@@ -131,6 +143,7 @@ export const seedCategories: Category[] = [
     title: 'Zahlen & Zeit',
     blurb: 'Nach der Uhrzeit und dem Tag fragen.',
     order: 3,
+    cefr: 'A1',
   },
 
   // ── Erweiterung 2026-07-23 · neue Themen (nicht muttersprachlich geprüft) ──
@@ -140,6 +153,7 @@ export const seedCategories: Category[] = [
     title: 'Höflich & Basics',
     blurb: 'Ja, nein, danke, bitte, Entschuldigung.',
     order: 3,
+    cefr: 'A1',
   },
   {
     id: 'cat-transport',
@@ -147,6 +161,7 @@ export const seedCategories: Category[] = [
     title: 'Bus, Bahn & Taxi',
     blurb: 'Tickets, Abfahrt, Gleis, Haltestelle.',
     order: 2,
+    cefr: 'A2',
   },
   {
     id: 'cat-hotel',
@@ -154,6 +169,7 @@ export const seedCategories: Category[] = [
     title: 'Im Hotel',
     blurb: 'Zimmer, Preis, Frühstück, Schlüssel.',
     order: 3,
+    cefr: 'A2',
   },
   {
     id: 'cat-restaurant',
@@ -161,6 +177,7 @@ export const seedCategories: Category[] = [
     title: 'Im Restaurant',
     blurb: 'Tisch, Karte, bestellen, satt & zahlen.',
     order: 3,
+    cefr: 'A2',
   },
   {
     id: 'cat-shop',
@@ -168,6 +185,7 @@ export const seedCategories: Category[] = [
     title: 'Im Geschäft',
     blurb: 'Schauen, Größe, anprobieren, nehmen.',
     order: 1,
+    cefr: 'A1',
   },
   {
     id: 'cat-pay',
@@ -175,6 +193,7 @@ export const seedCategories: Category[] = [
     title: 'Bezahlen',
     blurb: 'Karte oder bar, Beleg, zu teuer.',
     order: 2,
+    cefr: 'A1',
   },
   {
     id: 'cat-groceries',
@@ -182,6 +201,7 @@ export const seedCategories: Category[] = [
     title: 'Im Supermarkt',
     blurb: 'Finden, fragen, Kilo & Tüte, Kasse.',
     order: 3,
+    cefr: 'A1',
   },
   {
     id: 'cat-health',
@@ -189,6 +209,7 @@ export const seedCategories: Category[] = [
     title: 'Beim Arzt & Apotheke',
     blurb: 'Krank, Schmerzen, Arzt, Apotheke.',
     order: 1,
+    cefr: 'A2',
   },
   {
     id: 'cat-help-emergency',
@@ -196,6 +217,7 @@ export const seedCategories: Category[] = [
     title: 'Notfall & Hilfe',
     blurb: 'Hilfe, Polizei, Krankenwagen, verlaufen.',
     order: 2,
+    cefr: 'A1',
   },
   {
     id: 'cat-hangout',
@@ -203,6 +225,7 @@ export const seedCategories: Category[] = [
     title: 'Abmachen & Treffen',
     blurb: 'Sich verabreden, absagen, „wir hören uns".',
     order: 1,
+    cefr: 'A2',
   },
   {
     id: 'cat-workshop',
@@ -210,6 +233,7 @@ export const seedCategories: Category[] = [
     title: 'In der Werkstatt',
     blurb: 'Schrauben, helfen, herausfinden was klappert.',
     order: 2,
+    cefr: 'B1',
   },
   {
     id: 'cat-motor',
@@ -217,6 +241,7 @@ export const seedCategories: Category[] = [
     title: 'Autos & Motorsport',
     blurb: 'Rennen schauen, mitfiebern, über Autos reden.',
     order: 3,
+    cefr: 'B1',
   },
   {
     id: 'cat-gaming',
@@ -224,6 +249,7 @@ export const seedCategories: Category[] = [
     title: 'Zocken & online',
     blurb: 'Zusammen spielen, im Sprachchat reden, kurz weg sein.',
     order: 4,
+    cefr: 'B1',
   },
   {
     id: 'cat-fishing',
@@ -231,6 +257,7 @@ export const seedCategories: Category[] = [
     title: 'Angeln',
     blurb: 'Am See: beißt was, was für ein Fisch, Petri Heil.',
     order: 1,
+    cefr: 'B1',
   },
   {
     id: 'cat-football',
@@ -238,6 +265,7 @@ export const seedCategories: Category[] = [
     title: 'Fußball & Zuschauen',
     blurb: 'Spielstand, Tore, mitfiebern, wer spielt.',
     order: 2,
+    cefr: 'B1',
   },
   {
     id: 'cat-training',
@@ -245,6 +273,7 @@ export const seedCategories: Category[] = [
     title: 'Trainieren',
     blurb: 'Laufen, Gym, verabreden zum Sport.',
     order: 3,
+    cefr: 'B1',
   },
   {
     id: 'cat-nature',
@@ -252,6 +281,7 @@ export const seedCategories: Category[] = [
     title: 'Raus in die Natur',
     blurb: 'Wandern, Wald, Wetter, Übernachten draußen.',
     order: 4,
+    cefr: 'B1',
   },
   {
     id: 'cat-weather',
@@ -259,6 +289,7 @@ export const seedCategories: Category[] = [
     title: 'Wetter & Jahreszeiten',
     blurb: 'Der Klassiker im Small Talk: Sonne, Wind, Regen.',
     order: 4,
+    cefr: 'A2',
   },
   {
     id: 'cat-home',
@@ -266,6 +297,7 @@ export const seedCategories: Category[] = [
     title: 'Wohnen & Zuhause',
     blurb: 'Wohnung, Zimmer, Miete — und jemanden hereinbitten.',
     order: 5,
+    cefr: 'A2',
   },
   {
     id: 'cat-work',
@@ -273,6 +305,7 @@ export const seedCategories: Category[] = [
     title: 'Arbeit & Beruf',
     blurb: 'Was machst du beruflich, Termine, kurze Absprachen.',
     order: 6,
+    cefr: 'B1',
   },
   {
     id: 'cat-phone',
@@ -280,6 +313,7 @@ export const seedCategories: Category[] = [
     title: 'Telefon & Nachrichten',
     blurb: 'Anrufen, zurückrufen, kurz schreiben.',
     order: 4,
+    cefr: 'A2',
   },
   {
     id: 'cat-winter',
@@ -287,10 +321,11 @@ export const seedCategories: Category[] = [
     title: 'Winter & Schnee',
     blurb: 'Schnee, Glätte, früh dunkel — der schwedische Winter.',
     order: 5,
+    cefr: 'B1',
   },
 ];
 
-export const seedChunks: Chunk[] = [
+const baseChunks: Chunk[] = [
   {
     id: 'c-hej',
     categoryId: 'cat-greet',
@@ -623,7 +658,7 @@ export const seedChunks: Chunk[] = [
   { id: 'c-morkttidigt', categoryId: 'cat-winter', sv: 'det blir mörkt tidigt', de: 'es wird früh dunkel', decoding: [{ sv: 'det', de: 'es' }, { sv: 'blir', de: 'wird' }, { sv: 'mörkt', de: 'dunkel' }, { sv: 'tidigt', de: 'früh' }] },
 ];
 
-export const seedSegments: Segment[] = [
+const baseSegments: Segment[] = [
   // c-hej in two contexts
   {
     id: 's-cafe',
@@ -1446,3 +1481,13 @@ export const seedSegments: Segment[] = [
   { id: 's-tardenhar3', level: 1, sv: 'Jag tar den här. Jag är hungrig!', de: 'Ich nehme das hier. Ich bin hungrig!', decoding: [{ sv: 'jag', de: 'ich' }, { sv: 'tar', de: 'nehme' }, { sv: 'den', de: 'das' }, { sv: 'här', de: 'hier' }, { sv: 'jag', de: 'ich' }, { sv: 'är', de: 'bin' }, { sv: 'hungrig', de: 'hungrig' }], chunkIds: ['c-tardenhar'] },
   { id: 's-matt3', level: 1, sv: 'Det var gott, men jag är mätt.', de: 'Das war lecker, aber ich bin satt.', decoding: [{ sv: 'det', de: 'das' }, { sv: 'var', de: 'war' }, { sv: 'gott', de: 'lecker' }, { sv: 'men', de: 'aber' }, { sv: 'jag', de: 'ich' }, { sv: 'är', de: 'bin' }, { sv: 'mätt', de: 'satt' }], chunkIds: ['c-matt', 'c-vargott'] },
 ];
+
+// ── Zusammenbau ──────────────────────────────────────────────────────────────
+// Der Stoff je Meilenstein liegt in eigenen Dateien (`seedA1.ts` …), damit eine
+// Datei nicht auf zehntausend Zeilen wächst und ein Ausbau je Niveau lesbar
+// bleibt. Nach außen bleibt es EIN Baum: alles andere im Code kennt nur diese
+// drei Listen.
+export const seedAreas: Area[] = [...baseAreas, ...a2.areas, ...b1.areas, ...b2.areas];
+export const seedCategories: Category[] = [...baseCategories, ...a1.categories, ...a2.categories, ...b1.categories, ...b2.categories];
+export const seedChunks: Chunk[] = [...baseChunks, ...a1.chunks, ...a2.chunks, ...b1.chunks, ...b2.chunks];
+export const seedSegments: Segment[] = [...baseSegments, ...a1.segments, ...a2.segments, ...b1.segments, ...b2.segments];

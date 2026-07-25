@@ -169,7 +169,7 @@ Danach läuft der Ablauf automatisch und die App erscheint unter
 unter **Settings → Pages** und in der **Actions**-Übersicht. Diesen Link im Handy-Browser öffnen
 → „Zum Startbildschirm hinzufügen", fertig.
 
-> Hinweis: Stand 2026-07-25 liegen **8 Bereiche, 30 Themen, 179 Wendungen und 15 Gespräche** bei. Davon sind **176 maschinell vorgeprüft** (jedes Wort gegen ein Wörterbuch mit 152.719 Einträgen und gegen Korpus-Häufigkeiten), **3 sind auffällig markiert** — und **0 sind muttersprachlich geprüft**. Wortstellung, Idiomatik und Ton kann keine Maschine bestätigen; die Prüfkette macht die menschliche Prüfung nur klein genug, um machbar zu sein (`docs/gremium-content-pruefung.md`, Prüfstand: `docs/content-review-schwedisch.md`). Der dauerhafte Ausbau läuft über die KI-Content-Fabrik (`docs/08-content-pipeline.md`).
+> Hinweis: Stand 2026-07-25 liegen **11 Bereiche, 55 Themen, 379 Wendungen, 934 Kontext-Sätze und 15 Gespräche** bei, verteilt über die sprachlichen Meilensteine **A1 (108) · A2 (119) · B1 (104) · B2 (48)**. Davon sind **376 maschinell vorgeprüft** (jedes Wort gegen ein Wörterbuch mit 152.719 Einträgen und gegen Korpus-Häufigkeiten), **3 sind auffällig markiert**. **Wortstellung, Idiomatik und Ton hat niemand gegengelesen** — dafür bräuchte es eine schwedischsprachige Person, und die gibt es in diesem Projekt nicht. Deshalb gibt es dafür auch keinen Zähler, sondern nur diesen Satz (`docs/content-review-schwedisch.md`, Prüfkette: `docs/gremium-content-pruefung.md`). Der dauerhafte Ausbau läuft über die KI-Content-Fabrik (`docs/08-content-pipeline.md`).
 
 ### Gebaut vs. konzipiert (Ehrlichkeit, kein Überzeichnen)
 
@@ -180,6 +180,7 @@ Damit Doku und Realität nicht auseinanderdriften — was *heute Code* ist und w
 | Comprehension-Loop (Begegnung → Hilfen → Abruf → Logging) | ✅ gebaut |
 | Memory-Engine — Spacing per **FSRS** (DSR-Modell), Stufen, Wartung, Demotion | ✅ gebaut |
 | Ehrliche Messung (aktiv · reift · **bewiesen** stabil · Abdeckung) | ✅ gebaut |
+| Sprachliche Meilensteine A1 … B2 — „wo stehe ich?", erreicht erst bei ≥ 90 % **bewiesenen** Wendungen des Niveaus, kein Zertifikat | ✅ gebaut (`07-measurement.md`, Nachtrag 2) |
 | Kontextvariation, Tages-Dosierung neuer Chunks | ✅ gebaut |
 | Thematische Struktur — Chunks in Kategorien, ehrliche Themen-Abdeckung („X von Y bewiesen stabil"), Fokus-Wahl für neuen Stoff | ✅ gebaut (`gremium-struktur.md`) |
 | Navigation — Übersicht → Thema-Detail (Drill-down mit den einzelnen Wendungen) → fokussierte Lern-Session (mit Fortschritt & Zurück) | ✅ gebaut (client-seitig, kein Router) |

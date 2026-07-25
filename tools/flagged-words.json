@@ -1,8 +1,13 @@
 {
   "dictionaryEntries": 152719,
-  "wordsChecked": 434,
-  "stringsChecked": 4018,
+  "wordsChecked": 873,
+  "stringsChecked": 9341,
   "flagged": {
+    "automaten": {
+      "verdict": "selten",
+      "zipf": 2.93,
+      "inDict": false
+    },
     "provrummet": {
       "verdict": "selten",
       "zipf": 2.22,
