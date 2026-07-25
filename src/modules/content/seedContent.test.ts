@@ -56,6 +56,20 @@ describe('seed content — Integrität', () => {
     }
   });
 
+  it('keine Wendung steht zweimal im Baum (sonst zerfällt das Können auf zwei Zähler)', () => {
+    // Ein exaktes Duplikat („det regnar" in zwei Themen) wäre schlimmer als ein
+    // ID-Konflikt: dieselbe Kenntnis bekäme zwei Gedächtnis-Zustände, und die
+    // ehrliche Messung würde denselben Beweis doppelt zählen bzw. nie erreichen.
+    const norm = (t: string) => t.trim().toLowerCase().replace(/[.!?,;:]+$/g, '');
+    const seen = new Map<string, string>();
+    for (const c of seedChunks) {
+      const key = norm(c.sv);
+      const first = seen.get(key);
+      expect(first, `„${c.sv}" steht doppelt: ${first} und ${c.id}`).toBeUndefined();
+      seen.set(key, c.id);
+    }
+  });
+
   it('jede Kategorie enthält mindestens einen Chunk', () => {
     const used = new Set(seedChunks.map((c) => c.categoryId));
     for (const cat of seedCategories) {
