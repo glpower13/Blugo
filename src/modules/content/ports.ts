@@ -55,6 +55,49 @@ export interface Explainer {
   explain(req: ExplainRequest): Promise<string>;
 }
 
+// --- Sparringspartner (P4, docs/gremium-sprachpartner.md §9) --------------------
+
+/** Eine gesagte Zeile im laufenden Gespräch. */
+export interface SparringLine {
+  who: 'partner' | 'you';
+  sv: string;
+}
+
+/** Anfrage an den Gesprächspartner: was sagt er als Nächstes? */
+export interface SparringRequest {
+  /** Die Szene in einem deutschen Satz (Café, Werkstatt …) — Kulisse für den Partner. */
+  scene: string;
+  /** Wie der Partner heißt und wer er ist (z. B. „Kellnerin Elin"). */
+  partner: string;
+  /** Vorname des Lerners (leer = keiner). */
+  learnerName: string;
+  /**
+   * Wendungen, die der Partner HERVORLOCKEN soll — der ganze Zweck des Modus.
+   * Er darf sie nicht selbst aussprechen, sondern muss Fragen stellen, auf die
+   * sie die natürliche Antwort sind.
+   */
+  targets: KnownPhrase[];
+  /** Bisheriger Verlauf (älteste zuerst). */
+  history: SparringLine[];
+}
+
+/** Was der Partner sagt. */
+export interface SparringReply {
+  sv: string; // seine Zeile auf Schwedisch
+  de: string; // deutsche Übersetzung derselben Zeile
+}
+
+/**
+ * Ein gesprächsfähiger Partner (P4). Bewusst als eigener Port: heute ein
+ * Text-Modell, dessen Antwort die vorhandene Sprachausgabe vorliest; später
+ * kann ein echter Sprach-zu-Sprach-Dienst denselben Port belegen, ohne dass eine
+ * aufrufende Stelle sich ändert (`docs/gremium-sprachpartner.md` §9).
+ */
+export interface SparringPartner {
+  readonly id: string;
+  reply(req: SparringRequest): Promise<SparringReply>;
+}
+
 /** Anfrage an die Sprachausgabe. */
 export interface SpeakRequest {
   text: string;

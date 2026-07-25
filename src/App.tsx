@@ -35,6 +35,11 @@ const AiSettings = lazy(() =>
   import('./modules/content/AiSettings').then((m) => ({ default: m.AiSettings })),
 );
 import { initAiSettings } from './modules/content/aiSettings';
+import { aiRegistry } from './modules/content/aiRegistry';
+import { pickTargets } from './modules/sparring/targets';
+const SparringScene = lazy(() =>
+  import('./modules/sparring/SparringScene').then((m) => ({ default: m.SparringScene })),
+);
 
 // Ein Scope grenzt eine Session ein: ein ganzer Bereich oder ein einzelnes Thema.
 type SessionScope = { kind: 'area' | 'category'; id: string };
@@ -50,6 +55,7 @@ type View =
   | { name: 'area'; id: string }
   | { name: 'category'; id: string }
   | { name: 'dialog'; id: string }
+  | { name: 'sparring' } // freies Gespräch mit dem KI-Partner (P4)
   | { name: 'session' };
 
 /** Zu welchem Reiter eine Drill-down-Ansicht gehört (für die aktive Markierung). */
@@ -58,6 +64,7 @@ function tabOf(view: View): Tab {
     case 'tab':
       return view.tab;
     case 'dialog':
+    case 'sparring':
       return 'talk';
     default:
       return 'learn';
@@ -142,6 +149,11 @@ export default function App() {
   const metrics = useMemo(() => computeMetrics(stateList), [stateList]);
   // Laut Gesagtes (P3): eine Eigenschaft der Abrufe, keine zweite Währung.
   const spokenCount = useMemo(() => spokenAloud(stateList), [stateList]);
+  // Fällige Wendungen, die der Sparringspartner hervorlocken soll (P4).
+  const sparringTargets = useMemo(
+    () => pickTargets(chunks, states, Date.now()),
+    [chunks, states],
+  );
   // Wie viele Wendungen in welcher RICHTUNG stehen (gemessen, nicht gewählt).
   const direction = useMemo(() => directionSplit(stateList), [stateList]);
   const catProgress = useMemo(
@@ -318,10 +330,40 @@ export default function App() {
     [states],
   );
 
+  // Im Sparring produzierte Wendung: derselbe Weg wie überall (P4). Bewusst
+  // ohne Selbsteinschätzung — hier ist der Treffer objektiv: der Lerner hat die
+  // geprüfte Wendung selbst gesagt, ohne dass sie ihm vorgesagt wurde.
+  const handleSparringProduced = useCallback(
+    (chunk: Chunk, spoken: boolean, helpUsed: boolean) => {
+      const state = states[chunk.id];
+      if (!state) return;
+      const now = Date.now();
+      const segId = `sparring:${chunk.id}:${now}`;
+      const next = schedule(state, 'good', segId, now, { spoken });
+      void (async () => {
+        try {
+          await putChunkState(next);
+          await logEvent(chunk.id, {
+            at: now,
+            result: 'good',
+            segmentId: segId,
+            helpUsed,
+            ...(spoken ? { spoken: true } : {}),
+          });
+          setStates((prev) => ({ ...prev, [chunk.id]: next }));
+        } catch (e) {
+          console.error('Persist failed', e);
+          setError('Die Bewertung konnte nicht gespeichert werden. Bitte die App neu laden.');
+        }
+      })();
+    },
+    [states],
+  );
+
   const done = !loading && pos >= queue.length;
   // Ebene 4 (Lernen/Gespräch): die globale Navigation verschwindet — nichts lenkt
   // ab (docs/gremium-navigation.md §4, „Formsprache je Ebene").
-  const showTabs = view.name !== 'session' && view.name !== 'dialog';
+  const showTabs = view.name !== 'session' && view.name !== 'dialog' && view.name !== 'sparring';
   const activeArea = view.name === 'area' ? areaProg.find((a) => a.area.id === view.id) : undefined;
   const activeCategory =
     view.name === 'category' ? categories.find((c) => c.id === view.id) : undefined;
@@ -416,6 +458,10 @@ export default function App() {
             areas={areas}
             states={states}
             onOpen={(id) => navigate('push', () => setView({ name: 'dialog', id }))}
+            onOpenSparring={
+              aiRegistry.partner ? () => navigate('push', () => setView({ name: 'sparring' })) : null
+            }
+            sparringTargets={sparringTargets.length}
           />
         )}
 
@@ -570,6 +616,24 @@ export default function App() {
                   ),
                 )
               }
+            />
+          </Suspense>
+        )}
+
+        {/* ───────── SPARRING (freies Gespräch, gemessen — P4) ───────── */}
+        {view.name === 'sparring' && (
+          <Suspense
+            fallback={
+              <div className="glass mx-auto w-full max-w-xl rounded-2xl p-6 text-center text-muted">
+                Sparring lädt…
+              </div>
+            }
+          >
+            <SparringScene
+              targets={sparringTargets}
+              learnerName={name}
+              onProduced={handleSparringProduced}
+              onExit={() => navigate('pop', () => setView({ name: 'tab', tab: 'talk' }))}
             />
           </Suspense>
         )}

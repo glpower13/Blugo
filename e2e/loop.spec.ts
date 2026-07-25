@@ -447,3 +447,44 @@ test('speaking is offered next to typing in a dialogue, fully on screen', async 
   expect(consoleErrors, consoleErrors.join('\n')).toHaveLength(0);
   expect(pageErrors, pageErrors.join('\n')).toHaveLength(0);
 });
+
+// Stufe B: Sparringspartner (P4/P5, docs/gremium-sprachpartner.md §9).
+// Zwei Regeln werden hier festgenagelt: (1) ohne eigenen KI-Zugang gibt es den
+// Modus NICHT — kein Knopf, der zu einer Verkaufsseite führt; (2) wenn nichts
+// fällig ist, sagt die Fläche ausdrücklich, dass nichts gemessen wird.
+test('sparring partner appears only with a cloud key, and admits when it measures nothing', async ({
+  page,
+}) => {
+  const consoleErrors: string[] = [];
+  const pageErrors: string[] = [];
+  page.on('console', (m: ConsoleMessage) => {
+    if (m.type() === 'error') consoleErrors.push(m.text());
+  });
+  page.on('pageerror', (e) => pageErrors.push(String(e)));
+
+  await page.goto('/');
+  await openTab(page, 'Gespräche');
+  await expect(page.getByRole('heading', { name: 'Gespräche' })).toBeVisible();
+  // Ohne Schlüssel: nichts.
+  await expect(page.getByRole('button', { name: /Rede mit jemandem/ })).toHaveCount(0);
+
+  // Mit eigenem Schlüssel erscheint der Einstieg.
+  await openTab(page, 'Heute');
+  await page.getByRole('button', { name: 'KI-Einstellungen' }).click();
+  await page.getByText('Claude (Cloud)').click();
+  await page.getByPlaceholder('sk-ant-…').fill('sk-ant-test-000');
+  await page.getByRole('button', { name: 'Speichern' }).click();
+  await openTab(page, 'Gespräche');
+
+  const entry = page.getByRole('button', { name: /Rede mit jemandem/ });
+  await expect(entry).toBeVisible();
+  await entry.click();
+
+  // Kulissenwahl mit ehrlichem Hinweis (frisches Gerät: nichts fällig).
+  await expect(page.getByRole('heading', { name: 'Wo soll geredet werden?' })).toBeVisible();
+  await expect(page.getByText(/nichts gemessen/)).toBeVisible();
+  await expect(page.getByRole('button', { name: /Im Café/ })).toBeVisible();
+
+  expect(consoleErrors, consoleErrors.join('\n')).toHaveLength(0);
+  expect(pageErrors, pageErrors.join('\n')).toHaveLength(0);
+});

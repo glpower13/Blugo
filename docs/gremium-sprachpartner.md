@@ -161,14 +161,20 @@ Das Gremium hat den Bauplan aus §6 in **sechs abarbeitbare Phasen** zerlegt. Je
 für sich nutzbar, wird **einzeln geprüft** (Kaskade aus `TEST-UND-PRUEF-STANDARD.md`) und
 **einzeln ausgeliefert** — nicht ein großer Wurf am Ende.
 
-| Phase | Was entsteht | Abnahme („fertig" heißt) |
-|---|---|---|
-| **P1** | Spracherkennungs-Adapter hinter dem vorhandenen `SpeechRecognizer`-Port. On-Device bevorzugt, Verfügbarkeit **ehrlich** gemeldet | Adapter + Tests grün; auf einem Gerät ohne Erkennung erscheint **nichts** (kein toter Knopf) |
-| **P2** | Mikrofon im Lern-Loop (Produktion) und in der „du bist dran"-Zeile im Gespräch | Gesprochenes läuft durch **dieselbe** Prüfung und **dasselbe** `schedule()` wie Getipptes; Tippen bleibt gleichwertig |
-| **P3** | Gesprochene Abrufe werden als solche **festgehalten und ehrlich angezeigt** | „davon gesprochen: N" ist eine **Teilmenge** des Bewiesenen, keine zweite Währung |
-| **P4** | Szenengebundener Sparringspartner: Erkennung → Antwort auf Schwedisch → Sprachausgabe | Er lockt **fällige Wendungen** hervor, prüft sie gegen den geprüften Chunk, füttert die Engine; ohne Schlüssel unsichtbar |
-| **P5** | Freies Gespräch — ausdrücklich **ohne Messung** | Kein Fortschrittsbalken, keine Zahl, sichtbare Kennzeichnung „Übung, kein Beweis" |
-| **P6** | Kaskade, e2e, Screenshots hell/dunkel, Doku, Auslieferung | grüner, reproduzierbarer Lauf **plus eigenes Ansehen** |
+| Phase | Was entsteht | Abnahme („fertig" heißt) | Stand |
+|---|---|---|---|
+| **P1** | Spracherkennungs-Adapter hinter dem vorhandenen `SpeechRecognizer`-Port. On-Device bevorzugt, Verfügbarkeit **ehrlich** gemeldet | Adapter + Tests grün; auf einem Gerät ohne Erkennung erscheint **nichts** (kein toter Knopf) | ✅ `speech.ts`, `adapters/webSpeechRecognizer.ts` |
+| **P2** | Mikrofon im Lern-Loop (Produktion) und in der „du bist dran"-Zeile im Gespräch | Gesprochenes läuft durch **dieselbe** Prüfung und **dasselbe** `schedule()` wie Getipptes; Tippen bleibt gleichwertig | ✅ `useSpeechInput.ts`, `SpeakButton.tsx` |
+| **P3** | Gesprochene Abrufe werden als solche **festgehalten und ehrlich angezeigt** | „davon gesprochen: N" ist eine **Teilmenge** des Bewiesenen, keine zweite Währung | ✅ `ReviewEvent.spoken`, `spokenAloud()` |
+| **P4** | Szenengebundener Sparringspartner: Erkennung → Antwort auf Schwedisch → Sprachausgabe | Er lockt **fällige Wendungen** hervor, prüft sie gegen den geprüften Chunk, füttert die Engine; ohne Schlüssel unsichtbar | ✅ `modules/sparring/` |
+| **P5** | Freies Gespräch — ausdrücklich **ohne Messung** | Kein Fortschrittsbalken, keine Zahl, sichtbare Kennzeichnung „Übung, kein Beweis" | ✅ Modus-Wahl „Frei · zählt nicht" |
+| **P6** | Kaskade, e2e, Screenshots hell/dunkel, Doku, Auslieferung | grüner, reproduzierbarer Lauf **plus eigenes Ansehen** | ✅ 14 e2e, 196 Tests |
+
+**Was beim Bauen dazukam — die Anti-Nachplapper-Regel.** Der Prompt verbietet dem Partner,
+die Zielwendungen selbst auszusprechen. Ein Modell hält sich aber nicht immer an ein Verbot,
+und eine Messung, die sich auf ein Versprechen verlässt, ist keine Messung. Deshalb filtert
+`matchedTargets()` zusätzlich hart: Was in der letzten Partner-Zeile stand, zählt beim
+Lerner nicht. Lieber eine echte Leistung übersehen als eine erfundene zählen.
 
 ### Die Anbieterfrage — vom Gremium neu entschieden
 

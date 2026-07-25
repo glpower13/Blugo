@@ -7,6 +7,7 @@ import type {
   ContentGenerator,
   Decoder,
   Explainer,
+  SparringPartner,
   SpeechRecognizer,
   SpeechSynthesizer,
 } from './ports';
@@ -20,6 +21,7 @@ export interface AiPorts {
   synthesizer: SpeechSynthesizer;
   recognizer: SpeechRecognizer | null; // seit P1 belegt (Web Speech); null = kein Adapter
   explainer: Explainer | null; // erst mit Cloud-KI (Feedback-Schritt 2)
+  partner: SparringPartner | null; // erst mit Cloud-KI (P4, Sparringspartner)
 }
 
 /** Die Standard-Belegung: alles, was heute ohne externen Anbieter funktioniert. */
@@ -29,6 +31,7 @@ const defaults: AiPorts = {
   synthesizer: webSpeechSynthesizer,
   recognizer: webSpeechRecognizer,
   explainer: null,
+  partner: null,
 };
 
 /** Aktuelle Belegung. Aufrufer lesen z. B. `aiRegistry.synthesizer.speak(...)`. */

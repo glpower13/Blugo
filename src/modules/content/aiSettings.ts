@@ -10,6 +10,7 @@ import {
   createAnthropicDecoder,
   createAnthropicExplainer,
   createAnthropicGenerator,
+  createAnthropicSparringPartner,
 } from './adapters/anthropic';
 
 export type AiProvider = 'device' | 'anthropic';
@@ -93,10 +94,11 @@ export function applySettings(s: AiSettings): void {
       decoder: createAnthropicDecoder(cfg),
       explainer: createAnthropicExplainer(cfg),
       generator: createAnthropicGenerator(cfg),
+      partner: createAnthropicSparringPartner(cfg),
     });
   } else {
     // Zurück zu den kostenlosen Standard-Adaptern (Seed); keine KI-Erklärung.
-    setAiPorts({ decoder: seedDecoder, explainer: null, generator: seedGenerator });
+    setAiPorts({ decoder: seedDecoder, explainer: null, generator: seedGenerator, partner: null });
   }
 }
 
