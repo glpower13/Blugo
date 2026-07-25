@@ -30,4 +30,5 @@ Thumbs.db
 /_*.mjs
 /_*.ts
 /a11y-*.mjs
+/_*.png
 /shots/
