@@ -198,6 +198,29 @@ Chunks; **neu zu prüfen sind wieder nur die Partner-Zeilen**:
 Zusätzlich: die **Rollennamen** (Barista, Verkäuferin, Mitarbeiter, Ärztin, Schalter) sind
 deutsch und nur Anzeige — nicht zu prüfen.
 
+## Erweiterung 2026-07-25 — Bereich „Freunde & Freizeit" (ebenfalls ungeprüft)
+
+Neuer Bereich mit **4 Themen · 29 Wendungen · 58 Kontexten · 3 Gesprächen**
+(Abmachen & Treffen · In der Werkstatt · Autos & Motorsport · Zocken & online).
+Ziel war **heutiges Alltagsschwedisch unter Freunden**, ausdrücklich *keine*
+Jugendsprache — Wörter, die eine erwachsene Person heute wirklich sagt.
+
+Beide Maschinenstufen sind grün (0 unbelegte Wörter, 0 harte Rückübersetzungs-Funde),
+aber gerade hier ist die **menschliche Prüfung besonders wichtig**, weil Umgangston
+schwerer zu treffen ist als Höflichkeitsfloskeln. Gezielt draufschauen:
+
+- **`vi hörs`** („wir hören uns") als Abschied unter Freunden — natürlich, oder eher `vi ses`?
+- **`kul`** für „lustig/schön" (`det låter kul`, `kul att du kom`) — trifft der Ton?
+- **`fixar`** in `jag fixar det` — umgangssprachlich richtig, oder zu salopp?
+- **`håller du på med`** — die übliche Wendung für „was machst du gerade"?
+- **`punkterat`** (`däcket är punkterat`): korpus-selten (Zipf 1,78), aber fachlich korrekt.
+  Sagt man das so, oder eher `jag har fått punktering`?
+- **Sprachchat-Wortschatz:** `hör du mig?`, `jag är strax tillbaka`, `en runda till?`,
+  `bra spelat!`, `kan du skicka en länk?`, `kolla chatten` — ist das der Ton, in dem
+  Schweden beim Zocken tatsächlich reden?
+- **`loppet`** vs. `tävlingen` für „das Rennen" — welches Wort ist üblicher?
+- **Duzen durchgehend:** unter Freunden richtig, aber über alle drei Szenen konsistent?
+
 ## Nach der Freigabe (Checkliste)
 
 - [x] **Stufe 1** — maschinelle Vorprüfung grün (`content-pruefbericht.md`, 0 unbelegte Wörter).

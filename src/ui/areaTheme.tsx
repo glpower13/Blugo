@@ -11,6 +11,7 @@ import {
   IconPeople,
   IconBag,
   IconCross,
+  IconWheel,
 } from './icons';
 
 export interface AreaVisual {
@@ -28,6 +29,7 @@ const MAP: Record<string, AreaVisual> = {
   'area-people': { hue: '#AEA2E6', Icon: IconPeople }, // Lavendel
   'area-shopping': { hue: '#83C98C', Icon: IconBag }, // Grün
   'area-emergency': { hue: '#E68983', Icon: IconCross }, // Rot
+  'area-friends': { hue: '#D9A05B', Icon: IconWheel }, // Bernstein
 };
 
 export function areaVisual(areaId: string | undefined): AreaVisual {

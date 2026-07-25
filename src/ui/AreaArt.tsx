@@ -214,6 +214,12 @@ const SKIES: Record<string, [string, string][]> = {
     ['58%', '#101A2A'],
     ['100%', '#1A2634'],
   ],
+  // Abend vor der offenen Garage — warmes Werkstattlicht gegen kühle Dämmerung
+  'area-friends': [
+    ['0%', '#151E30'],
+    ['52%', '#22293A'],
+    ['100%', '#2E2A26'],
+  ],
   default: [
     ['0%', '#1B2440'],
     ['100%', '#2C3A4E'],
@@ -594,6 +600,64 @@ function Scene({ areaId, id, hue }: { areaId: string; id: string; hue: string })
           <ellipse cx="72" cy="110" rx="34" ry="6" fill={C.lamp} opacity="0.15" />
           <Figure x={210} y={132} h={48} coat={0} lightFrom="right" />
           <Figure x={94} y={124} h={38} coat={4} flip dim={0.4} lightFrom="left" />
+        </>
+      );
+
+    // ── Freunde & Freizeit: offene Garage am Abend ────────────────────────
+    case 'area-friends':
+      return (
+        <>
+          <g filter={far} opacity="0.6">
+            <rect x="0" y="52" width="72" height="52" fill="#1E2530" />
+            <rect x="330" y="46" width="70" height="58" fill="#1E2530" />
+            <g fill={C.lamp} opacity="0.4">
+              <rect x="14" y="64" width="7" height="9" />
+              <rect x="348" y="60" width="7" height="9" />
+            </g>
+          </g>
+          {/* Garagenwand mit offenem Tor — das warme Licht fällt heraus */}
+          <rect x="72" y="20" width="258" height="84" fill="#333A44" />
+          <rect x="72" y="20" width="258" height="5" fill="#454E5A" />
+          <rect x="96" y="34" width="210" height="70" fill="#1A1610" />
+          <rect x="96" y="34" width="210" height="70" fill={C.lamp} opacity="0.22" />
+          <rect x="96" y="34" width="210" height="8" fill={C.lampCore} opacity="0.3" />
+          {/* Werkstattlampe an der Decke */}
+          <line x1="200" y1="34" x2="200" y2="44" stroke="#2A2419" strokeWidth="1.4" />
+          <ellipse cx="200" cy="46" rx="12" ry="3.4" fill={C.lampCore} />
+          <circle cx="200" cy="48" r="17" fill={C.lamp} opacity="0.5" filter={glow} />
+          {/* Werkbank mit Werkzeugtafel */}
+          <rect x="106" y="76" width="72" height="6" fill={C.wood} />
+          <rect x="112" y="46" width="60" height="26" fill="#2A2A2E" />
+          <g stroke="#8A8F96" strokeWidth="1.6">
+            <line x1="120" y1="50" x2="120" y2="62" />
+            <line x1="130" y1="50" x2="134" y2="62" />
+            <line x1="144" y1="50" x2="144" y2="60" />
+            <line x1="156" y1="52" x2="162" y2="62" />
+          </g>
+          {/* Das Auto: Karosserie mit Licht- und Schattenseite, offene Haube */}
+          <g>
+            <path d="M212 92 L228 72 L282 72 L300 92 Z" fill="#5E6E7E" />
+            <path d="M232 76 L278 76 L292 90 L220 90 Z" fill="#0F1620" />
+            <path d="M232 76 L256 76 L256 90 L220 90 Z" fill="#9EB4C6" opacity="0.35" />
+            <rect x="204" y="90" width="104" height="16" rx="3" fill="#7A2E28" />
+            <rect x="204" y="90" width="104" height="5" rx="2" fill="#fff" opacity="0.15" />
+            <rect x="204" y="99" width="104" height="7" fill="#000" opacity="0.3" />
+            {/* offene Motorhaube */}
+            <path d="M204 90 L188 62 L196 60 L212 88 Z" fill="#8A3A32" />
+            <circle cx="222" cy="108" r="8" fill="#141418" />
+            <circle cx="222" cy="108" r="3.2" fill="#4A4E56" />
+            <circle cx="292" cy="108" r="8" fill="#141418" />
+            <circle cx="292" cy="108" r="3.2" fill="#4A4E56" />
+          </g>
+          {/* Boden: Beton mit Lichtpfütze aus dem Tor */}
+          <rect y="104" width={W} height="46" fill="#22242A" />
+          <path d="M96 104 L306 104 L344 150 L58 150 Z" fill={C.lamp} opacity="0.1" />
+          <g stroke="#000" strokeOpacity="0.28" strokeWidth="0.8">
+            <path d="M0 118 H400 M0 132 H400" />
+          </g>
+          {/* Zwei Kumpels: einer arbeitet am Motor, einer kommt dazu */}
+          <Figure x={196} y={128} h={46} coat={2} lightFrom="right" />
+          <Figure x={330} y={134} h={48} coat={0} flip lightFrom="left" />
         </>
       );
 

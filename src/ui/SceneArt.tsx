@@ -122,6 +122,12 @@ function Scene({ scene, hue, id }: { scene: DialogScene; hue: string; id: string
       return <Shop hue={hue} id={id} />;
     case 'clinic':
       return <Clinic hue={hue} id={id} />;
+    case 'garage':
+      return <Garage hue={hue} id={id} />;
+    case 'gaming':
+      return <Gaming hue={hue} id={id} />;
+    case 'track':
+      return <Track hue={hue} id={id} />;
     default:
       return <Generic hue={hue} />;
   }
@@ -513,5 +519,138 @@ function Generic({ hue }: { hue: string }) {
       <path d="M0 140l70-38 62 30 66-40 70 38 62-28 70 34v44H0z" fill={MIDDARK} fillOpacity="0.85" />
       <path d="M0 160l64-26 70 30 62-24 68 28 66-22 70 26v28H0z" fill={NIGHT} fillOpacity="0.95" />
     </g>
+  );
+}
+
+/* ── WERKSTATT: Auto auf Böcken, Werkzeugtafel, zwei Kumpels ─────────────── */
+function Garage({ hue, id }: { hue: string; id: string }) {
+  return (
+    <>
+      {/* Rückwand mit Werkzeugtafel */}
+      <rect y="0" width="400" height="180" fill={MIDDARK} opacity="0.5" />
+      <rect x="34" y="34" width="104" height="44" fill="#24242A" />
+      <g stroke="#8A8F96" strokeWidth="2">
+        <line x1="48" y1="42" x2="48" y2="62" />
+        <line x1="64" y1="42" x2="70" y2="62" />
+        <line x1="88" y1="42" x2="88" y2="58" />
+        <line x1="110" y1="44" x2="120" y2="62" />
+      </g>
+      <rect x="30" y="92" width="112" height="7" fill="#4A3524" />
+      {/* Hängelampe über dem Auto */}
+      <line x1="230" y1="0" x2="230" y2="24" stroke={NIGHT} strokeWidth="1.6" />
+      <ellipse cx="230" cy="27" rx="13" ry="4" fill="#FFE6BC" />
+      <Beam x={230} y={30} w={130} h={92} id={id} />
+      <Pool cx={230} cy={128} rx={62} hue={hue} />
+      {/* Auto mit offener Haube */}
+      <path d="M182 104 L200 80 L266 80 L288 104 Z" fill="#5E6E7E" />
+      <path d="M204 84 L262 84 L278 102 L192 102 Z" fill="#0F1620" />
+      <path d="M204 84 L234 84 L234 102 L192 102 Z" fill="#9EB4C6" opacity="0.32" />
+      <rect x="172" y="104" width="128" height="20" rx="4" fill="#7A2E28" />
+      <rect x="172" y="104" width="128" height="6" rx="3" fill="#fff" opacity="0.14" />
+      <path d="M172 104 L152 68 L162 66 L182 102 Z" fill="#8A3A32" />
+      <circle cx="194" cy="128" r="10" fill="#141418" />
+      <circle cx="194" cy="128" r="4" fill="#4A4E56" />
+      <circle cx="280" cy="128" r="10" fill="#141418" />
+      <circle cx="280" cy="128" r="4" fill="#4A4E56" />
+      {/* Boden */}
+      <rect y="136" width="400" height="44" fill={NIGHT} />
+      {/* Zwei Kumpels */}
+      <Person x={150} y={150} s={1.35} />
+      <Person x={330} y={152} s={1.25} fill={MIDDARK} />
+    </>
+  );
+}
+
+/* ── ZOCKEN: Schreibtisch, Monitor, Headset, Sprachchat ──────────────────── */
+function Gaming({ hue, id }: { hue: string; id: string }) {
+  return (
+    <>
+      <rect y="0" width="400" height="180" fill={MIDDARK} opacity="0.55" />
+      {/* Monitor als Hauptlichtquelle — das Gesicht wird von ihm beleuchtet */}
+      <rect x="128" y="28" width="152" height="86" rx="4" fill="#0A0D14" />
+      <rect x="134" y="34" width="140" height="74" fill={hue} opacity="0.34" />
+      <rect x="134" y="34" width="140" height="20" fill={hue} opacity="0.22" />
+      <g fill={hue} opacity="0.55">
+        <rect x="142" y="42" width="46" height="4" rx="2" />
+        <rect x="142" y="52" width="70" height="4" rx="2" />
+        <rect x="142" y="92" width="34" height="4" rx="2" />
+      </g>
+      <Beam x={204} y={112} w={190} h={44} id={id} />
+      <rect x="196" y="114" width="16" height="12" fill="#1A1E26" />
+      <rect x="180" y="126" width="48" height="4" rx="2" fill="#1A1E26" />
+      {/* Tastatur mit hinterleuchteten Tasten */}
+      <rect x="146" y="140" width="116" height="14" rx="3" fill="#15181F" />
+      <g fill={hue} opacity="0.5">
+        {Array.from({ length: 11 }, (_, i) => (
+          <rect key={i} x={152 + i * 10} y="144" width="6" height="6" rx="1" />
+        ))}
+      </g>
+      {/* Zwei Bildschirme im Hintergrund und ein Regal */}
+      <rect x="26" y="52" width="70" height="46" rx="3" fill="#0A0D14" />
+      <rect x="30" y="56" width="62" height="38" fill={hue} opacity="0.2" />
+      <rect x="308" y="60" width="66" height="4" fill="#2A2A30" />
+      <g fill={hue} opacity="0.3">
+        <rect x="316" y="46" width="12" height="14" rx="1.5" />
+        <rect x="334" y="46" width="12" height="14" rx="1.5" />
+      </g>
+      {/* Spieler mit Headset, vom Monitor angeleuchtet */}
+      <Person x={318} y={162} s={1.4} />
+      <path d="M310 118 q8 -10 16 0" stroke={hue} strokeOpacity="0.6" strokeWidth="2.6" fill="none" />
+      <rect x="306" y="118" width="5" height="8" rx="2" fill={hue} opacity="0.6" />
+      <rect x="325" y="118" width="5" height="8" rx="2" fill={hue} opacity="0.6" />
+      <rect y="156" width="400" height="24" fill={NIGHT} />
+    </>
+  );
+}
+
+/* ── RENNSTRECKE: Leitplanke, Boliden, Zuschauer ─────────────────────────── */
+function Track({ hue, id }: { hue: string; id: string }) {
+  return (
+    <>
+      {/* Tribüne in der Ferne */}
+      <path d="M0 88 L120 62 L120 96 L0 96 Z" fill="#111C2A" />
+      <g fill={hue} opacity="0.28">
+        {Array.from({ length: 14 }, (_, i) => (
+          <rect key={i} x={8 + i * 8} y={80 - i * 1.4} width="5" height="5" rx="1" />
+        ))}
+      </g>
+      {/* Flutlichtmast */}
+      <line x1="330" y1="96" x2="330" y2="30" stroke={MIDDARK} strokeWidth="2.4" />
+      <rect x="314" y="24" width="34" height="8" rx="2" fill={MIDDARK} />
+      <Beam x={330} y={32} w={150} h={70} id={id} />
+      {/* Streckenband mit Curbs */}
+      <rect y="96" width="400" height="30" fill="#1C1F26" />
+      <g>
+        {Array.from({ length: 20 }, (_, i) => (
+          <rect key={i} x={i * 21} y="96" width="11" height="5" fill={i % 2 ? '#C4443A' : '#E8E4DC'} opacity="0.75" />
+        ))}
+      </g>
+      <Pool cx={210} cy={118} rx={96} hue={hue} />
+      {/* Rennwagen: flach, mit Flügel und Startnummer */}
+      <g>
+        <path d="M150 118 L172 106 L246 106 L268 118 Z" fill="#B8432E" />
+        <path d="M182 108 L226 108 L236 116 L172 116 Z" fill="#0F1620" />
+        <rect x="140" y="112" width="140" height="8" rx="3" fill="#8E3324" />
+        <rect x="140" y="112" width="140" height="3" rx="1.5" fill="#fff" opacity="0.16" />
+        <rect x="130" y="102" width="16" height="4" rx="1" fill="#1A1A1E" />
+        <rect x="272" y="98" width="20" height="4" rx="1" fill="#1A1A1E" />
+        <rect x="278" y="98" width="4" height="16" fill="#1A1A1E" />
+        <circle cx="166" cy="122" r="9" fill="#111114" />
+        <circle cx="252" cy="122" r="9" fill="#111114" />
+        <circle cx="204" cy="110" r="5" fill="#E8E4DC" opacity="0.85" />
+      </g>
+      {/* Bewegungsstreifen — das Auto ist schnell */}
+      <g fill={hue} opacity="0.3">
+        <rect x="290" y="108" width="46" height="2" rx="1" />
+        <rect x="300" y="116" width="60" height="2" rx="1" />
+        <rect x="296" y="124" width="38" height="2" rx="1" />
+      </g>
+      {/* Zuschauer an der Leitplanke */}
+      <rect y="126" width="400" height="54" fill={NIGHT} />
+      <rect y="124" width="400" height="4" fill="#3A3E46" />
+      <Person x={54} y={158} s={1.3} />
+      <Person x={84} y={160} s={1.2} fill={MIDDARK} />
+      <Person x={352} y={156} s={1.25} />
+    </>
   );
 }

@@ -10,10 +10,10 @@
 
 ## Ergebnis
 
-- Geprüfte schwedische Zeichenketten: **1764**
-- Verschiedene Wörter: **248**
-- ✅ alltagshäufig belegt (Zipf ≥ 3.0): **245**
-- ⚠️ selten belegt: **3**
+- Geprüfte schwedische Zeichenketten: **2358**
+- Verschiedene Wörter: **319**
+- ✅ alltagshäufig belegt (Zipf ≥ 3.0): **315**
+- ⚠️ selten belegt: **4**
 - ❌ nicht belegt (Tippfehler-Verdacht): **0**
 
 ## ❌ Nicht belegt — zuerst anschauen
@@ -26,6 +26,7 @@ Existiert, ist aber ungewöhnlich. Für Anfänger-Inhalt oft ein Zeichen, dass e
 
 | Wort | Zipf | im Wörterbuch | kommt vor in |
 |---|---|---|---|
+| **punkterat** | 1.78 | — | „Däcket är punkterat." · „Titta, däcket är punkterat!" |
 | **provrummet** | 2.22 | — | „Ursäkta, var är provrummet?" · „Var är provrummet?" |
 | **trettiofem** | 2.68 | ja | „Trettiofem kronor, tack." · „trettiofem" |
 | **smaklig** | 2.82 | ja | „Smaklig måltid!" · „Tack, smaklig måltid!" |
@@ -34,14 +35,18 @@ Existiert, ist aber ungewöhnlich. Für Anfänger-Inhalt oft ein Zeichen, dass e
 
 | Schwedisch | auffällige Wörter |
 |---|---|
+| Däcket är punkterat. | punkterat |
 | Smaklig måltid! | smaklig |
 | Tack, smaklig måltid! | smaklig |
+| Titta, däcket är punkterat! | punkterat |
 | Trettiofem kronor, tack. | trettiofem |
 | Ursäkta, var är provrummet? | provrummet |
 | Utmärkt! Smaklig måltid. | smaklig |
 | Var är provrummet? | provrummet |
 | Visst! Provrummet är där borta. | provrummet |
+| däcket är punkterat | punkterat |
 | provrummet | provrummet |
+| punkterat | punkterat |
 | smaklig | smaklig |
 | smaklig måltid | smaklig |
 | trettiofem | trettiofem |
