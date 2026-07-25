@@ -57,7 +57,7 @@ export function CategoryOverview({ progress, focusId, hue, onOpen, onClearFocus 
                 <span className="min-w-0 flex-1">
                   <span className="flex items-center gap-1.5">
                     {isFocus && <span className="text-[0.7rem] text-brand">★</span>}
-                    <span className="truncate font-sans text-[0.88rem] font-semibold text-paper">
+                    <span className="hyphens-auto break-words font-sans text-[0.88rem] font-semibold text-paper">
                       {p.category.title}
                     </span>
                   </span>

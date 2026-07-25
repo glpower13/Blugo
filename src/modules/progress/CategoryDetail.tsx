@@ -114,10 +114,10 @@ export function CategoryDetail({
               <li key={c.id} className="glass-soft flex items-center gap-3 rounded-xl px-3.5 py-3">
                 <span className={`h-2.5 w-2.5 shrink-0 rounded-full ${st.dot}`} />
                 <div className="min-w-0">
-                  <p lang="sv" className="truncate font-medium text-paper">
+                  <p lang="sv" className="break-words font-medium text-paper">
                     {c.sv}
                   </p>
-                  <p className="truncate text-xs text-muted">{c.de}</p>
+                  <p className="break-words text-xs text-muted">{c.de}</p>
                   {/* Stufe 4 der Prüfkette: NUR die auffälligen Wendungen bekommen
                       ein Zeichen. Ein Haken an den anderen 146 wäre ein Siegel,
                       das niemand verdient hat — geprüft ist dort nur, dass jedes

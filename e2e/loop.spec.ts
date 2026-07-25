@@ -651,3 +651,56 @@ test('the session explains why this phrase is up right now', async ({ page }) =>
   expect(consoleErrors, consoleErrors.join('\n')).toHaveLength(0);
   expect(pageErrors, pageErrors.join('\n')).toHaveLength(0);
 });
+
+// Stufe B: Die App muss eine hochgestellte SYSTEM-SCHRIFTGRÖSSE überstehen.
+//
+// Der gemeldete Fehler (2026-07-25): „bei Notfällen im Dialog überlappen sich die
+// Bereiche". Ursache war nicht das Thema Notfall, sondern die Schriftskalierung
+// des Geräts: Die Reiterleiste wuchs mit, „Fortschritt" lief über den rechten
+// Rand hinaus, und der feste Abstand darüber reichte nicht mehr — die letzten
+// Zeilen verschwanden hinter der Leiste.
+test('the app survives a raised system font size', async ({ page }) => {
+  await page.addInitScript(() => {
+    document.addEventListener('DOMContentLoaded', () => {
+      document.documentElement.style.fontSize = '24px';
+    });
+  });
+  await page.goto('/');
+  await expect(page.getByText('bewiesen stabil')).toBeVisible();
+
+  const width = page.viewportSize()?.width ?? 0;
+
+  for (const t of ['Heute', 'Lernen', 'Gespräche', 'Fortschritt']) {
+    await openTab(page, t);
+
+    // 1. Keine Reiter-Beschriftung läuft über den Bildschirmrand.
+    const labels = await page
+      .getByRole('navigation', { name: 'Hauptbereiche' })
+      .getByRole('button')
+      .all();
+    for (const l of labels) {
+      const box = await l.boundingBox();
+      expect(box, `Reiter ohne Kasten in ${t}`).not.toBeNull();
+      expect(box!.x, `Reiter links außerhalb in ${t}`).toBeGreaterThanOrEqual(-0.5);
+      expect(box!.x + box!.width, `Reiter rechts außerhalb in ${t}`).toBeLessThanOrEqual(width + 0.5);
+    }
+
+    // 2. Ganz nach unten scrollen: Nichts bleibt hinter der Leiste liegen.
+    await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+    await page.waitForTimeout(350);
+    const hidden = await page.evaluate(() => {
+      const nav = document.querySelector('nav[aria-label="Hauptbereiche"]');
+      if (!nav) return null;
+      const top = nav.getBoundingClientRect().top;
+      for (const el of document.querySelectorAll('main p, main h1, main h2, main span, main button')) {
+        const b = el.getBoundingClientRect();
+        if (b.height < 6 || b.width < 6) continue;
+        if (el.closest('[aria-hidden="true"]')) continue;
+        if (!(el.textContent || '').trim()) continue;
+        if (b.bottom - top > 2) return (el.textContent || '').trim().slice(0, 40);
+      }
+      return null;
+    });
+    expect(hidden, `hinter der Reiterleiste verdeckt in ${t}`).toBeNull();
+  }
+});

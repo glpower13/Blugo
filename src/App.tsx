@@ -529,8 +529,13 @@ export default function App() {
       )}
 
       <main
+        /* Der Abstand nach unten kommt aus der GEMESSENEN Höhe der Reiterleiste
+           (`--tabbar-h`, gesetzt von TabBar). Ein fester Wert reichte nicht: Bei
+           hochgestellter System-Schrift wächst die Leiste und verdeckte sonst
+           die letzten Zeilen (gemeldeter Fehler 2026-07-25). */
+        style={showTabs ? { paddingBottom: 'calc(var(--tabbar-h, 5.5rem) + 1.5rem)' } : undefined}
         className={`vt-page mx-auto flex min-h-dvh w-full max-w-md flex-col gap-4 px-4 pt-6 md:max-w-3xl md:px-6 ${
-          showTabs ? 'pb-32 md:pb-28' : 'pb-10'
+          showTabs ? '' : 'pb-10'
         }`}
       >
         {error && (
