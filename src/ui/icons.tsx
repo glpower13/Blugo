@@ -202,3 +202,18 @@ export function IconChart({ className }: P) {
     </svg>
   );
 }
+
+/** Freunde & Freizeit — Steuerrad/Lenkrad (Schrauben, Fahren, gemeinsam unterwegs). */
+export function IconWheel({ className }: P) {
+  return (
+    <svg {...box(className)} fill="none">
+      <g stroke="currentColor" strokeWidth="1.7">
+        <circle cx="12" cy="12" r="8.6" />
+        <circle cx="12" cy="12" r="3.1" />
+        <line x1="12" y1="3.4" x2="12" y2="8.9" />
+        <line x1="4.6" y1="16.3" x2="9.3" y2="13.6" />
+        <line x1="19.4" y1="16.3" x2="14.7" y2="13.6" />
+      </g>
+    </svg>
+  );
+}

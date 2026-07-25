@@ -20,6 +20,9 @@ const SCENE_GLOW: Record<Dialog['scene'], string> = {
   station: 'radial-gradient(70% 42% at 50% 0%, rgba(120,170,220,.15), transparent 60%)',
   shop: 'radial-gradient(70% 42% at 50% 0%, rgba(95,208,160,.13), transparent 60%)',
   clinic: 'radial-gradient(70% 42% at 50% 0%, rgba(230,137,131,.14), transparent 60%)',
+  garage: 'radial-gradient(70% 42% at 50% 0%, rgba(230,160,90,.15), transparent 60%)',
+  gaming: 'radial-gradient(70% 42% at 50% 0%, rgba(140,140,235,.16), transparent 60%)',
+  track: 'radial-gradient(70% 42% at 50% 0%, rgba(120,190,225,.14), transparent 60%)',
   generic: 'radial-gradient(70% 42% at 50% 0%, rgba(231,192,138,.12), transparent 60%)',
 };
 
