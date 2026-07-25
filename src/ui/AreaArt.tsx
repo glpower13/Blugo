@@ -1,106 +1,224 @@
 // Bereichsbilder für die Bildkarten der Ebene 1 (docs/gremium-navigation.md §4).
 //
-// WAS DIESE BILDER ANDERS MACHEN als die Icons: Ein Icon sagt „Kategorie", ein
-// Bild sagt „Ort". Übernommen aus `SceneArt.tsx` (dritte Fassung, angenommen):
-// Tiefe in vier Ebenen mit Luftperspektive, Licht mit Kegeln und Pfützen,
-// Menschen-Silhouetten und Dichte statt eines freistehenden Objekts.
+// VIERTE FASSUNG nach klarer Rückmeldung: „noch nicht authentisch genug —
+// realistischer statt nur schemenhaft."
 //
-// SCHWEDISCH, NICHT SCHWEDEN-KITSCH (Nutzerwunsch 2026-07-25, „ein bisschen
-// authentischer"): jedes Bild trägt echte Motive — Falunrot mit weißen
-// Fenstergewänden, Gamla-Stan-Giebel, Schärengarten-Fähre, Kanelbullar auf dem
-// Tresen, Midsommarstång, Dalahäst im Regal, das Apotheken-Kreuz. Dazu liegt in
-// JEDEM Bild das schwedische Kreuz als sehr blasses Wasserzeichen im Himmel —
-// wiederkehrende Signatur statt aufgeklebter Fahne.
+// WAS DIE VORIGEN FASSUNGEN FALSCH MACHTEN: Jede Szene bestand aus EINER
+// Bereichsfarbe plus Fast-Schwarz. Das ergibt zwangsläufig ein Piktogramm,
+// egal wie viele Objekte man hineinzeichnet. Ein Bild entsteht erst durch:
 //
-// Reines SVG: offline-sicher, gestochen scharf, wenige kByte, keine Ladezeit.
-// Nie Inhalt, immer Atmosphäre (die eine Design-Regel).
-
-const NIGHT = '#05080E'; // Vordergrund-Silhouetten
-const MIDDARK = '#0A111C'; // Mittelgrund
-const FAR = '#111C2A'; // Ferne
-const FALU = '#7A2E26'; // Falu rödfärg — die schwedische Hausfarbe
-const TRIM = '#E8E2D6'; // gebrochenes Weiß der Fenstergewände
-const FLAG_BLUE = '#006AA7';
-const FLAG_YELLOW = '#FECC00';
+//   1. EIGENFARBE — ein Haus ist rot, ein Birkenstamm weiß, ein Dalahäst rot
+//      mit blauem Sattel. Nicht „Bereichston in 40 % Deckkraft".
+//   2. VOLUMEN — jede Fläche hat eine Licht- und eine Schattenseite,
+//      keine Volltonflächen.
+//   3. LUFTPERSPEKTIVE — die Ferne wird blasser, kühler UND unscharf
+//      (echte Weichzeichnung), der Vordergrund bleibt scharf.
+//   4. LICHTSTREUUNG — Lampen, Fenster und Leuchtschilder bekommen einen
+//      echten Schein (Blur), keine harten Rechtecke.
+//   5. KORN + VIGNETTE — nimmt der Vektorgrafik das Klinische und führt den Blick.
+//   6. MENSCHEN MIT KÖRPER — Kopf, Haar, Schultern, Arme, Beine, Kleidungsfarbe
+//      und ein Streiflicht von der Lichtquelle. Kein Kreis auf einem Trapez.
+//
+// Der Bereichston (`hue`) tönt nur noch die Karte drumherum, nicht mehr das
+// Bild — Szenen haben jetzt ihre eigene Tageszeit und ihre eigenen Farben.
+//
+// Weiterhin reines SVG: offline, gestochen scharf auf jedem Display, wenige
+// kByte, keine Ladezeit, kein Drittanbieter. Nie Inhalt, immer Atmosphäre.
 
 const W = 400;
 const H = 150;
 
-/** Stehende Person — der größte Sprung von Kulisse zu Ort. */
-function Person({ x, y, s = 1, fill = NIGHT }: { x: number; y: number; s?: number; fill?: string }) {
+/** Echte schwedische Farben, keine abgeleiteten Bereichstöne. */
+const C = {
+  falu: '#8B3A2F', // Falu rödfärg
+  faluDark: '#5E2620',
+  ochre: '#A8804A', // Gamla-Stan-Fassade
+  mustard: '#997A3E',
+  trim: '#E6E0D2', // Fenstergewände, Birkenstamm
+  slate: '#242A34', // Dächer
+  lamp: '#F0C078', // Glühlicht
+  lampCore: '#FFE6BC',
+  wood: '#4A3524',
+  brass: '#C08840',
+  bun: '#C4864A', // Kanelbulle
+  icing: '#EDE2CE',
+  spruce: '#1B2E22',
+  meadow: '#2C3A22',
+  water: '#16283C',
+  hull: '#D2D4CE',
+  apotek: '#3CB878',
+  skin: '#8A6A55',
+};
+
+/** Kleidungsfarben — gedeckt und nordisch, nie bunt. */
+const COATS = ['#3A4A5E', '#5E3A38', '#3E4A3A', '#4A3E52', '#2E3A44', '#6A5240'];
+
+interface FigureProps {
+  x: number;
+  y: number; // Standfläche (Füße)
+  h?: number; // Körperhöhe
+  coat?: number;
+  flip?: boolean;
+  lightFrom?: 'left' | 'right';
+  dim?: number; // 0..1 für Hintergrundfiguren (Luftperspektive)
+}
+
+/**
+ * Eine Person mit Körper statt einer Silhouette. Der größte einzelne Unterschied
+ * zwischen „da ist eine Form" und „da steht jemand": Schultern, Arme, ein
+ * Haaransatz und ein Streiflicht auf der Lichtseite.
+ */
+function Figure({ x, y, h = 42, coat = 0, flip, lightFrom = 'left', dim = 0 }: FigureProps) {
+  const s = h / 42;
+  const body = COATS[coat % COATS.length];
+  const rim = lightFrom === 'left' ? -1 : 1;
   return (
-    <g transform={`translate(${x} ${y}) scale(${s})`} fill={fill}>
-      <circle cx="0" cy="-26" r="7.5" />
-      <path d="M-8 -18 Q0 -21 8 -18 L10 6 Q0 9 -10 6 Z" />
+    <g opacity={1 - dim * 0.55}>
+      {/* Kontaktschatten: ohne ihn schwebt jede Figur — der stärkste einzelne
+          Realismus-Hinweis nach der Eigenfarbe. */}
+      <ellipse cx={x + rim * -1.5 * s} cy={y} rx={9 * s} ry={2.4 * s} fill="#000" opacity="0.42" />
+      <g transform={`translate(${x} ${y}) scale(${flip ? -s : s} ${s})`}>
+        <path d="M-5.5 -16 L-6 -0.5 L-2.4 -0.5 L-1.4 -16 Z" fill="#241B14" />
+        <path d="M1.4 -16 L2.4 -0.5 L6 -0.5 L5.5 -16 Z" fill="#191319" />
+        {/* Schuhe */}
+        <path d="M-6.4 -1.6 L-6.6 0.6 L-1.8 0.6 L-1.8 -1.6 Z" fill="#12100E" />
+        <path d="M1.8 -1.6 L1.8 0.6 L6.6 0.6 L6.4 -1.6 Z" fill="#12100E" />
+        {/* Rumpf mit Licht- und Schattenseite */}
+        <path d="M-7 -34 Q0 -37 7 -34 L8.5 -15 Q0 -12.5 -8.5 -15 Z" fill={body} />
+        <path d="M-7 -34 Q0 -37 7 -34 L8.5 -15 Q0 -12.5 -8.5 -15 Z" fill="#000" opacity="0.3" />
+        <path
+          d={`M${rim * 6.4} -34.4 Q${rim * 7.4} -25 ${rim * 8} -15.4 L${rim * 5.2} -14.6 Q${rim * 4.8} -25 ${rim * 4.4} -34 Z`}
+          fill="#fff"
+          opacity="0.15"
+        />
+        <path d="M-7.6 -33 L-10 -19 L-7.4 -18.4 L-5.6 -31 Z" fill={body} opacity="0.9" />
+        <path d="M7.6 -33 L10 -19 L7.4 -18.4 L5.6 -31 Z" fill={body} opacity="0.55" />
+        <rect x="-1.8" y="-38" width="3.6" height="4" fill={C.skin} opacity="0.8" />
+        {/* Kopf: Haar deckt Oberkopf UND Hinterkopf — sonst wirkt die Figur kahl. */}
+        <ellipse cx="0" cy="-41.5" rx="4.6" ry="5.4" fill={C.skin} />
+        <path
+          d="M-4.7 -41.6 Q-4.9 -47.4 0 -47.4 Q4.9 -47.4 4.7 -41.6
+             Q4.7 -44.2 3.2 -44.6 Q0 -45.4 -3.2 -44.6 Q-4.7 -44.2 -4.7 -41.6 Z"
+          fill="#1E181C"
+        />
+        <path d={`M${rim * -3.2} -45.6 Q${rim * -5.1} -41 ${rim * -4.2} -37.6 L${rim * -2} -38.8 Z`} fill="#1E181C" />
+        <ellipse cx={rim * 1.7} cy="-41.6" rx="1.8" ry="2.9" fill="#fff" opacity="0.13" />
+      </g>
     </g>
   );
 }
 
-/** Zwei Personen zugewandt — „hier spricht gerade jemand mit dir". */
-function Pair({ x, y, s = 1 }: { x: number; y: number; s?: number }) {
+/** Nadelbaum mit Licht- und Schattenhälfte. */
+function Spruce({ x, y, h, dim = 0 }: { x: number; y: number; h: number; dim?: number }) {
+  const w = h * 0.44;
+  const d = `M${x} ${y - h} L${x + w / 2} ${y - h * 0.4} L${x + w * 0.3} ${y - h * 0.4}
+             L${x + w * 0.6} ${y} L${x - w * 0.6} ${y} L${x - w * 0.3} ${y - h * 0.4}
+             L${x - w / 2} ${y - h * 0.4} Z`;
   return (
-    <g transform={`translate(${x} ${y}) scale(${s})`}>
-      <Person x={-13} y={0} s={0.95} />
-      <Person x={13} y={2} s={0.88} fill={MIDDARK} />
+    <g opacity={1 - dim * 0.6}>
+      <path d={d} fill={C.spruce} />
+      <path
+        d={`M${x} ${y - h} L${x + w / 2} ${y - h * 0.4} L${x + w * 0.6} ${y} L${x} ${y} Z`}
+        fill="#000"
+        opacity="0.3"
+      />
     </g>
   );
 }
 
-/** Fassade in Falunrot mit hellen Fenstern — das Bild von „Schweden". */
-function FaluHouse({
+/** Fassade mit Dach, Eigenfarbe, Schattenseite und warm erleuchteten Fenstern. */
+function House({
   x,
   y,
   w,
   h,
-  hue,
+  color,
   gable,
 }: {
   x: number;
   y: number;
   w: number;
   h: number;
-  hue: string;
+  color: string;
   gable?: boolean;
 }) {
-  const cols = Math.max(2, Math.round(w / 22));
+  const cols = Math.max(2, Math.floor(w / 22));
+  const rows = Math.max(1, Math.floor(h / 26));
   return (
     <g transform={`translate(${x} ${y})`}>
-      {gable && <path d={`M0 0 L${w / 2} ${-h * 0.32} L${w} 0 Z`} fill={FALU} opacity="0.5" />}
-      <rect width={w} height={h} fill={FALU} opacity="0.42" />
-      {Array.from({ length: cols }, (_, i) => {
-        const px = 6 + i * ((w - 12) / cols);
-        return (
-          <g key={i}>
-            <rect x={px} y={h * 0.22} width="9" height="12" fill={hue} opacity="0.5" />
-            <rect
-              x={px - 1.2}
-              y={h * 0.22 - 1.2}
-              width="11.4"
-              height="14.4"
-              fill="none"
-              stroke={TRIM}
-              strokeWidth="1"
-              opacity="0.3"
-            />
-          </g>
-        );
-      })}
+      {gable && (
+        <>
+          <path d={`M-4 0 L${w / 2} ${-h * 0.32} L${w + 4} 0 Z`} fill={C.slate} />
+          <path d={`M${w / 2} ${-h * 0.32} L${w + 4} 0 L${w / 2} 0 Z`} fill="#000" opacity="0.32" />
+        </>
+      )}
+      <rect width={w} height={h} fill={color} />
+      <rect x={w * 0.62} width={w * 0.38} height={h} fill="#000" opacity="0.26" />
+      <rect width={w} height={h * 0.12} fill="#fff" opacity="0.06" />
+      {Array.from({ length: rows }, (_, r) =>
+        Array.from({ length: cols }, (_, i) => {
+          const px = 7 + i * ((w - 14) / cols);
+          const py = 9 + r * 26;
+          const on = (i + r * 3) % 4 !== 3;
+          return (
+            <g key={`${r}-${i}`}>
+              <rect x={px - 1.6} y={py - 1.6} width="11.2" height="14.2" fill={C.trim} opacity="0.55" />
+              <rect
+                x={px}
+                y={py}
+                width="8"
+                height="11"
+                fill={on ? C.lamp : '#141820'}
+                opacity={on ? 0.85 : 0.92}
+              />
+            </g>
+          );
+        }),
+      )}
     </g>
   );
 }
 
-/** Nadelbaum-Silhouette (Schärengarten, Mittsommerwiese). */
-function Spruce({ x, y, h, fill = NIGHT }: { x: number; y: number; h: number; fill?: string }) {
-  const w = h * 0.42;
-  return (
-    <path
-      d={`M${x} ${y - h} L${x + w / 2} ${y - h * 0.42} L${x + w * 0.3} ${y - h * 0.42}
-          L${x + w * 0.62} ${y} L${x - w * 0.62} ${y} L${x - w * 0.3} ${y - h * 0.42}
-          L${x - w / 2} ${y - h * 0.42} Z`}
-      fill={fill}
-    />
-  );
-}
+/** Himmel je Szene — echte Tageszeit-Farben statt des Bereichstons. */
+const SKIES: Record<string, [string, string][]> = {
+  'area-basics': [
+    ['0%', '#1B2440'],
+    ['46%', '#3E4360'],
+    ['74%', '#8A6152'],
+    ['100%', '#C07A4C'],
+  ],
+  'area-travel': [
+    ['0%', '#0E1B31'],
+    ['42%', '#22405F'],
+    ['72%', '#6E5A5E'],
+    ['100%', '#C4713C'],
+  ],
+  'area-food': [
+    ['0%', '#2A1D14'],
+    ['60%', '#3A281B'],
+    ['100%', '#241811'],
+  ],
+  'area-people': [
+    ['0%', '#2C3E63'],
+    ['44%', '#5E6E92'],
+    ['76%', '#C79A62'],
+    ['100%', '#E8B565'],
+  ],
+  'area-shopping': [
+    ['0%', '#242A33'],
+    ['62%', '#2C333E'],
+    ['100%', '#1C2129'],
+  ],
+  'area-emergency': [
+    ['0%', '#080E19'],
+    ['58%', '#101A2A'],
+    ['100%', '#1A2634'],
+  ],
+  default: [
+    ['0%', '#1B2440'],
+    ['100%', '#2C3A4E'],
+  ],
+};
 
 interface Props {
   areaId: string;
@@ -109,350 +227,382 @@ interface Props {
 
 export function AreaArt({ areaId, hue }: Props) {
   const id = `aa-${areaId}`;
+  const sky = SKIES[areaId] ?? SKIES.default;
   return (
     <svg
       viewBox={`0 0 ${W} ${H}`}
-      preserveAspectRatio="xMidYMax slice"
+      preserveAspectRatio="xMidYMid slice"
       xmlns="http://www.w3.org/2000/svg"
       className="h-full w-full"
       aria-hidden="true"
     >
       <defs>
-        {/* Himmel/Raumlicht im Bereichston. */}
-        <linearGradient id={`${id}-air`} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor={hue} stopOpacity="0.30" />
-          <stop offset="55%" stopColor={hue} stopOpacity="0.09" />
-          <stop offset="100%" stopColor={hue} stopOpacity="0.02" />
+        <linearGradient id={`${id}-sky`} x1="0" y1="0" x2="0" y2="1">
+          {sky.map((s, i) => (
+            <stop key={i} offset={s[0]} stopColor={s[1]} />
+          ))}
         </linearGradient>
-        {/* Lichtkegel / leuchtende Fläche. */}
-        {/* Boden: vorn fast schwarz, zum Horizont hin aufgehellt — Tiefe. */}
-        <linearGradient id={`${id}-floor`} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor={hue} stopOpacity="0.12" />
-          <stop offset="35%" stopColor="#05080E" stopOpacity="1" />
-          <stop offset="100%" stopColor="#05080E" stopOpacity="1" />
-        </linearGradient>
-        <linearGradient id={`${id}-beam`} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor={hue} stopOpacity="0.32" />
-          <stop offset="100%" stopColor={hue} stopOpacity="0" />
-        </linearGradient>
-        {/* Unterkante weich auslaufen lassen, damit die Karte nicht abschneidet. */}
-        <linearGradient id={`${id}-fade`} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#fff" stopOpacity="1" />
-          <stop offset="72%" stopColor="#fff" stopOpacity="1" />
-          <stop offset="100%" stopColor="#fff" stopOpacity="0.15" />
-        </linearGradient>
-        <mask id={`${id}-mask`}>
-          <rect width={W} height={H} fill={`url(#${id}-fade)`} />
-        </mask>
-        {/* Die Kreuzbalken laufen an beiden Enden aus — dritte Fassung. Harte
-            Rechteckkanten lasen sich als aufgelegte Grafik, nicht als Struktur. */}
-        <linearGradient id="cross-h" x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0%" stopColor={FLAG_YELLOW} stopOpacity="0" />
-          <stop offset="45%" stopColor={FLAG_YELLOW} stopOpacity="0.055" />
-          <stop offset="100%" stopColor={FLAG_YELLOW} stopOpacity="0" />
-        </linearGradient>
-        <linearGradient id="cross-v" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor={FLAG_YELLOW} stopOpacity="0" />
-          <stop offset="35%" stopColor={FLAG_YELLOW} stopOpacity="0.055" />
-          <stop offset="100%" stopColor={FLAG_YELLOW} stopOpacity="0" />
-        </linearGradient>
+        {/* Echte Weichzeichnung für die Ferne — Luftperspektive, nicht nur blasse Farbe. */}
+        <filter id={`${id}-far`} x="-10%" y="-10%" width="120%" height="120%">
+          <feGaussianBlur stdDeviation="0.9" />
+        </filter>
+        {/* Lichtschein um Lampen und Leuchtschilder. */}
+        <filter id={`${id}-glow`} x="-120%" y="-120%" width="340%" height="340%">
+          <feGaussianBlur stdDeviation="6" />
+        </filter>
+        {/* Feines Korn gegen die Vektor-Sterilität. */}
+        <filter id={`${id}-grain`}>
+          <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="3" />
+          <feColorMatrix type="saturate" values="0" />
+        </filter>
+        <radialGradient id={`${id}-vig`} cx="0.5" cy="0.48" r="0.78">
+          <stop offset="52%" stopColor="#000" stopOpacity="0" />
+          <stop offset="100%" stopColor="#000" stopOpacity="0.62" />
+        </radialGradient>
       </defs>
 
-      <g mask={`url(#${id}-mask)`}>
-        <rect width={W} height={H} fill={`url(#${id}-air)`} />
-        <NordicMark />
-        <Scene areaId={areaId} hue={hue} id={id} />
-      </g>
-      {/* Ganz leichter Bodenschatten, damit die Karte unten sauber schließt. */}
-      <rect y={H - 10} width={W} height="10" fill="#080B12" opacity="0.55" />
+      <rect width={W} height={H} fill={`url(#${id}-sky)`} />
+      <Scene areaId={areaId} id={id} hue={hue} />
+      <rect width={W} height={H} filter={`url(#${id}-grain)`} opacity="0.07" />
+      <rect width={W} height={H} fill={`url(#${id}-vig)`} />
     </svg>
   );
 }
 
-/**
- * Das schwedische Kreuz als Wasserzeichen — die wiederkehrende Signatur.
- * Flaggen-Geometrie (Querbalken mittig, Längsbalken zur Stange versetzt), aber
- * so blass, dass sie nur als Struktur im Himmel wahrgenommen wird. Eine echte
- * Fahne in jeder Karte wäre Kitsch; hier ist sie Herkunft.
- */
-function NordicMark() {
-  // Zwei Fassungen verworfen: erst ein grelles Kreuz, dann ein blasses — aber
-  // mit dem BEGRENZTEN Flaggenfeld, dessen Kanten mitten im Bild sichtbar blieben.
-  // Jetzt nur die beiden Balken, über den Rand hinaus: keine Kante außer dem
-  // Kreuz selbst. Man sieht es nicht, man spürt die Herkunft.
-  return (
-    <g opacity="0.5">
-      <rect x="0" y="24" width={W} height="13" fill="url(#cross-h)" />
-      <rect x="284" y="0" width="13" height="104" fill="url(#cross-v)" />
-    </g>
-  );
-}
-
-function Scene({ areaId, hue, id }: { areaId: string; hue: string; id: string }) {
-  const beam = `url(#${id}-beam)`;
+function Scene({ areaId, id, hue }: { areaId: string; id: string; hue: string }) {
+  const far = `url(#${id}-far)`;
+  const glow = `url(#${id}-glow)`;
 
   switch (areaId) {
-    // ── Erste Schritte: Gassen-Morgen in der Altstadt, zwei Leute grüßen sich ──
+    // ── Erste Schritte: Gamla-Stan-Gasse im Morgenlicht ────────────────────
     case 'area-basics':
       return (
         <>
-          {/* Ferne: Kirchturm über den Giebeln */}
-          <path d={`M40 118 L40 44 L48 26 L56 44 L56 118 Z`} fill={FAR} />
-          <rect x="45" y="52" width="6" height="8" fill={hue} opacity="0.45" />
-          {/* Mittelgrund: Giebelhäuser der Altstadt */}
-          <FaluHouse x={62} y={52} w={78} h={66} hue={hue} gable />
-          <g opacity="0.9">
-            <FaluHouse x={148} y={60} w={64} h={58} hue={hue} gable />
+          <g filter={far} opacity="0.75">
+            <path d="M28 104 L28 40 L38 16 L48 40 L48 104 Z" fill="#2A3346" />
+            <rect x="34" y="48" width="8" height="11" fill={C.lamp} opacity="0.55" />
+            <rect x="0" y="66" width="30" height="38" fill="#2E3648" />
           </g>
-          <rect x="220" y="58" width="70" height="60" fill={MIDDARK} />
-          <rect x="230" y="68" width="10" height="13" fill={hue} opacity="0.4" />
-          <rect x="250" y="68" width="10" height="13" fill={hue} opacity="0.4" />
-          <rect x="270" y="68" width="10" height="13" fill={hue} opacity="0.4" />
-          {/* Fahnenmast — hier darf die Fahne einmal wirklich hängen, klein */}
-          <line x1="330" y1="118" x2="330" y2="34" stroke={MIDDARK} strokeWidth="2" />
-          <g opacity="0.3">
-            <rect x="332" y="36" width="24" height="15" fill={FLAG_BLUE} />
-            <rect x="332" y="42" width="24" height="3.6" fill={FLAG_YELLOW} />
-            <rect x="339" y="36" width="3.6" height="15" fill={FLAG_YELLOW} />
+          <House x={50} y={48} w={64} h={56} color={C.falu} gable />
+          <House x={120} y={60} w={56} h={44} color={C.ochre} gable />
+          <House x={182} y={44} w={70} h={60} color={C.mustard} gable />
+          <House x={258} y={64} w={60} h={40} color={C.faluDark} />
+          <House x={324} y={54} w={76} h={50} color={C.falu} gable />
+          <line x1="150" y1="104" x2="150" y2="58" stroke="#1A1E26" strokeWidth="2.4" />
+          <circle cx="150" cy="55" r="12" fill={C.lamp} opacity="0.5" filter={glow} />
+          <circle cx="150" cy="55" r="3.2" fill={C.lampCore} />
+          {/* Kopfsteinpflaster, feucht vom Morgen */}
+          <rect y="104" width={W} height="46" fill="#20222A" />
+          <rect y="104" width={W} height="46" fill={`url(#${id}-cobble)`} />
+          <defs>
+            <linearGradient id={`${id}-cobble`} x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#5A503E" stopOpacity="0.6" />
+              <stop offset="100%" stopColor="#000" stopOpacity="0.55" />
+            </linearGradient>
+          </defs>
+          <ellipse cx="150" cy="112" rx="56" ry="9" fill={C.lamp} opacity="0.18" />
+          <g stroke="#000" strokeOpacity="0.3" strokeWidth="0.8">
+            <path d="M0 116 H400 M0 127 H400 M0 140 H400" />
           </g>
-          {/* Vordergrund: Kopfsteinpflaster + Lichtpfütze + Begegnung */}
-          <rect y="100" width={W} height={50} fill={NIGHT} />
-          <ellipse cx="180" cy="122" rx="110" ry="11" fill={hue} opacity="0.2" />
-          {/* Kopfsteinpflaster-Andeutung: Fugen fangen das Laternenlicht. */}
-          <g stroke={hue} strokeOpacity="0.13" strokeWidth="1">
-            <path d="M0 126 H400 M0 134 H400 M0 143 H400" />
-          </g>
-          <Pair x={186} y={128} s={1.15} />
-          <Person x={310} y={126} s={0.8} fill={MIDDARK} />
+          <Figure x={128} y={132} h={46} coat={0} lightFrom="right" />
+          <Figure x={168} y={134} h={44} coat={1} flip lightFrom="left" />
+          <Figure x={320} y={124} h={34} coat={4} dim={0.5} />
         </>
       );
 
-    // ── Reisen: Schärengarten-Fähre am Kai, Stockholmer Silhouette ──
+    // ── Reisen: Schärengarten-Fähre im Abendlicht ──────────────────────────
     case 'area-travel':
       return (
         <>
-          {/* Ferne: Stadtsilhouette mit Türmen */}
-          <rect x="10" y="62" width="46" height="38" fill={FAR} />
-          <path d="M64 62 L72 40 L80 62 Z" fill={FAR} />
-          <rect x="66" y="62" width="12" height="38" fill={FAR} />
-          <rect x="88" y="70" width="38" height="30" fill={FAR} />
-          <rect x="134" y="56" width="16" height="44" fill={FAR} />
-          <path d="M134 56 L142 42 L150 56 Z" fill={FAR} />
-          {/* Nadelbäume auf der Schäre */}
-          <Spruce x={352} y={100} h={34} fill={FAR} />
-          <Spruce x={370} y={100} h={26} fill={FAR} />
-          {/* Wasser mit Spiegelung */}
-          <rect y="100" width={W} height={20} fill={MIDDARK} />
-          <g opacity="0.32" fill={hue}>
-            <rect x="30" y="105" width="46" height="1.6" />
-            <rect x="120" y="110" width="70" height="1.6" />
-            <rect x="240" y="107" width="54" height="1.6" />
-            <rect x="300" y="114" width="40" height="1.6" />
+          <g filter={far} opacity="0.62">
+            <rect x="0" y="60" width="40" height="42" fill="#1E2C42" />
+            <path d="M46 60 L54 34 L62 60 Z" fill="#1E2C42" />
+            <rect x="48" y="60" width="12" height="42" fill="#1E2C42" />
+            <rect x="70" y="70" width="34" height="32" fill="#22304A" />
+            <rect x="110" y="52" width="14" height="50" fill="#1E2C42" />
+            <path d="M110 52 L117 36 L124 52 Z" fill="#1E2C42" />
+            <g fill={C.lamp} opacity="0.5">
+              <rect x="8" y="72" width="4" height="5" />
+              <rect x="20" y="84" width="4" height="5" />
+              <rect x="76" y="80" width="4" height="5" />
+              <rect x="92" y="76" width="4" height="5" />
+            </g>
           </g>
-          {/* Fähre: Rumpf, Aufbau, beleuchtete Fensterreihe */}
-          <path d="M196 100 L318 100 L308 114 L206 114 Z" fill={NIGHT} />
-          <rect x="216" y="80" width="82" height="20" fill={NIGHT} />
-          <rect x="252" y="66" width="16" height="14" fill={NIGHT} />
-          <g fill={hue} opacity="0.55">
-            {Array.from({ length: 7 }, (_, i) => (
-              <rect key={i} x={224 + i * 11} y="86" width="7" height="7" />
-            ))}
+          <g filter={far}>
+            <Spruce x={352} y={102} h={40} dim={0.3} />
+            <Spruce x={374} y={102} h={30} dim={0.3} />
+            <Spruce x={336} y={102} h={24} dim={0.45} />
           </g>
-          <path d="M258 66 L258 46" stroke={MIDDARK} strokeWidth="1.6" />
-          {/* Kai im Vordergrund: Reisender mit Koffer, Poller */}
-          <rect y="126" width={W} height="24" fill={`url(#${id}-floor)`} />
-          <ellipse cx="110" cy="128" rx="70" ry="7" fill={hue} opacity="0.14" />
-          <Person x={98} y={128} s={1.1} />
-          <rect x="112" y="116" width="13" height="12" rx="1.5" fill={NIGHT} />
-          <rect x="40" y="118" width="9" height="10" rx="3" fill={MIDDARK} />
+          <rect y="102" width={W} height="48" fill={C.water} />
+          <rect y="102" width={W} height="48" fill={`url(#${id}-sea)`} />
+          <defs>
+            <linearGradient id={`${id}-sea`} x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#C4713C" stopOpacity="0.32" />
+              <stop offset="45%" stopColor="#16283C" stopOpacity="0.2" />
+              <stop offset="100%" stopColor="#070D18" stopOpacity="0.72" />
+            </linearGradient>
+          </defs>
+          <g fill={C.lamp} opacity="0.32">
+            <rect x="150" y="108" width="52" height="1.4" rx="0.7" />
+            <rect x="168" y="116" width="70" height="1.4" rx="0.7" />
+            <rect x="140" y="124" width="44" height="1.4" rx="0.7" />
+            <rect x="196" y="132" width="60" height="1.4" rx="0.7" />
+          </g>
+          <g>
+            <path d="M172 102 L306 102 L294 116 L184 116 Z" fill={C.hull} />
+            <path d="M172 102 L306 102 L300 108 L178 108 Z" fill="#fff" opacity="0.22" />
+            <path d="M184 116 L294 116 L288 120 L190 120 Z" fill="#0C1622" />
+            <rect x="196" y="80" width="84" height="22" fill={C.hull} />
+            <rect x="196" y="80" width="84" height="6" fill="#fff" opacity="0.2" />
+            <rect x="236" y="64" width="18" height="16" fill="#E8EAE4" />
+            <rect x="238" y="68" width="14" height="7" fill={C.lamp} opacity="0.9" />
+            <g fill={C.lamp}>
+              {Array.from({ length: 8 }, (_, i) => (
+                <rect key={i} x={202 + i * 10} y="87" width="6" height="7" opacity="0.9" />
+              ))}
+            </g>
+            <rect x="244" y="46" width="2" height="18" fill="#B8BCB6" />
+            <circle cx="245" cy="46" r="5" fill={C.lamp} opacity="0.7" filter={glow} />
+          </g>
+          <path d="M0 128 L122 128 L122 150 L0 150 Z" fill="#191C22" />
+          <rect x="0" y="126" width="124" height="4" fill="#2E333C" />
+          <Figure x={72} y={128} h={46} coat={0} lightFrom="right" />
+          <rect x="86" y="114" width="15" height="14" rx="2" fill="#33291E" />
+          <rect x="86" y="114" width="15" height="4" fill="#fff" opacity="0.12" />
+          <rect x="26" y="116" width="10" height="12" rx="4" fill="#2A2E36" />
         </>
       );
 
-    // ── Essen & Café: Fika — Tresen mit Kanelbullar, Pendelleuchten ──
+    // ── Essen & Café: Fika, warmes Innenlicht ──────────────────────────────
     case 'area-food':
       return (
         <>
-          {/* Rückwand mit Regal und Tassen */}
-          <rect y="0" width={W} height={150} fill={MIDDARK} opacity="0.5" />
-          <rect x="24" y="34" width="120" height="2.5" fill={NIGHT} />
-          <g fill={NIGHT}>
+          <g filter={far} opacity="0.85">
+            <rect x="20" y="36" width="118" height="3" fill={C.wood} />
+            <rect x="20" y="62" width="118" height="3" fill={C.wood} />
             {Array.from({ length: 7 }, (_, i) => (
-              <path key={i} d={`M${32 + i * 16} 34 l0 -9 q5 -2 9 0 l0 9 Z`} />
+              <g key={i}>
+                <path d={`M${28 + i * 16} 36 l0 -9 q5 -2.4 10 0 l0 9 Z`} fill="#C9C4B8" />
+                <path d={`M${33 + i * 16} 36 l0 -9 q2.5 -1.2 5 0 l0 9 Z`} fill="#000" opacity="0.22" />
+              </g>
+            ))}
+            {Array.from({ length: 5 }, (_, i) => (
+              <rect key={i} x={30 + i * 22} y="46" width="14" height="16" rx="1.5" fill={C.brass} opacity="0.55" />
             ))}
           </g>
-          {/* Pendelleuchten mit Kegeln */}
-          {[110, 200, 290].map((x) => (
+          {[96, 200, 304].map((x) => (
             <g key={x}>
-              <line x1={x} y1="0" x2={x} y2="26" stroke={NIGHT} strokeWidth="1.4" />
-              <path d={`M${x - 11} 34 L${x + 11} 34 L${x + 6} 26 L${x - 6} 26 Z`} fill={NIGHT} />
-              <path d={`M${x - 11} 34 L${x + 11} 34 L${x + 40} 104 L${x - 40} 104 Z`} fill={beam} />
+              <line x1={x} y1="0" x2={x} y2="24" stroke="#241811" strokeWidth="1.6" />
+              <path d={`M${x - 13} 34 L${x + 13} 34 L${x + 7} 24 L${x - 7} 24 Z`} fill={C.brass} />
+              <path d={`M${x - 13} 34 L${x + 13} 34 L${x + 7} 24 L${x} 24 Z`} fill="#000" opacity="0.3" />
+              <ellipse cx={x} cy="35" rx="11" ry="3" fill={C.lampCore} />
+              <circle cx={x} cy="38" r="18" fill={C.lamp} opacity="0.45" filter={glow} />
+              <path d={`M${x - 13} 35 L${x + 13} 35 L${x + 46} 112 L${x - 46} 112 Z`} fill={C.lamp} opacity="0.09" />
             </g>
           ))}
-          {/* Barista hinter dem Tresen */}
-          <Person x={252} y={110} s={1.15} fill={MIDDARK} />
-          {/* Tresen mit Glasvitrine und Kanelbullar */}
-          <rect y="112" width={W} height="38" fill={`url(#${id}-floor)`} />
-          <rect x="150" y="76" width="112" height="20" fill={NIGHT} opacity="0.85" />
-          <rect
-            x="150"
-            y="76"
-            width="112"
-            height="20"
-            fill={hue}
-            opacity="0.16"
-            stroke={hue}
-            strokeOpacity="0.3"
-            strokeWidth="1"
-          />
-          <g fill={hue} opacity="0.6">
+          <Figure x={272} y={106} h={48} coat={5} flip lightFrom="left" />
+          <rect y="106" width={W} height="44" fill={C.wood} />
+          <rect y="106" width={W} height="4" fill={C.lampCore} opacity="0.45" />
+          <rect y="110" width={W} height="40" fill="#000" opacity="0.42" />
+          <g>
+            <rect x="128" y="82" width="124" height="24" fill="#0E0A07" opacity="0.5" />
+            <rect
+              x="128"
+              y="82"
+              width="124"
+              height="24"
+              fill="#9ED0DA"
+              opacity="0.13"
+              stroke="#CFE6EC"
+              strokeOpacity="0.32"
+              strokeWidth="1"
+            />
+            <rect x="128" y="82" width="124" height="7" fill="#fff" opacity="0.13" />
             {Array.from({ length: 5 }, (_, i) => (
-              <g key={i} transform={`translate(${164 + i * 21} 89)`}>
-                <ellipse rx="7" ry="4.4" />
-                <ellipse rx="3" ry="1.8" fill={NIGHT} opacity="0.5" />
+              <g key={i} transform={`translate(${144 + i * 23} 99)`}>
+                <ellipse rx="8.4" ry="4.8" fill={C.bun} />
+                <ellipse cy="-1.6" rx="8.4" ry="4" fill="#D89A5C" />
+                <path d="M-5 -2.4 q5 -2.6 10 0" stroke={C.icing} strokeWidth="1.4" fill="none" opacity="0.85" />
               </g>
             ))}
           </g>
-          {/* Gast am Tresen mit Tasse */}
-          <Person x={86} y={126} s={1.25} />
-          <path d="M100 96 q0 -7 7 -7 q7 0 7 7 Z" fill={hue} opacity="0.5" />
-          <ellipse cx="107" cy="96" rx="9" ry="2" fill={hue} opacity="0.22" />
+          <Figure x={72} y={126} h={50} coat={2} lightFrom="right" />
+          <g transform="translate(96 100)">
+            <path d="M-7 0 q0 8 7 8 q7 0 7 -8 Z" fill="#E4E0D6" />
+            <path d="M0 0 q7 0 7 8 q-3.5 0 -7 -8 Z" fill="#000" opacity="0.16" />
+            <ellipse rx="7" ry="1.8" fill="#3A2A1C" />
+          </g>
         </>
       );
 
-    // ── Menschen & Alltag: Midsommarstång auf der Wiese, Birken ──
+    // ── Menschen & Alltag: Mittsommer, goldene Stunde ──────────────────────
     case 'area-people':
       return (
         <>
-          {/* Mittsommer-Abendhimmel: die Sonne steht tief HINTER dem Baum, damit
-              seine Silhouette überhaupt lesbar wird. */}
-          <ellipse cx="196" cy="118" rx="150" ry="76" fill={hue} opacity="0.26" />
-          <ellipse cx="196" cy="118" rx="96" ry="52" fill={hue} opacity="0.22" />
-          <circle cx="196" cy="96" r="26" fill={hue} opacity="0.22" />
-          {/* Birken (heller Stamm — sehr nordisch) */}
-          {[24, 46, 366].map((x, i) => (
+          <circle cx="300" cy="92" r="17" fill="#FFD79A" opacity="0.9" filter={glow} />
+          <circle cx="300" cy="92" r="9" fill="#FFF0CC" />
+          <g filter={far} opacity="0.5">
+            {[10, 34, 58, 82, 340, 364, 388].map((x, i) => (
+              <Spruce key={x} x={x} y={100} h={26 + (i % 3) * 8} dim={0.4} />
+            ))}
+          </g>
+          {[26, 52, 358].map((x, i) => (
             <g key={x}>
-              <rect x={x} y={30 + i * 5} width="3.6" height={88 - i * 5} fill={TRIM} opacity="0.3" />
-              <ellipse cx={x + 1.8} cy={28 + i * 5} rx="17" ry="12" fill={NIGHT} opacity="0.85" />
+              <rect x={x} y={22 + i * 6} width="4.2" height={80 - i * 6} fill={C.trim} />
+              <rect x={x + 2.6} y={22 + i * 6} width="1.6" height={80 - i * 6} fill="#000" opacity="0.24" />
+              <g fill="#2A2622" opacity="0.7">
+                <rect x={x} y={44 + i * 6} width="4.2" height="2" />
+                <rect x={x} y={62 + i * 6} width="4.2" height="1.6" />
+                <rect x={x} y={80 + i * 6} width="4.2" height="2.2" />
+              </g>
+              <ellipse cx={x + 2} cy={20 + i * 6} rx="19" ry="13" fill="#2E4426" />
+              <ellipse cx={x - 3} cy={17 + i * 6} rx="12" ry="8" fill="#3C5730" opacity="0.8" />
             </g>
           ))}
-          <Spruce x={80} y={118} h={34} fill={FAR} />
-          {/* Der Mittsommerbaum: Mast, Querbalken, zwei Kränze */}
-          <line x1="196" y1="118" x2="196" y2="10" stroke={NIGHT} strokeWidth="5" />
-          <line x1="162" y1="40" x2="230" y2="40" stroke={NIGHT} strokeWidth="3.4" />
-          {/* Kränze hängen an kurzen Schnüren UNTER den Balkenenden — sonst
-              liest sich das Ganze als Waage statt als Midsommarstång. */}
-          <line x1="160" y1="34" x2="160" y2="44" stroke={NIGHT} strokeWidth="2" />
-          <line x1="232" y1="34" x2="232" y2="44" stroke={NIGHT} strokeWidth="2" />
-          <circle cx="160" cy="57" r="13" fill="none" stroke={NIGHT} strokeWidth="3.6" />
-          <circle cx="232" cy="57" r="13" fill="none" stroke={NIGHT} strokeWidth="3.6" />
-          <circle cx="196" cy="16" r="4.5" fill={NIGHT} />
-          {/* Laubkranz um den Mast — der Baum ist grün geschmückt. */}
-          <ellipse cx="196" cy="34" rx="13" ry="7" fill={NIGHT} />
-          {/* Wiese + Leute drumherum */}
-          <rect y="118" width={W} height="32" fill={`url(#${id}-floor)`} />
-          <ellipse cx="196" cy="120" rx="120" ry="10" fill={hue} opacity="0.15" />
-          <Person x={132} y={126} s={1.05} />
-          <Person x={158} y={130} s={0.9} fill={MIDDARK} />
-          <Person x={244} y={128} s={1.0} />
-          <Person x={272} y={124} s={0.85} fill={MIDDARK} />
+          <rect y="100" width={W} height="50" fill={C.meadow} />
+          <rect y="100" width={W} height="50" fill={`url(#${id}-grass)`} />
+          <defs>
+            <linearGradient id={`${id}-grass`} x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#E8B565" stopOpacity="0.3" />
+              <stop offset="100%" stopColor="#0E140A" stopOpacity="0.72" />
+            </linearGradient>
+          </defs>
+          <g>
+            <rect x="193" y="8" width="6" height="94" fill="#3E3020" />
+            <rect x="196.4" y="8" width="2.6" height="94" fill="#000" opacity="0.32" />
+            <rect x="158" y="34" width="80" height="4.6" fill="#3E3020" />
+            <rect x="158" y="36.6" width="80" height="2" fill="#000" opacity="0.32" />
+            <ellipse cx="196" cy="34" rx="13" ry="7.5" fill="#3C5730" />
+            <ellipse cx="196" cy="60" rx="9" ry="13" fill="#33502A" />
+            <ellipse cx="196" cy="86" rx="7.5" ry="11" fill="#2C4624" />
+            <line x1="162" y1="38" x2="162" y2="50" stroke="#3E3020" strokeWidth="1.8" />
+            <line x1="234" y1="38" x2="234" y2="50" stroke="#3E3020" strokeWidth="1.8" />
+            <circle cx="162" cy="58" r="8" fill="none" stroke="#3C5730" strokeWidth="3.4" />
+            <circle cx="234" cy="58" r="8" fill="none" stroke="#3C5730" strokeWidth="3.4" />
+            <path d="M158 36 Q178 58 196 42" fill="none" stroke="#3C5730" strokeWidth="3" />
+            <path d="M238 36 Q216 58 196 42" fill="none" stroke="#3C5730" strokeWidth="3" />
+            <circle cx="196" cy="6" r="4.6" fill="#3C5730" />
+          </g>
+          <Figure x={120} y={124} h={40} coat={3} lightFrom="right" />
+          <Figure x={148} y={128} h={38} coat={0} flip lightFrom="right" />
+          <Figure x={252} y={126} h={41} coat={1} lightFrom="left" />
+          <Figure x={278} y={121} h={34} coat={2} flip dim={0.3} lightFrom="left" />
+          <Figure x={330} y={134} h={46} coat={5} lightFrom="left" />
         </>
       );
 
-    // ── Einkaufen: Laden mit Regalen, Kleiderstange und Dalahäst ──
+    // ── Einkaufen: Laden mit Regal, Kleiderstange, Dalahäst ────────────────
     case 'area-shopping':
       return (
         <>
-          <rect width={W} height={150} fill={MIDDARK} opacity="0.45" />
-          {/* Regalwand links */}
-          <g fill={NIGHT}>
-            <rect x="18" y="30" width="104" height="3" />
-            <rect x="18" y="58" width="104" height="3" />
-            <rect x="18" y="86" width="104" height="3" />
-          </g>
-          <g fill={hue} opacity="0.34">
-            {Array.from({ length: 6 }, (_, i) => (
-              <rect key={i} x={26 + i * 16} y="18" width="10" height="12" rx="1.5" />
+          <g>
+            <rect x="14" y="30" width="116" height="4" fill={C.wood} />
+            <rect x="14" y="62" width="116" height="4" fill={C.wood} />
+            <rect x="14" y="94" width="116" height="4" fill={C.wood} />
+            {['#5E6E7A', '#7A6A52', '#4E6350', '#7A5A50', '#5A5470', '#6A6A52'].map((c, i) => (
+              <g key={i}>
+                <rect x={22 + i * 18} y="16" width="12" height="14" rx="1.5" fill={c} />
+                <rect x={22 + i * 18} y="16" width="4" height="14" fill="#fff" opacity="0.14" />
+              </g>
             ))}
-            {Array.from({ length: 6 }, (_, i) => (
-              <rect key={`b${i}`} x={26 + i * 16} y="46" width="10" height="12" rx="1.5" />
-            ))}
-          </g>
-          {/* Dalahäst auf dem mittleren Brett — der schwedische Augenzwinkerer */}
-          <g transform="translate(56 88) scale(1.25)" fill={hue} opacity="0.85">
-            {/* Dalahäst: gedrungener Rumpf, steil aufgerichteter Hals, kleiner
-                Kopf mit Schnauze, vier gerade Beine. Das schwedischste Souvenir. */}
-            <path d="M3 0 L3 -6 L2 -9 Q2 -13 6 -14 L13 -14.5
-                     Q13.5 -19 16 -21.5 L21 -23 L22.5 -20.5 L20.5 -18.5
-                     Q19.5 -16 19 -13.5 Q22 -12 22 -8 L22 -6 L20 0 L17.5 0
-                     L18.5 -5.5 L14 -4.5 L14 0 L11.5 0 L11.5 -4.5 L7 -4.5 L7 0 Z" />
-          </g>
-          {/* Kleiderstange rechts */}
-          <line x1="238" y1="26" x2="352" y2="26" stroke={NIGHT} strokeWidth="2.4" />
-          <g fill={NIGHT}>
-            {Array.from({ length: 7 }, (_, i) => (
-              <path key={i} d={`M${248 + i * 15} 26 l-6 14 q6 26 6 34 q0 2 12 0 q0 -8 6 -34 l-6 -14 Z`} />
+            {['#6A5A44', '#4E6350', '#7A5A50'].map((c, i) => (
+              <rect key={i} x={26 + i * 34} y="46" width="26" height="16" rx="2" fill={c} />
             ))}
           </g>
-          {/* Tresen, Verkäuferin, Kundin */}
-          <rect y="118" width={W} height="32" fill={`url(#${id}-floor)`} />
-          <rect x="140" y="84" width="96" height="18" fill={NIGHT} />
-          <ellipse cx="188" cy="86" rx="52" ry="6" fill={hue} opacity="0.18" />
-          <Person x={196} y={84} s={1.05} fill={MIDDARK} />
-          <Person x={116} y={130} s={1.2} />
-          {/* Einkaufstasche */}
-          <rect x="130" y="118" width="14" height="14" rx="1.5" fill={NIGHT} />
-          <path d="M133 118 q4 -5 8 0" stroke={hue} strokeOpacity="0.5" strokeWidth="1.4" fill="none" />
+          {/* Dalahäst — rot mit blauem Kurbits-Sattel, wie das echte Souvenir. */}
+          <g transform="translate(46 94) scale(1.6)">
+            <path
+              d="M3 0 L3 -6 L2 -9 Q2 -13 6 -14 L13 -14.5 Q13.5 -19 16 -21.5 L21 -23 L22.5 -20.5
+                 L20.5 -18.5 Q19.5 -16 19 -13.5 Q22 -12 22 -8 L22 -6 L20 0 L17.5 0 L18.5 -5.5
+                 L14 -4.5 L14 0 L11.5 0 L11.5 -4.5 L7 -4.5 L7 0 Z"
+              fill="#B33A2E"
+            />
+            <path d="M8 -13 q4 -2.6 8 -1 l-1 3 q-3.6 -1.2 -7 0.6 Z" fill="#2E6E9E" />
+            <path d="M9.6 -11 q3 -1.4 5.4 -0.6" stroke="#E8C25A" strokeWidth="0.9" fill="none" />
+            <circle cx="19.4" cy="-20.2" r="0.8" fill="#161616" />
+            <path d="M14.6 -21 L16.4 -23.4 L17.4 -21.2 Z" fill="#B33A2E" />
+          </g>
+          <line x1="228" y1="24" x2="362" y2="24" stroke="#8A8F96" strokeWidth="2.6" />
+          {['#4A5A68', '#6A4A46', '#43584A', '#5A5062', '#6E6250', '#3E4A5A', '#66504A'].map((c, i) => (
+            <g key={i}>
+              <path d={`M${240 + i * 17} 24 l-7 15 q7 28 7 36 q0 2.4 13 0 q0 -8 7 -36 l-7 -15 Z`} fill={c} />
+              <path
+                d={`M${240 + i * 17} 24 l-7 15 q4 24 4 33 l4 0 q-1 -20 4 -33 l-5 -15 Z`}
+                fill="#fff"
+                opacity="0.1"
+              />
+            </g>
+          ))}
+          <rect y="108" width={W} height="42" fill="#242A32" />
+          <rect y="108" width={W} height="3" fill="#fff" opacity="0.09" />
+          <rect x="132" y="88" width="104" height="20" fill={C.wood} />
+          <rect x="132" y="88" width="104" height="4" fill="#fff" opacity="0.13" />
+          <Figure x={196} y={88} h={44} coat={4} flip lightFrom="left" />
+          <Figure x={106} y={130} h={50} coat={1} lightFrom="right" />
+          <g transform="translate(126 112)">
+            <rect width="16" height="16" rx="1.5" fill="#5E4A38" />
+            <path d="M3 0 q5 -6 10 0" stroke="#8A7050" strokeWidth="1.6" fill="none" />
+          </g>
         </>
       );
 
-    // ── Notfall & Gesundheit: Apotheke bei Nacht, beleuchtetes Kreuz ──
+    // ── Notfall & Gesundheit: Apotek bei Nacht ─────────────────────────────
     case 'area-emergency':
       return (
         <>
-          {/* Straßenzug */}
-          <rect x="0" y="40" width="150" height="78" fill={FAR} />
-          <rect x="300" y="52" width="100" height="66" fill={FAR} />
-          {/* Apothekenfassade mit Schaufenster */}
-          <rect x="150" y="26" width="150" height="92" fill={MIDDARK} />
-          <g fill={hue} opacity="0.3">
-            {Array.from({ length: 4 }, (_, i) => (
-              <rect key={i} x={162 + i * 34} y="60" width="14" height="16" rx="1" />
-            ))}
+          <g filter={far} opacity="0.7">
+            <rect x="0" y="30" width="140" height="74" fill="#1A222E" />
+            <rect x="304" y="44" width="96" height="60" fill="#1A222E" />
+            <g fill={C.lamp} opacity="0.42">
+              <rect x="14" y="44" width="7" height="9" />
+              <rect x="34" y="62" width="7" height="9" />
+              <rect x="96" y="50" width="7" height="9" />
+              <rect x="322" y="58" width="7" height="9" />
+              <rect x="356" y="74" width="7" height="9" />
+            </g>
           </g>
-          <rect
-            x="164"
-            y="52"
-            width="122"
-            height="50"
-            fill={hue}
-            opacity="0.22"
-            stroke={hue}
-            strokeOpacity="0.34"
-            strokeWidth="1.2"
-          />
-          <path d="M164 118 L286 118 L318 150 L132 150 Z" fill={`url(#${id}-beam)`} opacity="0.55" />
-          {/* Das Kreuz — hier grün, weil es überall auf der Welt grün ist */}
-          <g transform="translate(225 38)">
-            <rect x="-14" y="-5" width="28" height="10" rx="2" fill="#5FD0A0" opacity="0.75" />
-            <rect x="-5" y="-14" width="10" height="28" rx="2" fill="#5FD0A0" opacity="0.75" />
-            <circle r="26" fill="#5FD0A0" opacity="0.12" />
+          <rect x="140" y="18" width="164" height="86" fill="#2A303A" />
+          <rect x="140" y="18" width="164" height="5" fill="#3A424E" />
+          <rect x="140" y="18" width="10" height="86" fill="#fff" opacity="0.06" />
+          <rect x="154" y="60" width="136" height="44" fill="#0A1018" />
+          <rect x="154" y="60" width="136" height="44" fill="#9ED0DA" opacity="0.2" />
+          <rect x="154" y="60" width="136" height="10" fill="#CFE6EC" opacity="0.15" />
+          <g stroke="#0A1018" strokeWidth="2.4">
+            <line x1="199" y1="60" x2="199" y2="104" />
+            <line x1="245" y1="60" x2="245" y2="104" />
           </g>
-          {/* Straßenlaterne */}
-          <line x1="72" y1="118" x2="72" y2="46" stroke={NIGHT} strokeWidth="2" />
-          <path d="M62 46 L82 46 L96 118 L48 118 Z" fill={`url(#${id}-beam)`} opacity="0.4" />
-          {/* Vordergrund: jemand auf dem Weg zur Tür */}
-          <rect y="118" width={W} height="32" fill={`url(#${id}-floor)`} />
-          <Person x={214} y={130} s={1.2} />
-          <Person x={92} y={126} s={0.85} fill={MIDDARK} />
+          <g transform="translate(222 38)">
+            <circle r="23" fill={C.apotek} opacity="0.6" filter={glow} />
+            <rect x="-15" y="-5.4" width="30" height="10.8" rx="2" fill="#7BE8B4" />
+            <rect x="-5.4" y="-15" width="10.8" height="30" rx="2" fill="#7BE8B4" />
+            <rect x="-15" y="-5.4" width="30" height="4" rx="2" fill="#D6FFEC" opacity="0.7" />
+          </g>
+          <line x1="72" y1="104" x2="72" y2="40" stroke="#151A22" strokeWidth="2.6" />
+          <circle cx="72" cy="38" r="12" fill={C.lamp} opacity="0.55" filter={glow} />
+          <circle cx="72" cy="38" r="3.4" fill={C.lampCore} />
+          {/* Nasser Asphalt mit Spiegelung des Kreuzes */}
+          <rect y="104" width={W} height="46" fill="#12161C" />
+          <rect y="104" width={W} height="46" fill={`url(#${id}-wet)`} />
+          <defs>
+            <linearGradient id={`${id}-wet`} x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#9ED0DA" stopOpacity="0.16" />
+              <stop offset="100%" stopColor="#000" stopOpacity="0.55" />
+            </linearGradient>
+          </defs>
+          <ellipse cx="222" cy="112" rx="66" ry="9" fill={C.apotek} opacity="0.18" />
+          <rect x="218" y="104" width="8" height="32" fill={C.apotek} opacity="0.14" />
+          <ellipse cx="72" cy="110" rx="34" ry="6" fill={C.lamp} opacity="0.15" />
+          <Figure x={210} y={132} h={48} coat={0} lightFrom="right" />
+          <Figure x={94} y={124} h={38} coat={4} flip dim={0.4} lightFrom="left" />
         </>
       );
 
     default:
       return (
         <>
-          <rect y="118" width={W} height="32" fill={`url(#${id}-floor)`} />
-          <ellipse cx="200" cy="120" rx="110" ry="9" fill={hue} opacity="0.15" />
-          <Person x={200} y={128} s={1.1} />
+          <rect y="104" width={W} height="46" fill="#1A1E26" />
+          <ellipse cx="200" cy="110" rx="90" ry="9" fill={hue} opacity="0.2" />
+          <Figure x={200} y={132} h={46} coat={0} />
         </>
       );
   }

@@ -250,6 +250,25 @@ Struktur statt aufgelegter Grafik. Sie trägt die Herkunft, ohne das Bild zu st�
    als Waage, bis er gegen einen Abendhimmel stand. Kontrast ist der Unterschied zwischen
    Strichzeichnung und Bild.
 
+### Vierte Fassung: von schemenhaft zu wirklich gemalt (2026-07-25)
+
+Rückmeldung: „noch nicht authentisch genug — realistischer statt nur schemenhaft."
+Der Befund war grundsätzlich: **jede Szene bestand aus EINER Bereichsfarbe plus
+Fast-Schwarz.** So entsteht zwangsläufig ein Piktogramm, egal wie viele Objekte man
+hineinzeichnet. Sechs Änderungen machen daraus ein Bild:
+
+1. **Eigenfarbe.** Ein Haus ist rot, ein Birkenstamm weiß, ein Dalahäst rot mit blauem
+   Sattel. Der Bereichston tönt nur noch die Karte, nicht mehr das Bild — jede Szene hat
+   jetzt ihre eigene **Tageszeit** (Morgen, Abendlicht, Innenlicht, goldene Stunde, Nacht).
+2. **Volumen.** Jede Fläche hat eine Licht- und eine Schattenseite statt Vollton.
+3. **Echte Luftperspektive.** Die Ferne wird zusätzlich **weichgezeichnet**
+   (`feGaussianBlur`), nicht nur blasser.
+4. **Lichtstreuung.** Lampen, Schiffsmast und Apotheken-Kreuz haben einen echten Schein.
+5. **Korn und Vignette.** `feTurbulence` bei 7 % nimmt der Vektorgrafik das Klinische.
+6. **Menschen mit Körper.** Kopf mit Haar, Schultern, Arme, Beine, Schuhe, Kleidungsfarbe,
+   Streiflicht — **und ein Kontaktschatten**. Ohne den schwebt jede Figur; er ist nach der
+   Eigenfarbe der stärkste einzelne Realismus-Hinweis.
+
 Weiterhin reines SVG: offline, scharf auf jedem Display, wenige kByte, keine Ladezeit.
 
 ### Der Knopf: Sitzungsgröße statt „fällig" *(entschieden 2026-07-25)*
