@@ -315,6 +315,56 @@ einen eigenen Stapelkontext — ein `z-50` darin kommt trotzdem nicht über die
 Reiterleiste daneben, der Fußtext lag dahinter. **Alle** Overlays (Sprachpaar,
 Name, KI-Einstellungen) stehen jetzt als Geschwister neben `<main>`.
 
+## 7e. Wischen zwischen den Reitern (2026-07-25) — recherchiert, nicht geraten
+
+**Auftrag:** „Wenn ich wische, passiert gar nichts. Schau dir an, wie die Top-Apps das
+machen — und dann noch eine Schippe drauf."
+
+### Was die Plattformen wirklich sagen
+
+| | Haltung |
+|---|---|
+| **Android** | Wischen zwischen Reitern ist **Standard** (ViewPager2 + TabLayout). |
+| **Apple** | Beim Reiterwechsel ist **Tippen primär**. Wischen ist dort für Geschwister-Ansichten (Fotos) vorgesehen, nicht für die Reiterleiste. |
+| **UX-Praxis** | Wischen als **Zusatz**, nie als einziger Weg — sonst ist es für alle unerreichbar, die nicht wischen können. |
+
+Entscheidung: **Tippen bleibt vollwertig, Wischen kommt oben drauf.**
+
+### Die vier Fallstricke, an denen naive Umsetzungen scheitern
+
+1. **Randgeste.** iOS Safari und Chrome deuten einen Wisch vom Bildschirmrand als
+   „zurück". Wer dort mitlauscht, löst beides gleichzeitig aus — ein bekanntes,
+   gut dokumentiertes PWA-Problem. Wir ignorieren die Randzone (28 px); der Browser
+   behält sein Verhalten.
+2. **Senkrechtes Scrollen.** Die Achse wird erst beim ersten echten Weg festgelegt
+   (Richtungs-Sperre); senkrechte Gesten werden vollständig freigegeben. `touch-action: pan-y`
+   sagt dem Browser dasselbe, ohne `preventDefault` — das ist auf iOS unzuverlässig.
+3. **Waagerechte Scroller im Inhalt** haben Vorrang: liegt einer unter dem Finger,
+   greift die Geste gar nicht erst.
+4. **Reduzierte Bewegung:** Wechsel ohne mitlaufende Animation, aber er funktioniert.
+
+### Die Schippe drauf: die Leiste geht mit
+
+Üblich ist, dass die Reiterleiste erst **am Ende** der Geste umspringt — Leiste und
+Inhalt wirken dann wie zwei getrennte Bedienelemente. Hier meldet die Geste ihren
+Fortschritt fortlaufend (`progress`), und die Markierung wandert **anteilig** mit;
+die Beschriftungen blenden dabei zum Nachbarn über. Auf halber Strecke steht die
+Markierung zwischen zwei Reitern. Damit wirken Leiste und Inhalt wie **ein
+Gegenstand**, nicht wie zwei Widgets.
+
+Dazu Gummiband am ersten/letzten Reiter statt hartem Stopp, und der Nachbar-Reiter
+wird **erst während des Ziehens** gemountet — sonst hätte das Wischen die Ladezeit
+gekostet, die zuvor gerade gewonnen wurde.
+
+### Ein Fund am eigenen Werkzeug
+
+Der erste Testlauf meldete „zweiter Wisch tut nichts". Ursache war der **Test**, nicht
+der Code: er tippte vor jedem Wisch, wodurch die App in eine Detailansicht sprang.
+Der Test deckte dabei aber einen echten Schwachpunkt auf: Die Schnipp-Erkennung rechnete
+die Geschwindigkeit über die *ganze* Geste, sodass ein sehr schnelles 38-px-Zucken als
+Schnippen zählte. Ein Schnippen ist jetzt schnell **und** hat einen Weg (≥ 44 px),
+gemessen am letzten Stück statt am Gesamtweg.
+
 ## 8. Offene Fragen (nach `10-open-questions.md`)
 
 - Soll „Heute" bei leerem Fälligkeitsstand etwas anderes anbieten als „Weiterlernen"?

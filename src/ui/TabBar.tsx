@@ -30,7 +30,30 @@ const TABS: { id: Tab; label: string; Icon: (p: { className?: string }) => React
   { id: 'progress', label: 'Fortschritt', Icon: IconChart },
 ];
 
-export function TabBar({ active, onSelect }: { active: Tab; onSelect: (t: Tab) => void }) {
+export const TAB_IDS: Tab[] = TABS.map((t) => t.id);
+
+/**
+ * Die Markierung FOLGT dem Finger.
+ *
+ * Üblich ist, dass eine Reiterleiste erst am Ende der Wischgeste umspringt —
+ * Leiste und Inhalt wirken dann wie zwei getrennte Bedienelemente. Läuft die
+ * Markierung anteilig mit, wirken sie wie EIN Gegenstand. Das ist der Schritt
+ * über den Standard hinaus, und er kostet nur diese eine Zahl: `progress`.
+ */
+export function TabBar({
+  active,
+  onSelect,
+  progress = 0,
+}: {
+  active: Tab;
+  onSelect: (t: Tab) => void;
+  /** Zug-Fortschritt −1…1 aus `useSwipeTabs` (negativ = nach links gezogen). */
+  progress?: number;
+}) {
+  const i = TAB_IDS.indexOf(active);
+  // Der Zug geht nach links (negativ) → die Markierung wandert nach RECHTS.
+  const shift = Math.max(-1, Math.min(1, -progress));
+  const pos = Math.max(0, Math.min(TABS.length - 1, i + shift));
   return (
     <nav
       aria-label="Hauptbereiche"
@@ -40,17 +63,32 @@ export function TabBar({ active, onSelect }: { active: Tab; onSelect: (t: Tab) =
       style={{ viewTransitionName: 'tabbar' }}
       className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-ink/75 pb-[env(safe-area-inset-bottom)] backdrop-blur-2xl md:inset-x-auto md:bottom-6 md:left-1/2 md:w-auto md:-translate-x-1/2 md:rounded-[1.75rem] md:border md:bg-white/[0.055] md:pb-0 md:shadow-[0_18px_50px_-14px_rgba(0,0,0,.75)]"
     >
-      <ul className="mx-auto flex w-full max-w-md items-stretch gap-1 px-2 py-1.5 md:max-w-none md:gap-1.5 md:px-2 md:py-2">
-        {TABS.map(({ id, label, Icon }) => {
+      <ul className="relative mx-auto flex w-full max-w-md items-stretch px-2 py-1.5 md:max-w-none md:px-2 md:py-2">
+        {/* Die mitlaufende Markierung — eine Fläche, keine vier Zustände. */}
+        <li
+          aria-hidden="true"
+          className="pointer-events-none absolute bottom-1.5 top-1.5 rounded-2xl bg-brand/[0.14] md:bottom-2 md:top-2"
+          style={{
+            width: `calc((100% - 1rem) / ${TABS.length})`,
+            left: '0.5rem',
+            transform: `translateX(calc(${pos} * 100%))`,
+            transition: progress === 0 ? 'transform .22s cubic-bezier(.22,.61,.36,1)' : 'none',
+          }}
+        />
+        {TABS.map(({ id, label, Icon }, idx) => {
           const on = id === active;
+          // Farbe blendet anteilig zum Nachbarn — sonst springt der Ton, während
+          // die Fläche gleitet.
+          const near = 1 - Math.min(1, Math.abs(idx - pos));
           return (
-            <li key={id} className="flex-1 md:flex-none">
+            <li key={id} className="relative flex-1 md:flex-none">
               <button
                 onClick={() => onSelect(id)}
                 aria-current={on ? 'page' : undefined}
-                className={`flex w-full flex-col items-center gap-[0.28rem] rounded-2xl px-2 pb-1.5 pt-2 transition-colors md:min-w-[5.6rem] ${
-                  on ? 'bg-brand/[0.14] text-brand' : 'text-faint hover:bg-white/[0.05] hover:text-muted'
-                }`}
+                className="flex w-full flex-col items-center gap-[0.28rem] rounded-2xl px-2 pb-1.5 pt-2 md:min-w-[5.6rem]"
+                style={{
+                  color: `color-mix(in oklab, #E7C08A ${near * 100}%, rgba(236,236,244,0.5))`,
+                }}
               >
                 <Icon className="h-6 w-6" />
                 <span className="text-[0.7rem] font-medium leading-[1.1rem] tracking-[0.03em]">
