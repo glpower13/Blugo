@@ -449,10 +449,11 @@ test('speaking is offered next to typing in a dialogue, fully on screen', async 
 });
 
 // Stufe B: Sparringspartner (P4/P5, docs/gremium-sprachpartner.md §9).
-// Zwei Regeln werden hier festgenagelt: (1) ohne eigenen KI-Zugang gibt es den
-// Modus NICHT — kein Knopf, der zu einer Verkaufsseite führt; (2) wenn nichts
-// fällig ist, sagt die Fläche ausdrücklich, dass nichts gemessen wird.
-test('sparring partner appears only with a cloud key, and admits when it measures nothing', async ({
+// Zwei Regeln werden hier festgenagelt: (1) ohne eigenen KI-Zugang ist der
+// Einstieg SICHTBAR und erklärt, was fehlt — versteckt fand ihn niemand;
+// (2) wenn nichts fällig ist, sagt die Fläche ausdrücklich, dass nichts
+// gemessen wird.
+test('sparring says what it needs when no key is set, and works when one is', async ({
   page,
 }) => {
   const consoleErrors: string[] = [];
@@ -465,10 +466,18 @@ test('sparring partner appears only with a cloud key, and admits when it measure
   await page.goto('/');
   await openTab(page, 'Gespräche');
   await expect(page.getByRole('heading', { name: 'Gespräche' })).toBeVisible();
-  // Ohne Schlüssel: nichts.
-  await expect(page.getByRole('button', { name: /Rede mit jemandem/ })).toHaveCount(0);
 
-  // Mit eigenem Schlüssel erscheint der Einstieg.
+  // Ohne Schlüssel ist der Einstieg SICHTBAR und sagt selbst, was ihm fehlt.
+  // (Zuerst war er versteckt — gefunden hat ihn dann niemand, 2026-07-25.)
+  const entryWithoutKey = page.getByRole('button', { name: /Rede mit jemandem/ });
+  await expect(entryWithoutKey).toBeVisible();
+  await expect(entryWithoutKey).toContainText(/eigenen KI-Zugang/);
+  await entryWithoutKey.click();
+  await expect(page.getByText(/Dafür brauchst du deinen eigenen KI-Zugang/)).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Einstellungen öffnen' })).toBeVisible();
+  await page.getByRole('button', { name: 'Sparring verlassen' }).click();
+
+  // Mit eigenem Schlüssel führt derselbe Einstieg ins Gespräch.
   await openTab(page, 'Heute');
   await page.getByRole('button', { name: 'KI-Einstellungen' }).click();
   await page.getByText('Claude (Cloud)').click();

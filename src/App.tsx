@@ -408,11 +408,8 @@ export default function App() {
               onStart={() => navigate('push', () => enterSession())}
               onGoLearn={() => navigate('push', () => setView({ name: 'tab', tab: 'learn' }))}
               onGoTalk={() => navigate('push', () => setView({ name: 'tab', tab: 'talk' }))}
-              onGoSparring={
-                aiRegistry.partner
-                  ? () => navigate('push', () => setView({ name: 'sparring' }))
-                  : null
-              }
+              onGoSparring={() => navigate('push', () => setView({ name: 'sparring' }))}
+              sparringReady={aiRegistry.partner !== null}
               sparringTargets={sparringTargets.length}
             />
             <div className="mx-auto mt-auto flex w-full max-w-md flex-col gap-3 pt-4 md:max-w-xl">
@@ -464,9 +461,8 @@ export default function App() {
             areas={areas}
             states={states}
             onOpen={(id) => navigate('push', () => setView({ name: 'dialog', id }))}
-            onOpenSparring={
-              aiRegistry.partner ? () => navigate('push', () => setView({ name: 'sparring' })) : null
-            }
+            onOpenSparring={() => navigate('push', () => setView({ name: 'sparring' }))}
+            sparringReady={aiRegistry.partner !== null}
             sparringTargets={sparringTargets.length}
           />
         )}
@@ -639,6 +635,7 @@ export default function App() {
               targets={sparringTargets}
               learnerName={name}
               onProduced={handleSparringProduced}
+              onOpenSettings={() => setShowSettings(true)}
               onExit={() => navigate('pop', () => setView({ name: 'tab', tab: 'talk' }))}
             />
           </Suspense>

@@ -25,8 +25,9 @@ interface Props {
   areas: Area[];
   states: Record<string, ChunkState>;
   onOpen: (dialogId: string) => void;
-  /** Sparring öffnen — null, wenn keine Cloud-KI eingerichtet ist (P4). */
-  onOpenSparring: (() => void) | null;
+  onOpenSparring: () => void;
+  /** Ist ein eigener KI-Zugang hinterlegt? Sonst kann der Partner nicht denken. */
+  sparringReady: boolean;
   /** Wie viele Wendungen der Partner gerade hervorlocken würde. */
   sparringTargets: number;
 }
@@ -57,6 +58,7 @@ export function DialogOverview({
   states,
   onOpen,
   onOpenSparring,
+  sparringReady,
   sparringTargets,
 }: Props) {
   const areaOfCategory = new Map(categories.map((c) => [c.id, c.areaId]));
@@ -81,29 +83,39 @@ export function DialogOverview({
         </p>
       </header>
 
-      {/* Der Sparringspartner steht OBEN, aber nur wenn es ihn wirklich gibt:
-          er braucht den eigenen KI-Zugang des Nutzers (P4). Ein Knopf, der zu
-          einer Einstellungsseite führt, wäre Werbung — die bauen wir nicht. */}
-      {onOpenSparring && (
-        <button
-          onClick={onOpenSparring}
-          className="relative w-full overflow-hidden rounded-2xl border border-[#63C9B6]/45 bg-[#63C9B6]/10 px-4 py-3.5 text-left"
+      {/* Der Sparringspartner steht OBEN — immer. Zuerst war er versteckt,
+          solange kein eigener KI-Zugang hinterlegt war; gefunden hat ihn dann
+          niemand (2026-07-25). Jetzt sagt er selbst, was ihm fehlt. */}
+      <button
+        onClick={onOpenSparring}
+        className={
+          'relative w-full overflow-hidden rounded-2xl px-4 py-3.5 text-left ' +
+          (sparringReady
+            ? 'border border-[#63C9B6]/45 bg-[#63C9B6]/10'
+            : 'border border-line bg-white/[0.04]')
+        }
+      >
+        <span
+          className={
+            'flex items-center gap-2 text-[0.66rem] font-bold uppercase tracking-[0.14em] ' +
+            (sparringReady ? 'text-[#63C9B6]' : 'text-muted')
+          }
         >
-          <span className="flex items-center gap-2 text-[0.66rem] font-bold uppercase tracking-[0.14em] text-[#63C9B6]">
-            <IconChat className="h-3.5 w-3.5" /> Sparring · frei sprechen
-          </span>
-          <p className="mt-1 font-display text-[1.05rem] font-semibold leading-tight text-paper">
-            Rede mit jemandem, der dir zuhört
-          </p>
-          <p className="mt-0.5 text-xs leading-relaxed text-muted">
-            {sparringTargets > 0
+          <IconChat className="h-3.5 w-3.5" /> Sparring · frei sprechen
+        </span>
+        <p className="mt-1 font-display text-[1.05rem] font-semibold leading-tight text-paper">
+          Rede mit jemandem, der dir zuhört
+        </p>
+        <p className="mt-0.5 text-xs leading-relaxed text-muted">
+          {!sparringReady
+            ? 'Dafür brauchst du deinen eigenen KI-Zugang. Hier steht, wie du ihn hinterlegst.'
+            : sparringTargets > 0
               ? `Er versucht, dir ${sparringTargets} fällige ${
                   sparringTargets === 1 ? 'Wendung' : 'Wendungen'
                 } zu entlocken. Was du selbst sagst, zählt.`
               : 'Gerade ist nichts fällig — reden geht, gemessen wird dann aber nichts.'}
-          </p>
-        </button>
-      )}
+        </p>
+      </button>
 
       {groups.map(({ area, items }) => {
         const { hue, Icon } = areaVisual(area.id);

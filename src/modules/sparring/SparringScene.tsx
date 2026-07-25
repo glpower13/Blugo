@@ -34,10 +34,18 @@ interface Props {
   learnerName: string;
   /** Eine Zielwendung wurde im Gespräch selbst produziert → echter Abruf. */
   onProduced: (chunk: Chunk, spoken: boolean, helpUsed: boolean) => void;
+  /** Die KI-Einstellungen öffnen (ohne Zugang gibt es hier nichts zu tun). */
+  onOpenSettings: () => void;
   onExit: () => void;
 }
 
-export function SparringScene({ targets: dueTargets, learnerName, onProduced, onExit }: Props) {
+export function SparringScene({
+  targets: dueTargets,
+  learnerName,
+  onProduced,
+  onOpenSettings,
+  onExit,
+}: Props) {
   const [setting, setSetting] = useState<SparringSetting | null>(null);
   // P5: freies Gespräch — ausdrücklich OHNE Messung. Es ist kein zweiter
   // Schwierigkeitsgrad, sondern der ehrliche Verzicht auf eine Zahl: wer einfach
@@ -175,14 +183,38 @@ export function SparringScene({ targets: dueTargets, learnerName, onProduced, on
     return (
       <div className="mx-auto w-full max-w-xl">
         <BackBar onExit={onExit} />
-        <section className="glass mt-4 rounded-2xl p-6 text-center">
+        <section className="glass mt-4 rounded-2xl p-6">
           <p className="font-display text-lg font-semibold text-paper">
-            Dafür brauchst du deinen eigenen KI-Schlüssel.
+            Dafür brauchst du deinen eigenen KI-Zugang.
           </p>
           <p className="mt-2 text-sm leading-relaxed text-muted">
-            Der Sparringspartner denkt sich seine Antworten aus — das macht eine Cloud-KI.
-            Sie läuft über deinen eigenen Zugang, den du oben in den Einstellungen
-            hinterlegst. Ohne ihn zeigen wir hier lieber nichts als etwas Ausgedachtes.
+            Dein Gegenüber denkt sich seine Antworten aus — das kann keine Rechenregel,
+            das macht eine Cloud-KI. Sie läuft über einen Zugang, der dir gehört und den
+            du selbst bezahlst; wir speichern nichts davon auf einem Server, weil es
+            keinen gibt.
+          </p>
+          <ol className="mt-4 space-y-2 text-sm leading-relaxed text-muted">
+            <li>
+              <span className="text-paper">1.</span> Unten auf „Einstellungen öffnen" tippen.
+            </li>
+            <li>
+              <span className="text-paper">2.</span> Bei „Anbieter" <em>Claude (Cloud)</em>{' '}
+              wählen.
+            </li>
+            <li>
+              <span className="text-paper">3.</span> Deinen Schlüssel eintragen (beginnt mit
+              „sk-ant-…") und speichern.
+            </li>
+          </ol>
+          <button
+            onClick={onOpenSettings}
+            className="btn-gold mt-5 w-full rounded-xl px-5 py-3 font-medium text-ink"
+          >
+            Einstellungen öffnen
+          </button>
+          <p className="mt-3 text-[0.7rem] leading-relaxed text-faint">
+            Alles andere in dieser App läuft ohne Zugang weiter — Lernen, Gespräche,
+            Sprechen statt Tippen. Nur das freie Gegenüber braucht ihn.
           </p>
         </section>
       </div>
