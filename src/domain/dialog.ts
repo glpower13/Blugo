@@ -22,6 +22,8 @@ export type DialogScene =
   | 'garage'
   | 'gaming'
   | 'track'
+  | 'lake'
+  | 'stadium'
   | 'generic';
 
 export interface DialogTurn {

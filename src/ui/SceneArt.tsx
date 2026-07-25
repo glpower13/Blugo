@@ -128,6 +128,10 @@ function Scene({ scene, hue, id }: { scene: DialogScene; hue: string; id: string
       return <Gaming hue={hue} id={id} />;
     case 'track':
       return <Track hue={hue} id={id} />;
+    case 'lake':
+      return <Lake hue={hue} />;
+    case 'stadium':
+      return <Stadium hue={hue} id={id} />;
     default:
       return <Generic hue={hue} />;
   }
@@ -651,6 +655,97 @@ function Track({ hue, id }: { hue: string; id: string }) {
       <Person x={54} y={158} s={1.3} />
       <Person x={84} y={160} s={1.2} fill={MIDDARK} />
       <Person x={352} y={156} s={1.25} />
+    </>
+  );
+}
+
+/* ── SEE: Steg, Angler, Bootshaus, Morgennebel ───────────────────────────── */
+function Lake({ hue }: { hue: string }) {
+  return (
+    <>
+      {/* Fernes bewaldetes Ufer */}
+      <rect y="86" width="400" height="8" fill="#22342C" />
+      {[10, 34, 58, 82, 300, 328, 356, 384].map((x, i) => (
+        <path
+          key={x}
+          d={`M${x} ${86 - (18 + (i % 3) * 8)} L${x + 8} 86 L${x - 8} 86 Z`}
+          fill="#1B2E22"
+        />
+      ))}
+      {/* Rotes Bootshaus — das schwedische Sommerbild */}
+      <path d="M330 86 L350 70 L370 86 Z" fill="#22242A" />
+      <rect x="334" y="86" width="32" height="22" fill="#8B3A2F" />
+      <rect x="356" y="86" width="10" height="22" fill={NIGHT} opacity="0.3" />
+      <rect x="342" y="92" width="9" height="11" fill="#141820" />
+      {/* Wasser mit Lichtband */}
+      <rect y="94" width="400" height="86" fill="#1B3944" />
+      <Pool cx={230} cy={110} rx={110} hue={hue} />
+      <g fill={hue} opacity="0.26">
+        <rect x="170" y="104" width="70" height="1.6" rx="0.8" />
+        <rect x="200" y="116" width="94" height="1.6" rx="0.8" />
+        <rect x="160" y="130" width="60" height="1.6" rx="0.8" />
+        <rect x="210" y="146" width="84" height="1.6" rx="0.8" />
+      </g>
+      {/* Steg */}
+      <path d="M0 132 L150 122 L150 136 L0 150 Z" fill="#4A3524" />
+      <path d="M0 132 L150 122 L150 126 L0 136 Z" fill="#7A5A38" opacity="0.65" />
+      <rect x="40" y="136" width="6" height="26" fill="#2C1F14" />
+      <rect x="112" y="130" width="6" height="30" fill="#2C1F14" />
+      {/* Angler mit Rute */}
+      <Person x={92} y={128} s={1.35} />
+      <path d="M104 100 Q170 84 244 106" stroke="#D8D4C8" strokeWidth="1.6" fill="none" opacity="0.8" />
+      <line x1="244" y1="106" x2="246" y2="124" stroke="#D8D4C8" strokeWidth="0.9" opacity="0.6" />
+      <ellipse cx="246" cy="125" rx="13" ry="3" fill="none" stroke={hue} strokeOpacity="0.4" strokeWidth="1.2" />
+      <ellipse cx="246" cy="125" rx="24" ry="5.4" fill="none" stroke={hue} strokeOpacity="0.2" strokeWidth="1.2" />
+      <path d="M118 118 L134 118 L131 132 L121 132 Z" fill="#3A4A54" />
+    </>
+  );
+}
+
+/* ── STADION: Flutlicht, Rasen, Tribüne, Zuschauer ───────────────────────── */
+function Stadium({ hue, id }: { hue: string; id: string }) {
+  return (
+    <>
+      {/* Tribünenrang mit Zuschauer-Punkten */}
+      <path d="M0 74 L400 58 L400 96 L0 96 Z" fill={MIDDARK} />
+      <g fill={hue} opacity="0.3">
+        {Array.from({ length: 44 }, (_, i) => (
+          <circle key={i} cx={6 + i * 9} cy={78 - i * 0.36} r="2.4" />
+        ))}
+        {Array.from({ length: 40 }, (_, i) => (
+          <circle key={`b${i}`} cx={12 + i * 10} cy={88 - i * 0.32} r="2.2" opacity="0.7" />
+        ))}
+      </g>
+      {/* Flutlichtmasten mit echtem Kegel */}
+      {[58, 342].map((x) => (
+        <g key={x}>
+          <line x1={x} y1="96" x2={x} y2="18" stroke={NIGHT} strokeWidth="2.6" />
+          <rect x={x - 18} y="12" width="36" height="8" rx="2" fill={NIGHT} />
+          <Beam x={x} y={20} w={170} h={82} id={id} />
+        </g>
+      ))}
+      {/* Rasen mit Mähstreifen und Mittellinie */}
+      <rect y="96" width="400" height="84" fill="#24452C" />
+      <g fill="#000" opacity="0.14">
+        {Array.from({ length: 5 }, (_, i) => (
+          <rect key={i} y={100 + i * 16} width="400" height="8" />
+        ))}
+      </g>
+      <Pool cx={200} cy={118} rx={140} hue={hue} />
+      <g stroke="#E8EAE4" strokeOpacity="0.5" strokeWidth="1.6" fill="none">
+        <line x1="0" y1="126" x2="400" y2="126" />
+        <circle cx="200" cy="126" r="26" />
+      </g>
+      {/* Tor am Rand */}
+      <g stroke="#E8EAE4" strokeOpacity="0.55" strokeWidth="2" fill="none">
+        <path d="M14 108 L14 96 L58 96 L58 108" />
+      </g>
+      {/* Spieler auf dem Rasen und Zuschauer im Vordergrund */}
+      <Person x={150} y={124} s={0.9} fill={MIDDARK} />
+      <Person x={236} y={128} s={0.95} fill={MIDDARK} />
+      <rect y="150" width="400" height="30" fill={NIGHT} />
+      <Person x={60} y={168} s={1.4} />
+      <Person x={330} y={170} s={1.3} />
     </>
   );
 }
