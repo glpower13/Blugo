@@ -8,8 +8,14 @@
 // Dekodierungen sind STRUKTURELLE Wort-für-Wort-Glossen (Birkenbihl), keine
 // schönen Übersetzungen — deshalb wirken sie absichtlich holprig.
 //
-// Themen (cat-*) + ~40 Wendungen (c-*) über Alltag, Café, Weg, Zahlen/Zeit,
-// Essen, Familie, Small Talk. Ausbau folgt über die KI-Content-Fabrik (der Moat).
+// Stand 2026-07-25: 8 Bereiche · 30 Themen · 179 Wendungen · 15 Gespräche.
+// Zuletzt ergänzt: Wetter & Jahreszeiten, Wohnen & Zuhause, Arbeit & Beruf,
+// Telefon & Nachrichten, Winter & Schnee. Weiterer Ausbau über die
+// KI-Content-Fabrik (der Moat).
+//
+// Der maschinelle Prüf-Stand JE WENDUNG steht in `verification.generated.ts`
+// (Stufe 4 der Prüfkette). Nach jeder Inhaltsänderung neu erzeugen:
+//   npm run check:content && npm run verify:build
 
 import type { Area, Category, Chunk, Segment } from '../../domain/chunk';
 
@@ -19,7 +25,7 @@ export const seedAreas: Area[] = [
   {
     id: 'area-basics',
     title: 'Erste Schritte',
-    blurb: 'Die ersten Wörter: grüßen und sich verständigen.',
+    blurb: 'Die ersten Wörter: grüßen, sich verständigen, kurz telefonieren.',
     order: 1,
   },
   {
@@ -37,7 +43,7 @@ export const seedAreas: Area[] = [
   {
     id: 'area-people',
     title: 'Menschen & Alltag',
-    blurb: 'Sich kennenlernen, Small Talk, Zeit & Zahlen.',
+    blurb: 'Kennenlernen, Small Talk, Wetter, Wohnen, Arbeit.',
     order: 4,
   },
   {
@@ -61,7 +67,7 @@ export const seedAreas: Area[] = [
   {
     id: 'area-outdoors',
     title: 'Sport & Draußen',
-    blurb: 'Angeln, Fußball, Trainieren, raus in die Natur.',
+    blurb: 'Angeln, Fußball, Trainieren, Natur — und der Winter.',
     order: 8,
   },
 ];
@@ -246,6 +252,41 @@ export const seedCategories: Category[] = [
     title: 'Raus in die Natur',
     blurb: 'Wandern, Wald, Wetter, Übernachten draußen.',
     order: 4,
+  },
+  {
+    id: 'cat-weather',
+    areaId: 'area-people',
+    title: 'Wetter & Jahreszeiten',
+    blurb: 'Der Klassiker im Small Talk: Sonne, Wind, Regen.',
+    order: 4,
+  },
+  {
+    id: 'cat-home',
+    areaId: 'area-people',
+    title: 'Wohnen & Zuhause',
+    blurb: 'Wohnung, Zimmer, Miete — und jemanden hereinbitten.',
+    order: 5,
+  },
+  {
+    id: 'cat-work',
+    areaId: 'area-people',
+    title: 'Arbeit & Beruf',
+    blurb: 'Was machst du beruflich, Termine, kurze Absprachen.',
+    order: 6,
+  },
+  {
+    id: 'cat-phone',
+    areaId: 'area-basics',
+    title: 'Telefon & Nachrichten',
+    blurb: 'Anrufen, zurückrufen, kurz schreiben.',
+    order: 4,
+  },
+  {
+    id: 'cat-winter',
+    areaId: 'area-outdoors',
+    title: 'Winter & Schnee',
+    blurb: 'Schnee, Glätte, früh dunkel — der schwedische Winter.',
+    order: 5,
   },
 ];
 
@@ -548,6 +589,38 @@ export const seedChunks: Chunk[] = [
   { id: 'c-solenskiner', categoryId: 'cat-nature', sv: 'solen skiner', de: 'die Sonne scheint', decoding: [{ sv: 'solen', de: 'die Sonne' }, { sv: 'skiner', de: 'scheint' }] },
   { id: 'c-sovaute', categoryId: 'cat-nature', sv: 'vi sover ute i natt', de: 'wir schlafen heute Nacht draußen', decoding: [{ sv: 'vi', de: 'wir' }, { sv: 'sover', de: 'schlafen' }, { sv: 'ute', de: 'draußen' }, { sv: 'i', de: 'in' }, { sv: 'natt', de: 'Nacht' }] },
   { id: 'c-kallt', categoryId: 'cat-nature', sv: 'det är kallt ute', de: 'es ist kalt draußen', decoding: [{ sv: 'det', de: 'es' }, { sv: 'är', de: 'ist' }, { sv: 'kallt', de: 'kalt' }, { sv: 'ute', de: 'draußen' }] },
+
+  // ── Ausbau 2026-07-25: Wetter · Wohnen · Arbeit · Telefon · Winter ──────
+  { id: 'c-vilketvader', categoryId: 'cat-weather', sv: 'vilket väder!', de: 'was für ein Wetter!', decoding: [{ sv: 'vilket', de: 'welches' }, { sv: 'väder', de: 'Wetter' }] },
+  { id: 'c-blasermycket', categoryId: 'cat-weather', sv: 'det blåser mycket', de: 'es ist sehr windig', decoding: [{ sv: 'det', de: 'es' }, { sv: 'blåser', de: 'weht' }, { sv: 'mycket', de: 'viel' }] },
+  { id: 'c-blirsoligt', categoryId: 'cat-weather', sv: 'i morgon blir det soligt', de: 'morgen wird es sonnig', decoding: [{ sv: 'i', de: 'in' }, { sv: 'morgon', de: 'Morgen' }, { sv: 'blir', de: 'wird' }, { sv: 'det', de: 'es' }, { sv: 'soligt', de: 'sonnig' }] },
+  { id: 'c-tamedparaply', categoryId: 'cat-weather', sv: 'ta med paraply', de: 'nimm einen Schirm mit', decoding: [{ sv: 'ta', de: 'nimm' }, { sv: 'med', de: 'mit' }, { sv: 'paraply', de: 'Regenschirm' }] },
+  { id: 'c-molnigt', categoryId: 'cat-weather', sv: 'det är molnigt i dag', de: 'es ist heute bewölkt', decoding: [{ sv: 'det', de: 'es' }, { sv: 'är', de: 'ist' }, { sv: 'molnigt', de: 'wolkig' }, { sv: 'i', de: 'in' }, { sv: 'dag', de: 'Tag' }] },
+  { id: 'c-varmtinne', categoryId: 'cat-weather', sv: 'det är varmt inne', de: 'drinnen ist es warm', decoding: [{ sv: 'det', de: 'es' }, { sv: 'är', de: 'ist' }, { sv: 'varmt', de: 'warm' }, { sv: 'inne', de: 'drinnen' }] },
+  { id: 'c-borilagenhet', categoryId: 'cat-home', sv: 'jag bor i en lägenhet', de: 'ich wohne in einer Wohnung', decoding: [{ sv: 'jag', de: 'ich' }, { sv: 'bor', de: 'wohne' }, { sv: 'i', de: 'in' }, { sv: 'en', de: 'einer' }, { sv: 'lägenhet', de: 'Wohnung' }] },
+  { id: 'c-hurmangarum', categoryId: 'cat-home', sv: 'hur många rum har du?', de: 'wie viele Zimmer hast du?', decoding: [{ sv: 'hur', de: 'wie' }, { sv: 'många', de: 'viele' }, { sv: 'rum', de: 'Zimmer' }, { sv: 'har', de: 'hast' }, { sv: 'du', de: 'du' }] },
+  { id: 'c-koketlitet', categoryId: 'cat-home', sv: 'köket är litet', de: 'die Küche ist klein', decoding: [{ sv: 'köket', de: 'die Küche' }, { sv: 'är', de: 'ist' }, { sv: 'litet', de: 'klein' }] },
+  { id: 'c-bormedkompis', categoryId: 'cat-home', sv: 'jag bor med en kompis', de: 'ich wohne mit einem Kumpel', decoding: [{ sv: 'jag', de: 'ich' }, { sv: 'bor', de: 'wohne' }, { sv: 'med', de: 'mit' }, { sv: 'en', de: 'einem' }, { sv: 'kompis', de: 'Kumpel' }] },
+  { id: 'c-hyranhog', categoryId: 'cat-home', sv: 'hyran är hög', de: 'die Miete ist hoch', decoding: [{ sv: 'hyran', de: 'die Miete' }, { sv: 'är', de: 'ist' }, { sv: 'hög', de: 'hoch' }] },
+  { id: 'c-valkommenin', categoryId: 'cat-home', sv: 'välkommen in', de: 'komm herein', decoding: [{ sv: 'välkommen', de: 'willkommen' }, { sv: 'in', de: 'herein' }] },
+  { id: 'c-vadjobbardu', categoryId: 'cat-work', sv: 'jag har mycket att göra', de: 'ich habe viel zu tun', decoding: [{ sv: 'jag', de: 'ich' }, { sv: 'har', de: 'habe' }, { sv: 'mycket', de: 'viel' }, { sv: 'att', de: 'zu' }, { sv: 'göra', de: 'tun' }] },
+  { id: 'c-jobbarpakontor', categoryId: 'cat-work', sv: 'jag jobbar på ett kontor', de: 'ich arbeite in einem Büro', decoding: [{ sv: 'jag', de: 'ich' }, { sv: 'jobbar', de: 'arbeite' }, { sv: 'på', de: 'auf' }, { sv: 'ett', de: 'einem' }, { sv: 'kontor', de: 'Büro' }] },
+  { id: 'c-ledigidag', categoryId: 'cat-work', sv: 'jag är ledig i dag', de: 'ich habe heute frei', decoding: [{ sv: 'jag', de: 'ich' }, { sv: 'är', de: 'bin' }, { sv: 'ledig', de: 'frei' }, { sv: 'i', de: 'in' }, { sv: 'dag', de: 'Tag' }] },
+  { id: 'c-motetborjar', categoryId: 'cat-work', sv: 'mötet börjar klockan nio', de: 'das Treffen beginnt um neun', decoding: [{ sv: 'mötet', de: 'das Treffen' }, { sv: 'börjar', de: 'beginnt' }, { sv: 'klockan', de: 'Uhr' }, { sv: 'nio', de: 'neun' }] },
+  { id: 'c-bokaettmote', categoryId: 'cat-work', sv: 'kan vi boka ett möte?', de: 'können wir einen Termin machen?', decoding: [{ sv: 'kan', de: 'können' }, { sv: 'vi', de: 'wir' }, { sv: 'boka', de: 'buchen' }, { sv: 'ett', de: 'ein' }, { sv: 'möte', de: 'Treffen' }] },
+  { id: 'c-skickarmejl', categoryId: 'cat-work', sv: 'jag skickar ett mejl', de: 'ich schicke eine Mail', decoding: [{ sv: 'jag', de: 'ich' }, { sv: 'skickar', de: 'schicke' }, { sv: 'ett', de: 'eine' }, { sv: 'mejl', de: 'Mail' }] },
+  { id: 'c-ringersenare', categoryId: 'cat-phone', sv: 'jag ringer dig senare', de: 'ich rufe dich später an', decoding: [{ sv: 'jag', de: 'ich' }, { sv: 'ringer', de: 'rufe an' }, { sv: 'dig', de: 'dich' }, { sv: 'senare', de: 'später' }] },
+  { id: 'c-skickarmeddelande', categoryId: 'cat-phone', sv: 'jag skickar ett meddelande', de: 'ich schicke eine Nachricht', decoding: [{ sv: 'jag', de: 'ich' }, { sv: 'skickar', de: 'schicke' }, { sv: 'ett', de: 'eine' }, { sv: 'meddelande', de: 'Nachricht' }] },
+  { id: 'c-hordumig', categoryId: 'cat-phone', sv: 'jag hör dig dåligt', de: 'ich höre dich schlecht', decoding: [{ sv: 'jag', de: 'ich' }, { sv: 'hör', de: 'höre' }, { sv: 'dig', de: 'dich' }, { sv: 'dåligt', de: 'schlecht' }] },
+  { id: 'c-daligtackning', categoryId: 'cat-phone', sv: 'jag har dålig täckning', de: 'ich habe schlechten Empfang', decoding: [{ sv: 'jag', de: 'ich' }, { sv: 'har', de: 'habe' }, { sv: 'dålig', de: 'schlechte' }, { sv: 'täckning', de: 'Abdeckung' }] },
+  { id: 'c-vemardet', categoryId: 'cat-phone', sv: 'vem är det?', de: 'wer ist da?', decoding: [{ sv: 'vem', de: 'wer' }, { sv: 'är', de: 'ist' }, { sv: 'det', de: 'das' }] },
+  { id: 'c-maste-lagga-pa', categoryId: 'cat-phone', sv: 'jag måste lägga på', de: 'ich muss auflegen', decoding: [{ sv: 'jag', de: 'ich' }, { sv: 'måste', de: 'muss' }, { sv: 'lägga', de: 'legen' }, { sv: 'på', de: 'auf' }] },
+  { id: 'c-detsnoar', categoryId: 'cat-winter', sv: 'det snöar', de: 'es schneit', decoding: [{ sv: 'det', de: 'es' }, { sv: 'snöar', de: 'schneit' }] },
+  { id: 'c-haltpavagen', categoryId: 'cat-winter', sv: 'det är halt på vägen', de: 'es ist glatt auf der Straße', decoding: [{ sv: 'det', de: 'es' }, { sv: 'är', de: 'ist' }, { sv: 'halt', de: 'glatt' }, { sv: 'på', de: 'auf' }, { sv: 'vägen', de: 'dem Weg' }] },
+  { id: 'c-jagfryser', categoryId: 'cat-winter', sv: 'jag fryser', de: 'mir ist kalt', decoding: [{ sv: 'jag', de: 'ich' }, { sv: 'fryser', de: 'friere' }] },
+  { id: 'c-tapadigmossa', categoryId: 'cat-winter', sv: 'ta på dig mössa', de: 'setz eine Mütze auf', decoding: [{ sv: 'ta', de: 'nimm' }, { sv: 'på', de: 'auf' }, { sv: 'dig', de: 'dich' }, { sv: 'mössa', de: 'Mütze' }] },
+  { id: 'c-akaskidor', categoryId: 'cat-winter', sv: 'ska vi åka skidor?', de: 'sollen wir Ski fahren?', decoding: [{ sv: 'ska', de: 'sollen' }, { sv: 'vi', de: 'wir' }, { sv: 'åka', de: 'fahren' }, { sv: 'skidor', de: 'Ski' }] },
+  { id: 'c-morkttidigt', categoryId: 'cat-winter', sv: 'det blir mörkt tidigt', de: 'es wird früh dunkel', decoding: [{ sv: 'det', de: 'es' }, { sv: 'blir', de: 'wird' }, { sv: 'mörkt', de: 'dunkel' }, { sv: 'tidigt', de: 'früh' }] },
 ];
 
 export const seedSegments: Segment[] = [
@@ -1189,4 +1262,96 @@ export const seedSegments: Segment[] = [
   { id: 's-sovaute2', level: 1, sv: 'Om det är fint väder sover vi ute i natt.', de: 'Wenn das Wetter schön ist, schlafen wir heute Nacht draußen.', decoding: [{ sv: 'om', de: 'wenn' }, { sv: 'det', de: 'es' }, { sv: 'är', de: 'ist' }, { sv: 'fint', de: 'schönes' }, { sv: 'väder', de: 'Wetter' }, { sv: 'sover', de: 'schlafen' }, { sv: 'vi', de: 'wir' }, { sv: 'ute', de: 'draußen' }, { sv: 'i', de: 'in' }, { sv: 'natt', de: 'Nacht' }], chunkIds: ['c-sovaute'] },
   { id: 's-kallt1', level: 1, sv: 'Det är kallt ute.', de: 'Es ist kalt draußen.', decoding: [{ sv: 'det', de: 'es' }, { sv: 'är', de: 'ist' }, { sv: 'kallt', de: 'kalt' }, { sv: 'ute', de: 'draußen' }], chunkIds: ['c-kallt'] },
   { id: 's-kallt2', level: 1, sv: 'Ta en jacka, det är kallt ute.', de: 'Nimm eine Jacke, es ist kalt draußen.', decoding: [{ sv: 'ta', de: 'nimm' }, { sv: 'en', de: 'eine' }, { sv: 'jacka', de: 'Jacke' }, { sv: 'det', de: 'es' }, { sv: 'är', de: 'ist' }, { sv: 'kallt', de: 'kalt' }, { sv: 'ute', de: 'draußen' }], chunkIds: ['c-kallt'] },
+
+  // ── Ausbau 2026-07-25 ─────────────────────────────────────────────────
+  // c-vilketvader
+  { id: 's-vilketvader1', level: 1, sv: 'Vilket väder! Solen skiner hela dagen.', de: 'Was für ein Wetter! Die Sonne scheint den ganzen Tag.', decoding: [{ sv: 'vilket', de: 'welches' }, { sv: 'väder', de: 'Wetter' }, { sv: 'solen', de: 'die Sonne' }, { sv: 'skiner', de: 'scheint' }, { sv: 'hela', de: 'den ganzen' }, { sv: 'dagen', de: 'Tag' }], chunkIds: ['c-vilketvader'] },
+  { id: 's-vilketvader2', level: 1, sv: 'Vilket väder! Det regnar igen.', de: 'Was für ein Wetter! Es regnet schon wieder.', decoding: [{ sv: 'vilket', de: 'welches' }, { sv: 'väder', de: 'Wetter' }, { sv: 'det', de: 'es' }, { sv: 'regnar', de: 'regnet' }, { sv: 'igen', de: 'wieder' }], chunkIds: ['c-vilketvader'] },
+  // c-blasermycket
+  { id: 's-blasermycket1', level: 1, sv: 'Det blåser mycket i dag.', de: 'Es ist heute sehr windig.', decoding: [{ sv: 'det', de: 'es' }, { sv: 'blåser', de: 'weht' }, { sv: 'mycket', de: 'viel' }, { sv: 'i', de: 'in' }, { sv: 'dag', de: 'Tag' }], chunkIds: ['c-blasermycket'] },
+  { id: 's-blasermycket2', level: 1, sv: 'Ta en jacka, det blåser mycket.', de: 'Nimm eine Jacke, es ist sehr windig.', decoding: [{ sv: 'ta', de: 'nimm' }, { sv: 'en', de: 'eine' }, { sv: 'jacka', de: 'Jacke' }, { sv: 'det', de: 'es' }, { sv: 'blåser', de: 'weht' }, { sv: 'mycket', de: 'viel' }], chunkIds: ['c-blasermycket'] },
+  // c-blirsoligt
+  { id: 's-blirsoligt1', level: 1, sv: 'I morgon blir det soligt igen.', de: 'Morgen wird es wieder sonnig.', decoding: [{ sv: 'i', de: 'in' }, { sv: 'morgon', de: 'Morgen' }, { sv: 'blir', de: 'wird' }, { sv: 'det', de: 'es' }, { sv: 'soligt', de: 'sonnig' }, { sv: 'igen', de: 'wieder' }], chunkIds: ['c-blirsoligt'] },
+  { id: 's-blirsoligt2', level: 1, sv: 'I morgon blir det soligt, säger de.', de: 'Morgen wird es sonnig, sagen sie.', decoding: [{ sv: 'i', de: 'in' }, { sv: 'morgon', de: 'Morgen' }, { sv: 'blir', de: 'wird' }, { sv: 'det', de: 'es' }, { sv: 'soligt', de: 'sonnig' }, { sv: 'säger', de: 'sagen' }, { sv: 'de', de: 'sie' }], chunkIds: ['c-blirsoligt'] },
+  // c-tamedparaply
+  { id: 's-tamedparaply1', level: 1, sv: 'Ta med paraply, det regnar snart.', de: 'Nimm einen Schirm mit, es regnet bald.', decoding: [{ sv: 'ta', de: 'nimm' }, { sv: 'med', de: 'mit' }, { sv: 'paraply', de: 'Regenschirm' }, { sv: 'det', de: 'es' }, { sv: 'regnar', de: 'regnet' }, { sv: 'snart', de: 'bald' }], chunkIds: ['c-tamedparaply'] },
+  { id: 's-tamedparaply2', level: 1, sv: 'Ta med paraply i dag.', de: 'Nimm heute einen Schirm mit.', decoding: [{ sv: 'ta', de: 'nimm' }, { sv: 'med', de: 'mit' }, { sv: 'paraply', de: 'Regenschirm' }, { sv: 'i', de: 'in' }, { sv: 'dag', de: 'Tag' }], chunkIds: ['c-tamedparaply'] },
+  // c-molnigt
+  { id: 's-molnigt1', level: 1, sv: 'Det är molnigt i dag, men varmt.', de: 'Es ist heute bewölkt, aber warm.', decoding: [{ sv: 'det', de: 'es' }, { sv: 'är', de: 'ist' }, { sv: 'molnigt', de: 'wolkig' }, { sv: 'i', de: 'in' }, { sv: 'dag', de: 'Tag' }, { sv: 'men', de: 'aber' }, { sv: 'varmt', de: 'warm' }], chunkIds: ['c-molnigt'] },
+  { id: 's-molnigt2', level: 1, sv: 'Det är molnigt i dag igen.', de: 'Es ist heute schon wieder bewölkt.', decoding: [{ sv: 'det', de: 'es' }, { sv: 'är', de: 'ist' }, { sv: 'molnigt', de: 'wolkig' }, { sv: 'i', de: 'in' }, { sv: 'dag', de: 'Tag' }, { sv: 'igen', de: 'wieder' }], chunkIds: ['c-molnigt'] },
+  // c-varmtinne
+  { id: 's-varmtinne1', level: 1, sv: 'Kom in, det är varmt inne.', de: 'Komm rein, drinnen ist es warm.', decoding: [{ sv: 'kom', de: 'komm' }, { sv: 'in', de: 'herein' }, { sv: 'det', de: 'es' }, { sv: 'är', de: 'ist' }, { sv: 'varmt', de: 'warm' }, { sv: 'inne', de: 'drinnen' }], chunkIds: ['c-varmtinne'] },
+  { id: 's-varmtinne2', level: 1, sv: 'Det är kallt ute men det är varmt inne.', de: 'Draußen ist es kalt, aber drinnen ist es warm.', decoding: [{ sv: 'det', de: 'es' }, { sv: 'är', de: 'ist' }, { sv: 'kallt', de: 'kalt' }, { sv: 'ute', de: 'draußen' }, { sv: 'men', de: 'aber' }, { sv: 'varmt', de: 'warm' }, { sv: 'inne', de: 'drinnen' }], chunkIds: ['c-varmtinne'] },
+  // c-borilagenhet
+  { id: 's-borilagenhet1', level: 1, sv: 'Jag bor i en lägenhet i stan.', de: 'Ich wohne in einer Wohnung in der Stadt.', decoding: [{ sv: 'jag', de: 'ich' }, { sv: 'bor', de: 'wohne' }, { sv: 'i', de: 'in' }, { sv: 'en', de: 'einer' }, { sv: 'lägenhet', de: 'Wohnung' }, { sv: 'stan', de: 'der Stadt' }], chunkIds: ['c-borilagenhet'] },
+  { id: 's-borilagenhet2', level: 1, sv: 'Jag bor i en lägenhet med två rum.', de: 'Ich wohne in einer Wohnung mit zwei Zimmern.', decoding: [{ sv: 'jag', de: 'ich' }, { sv: 'bor', de: 'wohne' }, { sv: 'i', de: 'in' }, { sv: 'en', de: 'einer' }, { sv: 'lägenhet', de: 'Wohnung' }, { sv: 'med', de: 'mit' }, { sv: 'två', de: 'zwei' }, { sv: 'rum', de: 'Zimmer' }], chunkIds: ['c-borilagenhet'] },
+  // c-hurmangarum
+  { id: 's-hurmangarum1', level: 1, sv: 'Fin lägenhet! Hur många rum har du?', de: 'Schöne Wohnung! Wie viele Zimmer hast du?', decoding: [{ sv: 'fin', de: 'schöne' }, { sv: 'lägenhet', de: 'Wohnung' }, { sv: 'hur', de: 'wie' }, { sv: 'många', de: 'viele' }, { sv: 'rum', de: 'Zimmer' }, { sv: 'har', de: 'hast' }, { sv: 'du', de: 'du' }], chunkIds: ['c-hurmangarum'] },
+  { id: 's-hurmangarum2', level: 1, sv: 'Hur många rum har du hemma?', de: 'Wie viele Zimmer hast du zu Hause?', decoding: [{ sv: 'hur', de: 'wie' }, { sv: 'många', de: 'viele' }, { sv: 'rum', de: 'Zimmer' }, { sv: 'har', de: 'hast' }, { sv: 'du', de: 'du' }, { sv: 'hemma', de: 'zu Hause' }], chunkIds: ['c-hurmangarum'] },
+  // c-koketlitet
+  { id: 's-koketlitet1', level: 1, sv: 'Köket är litet men fint.', de: 'Die Küche ist klein, aber schön.', decoding: [{ sv: 'köket', de: 'die Küche' }, { sv: 'är', de: 'ist' }, { sv: 'litet', de: 'klein' }, { sv: 'men', de: 'aber' }, { sv: 'fint', de: 'schön' }], chunkIds: ['c-koketlitet'] },
+  { id: 's-koketlitet2', level: 1, sv: 'Köket är litet, men det räcker.', de: 'Die Küche ist klein, aber es reicht.', decoding: [{ sv: 'köket', de: 'die Küche' }, { sv: 'är', de: 'ist' }, { sv: 'litet', de: 'klein' }, { sv: 'men', de: 'aber' }, { sv: 'det', de: 'es' }, { sv: 'räcker', de: 'reicht' }], chunkIds: ['c-koketlitet'] },
+  // c-bormedkompis
+  { id: 's-bormedkompis1', level: 1, sv: 'Jag bor med en kompis från jobbet.', de: 'Ich wohne mit einem Kumpel von der Arbeit.', decoding: [{ sv: 'jag', de: 'ich' }, { sv: 'bor', de: 'wohne' }, { sv: 'med', de: 'mit' }, { sv: 'en', de: 'einem' }, { sv: 'kompis', de: 'Kumpel' }, { sv: 'från', de: 'von' }, { sv: 'jobbet', de: 'der Arbeit' }], chunkIds: ['c-bormedkompis'] },
+  { id: 's-bormedkompis2', level: 1, sv: 'Jag bor med en kompis, det är billigare.', de: 'Ich wohne mit einem Kumpel, das ist billiger.', decoding: [{ sv: 'jag', de: 'ich' }, { sv: 'bor', de: 'wohne' }, { sv: 'med', de: 'mit' }, { sv: 'en', de: 'einem' }, { sv: 'kompis', de: 'Kumpel' }, { sv: 'det', de: 'das' }, { sv: 'är', de: 'ist' }, { sv: 'billigare', de: 'billiger' }], chunkIds: ['c-bormedkompis'] },
+  // c-hyranhog
+  { id: 's-hyranhog1', level: 1, sv: 'Hyran är hög i stan.', de: 'Die Miete ist hoch in der Stadt.', decoding: [{ sv: 'hyran', de: 'die Miete' }, { sv: 'är', de: 'ist' }, { sv: 'hög', de: 'hoch' }, { sv: 'i', de: 'in' }, { sv: 'stan', de: 'der Stadt' }], chunkIds: ['c-hyranhog'] },
+  { id: 's-hyranhog2', level: 1, sv: 'Lägenheten är fin men hyran är hög.', de: 'Die Wohnung ist schön, aber die Miete ist hoch.', decoding: [{ sv: 'lägenheten', de: 'die Wohnung' }, { sv: 'är', de: 'ist' }, { sv: 'fin', de: 'schön' }, { sv: 'men', de: 'aber' }, { sv: 'hyran', de: 'die Miete' }, { sv: 'hög', de: 'hoch' }], chunkIds: ['c-hyranhog'] },
+  // c-valkommenin
+  { id: 's-valkommenin1', level: 1, sv: 'Hej! Välkommen in.', de: 'Hallo! Komm herein.', decoding: [{ sv: 'hej', de: 'hallo' }, { sv: 'välkommen', de: 'willkommen' }, { sv: 'in', de: 'herein' }], chunkIds: ['c-valkommenin'] },
+  { id: 's-valkommenin2', level: 1, sv: 'Välkommen in, ta av dig skorna.', de: 'Komm herein, zieh die Schuhe aus.', decoding: [{ sv: 'välkommen', de: 'willkommen' }, { sv: 'in', de: 'herein' }, { sv: 'ta', de: 'nimm' }, { sv: 'av', de: 'ab' }, { sv: 'dig', de: 'dich' }, { sv: 'skorna', de: 'die Schuhe' }], chunkIds: ['c-valkommenin'] },
+  // c-vadjobbardu
+  { id: 's-vadjobbardu1', level: 1, sv: 'Jag har mycket att göra i dag.', de: 'Ich habe heute viel zu tun.', decoding: [{ sv: 'jag', de: 'ich' }, { sv: 'har', de: 'habe' }, { sv: 'mycket', de: 'viel' }, { sv: 'att', de: 'zu' }, { sv: 'göra', de: 'tun' }, { sv: 'i', de: 'in' }, { sv: 'dag', de: 'Tag' }], chunkIds: ['c-vadjobbardu'] },
+  { id: 's-vadjobbardu2', level: 1, sv: 'Förlåt, jag har mycket att göra.', de: 'Entschuldige, ich habe viel zu tun.', decoding: [{ sv: 'förlåt', de: 'entschuldige' }, { sv: 'jag', de: 'ich' }, { sv: 'har', de: 'habe' }, { sv: 'mycket', de: 'viel' }, { sv: 'att', de: 'zu' }, { sv: 'göra', de: 'tun' }], chunkIds: ['c-vadjobbardu'] },
+  // c-jobbarpakontor
+  { id: 's-jobbarpakontor1', level: 1, sv: 'Jag jobbar på ett kontor i stan.', de: 'Ich arbeite in einem Büro in der Stadt.', decoding: [{ sv: 'jag', de: 'ich' }, { sv: 'jobbar', de: 'arbeite' }, { sv: 'på', de: 'auf' }, { sv: 'ett', de: 'einem' }, { sv: 'kontor', de: 'Büro' }, { sv: 'i', de: 'in' }, { sv: 'stan', de: 'der Stadt' }], chunkIds: ['c-jobbarpakontor'] },
+  { id: 's-jobbarpakontor2', level: 1, sv: 'Jag jobbar på ett kontor, det är lugnt.', de: 'Ich arbeite in einem Büro, es ist ruhig.', decoding: [{ sv: 'jag', de: 'ich' }, { sv: 'jobbar', de: 'arbeite' }, { sv: 'på', de: 'auf' }, { sv: 'ett', de: 'einem' }, { sv: 'kontor', de: 'Büro' }, { sv: 'det', de: 'es' }, { sv: 'är', de: 'ist' }, { sv: 'lugnt', de: 'ruhig' }], chunkIds: ['c-jobbarpakontor'] },
+  // c-ledigidag
+  { id: 's-ledigidag1', level: 1, sv: 'Jag är ledig i dag, vi kan ses.', de: 'Ich habe heute frei, wir können uns sehen.', decoding: [{ sv: 'jag', de: 'ich' }, { sv: 'är', de: 'bin' }, { sv: 'ledig', de: 'frei' }, { sv: 'i', de: 'in' }, { sv: 'dag', de: 'Tag' }, { sv: 'vi', de: 'wir' }, { sv: 'kan', de: 'können' }, { sv: 'ses', de: 'sehen' }], chunkIds: ['c-ledigidag'] },
+  { id: 's-ledigidag2', level: 1, sv: 'Jag är ledig i dag och i morgon.', de: 'Ich habe heute und morgen frei.', decoding: [{ sv: 'jag', de: 'ich' }, { sv: 'är', de: 'bin' }, { sv: 'ledig', de: 'frei' }, { sv: 'i', de: 'in' }, { sv: 'dag', de: 'Tag' }, { sv: 'och', de: 'und' }, { sv: 'morgon', de: 'Morgen' }], chunkIds: ['c-ledigidag'] },
+  // c-motetborjar
+  { id: 's-motetborjar1', level: 1, sv: 'Mötet börjar klockan nio i morgon.', de: 'Das Treffen beginnt morgen um neun.', decoding: [{ sv: 'mötet', de: 'das Treffen' }, { sv: 'börjar', de: 'beginnt' }, { sv: 'klockan', de: 'Uhr' }, { sv: 'nio', de: 'neun' }, { sv: 'i', de: 'in' }, { sv: 'morgon', de: 'Morgen' }], chunkIds: ['c-motetborjar'] },
+  { id: 's-motetborjar2', level: 1, sv: 'Kom i tid, mötet börjar klockan nio.', de: 'Komm pünktlich, das Treffen beginnt um neun.', decoding: [{ sv: 'kom', de: 'komm' }, { sv: 'i', de: 'in' }, { sv: 'tid', de: 'Zeit' }, { sv: 'mötet', de: 'das Treffen' }, { sv: 'börjar', de: 'beginnt' }, { sv: 'klockan', de: 'Uhr' }, { sv: 'nio', de: 'neun' }], chunkIds: ['c-motetborjar'] },
+  // c-bokaettmote
+  { id: 's-bokaettmote1', level: 1, sv: 'Kan vi boka ett möte på fredag?', de: 'Können wir einen Termin am Freitag machen?', decoding: [{ sv: 'kan', de: 'können' }, { sv: 'vi', de: 'wir' }, { sv: 'boka', de: 'buchen' }, { sv: 'ett', de: 'ein' }, { sv: 'möte', de: 'Treffen' }, { sv: 'på', de: 'auf' }, { sv: 'fredag', de: 'Freitag' }], chunkIds: ['c-bokaettmote'] },
+  { id: 's-bokaettmote2', level: 1, sv: 'Hej, kan vi boka ett möte?', de: 'Hallo, können wir einen Termin machen?', decoding: [{ sv: 'hej', de: 'hallo' }, { sv: 'kan', de: 'können' }, { sv: 'vi', de: 'wir' }, { sv: 'boka', de: 'buchen' }, { sv: 'ett', de: 'ein' }, { sv: 'möte', de: 'Treffen' }], chunkIds: ['c-bokaettmote'] },
+  // c-skickarmejl
+  { id: 's-skickarmejl1', level: 1, sv: 'Jag skickar ett mejl i dag.', de: 'Ich schicke heute eine Mail.', decoding: [{ sv: 'jag', de: 'ich' }, { sv: 'skickar', de: 'schicke' }, { sv: 'ett', de: 'eine' }, { sv: 'mejl', de: 'Mail' }, { sv: 'i', de: 'in' }, { sv: 'dag', de: 'Tag' }], chunkIds: ['c-skickarmejl'] },
+  { id: 's-skickarmejl2', level: 1, sv: 'Jag skickar ett mejl med all information.', de: 'Ich schicke eine Mail mit allen Informationen.', decoding: [{ sv: 'jag', de: 'ich' }, { sv: 'skickar', de: 'schicke' }, { sv: 'ett', de: 'eine' }, { sv: 'mejl', de: 'Mail' }, { sv: 'med', de: 'mit' }, { sv: 'all', de: 'aller' }, { sv: 'information', de: 'Information' }], chunkIds: ['c-skickarmejl'] },
+  // c-ringersenare
+  { id: 's-ringersenare1', level: 1, sv: 'Jag ringer dig senare i kväll.', de: 'Ich rufe dich heute Abend später an.', decoding: [{ sv: 'jag', de: 'ich' }, { sv: 'ringer', de: 'rufe an' }, { sv: 'dig', de: 'dich' }, { sv: 'senare', de: 'später' }, { sv: 'i', de: 'in' }, { sv: 'kväll', de: 'Abend' }], chunkIds: ['c-ringersenare'] },
+  { id: 's-ringersenare2', level: 1, sv: 'Okej, jag ringer dig senare.', de: 'Okay, ich rufe dich später an.', decoding: [{ sv: 'okej', de: 'okay' }, { sv: 'jag', de: 'ich' }, { sv: 'ringer', de: 'rufe an' }, { sv: 'dig', de: 'dich' }, { sv: 'senare', de: 'später' }], chunkIds: ['c-ringersenare'] },
+  // c-skickarmeddelande
+  { id: 's-skickarmeddelande1', level: 1, sv: 'Jag skickar ett meddelande när jag är hemma.', de: 'Ich schicke eine Nachricht, wenn ich zu Hause bin.', decoding: [{ sv: 'jag', de: 'ich' }, { sv: 'skickar', de: 'schicke' }, { sv: 'ett', de: 'eine' }, { sv: 'meddelande', de: 'Nachricht' }, { sv: 'när', de: 'wenn' }, { sv: 'är', de: 'bin' }, { sv: 'hemma', de: 'zu Hause' }], chunkIds: ['c-skickarmeddelande'] },
+  { id: 's-skickarmeddelande2', level: 1, sv: 'Jag skickar ett meddelande i kväll.', de: 'Ich schicke heute Abend eine Nachricht.', decoding: [{ sv: 'jag', de: 'ich' }, { sv: 'skickar', de: 'schicke' }, { sv: 'ett', de: 'eine' }, { sv: 'meddelande', de: 'Nachricht' }, { sv: 'i', de: 'in' }, { sv: 'kväll', de: 'Abend' }], chunkIds: ['c-skickarmeddelande'] },
+  // c-hordumig
+  { id: 's-hordumig1', level: 1, sv: 'Hallå? Jag hör dig dåligt.', de: 'Hallo? Ich höre dich schlecht.', decoding: [{ sv: 'hallå', de: 'hallo' }, { sv: 'jag', de: 'ich' }, { sv: 'hör', de: 'höre' }, { sv: 'dig', de: 'dich' }, { sv: 'dåligt', de: 'schlecht' }], chunkIds: ['c-hordumig'] },
+  { id: 's-hordumig2', level: 1, sv: 'Vänta, jag hör dig dåligt.', de: 'Warte, ich höre dich schlecht.', decoding: [{ sv: 'vänta', de: 'warte' }, { sv: 'jag', de: 'ich' }, { sv: 'hör', de: 'höre' }, { sv: 'dig', de: 'dich' }, { sv: 'dåligt', de: 'schlecht' }], chunkIds: ['c-hordumig'] },
+  // c-daligtackning
+  { id: 's-daligtackning1', level: 1, sv: 'Jag har dålig täckning här.', de: 'Ich habe hier schlechten Empfang.', decoding: [{ sv: 'jag', de: 'ich' }, { sv: 'har', de: 'habe' }, { sv: 'dålig', de: 'schlechte' }, { sv: 'täckning', de: 'Abdeckung' }, { sv: 'här', de: 'hier' }], chunkIds: ['c-daligtackning'] },
+  { id: 's-daligtackning2', level: 1, sv: 'Vänta, jag har dålig täckning.', de: 'Warte, ich habe schlechten Empfang.', decoding: [{ sv: 'vänta', de: 'warte' }, { sv: 'jag', de: 'ich' }, { sv: 'har', de: 'habe' }, { sv: 'dålig', de: 'schlechte' }, { sv: 'täckning', de: 'Abdeckung' }], chunkIds: ['c-daligtackning'] },
+  // c-vemardet
+  { id: 's-vemardet1', level: 1, sv: 'Hej, vem är det?', de: 'Hallo, wer ist da?', decoding: [{ sv: 'hej', de: 'hallo' }, { sv: 'vem', de: 'wer' }, { sv: 'är', de: 'ist' }, { sv: 'det', de: 'das' }], chunkIds: ['c-vemardet'] },
+  { id: 's-vemardet2', level: 1, sv: 'Vem är det som ringer?', de: 'Wer ruft da an?', decoding: [{ sv: 'vem', de: 'wer' }, { sv: 'är', de: 'ist' }, { sv: 'det', de: 'das' }, { sv: 'som', de: 'der' }, { sv: 'ringer', de: 'anruft' }], chunkIds: ['c-vemardet'] },
+  // c-maste-lagga-pa
+  { id: 's-maste-lagga-pa1', level: 1, sv: 'Jag måste lägga på nu, hej då.', de: 'Ich muss jetzt auflegen, tschüss.', decoding: [{ sv: 'jag', de: 'ich' }, { sv: 'måste', de: 'muss' }, { sv: 'lägga', de: 'legen' }, { sv: 'på', de: 'auf' }, { sv: 'nu', de: 'jetzt' }, { sv: 'hej', de: 'hallo' }, { sv: 'då', de: 'dann' }], chunkIds: ['c-maste-lagga-pa'] },
+  { id: 's-maste-lagga-pa2', level: 1, sv: 'Förlåt, jag måste lägga på.', de: 'Entschuldigung, ich muss auflegen.', decoding: [{ sv: 'förlåt', de: 'entschuldige' }, { sv: 'jag', de: 'ich' }, { sv: 'måste', de: 'muss' }, { sv: 'lägga', de: 'legen' }, { sv: 'på', de: 'auf' }], chunkIds: ['c-maste-lagga-pa'] },
+  // c-detsnoar
+  { id: 's-detsnoar1', level: 1, sv: 'Titta, det snöar!', de: 'Schau, es schneit!', decoding: [{ sv: 'titta', de: 'schau' }, { sv: 'det', de: 'es' }, { sv: 'snöar', de: 'schneit' }], chunkIds: ['c-detsnoar'] },
+  { id: 's-detsnoar2', level: 1, sv: 'Det snöar ute i dag.', de: 'Es schneit heute draußen.', decoding: [{ sv: 'det', de: 'es' }, { sv: 'snöar', de: 'schneit' }, { sv: 'ute', de: 'draußen' }, { sv: 'i', de: 'in' }, { sv: 'dag', de: 'Tag' }], chunkIds: ['c-detsnoar'] },
+  // c-haltpavagen
+  { id: 's-haltpavagen1', level: 1, sv: 'Kör försiktigt, det är halt på vägen.', de: 'Fahr vorsichtig, es ist glatt auf der Straße.', decoding: [{ sv: 'kör', de: 'fahr' }, { sv: 'försiktigt', de: 'vorsichtig' }, { sv: 'det', de: 'es' }, { sv: 'är', de: 'ist' }, { sv: 'halt', de: 'glatt' }, { sv: 'på', de: 'auf' }, { sv: 'vägen', de: 'dem Weg' }], chunkIds: ['c-haltpavagen'] },
+  { id: 's-haltpavagen2', level: 1, sv: 'Det är halt på vägen i dag.', de: 'Es ist heute glatt auf der Straße.', decoding: [{ sv: 'det', de: 'es' }, { sv: 'är', de: 'ist' }, { sv: 'halt', de: 'glatt' }, { sv: 'på', de: 'auf' }, { sv: 'vägen', de: 'dem Weg' }, { sv: 'i', de: 'in' }, { sv: 'dag', de: 'Tag' }], chunkIds: ['c-haltpavagen'] },
+  // c-jagfryser
+  { id: 's-jagfryser1', level: 1, sv: 'Jag fryser, ska vi gå in?', de: 'Mir ist kalt, sollen wir reingehen?', decoding: [{ sv: 'jag', de: 'ich' }, { sv: 'fryser', de: 'friere' }, { sv: 'ska', de: 'sollen' }, { sv: 'vi', de: 'wir' }, { sv: 'gå', de: 'gehen' }, { sv: 'in', de: 'herein' }], chunkIds: ['c-jagfryser'] },
+  { id: 's-jagfryser2', level: 1, sv: 'Jag fryser, det är kallt ute.', de: 'Mir ist kalt, es ist kalt draußen.', decoding: [{ sv: 'jag', de: 'ich' }, { sv: 'fryser', de: 'friere' }, { sv: 'det', de: 'es' }, { sv: 'är', de: 'ist' }, { sv: 'kallt', de: 'kalt' }, { sv: 'ute', de: 'draußen' }], chunkIds: ['c-jagfryser'] },
+  // c-tapadigmossa
+  { id: 's-tapadigmossa1', level: 1, sv: 'Ta på dig mössa, det är kallt.', de: 'Setz eine Mütze auf, es ist kalt.', decoding: [{ sv: 'ta', de: 'nimm' }, { sv: 'på', de: 'auf' }, { sv: 'dig', de: 'dich' }, { sv: 'mössa', de: 'Mütze' }, { sv: 'det', de: 'es' }, { sv: 'är', de: 'ist' }, { sv: 'kallt', de: 'kalt' }], chunkIds: ['c-tapadigmossa'] },
+  { id: 's-tapadigmossa2', level: 1, sv: 'Ta på dig mössa innan vi går ut.', de: 'Setz eine Mütze auf, bevor wir rausgehen.', decoding: [{ sv: 'ta', de: 'nimm' }, { sv: 'på', de: 'auf' }, { sv: 'dig', de: 'dich' }, { sv: 'mössa', de: 'Mütze' }, { sv: 'innan', de: 'bevor' }, { sv: 'vi', de: 'wir' }, { sv: 'går', de: 'gehen' }, { sv: 'ut', de: 'hinaus' }], chunkIds: ['c-tapadigmossa'] },
+  // c-akaskidor
+  { id: 's-akaskidor1', level: 1, sv: 'Det är fin snö — ska vi åka skidor?', de: 'Es ist schöner Schnee — sollen wir Ski fahren?', decoding: [{ sv: 'det', de: 'es' }, { sv: 'är', de: 'ist' }, { sv: 'fin', de: 'schöner' }, { sv: 'snö', de: 'Schnee' }, { sv: 'ska', de: 'sollen' }, { sv: 'vi', de: 'wir' }, { sv: 'åka', de: 'fahren' }, { sv: 'skidor', de: 'Ski' }], chunkIds: ['c-akaskidor'] },
+  { id: 's-akaskidor2', level: 1, sv: 'Ska vi åka skidor på lördag?', de: 'Sollen wir am Samstag Ski fahren?', decoding: [{ sv: 'ska', de: 'sollen' }, { sv: 'vi', de: 'wir' }, { sv: 'åka', de: 'fahren' }, { sv: 'skidor', de: 'Ski' }, { sv: 'på', de: 'auf' }, { sv: 'lördag', de: 'Samstag' }], chunkIds: ['c-akaskidor'] },
+  // c-morkttidigt
+  { id: 's-morkttidigt1', level: 1, sv: 'På vintern blir det mörkt tidigt.', de: 'Im Winter wird es früh dunkel.', decoding: [{ sv: 'på', de: 'auf' }, { sv: 'vintern', de: 'dem Winter' }, { sv: 'blir', de: 'wird' }, { sv: 'det', de: 'es' }, { sv: 'mörkt', de: 'dunkel' }, { sv: 'tidigt', de: 'früh' }], chunkIds: ['c-morkttidigt'] },
+  { id: 's-morkttidigt2', level: 1, sv: 'Det blir mörkt tidigt nu.', de: 'Es wird jetzt früh dunkel.', decoding: [{ sv: 'det', de: 'es' }, { sv: 'blir', de: 'wird' }, { sv: 'mörkt', de: 'dunkel' }, { sv: 'tidigt', de: 'früh' }, { sv: 'nu', de: 'jetzt' }], chunkIds: ['c-morkttidigt'] },
 ];
