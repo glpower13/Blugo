@@ -41,6 +41,7 @@ interface Props {
     result: ReviewResult,
     helpUsed: boolean,
     spoken: boolean,
+    exact?: boolean,
   ) => void;
   onExit: () => void;
 }
@@ -142,8 +143,8 @@ export function DialogScene({ dialog, backLabel, areaHue, learnerName, onProduce
                 <YouTurn
                   turn={current}
                   ttsOn={ttsOn}
-                  onGrade={(result, helpUsed, spoken) => {
-                    onProduce(current, result, helpUsed, spoken);
+                  onGrade={(result, helpUsed, spoken, exact) => {
+                    onProduce(current, result, helpUsed, spoken, exact);
                     setGraded((g) => ({
                       good: g.good + (result === 'good' ? 1 : 0),
                       total: g.total + 1,
@@ -347,11 +348,12 @@ function YouTurn({
 }: {
   turn: DialogTurn;
   ttsOn: boolean;
-  onGrade: (result: ReviewResult, helpUsed: boolean, spoken: boolean) => void;
+  onGrade: (result: ReviewResult, helpUsed: boolean, spoken: boolean, exact?: boolean) => void;
 }) {
   const [typed, setTyped] = useState('');
   const [heard, setHeard] = useState(''); // was die Spracheingabe verstanden hat
   const [spokenOk, setSpokenOk] = useState(false); // gesprochen UND exakt erkannt
+  const [exactHit, setExactHit] = useState(false); // objektiver Volltreffer der Prüfung
   const [helpUsed, setHelpUsed] = useState(false);
   const [phase, setPhase] = useState<'input' | 'feedback' | 'revealed'>('input');
   const [feedback, setFeedback] = useState<AnswerAnalysis | null>(null);
@@ -367,6 +369,8 @@ function YouTurn({
   function check(value: string = typed, fromSpeech = false) {
     const fb = analyzeAnswer(value, turn.sv);
     setSpokenOk(fromSpeech && fb.correct);
+    // Der objektive Treffer, getrennt vom Selbsteinschätzungs-Knopf.
+    setExactHit(fb.correct);
     if (fb.correct) {
       setFeedback(null);
       setPhase('revealed');
@@ -574,17 +578,17 @@ function YouTurn({
             <GradeButton
               label="Nochmal"
               tone="bg-danger"
-              onClick={() => onGrade('again', helpUsed, spokenOk)}
+              onClick={() => onGrade('again', helpUsed, spokenOk, exactHit)}
             />
             <GradeButton
               label="Fast"
               tone="bg-warn"
-              onClick={() => onGrade('hard', helpUsed, spokenOk)}
+              onClick={() => onGrade('hard', helpUsed, spokenOk, exactHit)}
             />
             <GradeButton
               label="Sitzt"
               tone="bg-success"
-              onClick={() => onGrade('good', helpUsed, spokenOk)}
+              onClick={() => onGrade('good', helpUsed, spokenOk, exactHit)}
             />
           </div>
         </>

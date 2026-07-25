@@ -97,7 +97,8 @@ describe('F · Entscheidungstabelle: woraus „bewiesen / reift" folgt', () => {
     // Wiedererkennen zählt nie — der Beweis ist ausdrücklich der PRODUKTIONS-Abruf.
     { ergebnis: 'good', stufe: 'recognition', intervall: 120, reift: false, bewiesen: false },
     { ergebnis: 'good', stufe: 'recognition', intervall: 30, reift: false, bewiesen: false },
-    // „Fast" ist kein Beweis: Wer zögert, hat nicht abgerufen.
+    // „Fast" OHNE objektiven Treffer ist kein Beweis: `gradeTyped` schlägt es
+    // vor, wenn die Antwort bis zu zwei Zeichen daneben lag — also falsch war.
     { ergebnis: 'hard', stufe: 'production', intervall: 120, reift: false, bewiesen: false },
     { ergebnis: 'hard', stufe: 'production', intervall: 30, reift: false, bewiesen: false },
     // Ein Fehlschlag erst recht nicht.
@@ -205,5 +206,56 @@ describe('F · Rückverfolgbarkeit: jede Anforderung hat ihren Test', () => {
     expect(gesprochen.provenStableAt).toBe(getippt.provenStableAt);
     expect(gesprochen.dueAt).toBe(getippt.dueAt);
     expect(gesprochen.intervalDays).toBe(getippt.intervalDays);
+  });
+});
+
+
+describe('F · Messung und Selbsteinschätzung sind zweierlei (geklärt 2026-07-25)', () => {
+  // Die offene Frage war: „Fast" führt nie zum Beweis — bestraft das ehrliche
+  // Selbsteinschätzung? Die Antwort hängt daran, was „Fast" bedeutet.
+  //
+  // In der PRODUKTION schlägt `gradeTyped` „Fast" vor, wenn die Antwort bis zu
+  // zwei Zeichen daneben lag. Dort heißt es also „war nicht ganz richtig" — und
+  // dass daraus kein Beweis wird, ist genau richtig.
+  //
+  // Es blieb ein schmaler Rest: exakt richtig getippt, aus Gewissenhaftigkeit
+  // trotzdem „Fast" gedrückt. Da hing der Beweis am Knopf statt an der Messung,
+  // und Aufrunden wurde belohnt. Genau das ist jetzt getrennt.
+
+  it('exakt richtig, aber „Fast" gedrückt: der Beweis zählt trotzdem', () => {
+    const s = schedule(vorDemAbruf('production', 120), 'hard', 'seg', T0, { exact: true });
+    expect(isStable(s), 'die Messung sagt: exakt nach 120 Tagen').toBe(true);
+  });
+
+  it('„Fast" ohne objektiven Treffer beweist weiterhin nichts', () => {
+    const s = schedule(vorDemAbruf('production', 120), 'hard', 'seg', T0);
+    expect(isStable(s)).toBe(false);
+    expect(isMaturing(s)).toBe(false);
+  });
+
+  it('ein Fehlschlag beweist nichts, auch nicht mit exaktem Treffer davor', () => {
+    // `again` heißt: nicht abgerufen. Ein `exact` daneben wäre widersprüchlich —
+    // die Engine darf daraus trotzdem nie einen Beweis machen.
+    const s = schedule(vorDemAbruf('production', 120), 'again', 'seg', T0, { exact: true });
+    expect(isStable(s)).toBe(false);
+    expect(s.stage).toBe('recognition');
+  });
+
+  it('die Selbsteinschätzung steuert weiterhin den Termin', () => {
+    // Wer zögert, sieht die Wendung früher wieder — das ist der Sinn des Knopfes
+    // und bleibt unberührt.
+    const sicher = schedule(vorDemAbruf('production', 120), 'good', 'seg', T0, { exact: true });
+    const zoegernd = schedule(vorDemAbruf('production', 120), 'hard', 'seg', T0, { exact: true });
+    expect(zoegernd.intervalDays).toBeLessThan(sicher.intervalDays);
+    // … aber beide haben denselben Beweis erbracht.
+    expect(isStable(zoegernd)).toBe(true);
+    expect(isStable(sicher)).toBe(true);
+  });
+
+  it('Wiedererkennen beweist auch mit exaktem Treffer nichts', () => {
+    // Dort gibt es keine geprüfte Eingabe — der Beweis bleibt der Produktion
+    // vorbehalten.
+    const s = schedule(vorDemAbruf('recognition', 120), 'hard', 'seg', T0, { exact: true });
+    expect(isStable(s)).toBe(false);
   });
 });

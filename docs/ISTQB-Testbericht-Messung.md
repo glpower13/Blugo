@@ -222,14 +222,38 @@ nicht stillschweigend abgehakt.
 
 ---
 
-## 6. Offen, bewusst nicht entschieden
+## 6. Nachtrag 2026-07-25 — die „Fast"-Frage, geklärt
 
-**„Fast" führt nie zum Beweis.** Die Entscheidungstabelle hat sichtbar gemacht,
-dass `provenStableAt` und `maturedAt` `result === 'good'` verlangen. Wer eine
-Wendung über Jahre zuverlässig, aber zögernd abruft und ehrlich „Fast" drückt,
-erreicht **nie** „bewiesen stabil". Das ist verteidigbar — und zugleich eine
-stille Bestrafung ehrlicher Selbsteinschätzung. Die Entscheidung ist inhaltlich,
-nicht technisch, und steht deshalb in `docs/10-open-questions.md`.
+Der Bericht hatte oben festgehalten: „Fast" führe nie zum Beweis und bestrafe
+damit ehrliche Selbsteinschätzung. **Diese Formulierung war zu scharf**, und der
+Grund steht eine Ebene tiefer im Code.
+
+`gradeTyped` (`answerCheck.ts:40`) schlägt „Fast" vor, wenn die Antwort **bis zu
+zwei Zeichen daneben** liegt; „Sitzt" nur bei exaktem Treffer. In der
+Produktions-Stufe heißt „Fast" also nicht „ich habe gezögert", sondern **„war
+nicht ganz richtig"**. Dass daraus kein Beweis wird, ist genau richtig — und im
+Wiedererkennen stellt sich die Frage gar nicht, weil dort ohnehin nichts
+bewiesen werden kann.
+
+**Was übrig blieb, war ein schmaler, aber echter Fall:** exakt richtig getippt
+und aus Gewissenhaftigkeit trotzdem „Fast" gedrückt. Da hing der Beweis am
+Knopf statt an der Messung — und Aufrunden wurde belohnt. Das ist ein Anreiz,
+sich besser darzustellen, als man ist, also derselbe Goodhart-Fall, gegen den
+diese App gebaut ist.
+
+**Entscheidung:** Messung und Terminplanung werden getrennt.
+
+| | Quelle | Wirkung |
+|---|---|---|
+| **Ob der Abruf gelungen ist** | die Prüfung der Eingabe (`ReviewMeta.exact`) | entscheidet über den Beweis |
+| **Wie sicher es sich anfühlte** | der Knopf des Lerners | entscheidet über den nächsten Termin |
+
+Der Beweis wird dadurch **nicht weicher**: Er verlangt weiterhin einen exakten
+Produktions-Abruf nach einer tatsächlich überstandenen langen Pause. Nur die
+Quelle der Aussage „exakt" ist jetzt die Prüfung statt der Knopf. Fünf Tests in
+`measurement.istqb.test.ts` halten das fest — darunter, dass „Fast" **ohne**
+objektiven Treffer weiterhin nichts beweist und ein Fehlschlag auch mit
+`exact` nichts beweist.
 
 ---
 

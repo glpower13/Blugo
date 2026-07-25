@@ -60,6 +60,26 @@ export function initialState(chunkId: string, now: number = Date.now()): ChunkSt
 export interface ReviewMeta {
   spoken?: boolean;
   /**
+   * War die Antwort OBJEKTIV exakt richtig (normalisierter Volltreffer)?
+   *
+   * DIE TRENNUNG, DIE DAHINTERSTECKT — Messung und Terminplanung sind zweierlei:
+   *   · Ob der Abruf gelungen ist, ist eine MESSUNG. Sie stammt aus der Prüfung
+   *     der Eingabe, nicht aus dem Bauchgefühl des Lerners.
+   *   · Wie sicher es sich anfühlte, ist eine SELBSTEINSCHÄTZUNG. Sie steuert
+   *     völlig zurecht den nächsten Termin — wer zögert, sieht es früher wieder.
+   *
+   * Warum das nötig war (offene Frage, geklärt 2026-07-25): Der Beweis hing
+   * allein am Knopf. Wer die Wendung nach 90 Tagen exakt richtig eintippte und
+   * aus Gewissenhaftigkeit trotzdem „Fast" drückte, bekam keinen Beweis — wer
+   * aufrundete, schon. Das ist ein Anreiz, sich besser darzustellen, als man
+   * ist, und damit genau der Goodhart-Fall, gegen den diese App gebaut ist.
+   *
+   * Der Beweis wird dadurch NICHT weicher: Er verlangt weiterhin einen exakten
+   * Produktions-Abruf nach einer tatsächlich überstandenen langen Pause. Nur
+   * die Quelle der Aussage „exakt" ist jetzt die Prüfung statt der Knopf.
+   */
+  exact?: boolean;
+  /**
    * Erhalt-Ziel des Lerners (FSRS „desired retention"). Steuert NUR die Länge
    * des nächsten Intervalls — also den Aufwand. Der Beweis „bewiesen stabil"
    * bleibt unberührt: Er verlangt einen gelungenen Produktions-Abruf nach einer
@@ -130,8 +150,12 @@ export function schedule(
   // Proof of stability: a successful PRODUCTION recall AFTER the scheduled
   // interval had already reached the horizon. Measured, not estimated — the
   // chunk really survived a long gap (docs/07-measurement.md, anti-Goodhart).
+  // Gelungen im Sinne der MESSUNG: entweder hat der Lerner „Sitzt" gesagt, oder
+  // die Prüfung hat einen exakten Treffer festgestellt (siehe ReviewMeta.exact).
+  const abrufGelungen = result === 'good' || meta.exact === true;
+
   const provenStableAt =
-    result === 'good' && preStage === 'production' && preInterval >= STABLE_INTERVAL_DAYS
+    abrufGelungen && preStage === 'production' && preInterval >= STABLE_INTERVAL_DAYS
       ? now
       : state.provenStableAt;
 
@@ -147,7 +171,7 @@ export function schedule(
   // 90-Tage-Beweis erneuerte sich (`? now :`), der weiche nicht — genau
   // verkehrt herum. Beide Vermerke halten jetzt den JÜNGSTEN Nachweis fest.
   const maturedAt =
-    result === 'good' && preStage === 'production' && preInterval >= MATURING_INTERVAL_DAYS
+    abrufGelungen && preStage === 'production' && preInterval >= MATURING_INTERVAL_DAYS
       ? now
       : (state.maturedAt ?? null);
 

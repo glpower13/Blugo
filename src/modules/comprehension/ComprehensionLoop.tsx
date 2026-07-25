@@ -44,7 +44,10 @@ interface Props {
   retention?: number;
   // `spoken` = die Antwort kam GESPROCHEN und wurde exakt als der geprüfte Chunk
   // erkannt (P3). Nur dieser enge Fall wird vermerkt — siehe ReviewEvent.spoken.
-  onResult: (result: ReviewResult, helpUsed: boolean, spoken: boolean) => void;
+  // `exact` = die Prüfung hat einen normalisierten Volltreffer festgestellt.
+  // Getrennt von `result`, weil die Messung nicht am Selbsteinschätzungs-Knopf
+  // hängen darf (siehe ReviewMeta.exact in der Memory-Engine).
+  onResult: (result: ReviewResult, helpUsed: boolean, spoken: boolean, exact?: boolean) => void;
   known?: KnownPhrase[]; // Wendungen, die der Lerner schon kann (für echtes i+1)
   // Neuer Chunk? Dann Bedeutung/Dekodierung SOFORT zeigen (verständlicher Input,
   // docs/gremium-darstellung.md). Bei bekanntem Chunk bleibt die Stütze zu (Abruf).
@@ -72,6 +75,10 @@ export function ComprehensionLoop({
   const [heard, setHeard] = useState(''); // was die Spracheingabe verstanden hat
   const [spokenOk, setSpokenOk] = useState(false); // gesprochen UND exakt erkannt
   const [autoGrade, setAutoGrade] = useState<ReviewResult | null>(null);
+  // Hat die Prüfung einen exakten Treffer gesehen? Nur in der Produktion gibt es
+  // überhaupt etwas objektiv zu prüfen; beim Wiedererkennen deckt der Lerner auf
+  // und bewertet sich selbst — dort bleibt es beim Knopf.
+  const [exactHit, setExactHit] = useState(false);
   // Formatives Feedback bei Produktion (Abweichung + Hinweis, docs/gremium-feedback.md).
   const [feedback, setFeedback] = useState<AnswerAnalysis | null>(null);
   // Optionale KI-Erklärung „Warum?" (nur bei aktiver Cloud-KI; Feedback-Schritt 2).
@@ -101,6 +108,7 @@ export function ComprehensionLoop({
     setHeard('');
     setSpokenOk(false);
     setAutoGrade(null);
+    setExactHit(false);
     setFeedback(null);
     setWhy({ state: 'idle', text: '' });
     setAiTokens(null);
@@ -164,6 +172,7 @@ export function ComprehensionLoop({
     // löscht ihn wieder — sonst stünde am Ende „gesprochen" an einer Wendung,
     // die getippt wurde.
     setSpokenOk(fromSpeech && fb.correct);
+    setExactHit(fb.correct);
     setAutoGrade(fb.grade);
     setWhy({ state: 'idle', text: '' });
     if (fb.correct) {
@@ -621,17 +630,17 @@ export function ComprehensionLoop({
               <GradeButton
                 label="Nochmal"
                 tone="bg-danger"
-                onClick={() => onResult('again', helpUsed, spokenOk)}
+                onClick={() => onResult('again', helpUsed, spokenOk, exactHit)}
               />
               <GradeButton
                 label="Fast"
                 tone="bg-warn"
-                onClick={() => onResult('hard', helpUsed, spokenOk)}
+                onClick={() => onResult('hard', helpUsed, spokenOk, exactHit)}
               />
               <GradeButton
                 label="Sitzt"
                 tone="bg-success"
-                onClick={() => onResult('good', helpUsed, spokenOk)}
+                onClick={() => onResult('good', helpUsed, spokenOk, exactHit)}
               />
             </div>
           </>

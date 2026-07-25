@@ -329,7 +329,12 @@ export default function App() {
     ? !currentState.history.some((h) => h.result === 'good')
     : true;
 
-  async function handleResult(result: ReviewResult, helpUsed: boolean, spoken = false) {
+  async function handleResult(
+    result: ReviewResult,
+    helpUsed: boolean,
+    spoken = false,
+    exact = false,
+  ) {
     if (submitting.current) return; // ignore rapid double-taps on the same item
     if (!currentChunk || !currentState || !currentSegment) return;
     submitting.current = true;
@@ -337,6 +342,7 @@ export default function App() {
       const now = Date.now();
       const next = schedule(currentState, result, currentSegment.id, now, {
         spoken,
+        exact,
         retention: prefs.retention,
       });
       // Persist first; only advance the UI once the write succeeded, so a
@@ -370,6 +376,7 @@ export default function App() {
       result: ReviewResult,
       helpUsed: boolean,
       spoken = false,
+      exact = false,
     ) => {
       const chunkId = turn.chunkId;
       if (!chunkId) return;
@@ -377,7 +384,7 @@ export default function App() {
       if (!state) return;
       const now = Date.now();
       const segId = `dialog:${dialogId}:${turn.id}`;
-      const next = schedule(state, result, segId, now, { spoken, retention: prefs.retention });
+      const next = schedule(state, result, segId, now, { spoken, exact, retention: prefs.retention });
       void (async () => {
         try {
           await putChunkState(next);

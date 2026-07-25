@@ -129,3 +129,32 @@ Sprachpaar-Overlay als eigene, gedämpfte Zone sichtbar.
 **Leitplanke:** Sechs neue Tests sichern die vier Regeln (`metrics.test.ts`,
 `memoryEngine.test.ts`) — darunter der Fall „Beweis, dann Fehlschlag" und
 „nur geplantes Intervall zählt nicht".
+
+
+---
+
+## Nachtrag 2026-07-25 — Messung und Selbsteinschätzung sind zweierlei
+
+Der Beweis hing bis hierher am **Knopf**: nur `result === 'good'` konnte ihn
+setzen. Das sah sauber aus und hatte ein Loch.
+
+In der Produktions-Stufe prüft die App die Eingabe wirklich (`answerCheck.ts`).
+Wer nach 90 Tagen exakt richtig tippt, aber aus Gewissenhaftigkeit „Fast"
+drückt, bekam **keinen** Beweis — wer aufrundete, schon. Ein Indikator, der
+Aufrunden belohnt, erzeugt genau das Verhalten, gegen das dieses Projekt
+gebaut ist.
+
+**Die Trennung, die das auflöst:**
+
+| Frage | Antwort kommt aus | Steuert |
+|---|---|---|
+| Ist der Abruf gelungen? | der **Prüfung der Eingabe** (`ReviewMeta.exact`) | den Beweis |
+| Wie sicher fühlte es sich an? | dem **Knopf** des Lerners | den nächsten Termin |
+
+Der Beweis wird dadurch nicht weicher — er verlangt weiterhin einen exakten
+Produktions-Abruf nach einer tatsächlich überstandenen Pause von ≥ 90 Tagen.
+Geändert hat sich nur, **woher** die App weiß, dass er exakt war.
+
+Was ausdrücklich gleich bleibt: Ein „Nochmal" beweist nie etwas, auch nicht mit
+`exact` daneben. Und im Wiedererkennen gibt es keine geprüfte Eingabe — dort
+bleibt es beim Knopf, und dort kann ohnehin nichts bewiesen werden.
