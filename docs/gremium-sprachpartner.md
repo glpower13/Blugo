@@ -170,6 +170,25 @@ für sich nutzbar, wird **einzeln geprüft** (Kaskade aus `TEST-UND-PRUEF-STANDA
 | **P5** | Freies Gespräch — ausdrücklich **ohne Messung** | Kein Fortschrittsbalken, keine Zahl, sichtbare Kennzeichnung „Übung, kein Beweis" | ✅ Modus-Wahl „Frei · zählt nicht" |
 | **P6** | Kaskade, e2e, Screenshots hell/dunkel, Doku, Auslieferung | grüner, reproduzierbarer Lauf **plus eigenes Ansehen** | ✅ 14 e2e, 196 Tests |
 
+### Ausbau nach P5 *(2026-07-25, „bau es noch weiter aus")*
+
+Drei Dinge, die beim Benutzen fehlten:
+
+1. **Freihändig.** Nach jeder Zeile des Partners geht das Mikrofon von selbst an — man
+   redet, statt zu bedienen. Technisch hängt das an einer Kleinigkeit: Die Sprachausgabe
+   meldet jetzt, wann sie **fertig** ist (`speakSwedish` liefert ein Versprechen), sonst
+   hörte das Mikrofon die eigene Stimme des Geräts. **Voreinstellung: aus.** Ein Mikrofon,
+   das ungefragt zuhört, wäre ein Übergriff, kein Komfort.
+2. **Ein Ende mit Abrechnung.** Das Gespräch lief endlos. Jetzt endet es — von selbst, wenn
+   alle Zielwendungen gesagt sind, oder auf Knopfdruck — und zeigt eine Bilanz: welche
+   Wendung **selbst gesagt** wurde und welche **nicht vorkam**. Beides steht da; nur die
+   Erfolge zu zeigen wäre die halbe Wahrheit. Ohne fällige Wendungen sagt die Bilanz
+   ausdrücklich, dass es keine Zahl gibt. „Weiterreden" bleibt möglich — beendet ist keine
+   Sackgasse.
+3. **Sprechen auf der ersten Seite.** Der Einstieg steht jetzt auch auf „Heute" — mit der
+   ehrlichen Unterzeile: entweder *„N fällige Wendungen im Gespräch selbst sagen"* oder
+   *„Gerade nichts fällig — reden geht, gemessen wird nichts."*
+
 **Was beim Bauen dazukam — die Anti-Nachplapper-Regel.** Der Prompt verbietet dem Partner,
 die Zielwendungen selbst auszusprechen. Ein Modell hält sich aber nicht immer an ein Verbot,
 und eine Messung, die sich auf ein Versprechen verlässt, ist keine Messung. Deshalb filtert

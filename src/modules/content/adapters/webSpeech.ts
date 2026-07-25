@@ -8,7 +8,9 @@ import { speakSwedish, ttsAvailable } from '../../comprehension/tts';
 export const webSpeechSynthesizer: SpeechSynthesizer = {
   id: 'web-speech',
   isAvailable: ttsAvailable,
-  async speak(req: SpeakRequest): Promise<void> {
-    speakSwedish(req.text, req.rate);
+  // Erfüllt sich erst, wenn wirklich fertig gesprochen ist — darauf baut der
+  // freihändige Sparring-Modus auf (erst ausreden lassen, dann zuhören).
+  speak(req: SpeakRequest): Promise<void> {
+    return speakSwedish(req.text, req.rate);
   },
 };

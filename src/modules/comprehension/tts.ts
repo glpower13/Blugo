@@ -53,16 +53,34 @@ export function swedishVoiceAvailable(): boolean {
   return ttsAvailable() && selectSwedishVoice(currentVoices()) !== undefined;
 }
 
-/** Liest den Text auf Schwedisch vor. `rate` < 1 = langsamer (Didaktik: Tempo). */
-export function speakSwedish(text: string, rate = 0.9): void {
-  if (!ttsAvailable()) return;
+/**
+ * Liest den Text auf Schwedisch vor. `rate` < 1 = langsamer (Didaktik: Tempo).
+ *
+ * Erfüllt sich, wenn das Vorlesen ZU ENDE ist — das braucht der freihändige
+ * Modus im Sparring: erst ausreden lassen, dann zuhören. Ohne Sprachausgabe
+ * erfüllt es sich sofort, damit der Aufrufer nicht hängt.
+ */
+export function speakSwedish(text: string, rate = 0.9): Promise<void> {
+  if (!ttsAvailable()) return Promise.resolve();
   const u = new SpeechSynthesisUtterance(text);
   u.lang = 'sv-SE'; // auch ohne gelistete Stimme wählen viele Engines darüber sv
   u.rate = rate;
   const voice = selectSwedishVoice(currentVoices());
   if (voice) u.voice = voice;
   window.speechSynthesis.cancel();
-  window.speechSynthesis.speak(u);
+  return new Promise<void>((resolve) => {
+    // Beide Wege beenden das Warten. Manche Engines melden bei abgebrochener
+    // Ausgabe nur `onerror` — ohne das bliebe der freihändige Modus stehen.
+    let settled = false;
+    const finish = () => {
+      if (settled) return;
+      settled = true;
+      resolve();
+    };
+    u.onend = finish;
+    u.onerror = finish;
+    window.speechSynthesis.speak(u);
+  });
 }
 
 // Initiales Laden + Nachladen registrieren (nur im Browser).

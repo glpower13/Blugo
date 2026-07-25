@@ -11,7 +11,7 @@
 // Genau dafür steht die zweite Zahl „reift" daneben.
 
 import type { ReactNode } from 'react';
-import { IconPlay, IconSettings, IconChat, IconSprout } from '../../ui/icons';
+import { IconPlay, IconSettings, IconChat, IconMic, IconSprout } from '../../ui/icons';
 import { useCountUp } from '../../ui/useCountUp';
 
 interface Props {
@@ -30,6 +30,10 @@ interface Props {
   onStart: () => void;
   onGoLearn: () => void;
   onGoTalk: () => void;
+  /** Sparring öffnen — null, wenn keine Cloud-KI eingerichtet ist. */
+  onGoSparring: (() => void) | null;
+  /** Wie viele fällige Wendungen der Partner hervorlocken würde. */
+  sparringTargets: number;
 }
 
 /** Ehrliche Unterzeile zur großen Zahl — beschönigt eine 0 nicht. */
@@ -59,6 +63,8 @@ export function TodayView({
   onStart,
   onGoLearn,
   onGoTalk,
+  onGoSparring,
+  sparringTargets,
 }: Props) {
   const shown = useCountUp(stable);
 
@@ -166,6 +172,31 @@ export function TodayView({
           onClick={onGoTalk}
         />
       </div>
+
+      {/* Sprechen ist der schwerste und wertvollste Abruf — er gehört auf die
+          erste Seite. Aber nur, wenn es ihn wirklich gibt (eigener KI-Zugang)
+          und nur mit dem, was er WIRKLICH kann: keine fälligen Wendungen, keine
+          Behauptung von Fortschritt. */}
+      {onGoSparring && !loading && (
+        <button
+          onClick={onGoSparring}
+          className="flex w-full items-center gap-3 rounded-2xl border border-[#63C9B6]/45 bg-[#63C9B6]/10 px-4 py-3 text-left"
+        >
+          <IconMic className="h-5 w-5 shrink-0 text-[#63C9B6]" />
+          <span className="min-w-0">
+            <span className="block font-display text-[0.95rem] font-semibold text-paper">
+              Sparring · sprechen
+            </span>
+            <span className="block text-[0.68rem] leading-relaxed text-faint">
+              {sparringTargets > 0
+                ? `${sparringTargets} fällige ${
+                    sparringTargets === 1 ? 'Wendung' : 'Wendungen'
+                  } im Gespräch selbst sagen`
+                : 'Gerade nichts fällig — reden geht, gemessen wird nichts'}
+            </span>
+          </span>
+        </button>
+      )}
     </div>
   );
 }

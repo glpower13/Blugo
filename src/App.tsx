@@ -408,6 +408,12 @@ export default function App() {
               onStart={() => navigate('push', () => enterSession())}
               onGoLearn={() => navigate('push', () => setView({ name: 'tab', tab: 'learn' }))}
               onGoTalk={() => navigate('push', () => setView({ name: 'tab', tab: 'talk' }))}
+              onGoSparring={
+                aiRegistry.partner
+                  ? () => navigate('push', () => setView({ name: 'sparring' }))
+                  : null
+              }
+              sparringTargets={sparringTargets.length}
             />
             <div className="mx-auto mt-auto flex w-full max-w-md flex-col gap-3 pt-4 md:max-w-xl">
               <InstallButton />
