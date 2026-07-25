@@ -43,9 +43,9 @@ function stageNote(stable: number, maturing: number, total: number): string {
     return maturing > 0 ? `von ${total} Wendungen · ${maturing} reifen` : `von ${total} Wendungen`;
   }
   if (maturing > 0) {
-    return `${maturing} reifen — „bewiesen" wird erst nach ~3 Monaten daraus`;
+    return `${maturing} reifen — „bewiesen" wird daraus erst nach über 90 Tagen`;
   }
-  return 'Noch nichts bewiesen — das braucht Wochen, nicht Tage.';
+  return 'Noch nichts bewiesen — der Beweis braucht über 90 Tage.';
 }
 
 export function TodayView({
@@ -107,8 +107,8 @@ export function TodayView({
         <button
           onClick={onSettings}
           className="glass-soft flex shrink-0 items-center justify-center rounded-full p-2.5 text-paper"
-          aria-label="KI-Einstellungen"
-          title="KI-Einstellungen"
+          aria-label="Einstellungen"
+          title="Einstellungen"
         >
           <IconSettings className="h-5 w-5" />
         </button>
@@ -170,7 +170,7 @@ export function TodayView({
         <Tile
           Icon={IconChat}
           title="Gespräche"
-          sub={loading ? 'lädt …' : `${dialogCount} Szenen`}
+          sub={loading ? 'lädt …' : `${dialogCount} Gespräche`}
           onClick={onGoTalk}
         />
       </div>

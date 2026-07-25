@@ -324,7 +324,7 @@ function VoiceSection({
         <IconWave className="h-4 w-4 text-brand" /> Probe hören
       </button>
       <p className="mt-2 text-xs leading-relaxed text-faint">
-        Die Stimme kommt vom Gerät, nicht aus dem Netz. Der „🐢 langsam"-Knopf im Lernen
+        Die Stimme kommt vom Gerät, nicht aus dem Netz. Der Knopf „Langsamer" im Lernen
         bleibt immer deutlich langsamer als diese Einstellung.
       </p>
     </Section>
@@ -521,7 +521,7 @@ function DataSection({
       <p className="mt-2 text-xs leading-relaxed text-faint">
         Einlesen <span className="text-paper">führt zusammen</span> statt zu überschreiben:
         Bei jeder Wendung gewinnt der weiter fortgeschrittene Stand. Du kannst also auf zwei
-        Geräten lernen und beide Seiten behalten. Der KI-Schlüssel wandert bewusst
+        Geräten lernen und beide Seiten behalten. Der KI-Zugang wandert bewusst
         <span className="text-paper"> nicht </span>mit — er hätte in einer Datei nichts zu
         suchen.
       </p>
@@ -598,7 +598,7 @@ function AboutSection({ totalChunks }: { totalChunks: number }) {
         </div>
       </dl>
       <p className="mt-4 flex items-center gap-1.5 text-[0.7rem] text-faint">
-        <IconSparkle className="h-3 w-3" /> © 2026 Andreas Fink · neurolang
+        <IconSparkle className="h-3 w-3" /> © 2026 Andreas Fink · NEUROLANG
       </p>
     </Section>
   );

@@ -104,17 +104,26 @@ export function CategoryDetail({
           )}
         </p>
 
-        {/* Fokus für neuen Stoff (Autonomie) */}
+        {/* Fokus für neuen Stoff (Autonomie).
+            Die Beschriftung ist kurz, weil eine Pille zweizeilig kaputt aussieht:
+            bei 320 px und großer Systemschrift brach „Im Fokus für neuen Stoff"
+            um (Barrierefreiheits-Audit 2026-07-25). Was der Knopf tut, steht in
+            der Zeile darunter — nicht gedrängt in die Pille. */}
         <button
           onClick={onToggleFocus}
           aria-pressed={isFocus}
           className={
-            'mt-3 rounded-full px-4 py-1.5 text-sm font-medium ' +
+            'mt-3 min-h-11 rounded-full px-5 text-sm font-medium ' +
             (isFocus ? 'btn-gold text-ink' : 'border border-brand/50 text-brand')
           }
         >
-          {isFocus ? '★ Im Fokus für neuen Stoff' : 'Als Fokus für neuen Stoff'}
+          {isFocus ? '★ Im Fokus' : 'Fokus setzen'}
         </button>
+        <p className="mt-1.5 text-xs text-muted">
+          {isFocus
+            ? 'Neuer Stoff kommt zuerst aus diesem Thema.'
+            : 'Neuen Stoff bevorzugt aus diesem Thema ziehen.'}
+        </p>
 
         {/* Die einzelnen Wendungen, sauber gegliedert (breit: zwei Spalten). */}
         <ul className="mt-5 grid grid-cols-1 gap-2 sm:grid-cols-2">

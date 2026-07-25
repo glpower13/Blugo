@@ -428,7 +428,7 @@ function YouTurn({
               lang="sv"
               value={typed}
               onChange={(e) => setTyped(e.target.value)}
-              placeholder="auf Schwedisch tippen…"
+              placeholder="auf Schwedisch tippen …"
               aria-label="Antwort auf Schwedisch"
               autoCapitalize="off"
               autoCorrect="off"
@@ -447,7 +447,7 @@ function YouTurn({
                   <span className="text-[0.66rem] uppercase tracking-[0.16em] text-faint">oder</span>
                   <span className="h-px flex-1 bg-line" />
                 </div>
-                <SpeakButton mic={mic} heard={heard} label="Sag es auf Schwedisch" />
+                <SpeakButton mic={mic} heard={heard} label="Sprich es auf Schwedisch" />
               </>
             )}
           </form>
@@ -467,8 +467,8 @@ function YouTurn({
             </p>
           )}
           <p className="mb-1 text-xs text-faint">
-            <span className="text-success underline">grün</span> = fehlt ·{' '}
-            <span className="text-danger line-through">rot</span> = zu viel getippt
+            <span className="text-success underline">unterstrichen</span> = fehlt ·{' '}
+            <span className="text-danger line-through">durchgestrichen</span> = zu viel
           </p>
           <div
             lang="sv"
@@ -515,7 +515,7 @@ function YouTurn({
                 className="flex items-center gap-1.5 rounded-full border border-brand/50 bg-brand/10 px-4 py-2 text-sm text-brand disabled:opacity-50"
               >
                 <IconSparkle className="h-3.5 w-3.5" />
-                {why.state === 'loading' ? 'KI denkt…' : 'Warum?'}
+                {why.state === 'loading' ? 'KI denkt …' : 'Warum?'}
               </button>
             )}
           </div>

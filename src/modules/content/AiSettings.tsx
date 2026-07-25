@@ -64,7 +64,10 @@ export function AiSettingsSection({ onSaved }: { onSaved?: () => void }) {
 
   return (
     <div>
-        <p className="mb-3 text-xs text-muted">
+        <h3 className="text-[0.7rem] font-semibold uppercase tracking-[0.14em] text-muted">
+          Anbieter
+        </h3>
+        <p className="mb-3 mt-1 text-xs text-muted">
           Wähle, welche KI die App nutzt. Deine Auswahl bleibt auf dem Gerät.
         </p>
 
@@ -88,7 +91,7 @@ export function AiSettingsSection({ onSaved }: { onSaved?: () => void }) {
         {isCloud && (
           <div className="mt-4 flex flex-col gap-3">
             <label className="flex flex-col gap-1">
-              <span className="text-sm text-paper">Dein Claude-Zugangs-Schlüssel</span>
+              <span className="text-sm text-paper">Dein KI-Zugang (Claude-Schlüssel)</span>
               <input
                 type="password"
                 value={settings.anthropic.apiKey}
@@ -99,7 +102,7 @@ export function AiSettingsSection({ onSaved }: { onSaved?: () => void }) {
                 className="rounded-lg border border-line bg-base px-3 py-2 text-paper"
               />
               <span className="text-xs text-faint">
-                Schlüssel bekommst du bei console.anthropic.com. Er bleibt lokal gespeichert.
+                Den Schlüssel bekommst du bei console.anthropic.com. Er bleibt lokal gespeichert.
               </span>
             </label>
 
@@ -123,7 +126,7 @@ export function AiSettingsSection({ onSaved }: { onSaved?: () => void }) {
               disabled={test.state === 'running' || !settings.anthropic.apiKey.trim()}
               className="rounded-lg border border-line px-3 py-2 text-sm text-paper disabled:opacity-50"
             >
-              {test.state === 'running' ? 'Teste…' : 'Verbindung testen'}
+              {test.state === 'running' ? 'Teste …' : 'Verbindung testen'}
             </button>
 
             {test.state === 'ok' && (

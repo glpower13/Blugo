@@ -120,7 +120,7 @@ export function SparringScene({
         if (ttsOn) await aiRegistry.synthesizer.speak({ text: reply.sv });
         if (handsFreeRef.current && !finishedRef.current) listen.current();
       } catch (e) {
-        setError(e instanceof Error ? e.message : 'Der Gesprächspartner antwortet gerade nicht.');
+        setError(e instanceof Error ? e.message : 'Der Sparringspartner antwortet gerade nicht.');
       } finally {
         setPending(false);
       }
@@ -194,21 +194,21 @@ export function SparringScene({
             Dafür brauchst du deinen eigenen KI-Zugang.
           </p>
           <p className="mt-2 text-sm leading-relaxed text-muted">
-            Dein Gegenüber denkt sich seine Antworten aus — das kann keine Rechenregel,
+            Der Sparringspartner denkt sich seine Antworten aus — das kann keine Rechenregel,
             das macht eine Cloud-KI. Sie läuft über einen Zugang, der dir gehört und den
             du selbst bezahlst; wir speichern nichts davon auf einem Server, weil es
             keinen gibt.
           </p>
           <ol className="mt-4 space-y-2 text-sm leading-relaxed text-muted">
             <li>
-              <span className="text-paper">1.</span> Unten auf „Einstellungen öffnen" tippen.
+              <span className="text-paper">1.</span> Unten auf „Einstellungen öffnen" antippen.
             </li>
             <li>
               <span className="text-paper">2.</span> Bei „Anbieter" <em>Claude (Cloud)</em>{' '}
               wählen.
             </li>
             <li>
-              <span className="text-paper">3.</span> Deinen Schlüssel eintragen (beginnt mit
+              <span className="text-paper">3.</span> Deinen KI-Zugang eintragen (beginnt mit
               „sk-ant-…") und speichern.
             </li>
           </ol>
@@ -220,7 +220,7 @@ export function SparringScene({
           </button>
           <p className="mt-3 text-[0.7rem] leading-relaxed text-faint">
             Alles andere in dieser App läuft ohne Zugang weiter — Lernen, Gespräche,
-            Sprechen statt Tippen. Nur das freie Gegenüber braucht ihn.
+            Sprechen statt Tippen. Nur der Sparringspartner braucht ihn.
           </p>
         </section>
       </div>
@@ -250,7 +250,7 @@ export function SparringScene({
               </>
             ) : dueTargets.length > 0 ? (
               <>
-                Dein Gegenüber versucht, dir {dueTargets.length}{' '}
+                Der Sparringspartner versucht, dir {dueTargets.length}{' '}
                 {dueTargets.length === 1 ? 'fällige Wendung' : 'fällige Wendungen'} zu entlocken.
                 Was du selbst sagst, zählt — was er dir vorsagt, nicht.
               </>
@@ -304,7 +304,7 @@ export function SparringScene({
         </ul>
 
         <p className="px-1 text-[0.7rem] leading-relaxed text-faint">
-          Jede Antwort deines Gegenübers läuft über deinen eigenen KI-Zugang und kostet
+          Jede Antwort des Sparringspartners läuft über deinen eigenen KI-Zugang und kostet
           dich dort ein paar Cent. Die Stimme kommt vom Gerät. Schwedisch aus einer KI ist
           nicht muttersprachlich geprüft.
         </p>
@@ -561,10 +561,10 @@ export function SparringScene({
             >
               Sagen
             </button>
-            {mic.supported && <SpeakButton mic={mic} heard={heard} label="Antworte mit deiner Stimme" />}
+            {mic.supported && <SpeakButton mic={mic} heard={heard} label="Antworte auf Schwedisch" />}
             {handsFree && (
               <p className="text-[0.68rem] leading-relaxed text-faint">
-                Freihändig: Nach jeder Antwort deines Gegenübers geht das Mikrofon von
+                Freihändig: Nach jeder Antwort des Sparringspartners geht das Mikrofon von
                 selbst an. Ausschalten geht oben jederzeit.
               </p>
             )}

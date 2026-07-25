@@ -2,7 +2,7 @@
 //
 // Alles, was bisher auf der Startseite klebte und dort um Aufmerksamkeit
 // konkurrierte, bekommt hier seinen eigenen Raum: der Ring, das Gedächtnisfeld,
-// die Abdeckung, das Flow-Band.
+// die Abdeckung, das Erfolgsband.
 //
 // EHRLICHKEIT (`07-measurement.md`): „bewiesen" zählt nur nach echtem langem
 // Intervall in der Produktions-Richtung; „reift" ist die zweite gemessene Zone.
@@ -66,7 +66,7 @@ export function ProgressView({
         </p>
         {successRate !== null && (
           <p className="mt-1 text-xs text-faint">
-            Flow-Band: {bandStatus(successRate)} ({Math.round(successRate * 100)} % zuletzt)
+            Erfolgsband: {bandStatus(successRate)} ({Math.round(successRate * 100)} % zuletzt)
           </p>
         )}
         {/* Gesprochenes bekommt bewusst KEINE große Zahl: es ist eine Eigenschaft

@@ -16,7 +16,7 @@ import { IconPlay, IconSlow, IconWave, IconSparkle } from '../../ui/icons';
 
 const GRADE_LABEL: Record<ReviewResult, string> = {
   again: 'Nochmal',
-  hard: 'Schwer',
+  hard: 'Fast',
   good: 'Sitzt',
 };
 
@@ -211,7 +211,7 @@ export function ComprehensionLoop({
       <div className="mb-2 flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
         <p className="text-[0.68rem] font-medium uppercase tracking-[0.16em] text-faint">
           Begegnung · Level {segment.level} ·{' '}
-          {stage === 'production' ? 'Produktion' : 'Wiedererkennen'}
+          {stage === 'production' ? 'selbst sagen' : 'verstehen'}
         </p>
         {state && (
           <button
@@ -319,7 +319,7 @@ export function ComprehensionLoop({
             className="flex items-center gap-1.5 rounded-full border border-brand/50 bg-brand/10 px-3.5 py-1.5 text-sm text-brand disabled:opacity-50"
           >
             <IconSparkle className="h-3.5 w-3.5" />
-            {aiState === 'loading' ? 'KI übersetzt…' : 'KI-Dekodierung'}
+            {aiState === 'loading' ? 'KI übersetzt …' : 'KI-Dekodierung'}
           </button>
         )}
         {canGenerate && (
@@ -329,7 +329,7 @@ export function ComprehensionLoop({
             className="flex items-center gap-1.5 rounded-full border border-brand/50 bg-brand/10 px-3.5 py-1.5 text-sm text-brand disabled:opacity-50"
           >
             <IconSparkle className="h-3.5 w-3.5" />
-            {genState === 'loading' ? 'KI schreibt…' : 'Neuer Kontext'}
+            {genState === 'loading' ? 'KI schreibt …' : 'Neuer Kontext'}
           </button>
         )}
       </div>
@@ -430,7 +430,7 @@ export function ComprehensionLoop({
         <p className="mb-2 text-sm text-muted">
           {stage === 'production'
             ? `Wie heißt „${chunk.de}" auf Schwedisch?`
-            : `Was bedeutet „${chunk.sv}"?`}
+            : `Was bedeutet „${chunk.sv}"`}
         </p>
 
         {!revealed ? (
@@ -451,8 +451,8 @@ export function ComprehensionLoop({
                   </p>
                 )}
                 <p className="mb-1 text-xs text-faint">
-                  <span className="text-success underline">grün</span> = fehlt ·{' '}
-                  <span className="text-danger line-through">rot</span> = zu viel getippt
+                  <span className="text-success underline">unterstrichen</span> = fehlt ·{' '}
+                  <span className="text-danger line-through">durchgestrichen</span> = zu viel
                 </p>
                 <div
                   lang="sv"
@@ -498,7 +498,7 @@ export function ComprehensionLoop({
                       className="flex items-center gap-1.5 rounded-full border border-brand/50 bg-brand/10 px-4 py-2 text-sm text-brand disabled:opacity-50"
                     >
                       <IconSparkle className="h-3.5 w-3.5" />
-                      {why.state === 'loading' ? 'KI denkt…' : 'Warum?'}
+                      {why.state === 'loading' ? 'KI denkt …' : 'Warum?'}
                     </button>
                   )}
                 </div>
@@ -531,7 +531,7 @@ export function ComprehensionLoop({
                   lang="sv"
                   value={typed}
                   onChange={(e) => setTyped(e.target.value)}
-                  placeholder="auf Schwedisch tippen…"
+                  placeholder="auf Schwedisch tippen …"
                   aria-label="Antwort auf Schwedisch"
                   autoCapitalize="off"
                   autoCorrect="off"
@@ -592,7 +592,7 @@ export function ComprehensionLoop({
                 onClick={() => onResult('again', helpUsed, spokenOk)}
               />
               <GradeButton
-                label="Schwer"
+                label="Fast"
                 tone="bg-warn"
                 onClick={() => onResult('hard', helpUsed, spokenOk)}
               />

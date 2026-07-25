@@ -81,13 +81,13 @@ export function LanguagePair({ split, onClose }: Props) {
               swatch="bg-success"
               value={split.production}
               title="sprichst du selbst"
-              note="Schwedisch aktiv erzeugen — die schwere Richtung. Nur sie zählt für „bewiesen stabil“."
+              note={'Schwedisch aktiv erzeugen — die schwere Richtung. Nur sie zählt für „bewiesen stabil".'}
             />
             <Row
               swatch="bg-brand/60"
               value={split.recognition}
               title="verstehst du"
-              note="Du erkennst sie im Kontext. Die Engine hebt sie von selbst an, sobald der Abruf sitzt."
+              note="Du erkennst sie im Kontext. Die App hebt sie von selbst an, sobald der Abruf sitzt."
             />
             {/* Eigener Eimer, seit dem Ehrlichkeits-Audit: Vorher zählte eine
                 dreimal misslungene Wendung als „verstehst du". */}
@@ -101,7 +101,7 @@ export function LanguagePair({ split, onClose }: Props) {
               swatch="bg-line"
               value={split.untouched}
               title="noch nicht begegnet"
-              note="Bewusst getrennt gezählt: eine nie gesehene Wendung als „verstanden“ zu führen wäre falsch."
+              note={'Bewusst getrennt gezählt: eine nie gesehene Wendung als „verstanden" zu führen wäre falsch.'}
             />
           </dl>
         </section>
@@ -114,7 +114,7 @@ export function LanguagePair({ split, onClose }: Props) {
           <p className="mt-2 text-xs leading-relaxed text-muted">
             Sie ist keine Einstellung, sondern ein <span className="text-paper">Messwert</span>.
             Jede Wendung wandert von „verstehst du" zu „sprichst du selbst", sobald du sie
-            wirklich abrufen kannst — die Engine entscheidet das, nicht ein Schalter.
+            wirklich abrufen kannst — die App entscheidet das, nicht ein Schalter.
           </p>
           <p className="mt-2 text-xs leading-relaxed text-faint">
             Könntest du auf die leichte Richtung stellen, würde dir weiter Fortschritt

@@ -17,7 +17,7 @@ import { levenshtein } from '../comprehension/answerCheck';
 export function normalizePhrase(s: string): string {
   return s
     .toLowerCase()
-    .replace(/[.,!?;:"„“”()[\]…]/g, ' ')
+    .replace(/[.,!?;:"„"”()[\]…]/g, ' ')
     .replace(/\s+/g, ' ')
     .trim();
 }

@@ -40,7 +40,7 @@ export function SpeakButton({ mic, heard = '', label = 'Sprich es auf Schwedisch
         }
       >
         <IconMic className="h-4 w-4" />
-        {listening ? 'Ich höre zu … tippen zum Beenden' : label}
+        {listening ? 'Ich höre zu … antippen zum Beenden' : label}
       </button>
 
       {heard && (

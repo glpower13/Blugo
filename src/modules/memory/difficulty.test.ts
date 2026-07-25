@@ -58,11 +58,14 @@ describe('difficulty — recommendedNewCount (band control, BVA)', () => {
 });
 
 describe('difficulty — bandStatus', () => {
+  // Alle vier Werte sind SICHTBARER deutscher Text — „unknown" stand vorher als
+  // englisches Wort in einer deutschen Oberfläche, und „im Flow-Band" ergab
+  // zusammen mit dem Label davor „Erfolgsband: im Flow-Band" (Copy-Audit).
   it('maps rate to a human status', () => {
-    expect(bandStatus(null)).toBe('unknown');
+    expect(bandStatus(null)).toBe('noch offen');
     expect(bandStatus(0.95)).toBe('zu leicht');
     expect(bandStatus(0.5)).toBe('zu fordernd');
-    expect(bandStatus(0.82)).toBe('im Flow-Band');
+    expect(bandStatus(0.82)).toBe('genau richtig');
   });
 });
 

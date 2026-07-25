@@ -440,7 +440,7 @@ export default function App() {
             <div className="mx-auto mt-auto flex w-full max-w-md flex-col gap-3 pt-4 md:max-w-xl">
               <InstallButton />
               <p className="text-center text-[0.7rem] tracking-wide text-faint">
-                © 2026 Andreas Fink · neurolang
+                © 2026 Andreas Fink · NEUROLANG
               </p>
             </div>
           </>
@@ -628,7 +628,7 @@ export default function App() {
           <Suspense
             fallback={
               <div className="glass mx-auto w-full max-w-xl rounded-2xl p-6 text-center text-muted">
-                Gespräch lädt…
+                Gespräch lädt …
               </div>
             }
           >
@@ -658,7 +658,7 @@ export default function App() {
           <Suspense
             fallback={
               <div className="glass mx-auto w-full max-w-xl rounded-2xl p-6 text-center text-muted">
-                Sparring lädt…
+                Sparring lädt …
               </div>
             }
           >
@@ -680,7 +680,7 @@ export default function App() {
                 <button
                   onClick={() => navigate('pop', () => setView({ name: 'tab', tab: 'today' }))}
                   className="glass-soft flex items-center gap-1 rounded-full py-1.5 pl-2 pr-3 text-sm text-paper"
-                  aria-label="Session verlassen"
+                  aria-label="Übersicht — Sitzung verlassen"
                 >
                   <IconBack className="h-4 w-4" /> Übersicht
                 </button>
@@ -711,9 +711,9 @@ export default function App() {
 
             {done && (
               <section className="glass rounded-2xl p-6 text-center">
-                <p className="font-display text-xl font-semibold text-success">Session erledigt.</p>
+                <p className="font-display text-xl font-semibold text-success">Sitzung erledigt.</p>
                 <p className="mt-1 text-sm text-muted">
-                  Heute stabilisiert. Der Rest wartet — ohne zerbrechenden Streak.
+                  Heute stabilisiert. Der Rest wartet — hier zerbricht keine Serie.
                 </p>
                 {metrics.dueNow > 0 && (
                   <p className="mt-2 text-xs text-faint">

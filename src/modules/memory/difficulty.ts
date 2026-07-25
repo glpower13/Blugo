@@ -55,12 +55,12 @@ export function newCountFor(rate: number | null, cap: number | null): number {
   return cap === null ? auto : Math.min(auto, Math.max(0, cap));
 }
 
-export type BandStatus = 'unknown' | 'zu leicht' | 'im Flow-Band' | 'zu fordernd';
+export type BandStatus = 'noch offen' | 'zu leicht' | 'genau richtig' | 'zu fordernd';
 
-/** Human-facing band status (docs/06-motivation.md: Flow-Band as a status signal). */
+/** Human-facing band status (docs/06-motivation.md: Erfolgsband as a status signal). */
 export function bandStatus(rate: number | null): BandStatus {
-  if (rate === null) return 'unknown';
+  if (rate === null) return 'noch offen';
   if (rate > SUCCESS_BAND.max) return 'zu leicht';
   if (rate < SUCCESS_BAND.min) return 'zu fordernd';
-  return 'im Flow-Band';
+  return 'genau richtig';
 }

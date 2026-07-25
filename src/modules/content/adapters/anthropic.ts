@@ -94,7 +94,7 @@ export function friendlyError(status: number, detail?: string): string {
   const extra = detail && detail.trim() ? ` — ${detail.trim()}` : '';
   if (status === 400) return `Anfrage abgelehnt (400)${extra}.`;
   if (status === 401)
-    return `Zugangs-Schlüssel ungültig (401)${extra}. Er muss mit „sk-ant-…" beginnen — bitte prüfen.`;
+    return `KI-Zugang ungültig (401)${extra}. Er muss mit „sk-ant-…" beginnen — bitte prüfen.`;
   if (status === 403) return `Kein Zugriff mit diesem Schlüssel (403)${extra}.`;
   if (status === 404)
     return (
@@ -299,7 +299,7 @@ export function parseSparringReply(text: string): SparringReply {
   const obj = parseJsonLoose(text);
   const sv = typeof obj.sv === 'string' ? obj.sv.trim() : '';
   const de = typeof obj.de === 'string' ? obj.de.trim() : '';
-  if (!sv) throw new Error('Der Gesprächspartner hat nichts gesagt.');
+  if (!sv) throw new Error('Der Sparringspartner hat nichts gesagt.');
   return { sv, de };
 }
 
