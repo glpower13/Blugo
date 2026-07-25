@@ -314,22 +314,23 @@ export default function App() {
     <>
       <Backdrop />
       <div className="grain" aria-hidden="true" />
+      {/* Globale Navigation — bewusst AUSSERHALB von <main>: dort trägt
+          `view-transition-name` ein `contain: layout`, das `position: fixed`
+          an <main> bindet statt ans Fenster (die Leiste scrollte weg). */}
+      {showTabs && (
+        <TabBar
+          active={tabOf(view)}
+          onSelect={(tab) =>
+            navigate(tab === tabOf(view) ? 'pop' : 'push', () => setView({ name: 'tab', tab }))
+          }
+        />
+      )}
+
       <main
         className={`vt-page mx-auto flex min-h-dvh w-full max-w-md flex-col gap-4 px-4 pt-6 md:max-w-3xl md:px-6 ${
-          showTabs ? 'pb-28 md:pb-10' : 'pb-10'
+          showTabs ? 'pb-32 md:pb-28' : 'pb-10'
         }`}
       >
-        {/* Globale Navigation. Steht im DOM VOR dem Inhalt → ab md oben, auf
-            schmalen Geräten per `fixed` unten (Daumenreichweite). */}
-        {showTabs && (
-          <TabBar
-            active={tabOf(view)}
-            onSelect={(tab) =>
-              navigate(tab === tabOf(view) ? 'pop' : 'push', () => setView({ name: 'tab', tab }))
-            }
-          />
-        )}
-
         {error && (
           <section className="rounded-2xl border border-danger/40 bg-danger/10 p-4">
             <p className="text-sm text-danger">{error}</p>

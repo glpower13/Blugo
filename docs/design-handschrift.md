@@ -85,3 +85,45 @@ Fünf Hebel von „Top-40" auf Weltklasse (`gremium-design-weltklasse.md`):
 - Feinschliff mit einem echten Art-Director am realen Gerät, **wenn echte Inhalte** stehen — sonst poliert man Platzhalter (`gremium-naechste-schritte.md` §4).
 
 > **Anschluss:** Vision `gremium-naechste-schritte.md` §4 · Motivation/Ehrlichkeit `06-motivation.md` · Produkt-Ruhe `04-product.md` · Architektur (offline, keine Fremd-Server) `05-architecture.md`.
+
+## Nachtrag 2026-07-25 — App-Zeichen und Navigations-Dock
+
+### Das App-Zeichen: schwedisches Kreuz als Aussparung
+
+Das alte Zeichen war ein indigofarbenes Quadrat mit einem weißen **N** — austauschbar
+und ohne Aussage. Der Ersatz macht drei Dinge bewusst anders als die Kategorie:
+
+| Alle machen | Wir machen |
+|---|---|
+| Maskottchen (Eule, Figur) | — |
+| Sprechblase | — |
+| Buchstabe / Wortmarke | — |
+| | **Negativraum-Zeichen**: das schwedische Kreuz ist aus einer Goldplatte *ausgespart*, dahinter liegt Tiefe |
+
+Zwei Aussagen in einer Form:
+- **Herkunft** — echte Flaggen-Geometrie (Querbalken mittig, Längsbalken zur Stange
+  versetzt). Erkennbar schwedisch, nicht bloß ein Pluszeichen.
+- **Die eine Design-Regel** — im Schnittpunkt der Balken sitzt **ein** Lichtpunkt:
+  das eine wahre Signal, um das die ganze App gebaut ist.
+
+Champagner-Gold auf tiefem Petrol (dieselbe Palette wie die App). Alles Wesentliche
+liegt in der mittleren 62 %, damit jeder `maskable`-Zuschnitt (Kreis, Squircle) es
+unbeschadet lässt. Getestet bis **16 px** — dort trägt es noch.
+
+Quelle ist `public/favicon.svg`; die PNGs werden daraus gerendert, es gibt also nur
+**eine** Wahrheit für das Zeichen.
+
+### Das Dock: unten, größer, nach dem goldenen Schnitt
+
+Drei Änderungen (Nutzerrückmeldung 2026-07-25):
+
+1. **Immer sichtbar.** Ein echter Fehler: Die Leiste lag in `<main>`, und dort erzwingt
+   `view-transition-name` ein `contain: layout`. Damit bezog sich `position: fixed` auf
+   `<main>` statt aufs Fenster — am Listenende scrollte die Leiste weg. Sie steht jetzt
+   als Geschwister **neben** `<main>`. Ein e2e-Test misst die Unterkante gegen die
+   Fensterhöhe, damit das nicht zurückkommt.
+2. **Immer unten.** Vorher ab `md` oben. Eine Navigationsleiste gehört immer an dieselbe
+   Stelle; auf breiten Geräten schwebt sie als zentriertes Dock über dem Rand.
+3. **Größer, in φ-Rhythmus.** Icons von 1,15 rem auf **1,5 rem**. Die senkrechte
+   Gliederung folgt dem goldenen Schnitt: Icon + Abstand (1,5 + 0,28 = 1,78 rem) zur
+   Beschriftungszeile (1,1 rem) steht bei **1,62** — also φ. Proportion statt Schätzung.

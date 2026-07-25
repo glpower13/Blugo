@@ -1,13 +1,18 @@
 // Globale Navigation: vier Räume (docs/gremium-navigation.md, Schritt 1).
 //
-// WARUM ÜBERHAUPT: Die Startseite machte sechs Dinge gleichzeitig und jede
-// Baum-Ebene sah gleich aus. Die Reiterleiste trennt die Räume; der Verteiler
-// „Heute" ersetzt die Wand aus allem.
+// WARUM AUSSERHALB VON <main>: `main.vt-page` trägt `view-transition-name`, und
+// die Spezifikation legt darauf `contain: layout`. Damit wird <main> zum
+// Bezugsrahmen für alles Positionierte darin — `position: fixed` bezog sich also
+// auf <main> statt aufs Fenster, und die Leiste scrollte am Ende weg. Sie steht
+// deshalb als Geschwister NEBEN <main>: dann klebt sie verlässlich am Fensterrand.
 //
-// PLATZIERUNG: Im DOM steht die Leiste VOR dem Inhalt — ab `md` erscheint sie
-// dadurch oben (desktopnah), auf schmalen Geräten ist sie fest am unteren Rand
-// (Daumenreichweite). Ein DOM-Knoten, zwei Positionen: kein doppeltes Markup,
-// keine doppelte Vorlesereihenfolge.
+// UNTEN AUF ALLEN GRÖSSEN: erst stand sie ab `md` oben. Eine Navigationsleiste
+// soll immer an derselben Stelle sein — und unten ist sie in Daumenreichweite.
+// Auf breiten Geräten schwebt sie als zentriertes Dock über dem Rand.
+//
+// GOLDENER SCHNITT (Nutzerwunsch 2026-07-25): die senkrechte Gliederung folgt φ.
+// Icon + Abstand (1,5 rem + 0,28 rem = 1,78 rem) zur Beschriftungszeile (1,1 rem)
+// steht bei 1,62 — also φ. Das Dock ist damit ruhig proportioniert statt geraten.
 //
 // EHRLICHKEIT: Die Leiste trägt KEINE Zähler-Abzeichen („3 neu!"). Ein Abzeichen
 // müsste ein Versprechen sein; die einzige fällige Zahl steht dort, wo sie etwas
@@ -29,22 +34,22 @@ export function TabBar({ active, onSelect }: { active: Tab; onSelect: (t: Tab) =
   return (
     <nav
       aria-label="Hauptbereiche"
-      className="fixed inset-x-0 bottom-0 z-30 border-t border-line bg-ink/80 px-2 pb-[calc(0.5rem+env(safe-area-inset-bottom))] pt-2 backdrop-blur-xl md:static md:mx-auto md:mb-1 md:w-full md:max-w-md md:rounded-full md:border md:bg-white/[0.04] md:px-1.5 md:py-1.5"
+      className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-ink/75 pb-[env(safe-area-inset-bottom)] backdrop-blur-2xl md:inset-x-auto md:bottom-6 md:left-1/2 md:w-auto md:-translate-x-1/2 md:rounded-[1.75rem] md:border md:bg-white/[0.055] md:pb-0 md:shadow-[0_18px_50px_-14px_rgba(0,0,0,.75)]"
     >
-      <ul className="mx-auto flex w-full max-w-md items-stretch gap-1">
+      <ul className="mx-auto flex w-full max-w-md items-stretch gap-1 px-2 py-1.5 md:max-w-none md:gap-1.5 md:px-2 md:py-2">
         {TABS.map(({ id, label, Icon }) => {
           const on = id === active;
           return (
-            <li key={id} className="flex-1">
+            <li key={id} className="flex-1 md:flex-none">
               <button
                 onClick={() => onSelect(id)}
                 aria-current={on ? 'page' : undefined}
-                className={`flex w-full flex-col items-center gap-1 rounded-2xl px-1 py-1.5 transition-colors md:flex-row md:justify-center md:gap-1.5 md:rounded-full md:py-2 ${
-                  on ? 'text-brand md:bg-brand/10' : 'text-faint hover:text-muted'
+                className={`flex w-full flex-col items-center gap-[0.28rem] rounded-2xl px-2 pb-1.5 pt-2 transition-colors md:min-w-[5.6rem] ${
+                  on ? 'bg-brand/[0.14] text-brand' : 'text-faint hover:bg-white/[0.05] hover:text-muted'
                 }`}
               >
-                <Icon className="h-[1.15rem] w-[1.15rem]" />
-                <span className="text-[0.62rem] font-medium tracking-[0.04em] md:text-[0.78rem]">
+                <Icon className="h-6 w-6" />
+                <span className="text-[0.7rem] font-medium leading-[1.1rem] tracking-[0.03em]">
                   {label}
                 </span>
               </button>
