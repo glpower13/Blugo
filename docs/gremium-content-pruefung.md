@@ -143,9 +143,47 @@ Deshalb bleibt Stufe 3 nötig. Der Gewinn ist nicht, sie zu ersetzen, sondern si
 durchackern" sind ~56 geordnete Verdachtsfälle plus die Frage nach Satzbau und Ton
 geworden.
 
+## 4c. Stufe 4 gebaut (2026-07-25) — der Prüf-Stand je Wendung
+
+**Was fehlte:** Die Stufen 1–3 prüfen den Inhalt und schreiben Berichte für *uns*. Der Lerner
+stand weiter vor einer Wendung, ohne zu wissen, wie geprüft sie ist.
+
+**Was jetzt existiert:** `npm run verify:build` erzeugt `src/modules/content/verification.generated.ts` —
+für **jede** Wendung eine von drei Stufen:
+
+| Stufe | Bedeutung | Anzahl |
+|---|---|---|
+| `native` | von einer schwedischsprachigen Person gegengelesen | **0** — und das Werkzeug vergibt sie NIE von selbst |
+| `machine` | jedes Wort ist belegtes Schwedisch (Wörterbuch 152.719 Einträge + Korpushäufigkeit) | 146 |
+| `unchecked` | mindestens ein Wort ist selten oder unbelegt | 3 |
+
+**Wie es entsteht:** `check-swedish.py` schreibt seine Urteile jetzt zusätzlich maschinenlesbar
+nach `tools/flagged-words.json`; `tools/build-verification.ts` bildet daraus den Stand je Chunk.
+Beides aus **demselben Lauf** — Bericht und App-Anzeige können nicht auseinanderlaufen.
+
+**Was in der App steht:**
+- Im Thema bekommt **nur die auffällige** Wendung ein Zeichen, samt Grund („selten belegt:
+  provrummet"). Die anderen 146 bekommen **keinen Haken** — ein Siegel an 146 Wendungen wäre
+  ein Versprechen, das die maschinelle Prüfung nicht decken kann.
+- Im Fortschritt steht die ganze Wahrheit, inklusive der unbequemen Zeile
+  **„0 muttersprachlich geprüft"**.
+
+**Der Fehler, der beim Bauen auffiel:** Der erste Entwurf zählte auch uneinheitliche
+Wort-für-Wort-Glossen als „ungeprüft" — und stufte damit **128 von 149** Wendungen ab, obwohl
+der Inhalt gesund ist. Dasselbe schwedische Wort hat je nach Satz eine andere wörtliche
+Entsprechung; genau das ist Kontextvariation. Kriterium gestrichen. (Dieselbe Lehre wie bei
+Prüfung B in §4b: *Ein Prüfwerkzeug, das bei gesundem Inhalt Alarm schlägt, wird abgeschaltet.*)
+
+**Wächter:** Fünf Tests in `seedContent.test.ts` — jede Wendung hat einen Stand, kein Stand
+zeigt auf eine entfernte Wendung, nirgends steht `native`, jede ungeprüfte hat einen Grund,
+und die Kennzahlen zählen dasselbe wie die Liste. Neuer Inhalt ohne `verify:build` lässt die
+Kaskade also rot werden, statt still zu veralten.
+
+---
+
 ## 6. Offen / nächste Schritte
 
-- Status-Feld am Inhalt + ehrliches Abzeichen in der App (Stufe 4).
+- ~~Status-Feld am Inhalt + ehrliches Abzeichen in der App (Stufe 4).~~ **Gebaut 2026-07-25**, siehe §4c.
 - Wortfolgen-Abgleich gegen ein echtes Korpus, sobald erreichbar (Korp/Språkbanken).
 - Entscheidung zu `hej då` (siehe 4b) durch die menschliche Prüfung.
 
