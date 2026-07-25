@@ -119,8 +119,12 @@ export interface ChunkState {
    */
   lapsedAt?: number | null;
   /**
-   * Wann die Wendung erstmals eine ÜBERSTANDENE Pause von ≥ 21 Tagen in der
+   * Wann die Wendung ZULETZT eine überstandene Pause von ≥ 21 Tagen in der
    * Produktions-Stufe hinter sich hatte. Null, bis das gemessen wurde.
+   *
+   * Bewusst der JÜNGSTE Nachweis, nicht der erste: Stand hier der erste, lag er
+   * nach einem Fehlschlag für immer vor `lapsedAt` — „reift" wäre nie wieder
+   * erreichbar gewesen (Befund E-4 der Prüfkaskade 2026-07-25).
    *
    * Vorher hing „reift" am gerade neu GEPLANTEN Intervall — also an einer
    * Prognose, während die Oberfläche „überstanden" behauptete. Dieser Vermerk

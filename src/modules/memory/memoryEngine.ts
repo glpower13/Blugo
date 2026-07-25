@@ -138,9 +138,17 @@ export function schedule(
   // Zweiter, kürzerer Horizont — nach genau demselben Muster GEMESSEN und nicht
   // geschätzt: eine tatsächlich überstandene Pause von ≥ 21 Tagen in der
   // Produktions-Stufe. Vorher hing „reift" am neu GEPLANTEN Intervall.
+  //
+  // BEFUND E-4 (Prüfkaskade 2026-07-25, nachgestellt): Hier stand
+  // `state.maturedAt ?? now` — der ERSTE Zeitpunkt blieb stehen. Nach einem
+  // Fehlschlag lag er damit für immer VOR `lapsedAt`, und `stillHolds()` gab
+  // dauerhaft „false" zurück: „reift" war nach einem einzigen Durchfaller nicht
+  // mehr erreichbar, auch nach erneut überstandenen 40 Tagen nicht. Der strenge
+  // 90-Tage-Beweis erneuerte sich (`? now :`), der weiche nicht — genau
+  // verkehrt herum. Beide Vermerke halten jetzt den JÜNGSTEN Nachweis fest.
   const maturedAt =
     result === 'good' && preStage === 'production' && preInterval >= MATURING_INTERVAL_DAYS
-      ? (state.maturedAt ?? now)
+      ? now
       : (state.maturedAt ?? null);
 
   // Ein Fehlschlag ist eine Messung wie jede andere — und die einzige, die einem

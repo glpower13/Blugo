@@ -756,3 +756,27 @@ test('jede Fläche hat genau eine Überschrift erster Ebene', async ({ page }) =
   await page.getByRole('button', { name: /Weiterlernen|Loslegen|Lernen starten/ }).first().click();
   await expect(page.locator('main h1')).toHaveCount(1);
 });
+
+// Befund E-1 der Prüfkaskade (2026-07-25): Der Fokusfang lief bei JEDEM Rendern
+// der Elternfläche neu, weil `onClose` als Inline-Funktion in der
+// Abhängigkeitsliste stand. Ein getipptes Zeichen ließ die Fläche rendern, der
+// Fokus sprang auf „Fertig" — von „Andreas" kam ein „A" an. Gemessen, nicht
+// vermutet. Dieser Test hält die Reparatur fest.
+test('in einer Überlagerung bleibt der Fokus beim Tippen im Feld', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.getByText('bewiesen stabil')).toBeVisible();
+
+  await page.getByRole('button', { name: 'Einstellungen' }).click();
+  const field = page.locator('#pref-name');
+  await expect(field).toBeVisible();
+  await field.click();
+
+  await page.keyboard.type('Andreas');
+  // Der ganze Name muss ankommen — nicht nur das erste Zeichen.
+  await expect(field).toHaveValue('Andreas');
+  await expect(field).toBeFocused();
+
+  // Und der Fokus muss beim Schließen auf den Auslöser zurück.
+  await page.keyboard.press('Escape');
+  await expect(page.getByRole('button', { name: 'Einstellungen' })).toBeFocused();
+});

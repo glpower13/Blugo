@@ -1,0 +1,5 @@
+# Abhängigkeiten der Inhalts-Prüfung (tools/check-swedish.py).
+# Fest gepinnt, damit der Prüfstand auf jedem Rechner und in CI dieselbe
+# Häufigkeitsgrundlage benutzt — sonst ist „belegtes Schwedisch" keine
+# reproduzierbare Aussage.
+wordfreq==3.1.1

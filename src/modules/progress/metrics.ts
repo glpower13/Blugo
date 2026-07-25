@@ -30,8 +30,16 @@ export interface Metrics {
   coverageBase: number;
 }
 
-/** A chunk is "active" once it has been encountered at least once. */
-function isActive(s: ChunkState): boolean {
+/**
+ * A chunk is "active" once it has been encountered at least once.
+ *
+ * EXPORTIERT, weil `categories.ts` dieselbe Frage stellt. Sie stand dort als
+ * zweite, wortgleiche Bedingung im Code — zwei Rechenquellen für eine Kennzahl,
+ * die §3.3 des Prüf-Standards ausdrücklich verbietet (Befund E-6 der
+ * Prüfkaskade 2026-07-25). Eine Änderung hier hätte die Themen-Zählung stumm
+ * auseinanderlaufen lassen.
+ */
+export function isActive(s: ChunkState): boolean {
   return s.status !== 'new' || s.history.length > 0;
 }
 

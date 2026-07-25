@@ -120,6 +120,18 @@ def check_word(word: str, dictionary: set[str]) -> tuple[str, float, bool]:
 
 def main() -> int:
     dictionary = find_dictionary()
+    # Fail-closed (Prüf-Standard §3.2, Befund D-2 der Kaskade 2026-07-25):
+    # Fehlt das Wörterbuch, lief die Prüfung bisher trotzdem durch — mit einem
+    # leeren Satz. Der Bericht meldete dann „0 Einträge", und die App hätte in
+    # ihrem Ehrlichkeits-Abschnitt „gegen ein Wörterbuch mit 0 Einträgen"
+    # angezeigt: eine Prüfung behaupten, die nicht stattgefunden hat. Lieber
+    # laut abbrechen als leise weniger prüfen.
+    if len(dictionary) < 1000:
+        sys.exit(
+            "Wörterbuch nicht gefunden oder zu klein "
+            f"({len(dictionary)} Einträge). `npm ci` ausführen — die Prüfung "
+            "braucht node_modules/dictionary-sv/index.dic."
+        )
     sentences = collect_sentences()
     if not sentences:
         sys.exit("Keine schwedischen Zeichenketten gefunden — Pfade prüfen.")

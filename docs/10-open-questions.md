@@ -84,3 +84,14 @@
 
 ## Wirksamkeitsnachweis
 - Wie messen wir Erhalt sauber (kleine Selbsttests, A/B gegen Nicht-Spacing)?
+
+- **„Fast" führt nie zum Beweis.** Die Entscheidungstabelle des ISTQB-Durchlaufs
+  (2026-07-25) hat eine Produkt-Eigenschaft sichtbar gemacht, die nirgends
+  aufgeschrieben war: `provenStableAt` und `maturedAt` verlangen `result === 'good'`.
+  Wer eine Wendung über Jahre zuverlässig, aber immer zögernd abruft und ehrlich
+  „Fast" drückt, erreicht **nie** „bewiesen stabil" — auch nach 90 Tagen nicht.
+  Das ist verteidigbar (der Beweis soll sauberer Abruf sein) und zugleich eine
+  stille Bestrafung von Ehrlichkeit bei der Selbsteinschätzung. Nicht geändert,
+  weil die Entscheidung inhaltlich ist und nicht technisch. Zu klären: Soll ein
+  „Fast" nach sehr langem Intervall den Vermerk setzen dürfen — und wenn ja,
+  bleibt „bewiesen" dann noch das, was das Wort verspricht?

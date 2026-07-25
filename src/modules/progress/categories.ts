@@ -6,7 +6,7 @@
 // for its own sake (anti-Goodhart, CLAUDE.md "die eine Design-Regel").
 
 import type { Area, Category, Chunk, ChunkState } from '../../domain/chunk';
-import { isMaturing, isStable } from './metrics';
+import { isActive, isMaturing, isStable } from './metrics';
 
 export interface CategoryProgress {
   category: Category;
@@ -26,10 +26,6 @@ export interface AreaProgress {
   maturing: number;
   stable: number;
   dueNow: number;
-}
-
-function isActive(s: ChunkState): boolean {
-  return s.status !== 'new' || s.history.length > 0;
 }
 
 /**
@@ -64,8 +60,9 @@ export function categoryProgress(
         if (isMaturing(s)) maturing++;
         if (isStable(s)) stable++;
         // Nur begegnete Wendungen sind „fällig" — eine nie gesehene ist Vorrat,
-        // keine Schuld (Ehrlichkeits-Audit 2026-07-25).
-        if (s.dueAt <= now && (s.status !== 'new' || s.history.length > 0)) dueNow++;
+        // keine Schuld (Ehrlichkeits-Audit 2026-07-25). `isActive` kommt aus
+        // `metrics.ts`: eine Rechenquelle, nicht zwei (§3.3 des Prüf-Standards).
+        if (s.dueAt <= now && isActive(s)) dueNow++;
       }
       return { category, total: ids.length, active, maturing, stable, dueNow };
     });

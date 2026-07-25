@@ -33,7 +33,7 @@ import { Backdrop } from './ui/Backdrop';
 import { NameEditor } from './ui/NameEditor';
 import { IconBack, IconTarget } from './ui/icons';
 import { areaVisual } from './ui/areaTheme';
-import { TabBar, TAB_IDS, type Tab } from './ui/TabBar';
+import { TabBar, TAB_IDS, tabLabel, type Tab } from './ui/TabBar';
 import { useSwipeTabs } from './ui/useSwipeTabs';
 const SettingsScreen = lazy(() =>
   import('./modules/settings/SettingsScreen').then((m) => ({ default: m.SettingsScreen })),
@@ -573,6 +573,18 @@ export default function App() {
           onSelect={(tab) => setView({ name: 'tab', tab })}
         />
       )}
+
+      {/* Ansage des Ansichtswechsels.
+          BEFUND D-3 (Prüfkaskade 2026-07-25): Ein Reiterwechsel läuft bewusst
+          NICHT über `navigate()` (sofort, ohne Überblendung) — damit lief auch
+          `focusNewView()` dort nicht, und ein Vorlese-Programm meldete den
+          Wechsel gar nicht. Dasselbe gilt fürs Wischen. Statt den Fokus zu
+          stehlen (der gehört bei Reitern auf den Reiter) sagt eine höfliche
+          Ansage, wo man gelandet ist. Steht außerhalb von <main>, damit sie das
+          Stilllegen durch eine offene Überlagerung nicht mitmacht. */}
+      <p aria-live="polite" className="sr-only">
+        {view.name === 'tab' ? tabLabel(view.tab) : ''}
+      </p>
 
       <main
         /* Der Abstand nach unten kommt aus der GEMESSENEN Höhe der Reiterleiste
