@@ -18,6 +18,7 @@ interface Props {
   name: string;
   stable: number;
   maturing: number;
+  sessionSize: number; // was die nächste Sitzung WIRKLICH enthält
   dueNow: number;
   totalChunks: number;
   areaCount: number;
@@ -45,6 +46,7 @@ export function TodayView({
   name,
   stable,
   maturing,
+  sessionSize,
   dueNow,
   totalChunks,
   areaCount,
@@ -121,13 +123,24 @@ export function TodayView({
       {loading ? (
         <div className="shimmer h-[60px] w-full rounded-2xl" />
       ) : (
-        <button
-          onClick={onStart}
-          className="btn-gold flex items-center justify-center gap-2 rounded-2xl py-4 text-base font-semibold text-ink"
-        >
-          <IconPlay className="h-4 w-4" />
-          {dueNow > 0 ? `Weiterlernen · ${dueNow} fällig` : 'Weiterlernen'}
-        </button>
+        <div>
+          <button
+            onClick={onStart}
+            className="btn-gold flex w-full items-center justify-center gap-2 rounded-2xl py-4 text-base font-semibold text-ink"
+          >
+            <IconPlay className="h-4 w-4" />
+            {sessionSize > 0
+              ? `Weiterlernen · ${sessionSize} ${sessionSize === 1 ? 'Wendung' : 'Wendungen'}`
+              : 'Weiterlernen'}
+          </button>
+          {/* Der Rest ist nicht verschwiegen — nur nicht als Drohung auf dem Knopf.
+              „Wartet" statt „offen": nichts geht verloren, nichts zerbricht. */}
+          {dueNow > sessionSize && (
+            <p className="mt-2 text-center text-[0.7rem] text-faint">
+              {dueNow - sessionSize} weitere warten — bewusst auf die nächsten Sitzungen verteilt.
+            </p>
+          )}
+        </div>
       )}
 
       {/* Türen in die anderen Räume — Einstiege, nicht deren Inhalt. Solange der

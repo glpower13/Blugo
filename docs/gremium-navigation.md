@@ -207,6 +207,68 @@ sachlich richtig (alle 98 sind fällig), als Ankündigung aber irreführend. Ver
 aus der alten Startseite. Notiert in `10-open-questions.md` — die Entscheidung gehört nicht
 nebenbei getroffen.
 
+## 7c. Schritt 2 gebaut (2026-07-25) — Formsprache je Ebene
+
+| Ebene | vorher | jetzt |
+|---|---|---|
+| 1 · Bereiche | Glaskachel mit Icon | **Bildkarte** mit eigener Szene je Bereich (`ui/AreaArt.tsx`) |
+| 2 · Themen | dieselbe Glaskachel | **schmale Zeile** mit Farbmarke, dünnem Deckungsbalken, Zahl rechts |
+| Gespräche | Textzeile | **Sprechblasen-Zeichen**, dessen Pegel dem bewiesenen Anteil entspricht |
+
+Damit ist die Tiefe an der **Form** ablesbar, nicht erst am Text — der eigentliche
+Auftrag („dass das von den Buttons ersichtlich ist").
+
+### Schwedische Authentizität statt Flaggen-Aufkleber
+
+Auftrag war „die schwedische Flagge oder irgendwie sowas typisch Schwedisches im
+Hintergrund". Beides probiert:
+
+**Die Flagge als Wasserzeichen scheiterte dreimal** — als kräftiges Kreuz beherrschte
+sie jede Karte; blasser, aber als begrenztes Flaggenfeld, blieben harte Kanten mitten
+im Bild sichtbar; erst als **weich auslaufende Balken bei 5 % Deckkraft** ist sie
+Struktur statt aufgelegter Grafik. Sie trägt die Herkunft, ohne das Bild zu stören.
+
+**Die Authentizität kommt deshalb aus den Motiven**, nicht aus dem Symbol:
+
+| Bereich | Motiv |
+|---|---|
+| Erste Schritte | Altstadtgasse in **Falunrot** mit weißen Fenstergewänden, Kirchturm, Fahnenmast |
+| Reisen | **Schärengarten-Fähre** am Kai vor der Stockholmer Silhouette |
+| Essen & Café | **Fika**: Tresen mit Kanelbullar, Pendelleuchten, Barista |
+| Menschen & Alltag | **Midsommarstång** mit Kränzen und Girlanden, Birken, Mittsommer-Abendhimmel |
+| Einkaufen | Ladenregal mit **Dalahäst**, Kleiderstange, Kasse |
+| Notfall | **Apotek** bei Nacht mit beleuchtetem Kreuz |
+
+### Was drei Anläufe gebraucht hat
+
+1. **Text über dem Bild** zwang zu einem Verlauf, der genau die Bodenzone verschluckte —
+   also die Menschen. Text steht jetzt **unter** dem Bild; das Bild bekommt den Streifen
+   für sich.
+2. **Der Boden war ein Drittel Flachschwarz.** Horizont tiefer gelegt, Boden mit
+   Lichtverlauf statt Volltonfläche.
+3. **Silhouetten auf dunklem Grund sind keine Silhouetten.** Der Mittsommerbaum las sich
+   als Waage, bis er gegen einen Abendhimmel stand. Kontrast ist der Unterschied zwischen
+   Strichzeichnung und Bild.
+
+Weiterhin reines SVG: offline, scharf auf jedem Display, wenige kByte, keine Ladezeit.
+
+### Der Knopf: Sitzungsgröße statt „fällig" *(entschieden 2026-07-25)*
+
+Die offene Frage aus `10-open-questions.md` ist entschieden — **die echte Sitzungsgröße
+wird gezeigt**. Begründung aus der Motivation:
+
+- „98 fällig" ist genau die **Klippe**, gegen die dieses Projekt gebaut ist (CLAUDE.md).
+  Eine Wand aus 98 löst Vermeidung aus, kein Zugehen.
+- Die Zahl ganz wegzulassen nimmt die Orientierung: man weiß nicht, worauf man klickt.
+- Die Sitzungsgröße ist **klein, endlich — und wahr**: `buildQueue` ist deterministisch,
+  es ist exakt die Warteschlange, die gleich läuft. Ehrlich und motivierend fallen hier
+  ausnahmsweise zusammen.
+- Der Rest ist nicht verschwiegen, nur nicht als Drohung auf dem Knopf: darunter steht
+  „N weitere warten — bewusst auf die nächsten Sitzungen verteilt."
+
+Technisch sichergestellt: Anzeige und Sitzung nutzen **dieselbe** berechnete Liste
+(`plannedSession`), sie können nicht auseinanderlaufen.
+
 ## 8. Offene Fragen (nach `10-open-questions.md`)
 
 - Soll „Heute" bei leerem Fälligkeitsstand etwas anderes anbieten als „Weiterlernen"?
