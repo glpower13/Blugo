@@ -34,6 +34,10 @@ export function TabBar({ active, onSelect }: { active: Tab; onSelect: (t: Tab) =
   return (
     <nav
       aria-label="Hauptbereiche"
+      /* Eigener Name für die Ansichts-Überblendung: dadurch wird die Leiste beim
+         Drill-down NICHT mit weggeblendet, sondern bleibt stehen. Ohne das
+         sprang die aktive Markierung während des Übergangs sichtbar hin und her. */
+      style={{ viewTransitionName: 'tabbar' }}
       className="fixed inset-x-0 bottom-0 z-40 border-t border-line bg-ink/75 pb-[env(safe-area-inset-bottom)] backdrop-blur-2xl md:inset-x-auto md:bottom-6 md:left-1/2 md:w-auto md:-translate-x-1/2 md:rounded-[1.75rem] md:border md:bg-white/[0.055] md:pb-0 md:shadow-[0_18px_50px_-14px_rgba(0,0,0,.75)]"
     >
       <ul className="mx-auto flex w-full max-w-md items-stretch gap-1 px-2 py-1.5 md:max-w-none md:gap-1.5 md:px-2 md:py-2">

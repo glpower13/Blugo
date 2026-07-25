@@ -112,6 +112,21 @@ body::after {
 
 /* Filmkorn ÜBER allem (auch über dem Glas): nimmt der Fläche das Klinische —
    der größte einzelne „teuer"-Effekt (docs/gremium-design-weltklasse.md). */
+/* Korn für einzelne Bilder (Bereichskarten, Gesprächskulissen).
+   WARUM NICHT feTurbulence IM SVG: Das rechnet der Browser für JEDES Bild neu
+   über die volle Fläche — bei acht Bereichskarten war das der spürbare Ruckler
+   beim Umschalten. Als GEKACHELTE Hintergrundgrafik rastert er es einmal und
+   nutzt es überall wieder. */
+.grain-soft {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.055;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 160px 160px;
+}
+
 .grain {
   position: fixed;
   inset: 0;
