@@ -8,6 +8,8 @@ import { aiRegistry } from '../content/aiRegistry';
 import type { KnownPhrase } from '../content/ports';
 import { analyzeAnswer, type AnswerAnalysis } from './answerCheck';
 import { pronunciationTips } from './pronunciation';
+import { useSpeechInput } from './useSpeechInput';
+import { SpeakButton } from '../../ui/SpeakButton';
 import { IconPlay, IconSlow, IconWave, IconSparkle } from '../../ui/icons';
 
 const GRADE_LABEL: Record<ReviewResult, string> = {
@@ -54,6 +56,7 @@ export function ComprehensionLoop({
   const [revealed, setRevealed] = useState(false);
   const [helpUsed, setHelpUsed] = useState(false); // pulled a hint before answering?
   const [typed, setTyped] = useState(''); // production: the learner's typed answer
+  const [heard, setHeard] = useState(''); // was die Spracheingabe verstanden hat
   const [autoGrade, setAutoGrade] = useState<ReviewResult | null>(null);
   // Formatives Feedback bei Produktion (Abweichung + Hinweis, docs/gremium-feedback.md).
   const [feedback, setFeedback] = useState<AnswerAnalysis | null>(null);
@@ -80,6 +83,7 @@ export function ComprehensionLoop({
     setRevealed(false);
     setHelpUsed(false);
     setTyped('');
+    setHeard('');
     setAutoGrade(null);
     setFeedback(null);
     setWhy({ state: 'idle', text: '' });
@@ -134,9 +138,12 @@ export function ComprehensionLoop({
     }
   }
 
-  // Getippte Produktion prüfen: exakt → auflösen; sonst formatives Feedback zeigen.
-  function submitTyped() {
-    const fb = analyzeAnswer(typed, chunk.sv);
+  // Produktion prüfen: exakt → auflösen; sonst formatives Feedback zeigen.
+  // `value` kommt getippt ODER gesprochen herein — GENAU dieselbe Prüfung, damit
+  // Sprechen ein zweiter Weg zum selben Beweis ist und kein zweiter Maßstab
+  // (docs/gremium-sprachpartner.md §3).
+  function submitTyped(value: string = typed) {
+    const fb = analyzeAnswer(value, chunk.sv);
     setAutoGrade(fb.grade);
     setWhy({ state: 'idle', text: '' });
     if (fb.correct) {
@@ -147,6 +154,16 @@ export function ComprehensionLoop({
       setHelpUsed(true); // korrektives Feedback ist auch eine gezogene Hilfe
     }
   }
+
+  // Sprechen statt Tippen (P2): das Gehörte landet sichtbar im Feld UND geht sofort
+  // durch dieselbe Prüfung — freihändig, aber nachvollziehbar.
+  const mic = useSpeechInput({
+    onHeard: (text) => {
+      setHeard(text);
+      setTyped(text);
+      submitTyped(text);
+    },
+  });
 
   // Kann die KI eine Erklärung liefern? (Nur bei eingerichtetem Cloud-Anbieter.)
   const canExplain = aiRegistry.explainer !== null;
@@ -385,6 +402,18 @@ export function ComprehensionLoop({
             feedback ? (
               <div>
                 <p className="mb-2 text-sm text-warn">{feedback.hint}</p>
+                {/* Kam die Antwort gesprochen, muss der Lerner sehen, WAS verstanden
+                    wurde — sonst wird ein Hörfehler der Technik als sein Fehler
+                    verbucht (docs/gremium-sprachpartner.md, Ehrlichkeit 3). */}
+                {heard && (
+                  <p className="mb-2 text-xs text-faint">
+                    Gesprochen · verstanden wurde{' '}
+                    <span lang="sv" className="text-muted">
+                      „{heard}"
+                    </span>
+                    . War das nicht deine Aussprache, sprich noch einmal.
+                  </p>
+                )}
                 <p className="mb-1 text-xs text-faint">
                   <span className="text-success underline">grün</span> = fehlt ·{' '}
                   <span className="text-danger line-through">rot</span> = zu viel getippt
@@ -413,6 +442,7 @@ export function ComprehensionLoop({
                     onClick={() => {
                       setFeedback(null);
                       setTyped('');
+                      setHeard('');
                       setWhy({ state: 'idle', text: '' });
                     }}
                     className="btn-gold rounded-xl px-4 py-2 font-medium text-ink"
@@ -477,6 +507,20 @@ export function ComprehensionLoop({
                 >
                   Prüfen
                 </button>
+                {/* Sprechen ist der zweite gleichwertige Weg — nicht die Notlösung.
+                    Ohne Erkennung im Browser erscheint hier nichts (P2). */}
+                {mic.supported && (
+                  <>
+                    <div className="flex items-center gap-3 pt-0.5" aria-hidden="true">
+                      <span className="h-px flex-1 bg-line" />
+                      <span className="text-[0.66rem] uppercase tracking-[0.16em] text-faint">
+                        oder
+                      </span>
+                      <span className="h-px flex-1 bg-line" />
+                    </div>
+                    <SpeakButton mic={mic} heard={heard} />
+                  </>
+                )}
               </form>
             )
           ) : (

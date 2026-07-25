@@ -9,12 +9,17 @@ import type { ContentGenerator } from './ports';
 afterEach(() => resetAiPorts());
 
 describe('aiRegistry — Ports & Adapters', () => {
-  it('liefert die Standard-Adapter (Seed + Web-Speech), ASR noch nicht', () => {
+  it('liefert die Standard-Adapter (Seed + Web-Speech in beide Richtungen)', () => {
     expect(aiRegistry.generator.id).toBe('seed');
     expect(aiRegistry.decoder.id).toBe('seed');
     expect(aiRegistry.synthesizer.id).toBe('web-speech');
-    expect(aiRegistry.recognizer).toBeNull();
+    // Seit P1 (docs/gremium-sprachpartner.md §9) ist auch das Zuhören belegt.
+    expect(aiRegistry.recognizer?.id).toBe('web-speech');
     expect(aiRegistry.explainer).toBeNull();
+  });
+
+  it('meldet die Spracheingabe ohne Browser als nicht verfügbar (kein toter Knopf)', () => {
+    expect(aiRegistry.recognizer?.isAvailable()).toBe(false);
   });
 
   it('erlaubt das Tauschen eines Adapters, ohne die Aufrufer zu ändern', () => {

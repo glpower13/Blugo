@@ -405,3 +405,45 @@ test('swiping moves between tabs, and respects the browser edge gesture', async 
   await swipe(page, 90, 340);
   expect(await activeTab(page), 'am Anfang bleibt es beim ersten Reiter').toBe('Heute');
 });
+
+// Stufe B: Sprechen statt Tippen (P2, docs/gremium-sprachpartner.md §9).
+// Geprüft wird das, was die eine Design-Regel verlangt: Das Mikrofon ist ein
+// ZWEITER Weg neben dem Tippen (beides da), es liegt vollständig im Bild, und es
+// erscheint nur, wenn der Browser wirklich zuhören kann.
+test('speaking is offered next to typing in a dialogue, fully on screen', async ({ page }) => {
+  const consoleErrors: string[] = [];
+  const pageErrors: string[] = [];
+  page.on('console', (m: ConsoleMessage) => {
+    if (m.type() === 'error') consoleErrors.push(m.text());
+  });
+  page.on('pageerror', (e) => pageErrors.push(String(e)));
+
+  await page.goto('/');
+  await openLearn(page);
+  await page.getByRole('button', { name: /Essen & Café/ }).click();
+  await page.getByRole('button', { name: /Im Restaurant/ }).first().click();
+  await page.getByRole('button', { name: /Im Restaurant: Tisch, bestellen, zahlen/ }).click();
+
+  await page.getByRole('button', { name: 'Aufdecken' }).click();
+  await page.getByRole('button', { name: 'Weiter' }).click();
+  await page.getByRole('button', { name: 'Weiter' }).click();
+  await expect(page.getByText('Du bist dran')).toBeVisible();
+
+  // Tippen bleibt vollwertig …
+  await expect(page.getByRole('textbox', { name: 'Antwort auf Schwedisch' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Prüfen' })).toBeVisible();
+
+  // … und daneben steht das Mikrofon (in diesem Browser vorhanden).
+  const mic = page.getByRole('button', { name: 'Sag es auf Schwedisch' });
+  await expect(mic).toBeVisible();
+
+  // Kein Überstand über den Bildschirmrand (der Fehler von zuvor).
+  const box = await mic.boundingBox();
+  const width = page.viewportSize()?.width ?? 0;
+  expect(box).not.toBeNull();
+  expect(box!.x).toBeGreaterThanOrEqual(0);
+  expect(box!.x + box!.width).toBeLessThanOrEqual(width);
+
+  expect(consoleErrors, consoleErrors.join('\n')).toHaveLength(0);
+  expect(pageErrors, pageErrors.join('\n')).toHaveLength(0);
+});

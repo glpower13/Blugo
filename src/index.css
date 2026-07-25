@@ -445,6 +445,22 @@ main.vt-page {
   }
 }
 
+/* Mikrofon hört zu — ein ruhiger Atem statt eines Blinkens (P2, Sprechen).
+   Der Ring liegt AUSSERHALB des Knopfes, damit die Beschriftung nicht zappelt. */
+@keyframes mic-breathe {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(99, 201, 182, 0.5);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(99, 201, 182, 0);
+  }
+}
+
+.mic-live {
+  animation: mic-breathe 1.6s ease-out infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   body::before,
   .backdrop-art .ribbons,
@@ -452,6 +468,7 @@ main.vt-page {
   .rise,
   .turn-in-left,
   .turn-in-right,
+  .mic-live,
   .scene-in {
     animation: none;
   }

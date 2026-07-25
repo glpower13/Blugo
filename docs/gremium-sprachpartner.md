@@ -155,6 +155,56 @@ Reden worüber man will, mit Rückblick („diese Wörter hast du gesucht"), **o
 
 ---
 
+## 9. Maßnahmenplan *(Auftrag 2026-07-25: „setze alles komplett um, Stück für Stück")*
+
+Das Gremium hat den Bauplan aus §6 in **sechs abarbeitbare Phasen** zerlegt. Jede Phase ist
+für sich nutzbar, wird **einzeln geprüft** (Kaskade aus `TEST-UND-PRUEF-STANDARD.md`) und
+**einzeln ausgeliefert** — nicht ein großer Wurf am Ende.
+
+| Phase | Was entsteht | Abnahme („fertig" heißt) |
+|---|---|---|
+| **P1** | Spracherkennungs-Adapter hinter dem vorhandenen `SpeechRecognizer`-Port. On-Device bevorzugt, Verfügbarkeit **ehrlich** gemeldet | Adapter + Tests grün; auf einem Gerät ohne Erkennung erscheint **nichts** (kein toter Knopf) |
+| **P2** | Mikrofon im Lern-Loop (Produktion) und in der „du bist dran"-Zeile im Gespräch | Gesprochenes läuft durch **dieselbe** Prüfung und **dasselbe** `schedule()` wie Getipptes; Tippen bleibt gleichwertig |
+| **P3** | Gesprochene Abrufe werden als solche **festgehalten und ehrlich angezeigt** | „davon gesprochen: N" ist eine **Teilmenge** des Bewiesenen, keine zweite Währung |
+| **P4** | Szenengebundener Sparringspartner: Erkennung → Antwort auf Schwedisch → Sprachausgabe | Er lockt **fällige Wendungen** hervor, prüft sie gegen den geprüften Chunk, füttert die Engine; ohne Schlüssel unsichtbar |
+| **P5** | Freies Gespräch — ausdrücklich **ohne Messung** | Kein Fortschrittsbalken, keine Zahl, sichtbare Kennzeichnung „Übung, kein Beweis" |
+| **P6** | Kaskade, e2e, Screenshots hell/dunkel, Doku, Auslieferung | grüner, reproduzierbarer Lauf **plus eigenes Ansehen** |
+
+### Die Anbieterfrage — vom Gremium neu entschieden
+
+§8 nennt als offenen Punkt, ob wir für Phase 4 ein Backend brauchen. Beim Zerlegen fiel auf,
+dass die Frage **umgangen** werden kann: Wir besitzen bereits alle drei Teile eines
+Sprachgesprächs.
+
+```
+Ohr:   Web-Speech-Erkennung (P1, kostenlos, kein Vertrag)
+Kopf:  Claude über BYOK  (schon gebaut, schon bezahlt vom Nutzer selbst)
+Mund:  Web-Speech-Ausgabe (schon gebaut, sv-Stimme wird bereits gewählt)
+```
+
+Zusammengesetzt ergibt das ein **echtes gesprochenes Gespräch** — ohne neuen Anbieter, ohne
+Backend, ohne Token-Ausstellung, ohne zusätzlichen Schlüssel. Der Preis ist Latenz: statt
+~0,3 s bei echter Sprach-zu-Sprach-Verarbeitung liegen wir bei grob 1–3 s pro Antwort.
+
+**Das Gremium hält diesen Tausch für richtig** — aus zwei Gründen:
+1. Für einen **Lern**-Partner ist eine kurze Denkpause kein Mangel. Ein Lehrer, der 1,5 s
+   überlegt, wirkt nicht defekt. Ein Wettbewerber optimiert auf Gesprächs-*Gefühl*; wir
+   optimieren auf **Behalten**.
+2. Es hält die Architektur sauber (kein Backend) und die Kosten bei **null zusätzlich**.
+
+Echte Sprach-zu-Sprach-Verarbeitung bleibt eine **spätere Austausch-Option hinter demselben
+Port** — genau dafür ist die Port-Schicht da. Damit ist die Backend-Frage aus §8 für P4
+**vertagt statt blockierend**.
+
+### Reihenfolge und Begründung
+
+P1 → P2 → P3 → P4 → P5 → P6. Nicht verhandelbar ist die Position von **P3 vor P4**: Erst muss
+feststehen, wie ein gesprochener Abruf **gezählt** wird, dann darf ein Gesprächspartner
+welche erzeugen. Andersherum entstünde genau der Zustand, den §3 verbietet — Reden ohne
+Messung, das trotzdem irgendwie „zählt".
+
+---
+
 ## Quellen (Live-Recherche, Juli 2026 — verifiziert)
 
 **Markt**

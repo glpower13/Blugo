@@ -232,3 +232,14 @@ export function IconPeak({ className }: P) {
     </svg>
   );
 }
+
+/** Mikrofon — Spracheingabe (P1/P2, docs/gremium-sprachpartner.md). */
+export function IconMic({ className }: P) {
+  return (
+    <svg {...box(className)} fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round">
+      <rect x="9" y="2.8" width="6" height="11" rx="3" />
+      <path d="M5.5 11.5 A6.5 6.5 0 0 0 18.5 11.5" />
+      <line x1="12" y1="18" x2="12" y2="21.2" />
+    </svg>
+  );
+}

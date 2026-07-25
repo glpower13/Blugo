@@ -12,12 +12,13 @@ import type {
 } from './ports';
 import { seedDecoder, seedGenerator } from './adapters/seed';
 import { webSpeechSynthesizer } from './adapters/webSpeech';
+import { webSpeechRecognizer } from './adapters/webSpeechRecognizer';
 
 export interface AiPorts {
   generator: ContentGenerator;
   decoder: Decoder;
   synthesizer: SpeechSynthesizer;
-  recognizer: SpeechRecognizer | null; // erst post-M1 ein Adapter
+  recognizer: SpeechRecognizer | null; // seit P1 belegt (Web Speech); null = kein Adapter
   explainer: Explainer | null; // erst mit Cloud-KI (Feedback-Schritt 2)
 }
 
@@ -26,7 +27,7 @@ const defaults: AiPorts = {
   generator: seedGenerator,
   decoder: seedDecoder,
   synthesizer: webSpeechSynthesizer,
-  recognizer: null,
+  recognizer: webSpeechRecognizer,
   explainer: null,
 };
 
