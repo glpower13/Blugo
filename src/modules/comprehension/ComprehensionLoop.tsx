@@ -5,6 +5,7 @@
 import { useEffect, useState } from 'react';
 import type { Chunk, ChunkState, DecodingToken, ReviewResult, Segment } from '../../domain/chunk';
 import { aiRegistry } from '../content/aiRegistry';
+import { VERIFICATION, VERIFICATION_REASON } from '../content/verification.generated';
 import type { KnownPhrase } from '../content/ports';
 import { analyzeAnswer, type AnswerAnalysis } from './answerCheck';
 import { pronunciationTips } from './pronunciation';
@@ -16,7 +17,7 @@ import { IconPlay, IconSlow, IconWave, IconSparkle } from '../../ui/icons';
 
 const GRADE_LABEL: Record<ReviewResult, string> = {
   again: 'Nochmal',
-  hard: 'Schwer',
+  hard: 'Fast',
   good: 'Sitzt',
 };
 
@@ -211,12 +212,12 @@ export function ComprehensionLoop({
       <div className="mb-2 flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
         <p className="text-[0.68rem] font-medium uppercase tracking-[0.16em] text-faint">
           Begegnung · Level {segment.level} ·{' '}
-          {stage === 'production' ? 'Produktion' : 'Wiedererkennen'}
+          {stage === 'production' ? 'selbst sagen' : 'verstehen'}
         </p>
         {state && (
           <button
             onClick={() => setShowWhy((v) => !v)}
-            className="text-[0.68rem] text-muted underline underline-offset-2"
+            className="inline-flex min-h-11 items-center text-[0.7rem] text-muted underline underline-offset-2"
           >
             {showWhy ? 'Warum jetzt? ausblenden' : 'Warum jetzt?'}
           </button>
@@ -229,12 +230,15 @@ export function ComprehensionLoop({
           Widerspruch: Was man nicht nachvollziehen kann, ist eine Behauptung. */}
       {showWhy && state && <WhyNow state={state} retention={retention} />}
 
-      {/* 1. Verständliche Begegnung (der Hero-Moment) */}
-      <div className="flex items-start justify-between gap-3">
+      {/* 1. Verständliche Begegnung (der Hero-Moment).
+          `flex-wrap` + `min-w-0`: Ohne beides drückte die Knopfgruppe (shrink-0)
+          bei 320 px und großer Systemschrift „Langsam vorlesen" bis zu 70 px aus
+          dem Bild — nicht mehr antippbar (Layout-Audit 2026-07-25). */}
+      <div className="flex flex-col items-start gap-2 sm:flex-row sm:justify-between sm:gap-x-3">
         {showFull ? (
           <p
             lang="sv"
-            className="font-sans text-[1.9rem] font-bold leading-[1.14] tracking-[-0.015em] text-paper"
+            className="w-full min-w-0 hyphens-auto break-words font-sans text-[min(1.9rem,8.5vw)] font-bold leading-[1.14] tracking-[-0.015em] text-paper sm:flex-1"
           >
             {segment.sv}
           </p>
@@ -242,7 +246,7 @@ export function ComprehensionLoop({
           // Produktion: Satz mit Lücke an der Stelle des Ziel-Chunks (Kontext ohne Lösung).
           <p
             lang="sv"
-            className="font-sans text-[1.9rem] font-bold leading-[1.14] tracking-[-0.015em] text-paper"
+            className="w-full min-w-0 hyphens-auto break-words font-sans text-[min(1.9rem,8.5vw)] font-bold leading-[1.14] tracking-[-0.015em] text-paper sm:flex-1"
           >
             {cloze.before}
             <span
@@ -254,22 +258,22 @@ export function ComprehensionLoop({
             {cloze.after}
           </p>
         ) : (
-          <p className="font-display text-xl font-semibold leading-snug text-muted">
+          <p className="w-full min-w-0 font-display text-xl font-semibold leading-snug text-muted sm:flex-1">
             Bilde den Satz auf Schwedisch.
           </p>
         )}
         {showFull && aiRegistry.synthesizer.isAvailable() && (
-          <div className="flex shrink-0 gap-2">
+          <div className="flex shrink-0 flex-wrap gap-2">
             <button
               onClick={() => void aiRegistry.synthesizer.speak({ text: segment.sv })}
-              className="flex items-center gap-1.5 rounded-full bg-brand/20 px-3.5 py-2 text-sm text-brand"
-              aria-label="Vorlesen"
+              className="flex min-h-11 items-center gap-1.5 rounded-full bg-brand/20 px-4 text-sm text-brand"
+              aria-label="Hören — vorlesen"
             >
               <IconPlay className="h-3 w-3" /> Hören
             </button>
             <button
               onClick={() => void aiRegistry.synthesizer.speak({ text: segment.sv, rate: slowSpeechRate() })}
-              className="flex items-center rounded-full bg-brand/20 px-3 py-2 text-brand"
+              className="flex min-h-11 min-w-11 items-center justify-center rounded-full bg-brand/20 px-3 text-brand"
               aria-label="Langsam vorlesen"
               title="Langsamer"
             >
@@ -289,7 +293,7 @@ export function ComprehensionLoop({
             setShowDecoding((v) => !v);
             setHelpUsed(true);
           }}
-          className="glass-soft rounded-full px-3.5 py-1.5 text-sm text-paper"
+          className="glass-soft min-h-11 rounded-full px-4 text-sm text-paper"
         >
           {showDecoding ? 'Dekodierung ausblenden' : 'Dekodierung'}
         </button>
@@ -298,7 +302,7 @@ export function ComprehensionLoop({
             setShowIdiomatic((v) => !v);
             setHelpUsed(true);
           }}
-          className="glass-soft rounded-full px-3.5 py-1.5 text-sm text-paper"
+          className="glass-soft min-h-11 rounded-full px-4 text-sm text-paper"
         >
           {showIdiomatic ? 'Übersetzung ausblenden' : 'Übersetzung'}
         </button>
@@ -316,23 +320,31 @@ export function ComprehensionLoop({
           <button
             onClick={() => void fetchAiDecoding()}
             disabled={aiState === 'loading'}
-            className="flex items-center gap-1.5 rounded-full border border-brand/50 bg-brand/10 px-3.5 py-1.5 text-sm text-brand disabled:opacity-50"
+            className="flex min-h-11 items-center gap-1.5 rounded-full border border-brand/50 bg-brand/10 px-4 text-sm text-brand disabled:opacity-50"
           >
             <IconSparkle className="h-3.5 w-3.5" />
-            {aiState === 'loading' ? 'KI übersetzt…' : 'KI-Dekodierung'}
+            {aiState === 'loading' ? 'KI übersetzt …' : 'KI-Dekodierung'}
           </button>
         )}
         {canGenerate && (
           <button
             onClick={() => void generateContext()}
             disabled={genState === 'loading'}
-            className="flex items-center gap-1.5 rounded-full border border-brand/50 bg-brand/10 px-3.5 py-1.5 text-sm text-brand disabled:opacity-50"
+            className="flex min-h-11 items-center gap-1.5 rounded-full border border-brand/50 bg-brand/10 px-4 text-sm text-brand disabled:opacity-50"
           >
             <IconSparkle className="h-3.5 w-3.5" />
-            {genState === 'loading' ? 'KI schreibt…' : 'Neuer Kontext'}
+            {genState === 'loading' ? 'KI schreibt …' : 'Neuer Kontext'}
           </button>
         )}
       </div>
+      {/* Die drei goldenen Knöpfe kosten echtes Geld auf dem Zugang des Nutzers.
+          Das stand nirgends an der Stelle, wo man sie drückt (Ehrlichkeits-Audit). */}
+      {(aiActive || canGenerate) && (
+        <p className="mt-1.5 text-[0.68rem] text-faint">
+          Die goldenen KI-Knöpfe laufen über deinen eigenen Zugang und kosten dort je
+          Nutzung ein paar Cent.
+        </p>
+      )}
 
       {showDecoding && (
         <div className="mt-3 flex flex-wrap gap-x-4 gap-y-2">
@@ -395,15 +407,15 @@ export function ComprehensionLoop({
           <p className="mb-2 flex items-center gap-1.5 text-xs uppercase tracking-wide text-brand">
             <IconSparkle className="h-3.5 w-3.5" /> Neuer Kontext · KI-erzeugt · nicht geprüft
           </p>
-          <div className="flex items-start justify-between gap-3">
-            <p lang="sv" className="text-lg font-medium text-paper">
+          <div className="flex flex-col items-start gap-2 sm:flex-row sm:justify-between sm:gap-x-3">
+            <p lang="sv" className="w-full min-w-0 break-words text-lg font-medium text-paper sm:flex-1">
               {genSegment.sv}
             </p>
             {aiRegistry.synthesizer.isAvailable() && (
               <button
                 onClick={() => void aiRegistry.synthesizer.speak({ text: genSegment.sv })}
-                className="flex shrink-0 items-center gap-1.5 rounded-full bg-brand/20 px-3.5 py-1.5 text-sm text-brand"
-                aria-label="Neuen Kontext vorlesen"
+                className="flex min-h-11 shrink-0 items-center gap-1.5 rounded-full bg-brand/20 px-4 text-sm text-brand"
+                aria-label="Hören — neuen Kontext vorlesen"
               >
                 <IconPlay className="h-3 w-3" /> Hören
               </button>
@@ -427,10 +439,19 @@ export function ComprehensionLoop({
 
       {/* 3. Verständnis-Check für den Ziel-Chunk */}
       <div className="mt-6 border-t border-line pt-4">
+        {/* Die Warnung stand nur in der Themenliste — genau dort NICHT, wo die
+            Wendung tatsächlich gelernt wird (Ehrlichkeits-Audit 2026-07-25).
+            Wer eine auffällige Wendung übt, muss das im Moment des Übens wissen. */}
+        {VERIFICATION[chunk.id] === 'unchecked' && (
+          <p className="mb-2 text-[0.7rem] leading-snug text-warn">
+            ⚠ {VERIFICATION_REASON[chunk.id] ?? 'maschinell auffällig'} — bitte mit Vorsicht
+            lernen
+          </p>
+        )}
         <p className="mb-2 text-sm text-muted">
           {stage === 'production'
             ? `Wie heißt „${chunk.de}" auf Schwedisch?`
-            : `Was bedeutet „${chunk.sv}"?`}
+            : `Was bedeutet „${chunk.sv}"`}
         </p>
 
         {!revealed ? (
@@ -451,8 +472,8 @@ export function ComprehensionLoop({
                   </p>
                 )}
                 <p className="mb-1 text-xs text-faint">
-                  <span className="text-success underline">grün</span> = fehlt ·{' '}
-                  <span className="text-danger line-through">rot</span> = zu viel getippt
+                  <span className="text-success underline">unterstrichen</span> = fehlt ·{' '}
+                  <span className="text-danger line-through">durchgestrichen</span> = zu viel
                 </p>
                 <div
                   lang="sv"
@@ -498,7 +519,7 @@ export function ComprehensionLoop({
                       className="flex items-center gap-1.5 rounded-full border border-brand/50 bg-brand/10 px-4 py-2 text-sm text-brand disabled:opacity-50"
                     >
                       <IconSparkle className="h-3.5 w-3.5" />
-                      {why.state === 'loading' ? 'KI denkt…' : 'Warum?'}
+                      {why.state === 'loading' ? 'KI denkt …' : 'Warum?'}
                     </button>
                   )}
                 </div>
@@ -531,7 +552,7 @@ export function ComprehensionLoop({
                   lang="sv"
                   value={typed}
                   onChange={(e) => setTyped(e.target.value)}
-                  placeholder="auf Schwedisch tippen…"
+                  placeholder="auf Schwedisch tippen …"
                   aria-label="Antwort auf Schwedisch"
                   autoCapitalize="off"
                   autoCorrect="off"
@@ -580,6 +601,17 @@ export function ComprehensionLoop({
                 Deine Eingabe: „{typed || '—'}" · Vorschlag: {GRADE_LABEL[autoGrade]}
               </p>
             )}
+            {/* Die Selbsteinschätzung bleibt beim Lerner — ein Tippfehler ist kein
+                Gedächtnisfehler, und die Prüfung ist nicht unfehlbar. Aber wenn
+                sie „nicht getroffen" GEMESSEN hat, darf die Fläche das nicht
+                verschweigen (Ehrlichkeits-Audit 2026-07-25). */}
+            {stage === 'production' && autoGrade === 'again' && (
+              <p className="mb-3 text-xs leading-relaxed text-warn">
+                Die Prüfung sagt: nicht getroffen. Du entscheidest trotzdem selbst — nur
+                zählt „Sitzt" hier gegen eine Messung, und der Beweis am Ende ist nur so
+                viel wert wie deine Ehrlichkeit hier.
+              </p>
+            )}
             {spokenOk && (
               <p className="mb-2 text-xs text-[#63C9B6]">
                 Laut gesagt und richtig erkannt.
@@ -592,7 +624,7 @@ export function ComprehensionLoop({
                 onClick={() => onResult('again', helpUsed, spokenOk)}
               />
               <GradeButton
-                label="Schwer"
+                label="Fast"
                 tone="bg-warn"
                 onClick={() => onResult('hard', helpUsed, spokenOk)}
               />

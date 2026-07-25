@@ -46,7 +46,8 @@ export function CategoryOverview({ progress, focusId, hue, onOpen, onClearFocus 
             <li key={p.category.id}>
               <button
                 onClick={() => onOpen(p.category.id)}
-                className="flex w-full items-center gap-3 rounded-xl border border-line bg-white/[0.045] px-3 py-2.5 text-left transition-colors hover:bg-white/[0.075]"
+                aria-label={`${p.category.title} — ${p.stable} von ${p.total} bewiesen${p.dueNow > 0 ? `, ${p.dueNow} fällig` : ''}`}
+                className="flex min-h-11 w-full items-center gap-3 rounded-xl border border-line bg-white/[0.045] px-3 py-2.5 text-left transition-colors hover:bg-white/[0.075]"
               >
                 {/* Kleines Zeichen in der Bereichsfarbe — kein Bild mehr. */}
                 <span
@@ -57,7 +58,7 @@ export function CategoryOverview({ progress, focusId, hue, onOpen, onClearFocus 
                 <span className="min-w-0 flex-1">
                   <span className="flex items-center gap-1.5">
                     {isFocus && <span className="text-[0.7rem] text-brand">★</span>}
-                    <span className="truncate font-sans text-[0.88rem] font-semibold text-paper">
+                    <span className="hyphens-auto break-words font-sans text-[0.88rem] font-semibold text-paper">
                       {p.category.title}
                     </span>
                   </span>
@@ -73,7 +74,14 @@ export function CategoryOverview({ progress, focusId, hue, onOpen, onClearFocus 
                     />
                   </span>
                 </span>
-                <span className="shrink-0 text-[0.68rem] tabular-nums text-faint">
+                {/* Kurzform aus Platzgründen — was die Zahlen heißen, muss trotzdem
+                    abrufbar sein. Auf allen anderen Ebenen steht es ausgeschrieben
+                    („0 von 6 bewiesen · 3 fällig"); hier trägt es der Titel
+                    (Copy-Audit 2026-07-25). */}
+                <span
+                  className="shrink-0 text-[0.68rem] tabular-nums text-muted"
+                  title={`${p.stable} von ${p.total} bewiesen${p.dueNow > 0 ? ` · ${p.dueNow} fällig` : ''}`}
+                >
                   {p.stable}/{p.total}
                   {p.dueNow > 0 && <span className="ml-1.5 text-brand">·{p.dueNow}</span>}
                 </span>

@@ -16,6 +16,7 @@
 
 import type { DirectionSplit } from './metrics';
 import { IconBack } from '../../ui/icons';
+import { Overlay } from '../../ui/Overlay';
 
 interface Props {
   split: DirectionSplit;
@@ -23,17 +24,16 @@ interface Props {
 }
 
 export function LanguagePair({ split, onClose }: Props) {
-  const total = split.untouched + split.recognition + split.production;
+  const total = split.untouched + split.struggling + split.recognition + split.production;
   const pct = (n: number) => (total > 0 ? (n / total) * 100 : 0);
 
   return (
-    <div
+    <Overlay
+      labelledBy="pair-title"
+      onClose={onClose}
       className="fixed inset-0 z-50 flex items-end justify-center bg-ink/70 backdrop-blur-sm sm:items-center"
-      role="dialog"
-      aria-modal="true"
-      aria-label="Sprachpaar und Richtung"
-      onClick={onClose}
     >
+      <div className="absolute inset-0" onClick={onClose} aria-hidden="true" />
       <div
         className="glass max-h-[90dvh] w-full max-w-md overflow-y-auto rounded-t-3xl p-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] sm:rounded-3xl sm:pb-6"
         onClick={(e) => e.stopPropagation()}
@@ -43,13 +43,17 @@ export function LanguagePair({ split, onClose }: Props) {
             <p className="text-[0.66rem] font-semibold uppercase tracking-[0.18em] text-brand">
               Sprachpaar
             </p>
-            <h2 className="mt-1 font-display text-[1.4rem] font-semibold leading-tight text-paper">
+            <h2
+              id="pair-title"
+              className="mt-1 font-display text-[1.4rem] font-semibold leading-tight text-paper"
+            >
               Deutsch → Schwedisch
             </h2>
           </div>
           <button
             onClick={onClose}
-            className="glass-soft flex shrink-0 items-center gap-1 rounded-full py-1.5 pl-2 pr-3 text-sm text-paper"
+            aria-label="Zurück — Sprachpaar schließen"
+            className="glass-soft flex min-h-11 shrink-0 items-center gap-1 rounded-full pl-2.5 pr-4 text-sm text-paper"
           >
             <IconBack className="h-4 w-4" /> Zurück
           </button>
@@ -70,6 +74,10 @@ export function LanguagePair({ split, onClose }: Props) {
               className="h-full bg-brand/60 transition-[width] duration-700 ease-out"
               style={{ width: `${pct(split.recognition)}%` }}
             />
+            <div
+              className="h-full bg-warn/50 transition-[width] duration-700 ease-out"
+              style={{ width: `${pct(split.struggling)}%` }}
+            />
           </div>
 
           <dl className="mt-4 space-y-3.5">
@@ -77,19 +85,27 @@ export function LanguagePair({ split, onClose }: Props) {
               swatch="bg-success"
               value={split.production}
               title="sprichst du selbst"
-              note="Schwedisch aktiv erzeugen — die schwere Richtung. Nur sie zählt für „bewiesen stabil“."
+              note={'Schwedisch aktiv erzeugen — die schwere Richtung. Nur sie zählt für „bewiesen stabil".'}
             />
             <Row
               swatch="bg-brand/60"
               value={split.recognition}
               title="verstehst du"
-              note="Du erkennst sie im Kontext. Die Engine hebt sie von selbst an, sobald der Abruf sitzt."
+              note="Du erkennst sie im Kontext. Die App hebt sie von selbst an, sobald der Abruf sitzt."
+            />
+            {/* Eigener Eimer, seit dem Ehrlichkeits-Audit: Vorher zählte eine
+                dreimal misslungene Wendung als „verstehst du". */}
+            <Row
+              swatch="bg-warn/50"
+              value={split.struggling}
+              title="begegnet, noch nicht gekonnt"
+              note="Schon gesehen, aber noch kein gelungener Abruf. Bewusst getrennt gezählt — Scheitern ist kein Verständnis."
             />
             <Row
               swatch="bg-line"
               value={split.untouched}
               title="noch nicht begegnet"
-              note="Bewusst getrennt gezählt: eine nie gesehene Wendung als „verstanden“ zu führen wäre falsch."
+              note={'Bewusst getrennt gezählt: eine nie gesehene Wendung als „verstanden" zu führen wäre falsch.'}
             />
           </dl>
         </section>
@@ -102,7 +118,7 @@ export function LanguagePair({ split, onClose }: Props) {
           <p className="mt-2 text-xs leading-relaxed text-muted">
             Sie ist keine Einstellung, sondern ein <span className="text-paper">Messwert</span>.
             Jede Wendung wandert von „verstehst du" zu „sprichst du selbst", sobald du sie
-            wirklich abrufen kannst — die Engine entscheidet das, nicht ein Schalter.
+            wirklich abrufen kannst — die App entscheidet das, nicht ein Schalter.
           </p>
           <p className="mt-2 text-xs leading-relaxed text-faint">
             Könntest du auf die leichte Richtung stellen, würde dir weiter Fortschritt
@@ -116,7 +132,7 @@ export function LanguagePair({ split, onClose }: Props) {
           Inhalt — deshalb steht hier auch keiner.
         </p>
       </div>
-    </div>
+    </Overlay>
   );
 }
 

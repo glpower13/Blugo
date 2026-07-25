@@ -27,10 +27,20 @@ interface Status {
   dot: string;
 }
 
+/**
+ * EINE Quelle für den Einzelstatus — dieselbe wie für Ring, Balken und alle
+ * Zählungen. Vorher stand hier `status === 'maintenance'`, während Ring und
+ * Balken `isMaturing` benutzten: Der Themenkopf konnte „2 reifen" melden und
+ * direkt darunter beide Wendungen als „am Lernen" ausweisen
+ * (Ehrlichkeits-Audit 2026-07-25).
+ *
+ * „bewiesen" statt „sitzt": „Sitzt" ist die Beschriftung des
+ * Selbsteinschätzungs-Knopfes und meint dort etwas viel Schwächeres.
+ */
 function statusOf(s: ChunkState | undefined): Status {
   if (!s || (s.status === 'new' && s.history.length === 0)) return { label: 'neu', dot: 'bg-warn' };
-  if (isStable(s)) return { label: 'sitzt', dot: 'bg-success dot-glow' };
-  if (s.status === 'maintenance') return { label: 'reift', dot: 'bg-success' };
+  if (isStable(s)) return { label: 'bewiesen', dot: 'bg-success dot-glow' };
+  if (isMaturing(s)) return { label: 'reift', dot: 'bg-success' };
   return { label: 'am Lernen', dot: 'bg-brand' };
 }
 
@@ -59,7 +69,7 @@ export function CategoryDetail({
         <button
           onClick={onBack}
           className="glass-soft flex items-center gap-1.5 rounded-full py-1.5 pl-2.5 pr-3.5 text-sm"
-          aria-label="Zurück zum Bereich"
+          aria-label={`${backLabel} — zurück zum Bereich`}
         >
           <IconBack className="h-4 w-4 text-paper" />
           <span style={{ color: hue }} className="font-medium">
@@ -74,7 +84,7 @@ export function CategoryDetail({
           <AreaBadge hue={hue} Icon={Icon} size="sm" />
           <div className="min-w-0">
             <p
-              className="truncate text-[0.66rem] font-semibold uppercase tracking-[0.16em]"
+              className="break-words text-[0.66rem] font-semibold uppercase tracking-[0.16em]"
               style={{ color: hue }}
             >
               {backLabel}
@@ -89,22 +99,31 @@ export function CategoryDetail({
           {maturing > 0 && (
             <>
               {' · '}
-              <span className="text-success/70">{maturing}</span> reifen
+              <span className="text-success/70">{maturing}</span> {maturing === 1 ? 'reift' : 'reifen'}
             </>
           )}
         </p>
 
-        {/* Fokus für neuen Stoff (Autonomie) */}
+        {/* Fokus für neuen Stoff (Autonomie).
+            Die Beschriftung ist kurz, weil eine Pille zweizeilig kaputt aussieht:
+            bei 320 px und großer Systemschrift brach „Im Fokus für neuen Stoff"
+            um (Barrierefreiheits-Audit 2026-07-25). Was der Knopf tut, steht in
+            der Zeile darunter — nicht gedrängt in die Pille. */}
         <button
           onClick={onToggleFocus}
           aria-pressed={isFocus}
           className={
-            'mt-3 rounded-full px-4 py-1.5 text-sm font-medium ' +
+            'mt-3 min-h-11 rounded-full px-5 text-sm font-medium ' +
             (isFocus ? 'btn-gold text-ink' : 'border border-brand/50 text-brand')
           }
         >
-          {isFocus ? '★ Im Fokus für neuen Stoff' : 'Als Fokus für neuen Stoff'}
+          {isFocus ? '★ Im Fokus' : 'Fokus setzen'}
         </button>
+        <p className="mt-1.5 text-xs text-muted">
+          {isFocus
+            ? 'Neuer Stoff kommt zuerst aus diesem Thema.'
+            : 'Neuen Stoff bevorzugt aus diesem Thema ziehen.'}
+        </p>
 
         {/* Die einzelnen Wendungen, sauber gegliedert (breit: zwei Spalten). */}
         <ul className="mt-5 grid grid-cols-1 gap-2 sm:grid-cols-2">
@@ -114,10 +133,10 @@ export function CategoryDetail({
               <li key={c.id} className="glass-soft flex items-center gap-3 rounded-xl px-3.5 py-3">
                 <span className={`h-2.5 w-2.5 shrink-0 rounded-full ${st.dot}`} />
                 <div className="min-w-0">
-                  <p lang="sv" className="truncate font-medium text-paper">
+                  <p lang="sv" className="break-words font-medium text-paper">
                     {c.sv}
                   </p>
-                  <p className="truncate text-xs text-muted">{c.de}</p>
+                  <p className="break-words text-xs text-muted">{c.de}</p>
                   {/* Stufe 4 der Prüfkette: NUR die auffälligen Wendungen bekommen
                       ein Zeichen. Ein Haken an den anderen 146 wäre ein Siegel,
                       das niemand verdient hat — geprüft ist dort nur, dass jedes

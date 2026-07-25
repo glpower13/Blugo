@@ -4,7 +4,7 @@
 // echtes, geprüftes Können strahlt — kein Schein-Stern (die eine Design-Regel).
 
 import type { ChunkState } from '../../domain/chunk';
-import { isStable } from './metrics';
+import { isMaturing, isStable } from './metrics';
 
 // Stabiler Pseudo-Zufall aus der chunkId → jeder Chunk hat seinen festen Platz.
 function hash(s: string): number {
@@ -24,7 +24,10 @@ interface Star {
 
 function starFor(s: ChunkState, now: number): Star {
   if (isStable(s)) return { cls: 'star star-stable bg-success', size: 8, delay: 0 };
-  if (s.status === 'maintenance') return { cls: 'star star-maint bg-success', size: 6, delay: 0 };
+  // Dieselbe Quelle wie Ring und Balken (Ehrlichkeits-Audit 2026-07-25) — vorher
+  // stand hier `status === 'maintenance'` und zeigte einen anderen Stand als die
+  // Zahl daneben.
+  if (isMaturing(s)) return { cls: 'star star-maint bg-success', size: 6, delay: 0 };
   if (s.dueAt <= now) return { cls: 'star bg-warn', size: 5, delay: 0 };
   if (s.status === 'learning') return { cls: 'star bg-brand', size: 5, delay: 0 };
   return { cls: 'star star-faint bg-paper', size: 4, delay: 0 }; // Neues: feiner Punkt

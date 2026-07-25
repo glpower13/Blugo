@@ -158,14 +158,14 @@ export const seedDialogs: Dialog[] = [
       {
         id: 'h3',
         speaker: 'partner',
-        sv: 'Perfekt. För hur många nätter?',
-        de: 'Perfekt. Für wie viele Nächte?',
+        sv: 'Perfekt. Två nätter, stämmer det?',
+        de: 'Perfekt. Zwei Nächte, stimmt das?',
         decoding: [
           { sv: 'perfekt', de: 'perfekt' },
-          { sv: 'för', de: 'für' },
-          { sv: 'hur', de: 'wie' },
-          { sv: 'många', de: 'viele' },
+          { sv: 'två', de: 'zwei' },
           { sv: 'nätter', de: 'Nächte' },
+          { sv: 'stämmer', de: 'stimmt' },
+          { sv: 'det', de: 'das' },
         ],
       },
       {
@@ -221,7 +221,7 @@ export const seedDialogs: Dialog[] = [
         id: 'h9',
         speaker: 'partner',
         sv: 'Tack själv {name}. Ha det bra!',
-        de: 'Danke gleichfalls {name}. Machen Sie es gut!',
+        de: 'Danke gleichfalls {name}. Mach es gut!',
         decoding: [
           { sv: 'tack', de: 'danke' },
           { sv: 'själv', de: 'selbst' },
@@ -317,12 +317,11 @@ export const seedDialogs: Dialog[] = [
         id: 'w8',
         speaker: 'partner',
         sv: 'Ingen orsak. Lycka till!',
-        de: 'Keine Ursache. Viel Glück!',
+        de: 'Keine Ursache. Viel Erfolg!',
         decoding: [
           { sv: 'ingen', de: 'keine' },
           { sv: 'orsak', de: 'Ursache' },
-          { sv: 'lycka', de: 'Glück' },
-          { sv: 'till', de: 'zu' },
+          { sv: 'lycka till', de: 'viel Erfolg' },
         ],
       },
     ],
@@ -695,13 +694,13 @@ export const seedDialogs: Dialog[] = [
       {
         id: 'a5',
         speaker: 'partner',
-        sv: 'Har du feber också?',
-        de: 'Hast du auch Fieber?',
+        sv: 'Ingen feber. Berätta mer.',
+        de: 'Kein Fieber. Erzähl mehr.',
         decoding: [
-          { sv: 'har', de: 'hast' },
-          { sv: 'du', de: 'du' },
+          { sv: 'ingen', de: 'kein' },
           { sv: 'feber', de: 'Fieber' },
-          { sv: 'också', de: 'auch' },
+          { sv: 'berätta', de: 'erzähl' },
+          { sv: 'mer', de: 'mehr' },
         ],
       },
       {
@@ -776,7 +775,7 @@ export const seedDialogs: Dialog[] = [
     title: 'Am Schalter: Ticket kaufen',
     blurb: 'Fahrkarte lösen, Abfahrt und Gleis erfragen.',
     scene: 'station',
-    partnerName: 'Schalter',
+    partnerName: 'Mann am Schalter',
     turns: [
       {
         id: 't1',
@@ -894,7 +893,7 @@ export const seedDialogs: Dialog[] = [
         speaker: 'partner',
         sv: 'Bilen startar inte. Jag vet inte varför.',
         de: 'Das Auto springt nicht an. Ich weiß nicht warum.',
-        decoding: [{ sv: 'bilen', de: 'das Auto' }, { sv: 'startar', de: 'startet' }, { sv: 'inte', de: 'nicht' }, { sv: 'jag', de: 'ich' }, { sv: 'vet', de: 'weiß' }, { sv: 'varför', de: 'warum' }],
+        decoding: [{ sv: 'bilen', de: 'das Auto' }, { sv: 'startar', de: 'startet' }, { sv: 'inte', de: 'nicht' }, { sv: 'jag', de: 'ich' }, { sv: 'vet', de: 'weiß' }, { sv: 'inte', de: 'nicht' }, { sv: 'varför', de: 'warum' }],
       },
       {
         id: 'g4',
@@ -937,9 +936,9 @@ export const seedDialogs: Dialog[] = [
       {
         id: 'g9',
         speaker: 'partner',
-        sv: 'Tack! Kan du hålla den här?',
-        de: 'Danke! Kannst du das hier halten?',
-        decoding: [{ sv: 'tack', de: 'danke' }, { sv: 'kan', de: 'kannst' }, { sv: 'du', de: 'du' }, { sv: 'hålla', de: 'halten' }, { sv: 'den', de: 'das' }, { sv: 'här', de: 'hier' }],
+        sv: 'Tack! Nu drar jag åt den sista skruven.',
+        de: 'Danke! Jetzt ziehe ich die letzte Schraube fest.',
+        decoding: [{ sv: 'tack', de: 'danke' }, { sv: 'nu', de: 'jetzt' }, { sv: 'drar', de: 'ziehe' }, { sv: 'jag', de: 'ich' }, { sv: 'åt', de: 'fest' }, { sv: 'den', de: 'die' }, { sv: 'sista', de: 'letzte' }, { sv: 'skruven', de: 'Schraube' }],
       },
       {
         id: 'g10',
@@ -1096,7 +1095,7 @@ export const seedDialogs: Dialog[] = [
         speaker: 'partner',
         sv: 'Han ligger först!',
         de: 'Er liegt vorne!',
-        decoding: [{ sv: 'han', de: 'er' }, { sv: 'ligger', de: 'liegt' }, { sv: 'först', de: 'zuerst' }],
+        decoding: [{ sv: 'han', de: 'er' }, { sv: 'ligger', de: 'liegt' }, { sv: 'först', de: 'als Erster' }],
       },
       {
         id: 't7',
@@ -1204,9 +1203,9 @@ export const seedDialogs: Dialog[] = [
       {
         id: 'f9',
         speaker: 'partner',
-        sv: 'En gädda. Fin, va?',
-        de: 'Ein Hecht. Schön, oder?',
-        decoding: [{ sv: 'en', de: 'ein' }, { sv: 'gädda', de: 'Hecht' }, { sv: 'fin', de: 'schön' }, { sv: 'va', de: 'oder' }],
+        sv: 'En gädda. Nu kastar jag ut igen.',
+        de: 'Ein Hecht. Jetzt werfe ich wieder aus.',
+        decoding: [{ sv: 'en', de: 'ein' }, { sv: 'gädda', de: 'Hecht' }, { sv: 'nu', de: 'jetzt' }, { sv: 'kastar', de: 'werfe' }, { sv: 'jag', de: 'ich' }, { sv: 'ut', de: 'aus' }, { sv: 'igen', de: 'wieder' }],
       },
       {
         id: 'f10',
@@ -1275,9 +1274,9 @@ export const seedDialogs: Dialog[] = [
       {
         id: 'm6',
         speaker: 'partner',
-        sv: 'Otroligt. Nu är det ett-noll.',
-        de: 'Unglaublich. Jetzt steht es eins zu null.',
-        decoding: [{ sv: 'otroligt', de: 'unglaublich' }, { sv: 'nu', de: 'jetzt' }, { sv: 'är', de: 'ist' }, { sv: 'det', de: 'es' }, { sv: 'ett', de: 'eins' }, { sv: 'noll', de: 'null' }],
+        sv: 'Otroligt! Vilket skott.',
+        de: 'Unglaublich! Was für ein Schuss.',
+        decoding: [{ sv: 'otroligt', de: 'unglaublich' }, { sv: 'vilket', de: 'welch ein' }, { sv: 'skott', de: 'Schuss' }],
       },
       {
         id: 'm7',
@@ -1365,15 +1364,14 @@ export const seedDialogs: Dialog[] = [
       {
         id: 't5',
         speaker: 'partner',
-        sv: 'Okej. Ska vi ses i morgon?',
-        de: 'Okay. Sehen wir uns morgen?',
+        sv: 'Okej. Hör av dig imorgon.',
+        de: 'Okay. Melde dich morgen.',
         decoding: [
           { sv: 'okej', de: 'okay' },
-          { sv: 'ska', de: 'sollen' },
-          { sv: 'vi', de: 'wir' },
-          { sv: 'ses', de: 'sehen' },
-          { sv: 'i', de: 'in' },
-          { sv: 'morgon', de: 'Morgen' },
+          { sv: 'hör', de: 'hör' },
+          { sv: 'av', de: 'von' },
+          { sv: 'dig', de: 'dir' },
+          { sv: 'imorgon', de: 'morgen' },
         ],
       },
       {
@@ -1409,7 +1407,7 @@ export const seedDialogs: Dialog[] = [
         sv: 'Hej då {name}!',
         de: 'Tschüss {name}!',
         decoding: [
-          { sv: 'hej', de: 'hallo' },
+          { sv: 'hej', de: 'tschüss' },
           { sv: 'då', de: 'dann' },
         ],
       },
@@ -1473,10 +1471,12 @@ export const seedDialogs: Dialog[] = [
       {
         id: 'w5',
         speaker: 'partner',
-        sv: 'Gärna. På fredag?',
-        de: 'Gern. Am Freitag?',
+        sv: 'Gärna. Vi säger på fredag.',
+        de: 'Gern. Sagen wir Freitag.',
         decoding: [
           { sv: 'gärna', de: 'gern' },
+          { sv: 'vi', de: 'wir' },
+          { sv: 'säger', de: 'sagen' },
           { sv: 'på', de: 'auf' },
           { sv: 'fredag', de: 'Freitag' },
         ],

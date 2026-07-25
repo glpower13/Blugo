@@ -69,6 +69,34 @@ describe('memoryEngine', () => {
     expect(spoken.provenStableAt).toBe(typed.provenStableAt);
   });
 
+  // Die zwei GEMESSENEN Vermerke (Ehrlichkeits-Audit 2026-07-25). Beide halten
+  // fest, was tatsächlich passiert ist — nicht, was geplant war.
+  it('vermerkt „reift" erst nach einer ÜBERSTANDENEN 21-Tage-Pause in Produktion', () => {
+    const kurz = { ...initialState('c1', NOW), stage: 'production' as const, intervalDays: 20 };
+    expect(schedule(kurz, 'good', 'seg1', NOW).maturedAt).toBeNull();
+
+    const lang = { ...initialState('c1', NOW), stage: 'production' as const, intervalDays: 21 };
+    expect(schedule(lang, 'good', 'seg1', NOW).maturedAt).toBe(NOW);
+
+    // Wiedererkennen zählt nicht — der Vermerk gilt nur für das Selbst-Sagen.
+    const nurErkannt = { ...initialState('c1', NOW), intervalDays: 60 };
+    expect(schedule(nurErkannt, 'good', 'seg1', NOW).maturedAt).toBeNull();
+  });
+
+  it('vermerkt jeden Fehlschlag — daran verfällt ein früherer Beweis', () => {
+    const bewiesen = {
+      ...initialState('c1', NOW),
+      stage: 'production' as const,
+      intervalDays: 120,
+      provenStableAt: NOW,
+      maturedAt: NOW,
+    };
+    const gefallen = schedule(bewiesen, 'again', 'seg1', NOW + DAY_MS);
+    expect(gefallen.lapsedAt).toBe(NOW + DAY_MS);
+    // Der historische Vermerk bleibt stehen — die Anzeige rechnet ihn heraus.
+    expect(gefallen.provenStableAt).toBe(NOW);
+  });
+
   it('getDue returns only chunks whose dueAt has passed, most overdue first', () => {
     const a = { ...initialState('a', NOW), dueAt: NOW - 2 * DAY_MS };
     const b = { ...initialState('b', NOW), dueAt: NOW - 1 * DAY_MS };

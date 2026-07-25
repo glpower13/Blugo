@@ -154,7 +154,7 @@ für **jede** Wendung eine von drei Stufen:
 | Stufe | Bedeutung | Anzahl |
 |---|---|---|
 | `native` | von einer schwedischsprachigen Person gegengelesen | **0** — und das Werkzeug vergibt sie NIE von selbst |
-| `machine` | jedes Wort ist belegtes Schwedisch (Wörterbuch 152.719 Einträge + Korpushäufigkeit) | 146 |
+| `machine` | jedes Wort ist belegtes Schwedisch (Wörterbuch 152.719 Einträge + Korpushäufigkeit) | 176 (Stand 2026-07-25; die Zahl steht erzeugt in `verification.generated.ts`) |
 | `unchecked` | mindestens ein Wort ist selten oder unbelegt | 3 |
 
 **Wie es entsteht:** `check-swedish.py` schreibt seine Urteile jetzt zusätzlich maschinenlesbar
@@ -163,7 +163,7 @@ Beides aus **demselben Lauf** — Bericht und App-Anzeige können nicht auseinan
 
 **Was in der App steht:**
 - Im Thema bekommt **nur die auffällige** Wendung ein Zeichen, samt Grund („selten belegt:
-  provrummet"). Die anderen 146 bekommen **keinen Haken** — ein Siegel an 146 Wendungen wäre
+  provrummet"). Die anderen bekommen **keinen Haken** — ein Siegel an allen Wendungen wäre
   ein Versprechen, das die maschinelle Prüfung nicht decken kann.
 - Im Fortschritt steht die ganze Wahrheit, inklusive der unbequemen Zeile
   **„0 muttersprachlich geprüft"**.

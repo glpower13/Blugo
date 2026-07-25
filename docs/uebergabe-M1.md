@@ -1,6 +1,6 @@
 # Übergabe M1 — die zwei letzten Schritte (für dich)
 
-Der M1-Code ist fertig und geprüft (44 Unit-Tests + E2E + CI, ISTQB- und
+Der M1-Code ist fertig und geprüft (Unit-Tests + E2E + CI, ISTQB- und
 Gremium-Review grün). Es fehlen nur noch **zwei externe Schritte**, die nicht
 autonom machbar sind.
 

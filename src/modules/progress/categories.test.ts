@@ -60,7 +60,8 @@ describe('categoryProgress', () => {
       c1: make('c1', {
         status: 'learning',
         stage: 'production',
-        intervalDays: 50, // gewachsen, unbewiesen → reifend
+        intervalDays: 50,
+        maturedAt: NOW, // eine ≥21-Tage-Pause ÜBERSTANDEN, unbewiesen → reifend
         dueAt: NOW - 1000, // fällig
         history: [{ at: NOW, result: 'good', segmentId: 's' }], // aktiv
       }),
@@ -81,7 +82,8 @@ describe('die zwei Balken-Zonen (bewiesen / reift)', () => {
       c1: make('c1', {
         status: 'maintenance',
         stage: 'production',
-        intervalDays: 120, // erfüllt auch die „reift"-Bedingung (≥21, Produktion)
+        intervalDays: 120,
+        maturedAt: NOW, // erfüllt auch die „reift"-Bedingung
         provenStableAt: NOW, // … ist aber BEWIESEN
       }),
     };
@@ -93,8 +95,14 @@ describe('die zwei Balken-Zonen (bewiesen / reift)', () => {
 
   it('bewiesen + reift überschreitet nie die Gesamtzahl', () => {
     const states: Record<string, ChunkState> = {
-      c1: make('c1', { status: 'maintenance', stage: 'production', intervalDays: 120, provenStableAt: NOW }),
-      c2: make('c2', { status: 'maintenance', stage: 'production', intervalDays: 40 }), // reift
+      c1: make('c1', {
+        status: 'maintenance',
+        stage: 'production',
+        intervalDays: 120,
+        maturedAt: NOW,
+        provenStableAt: NOW,
+      }),
+      c2: make('c2', { status: 'maintenance', stage: 'production', intervalDays: 40, maturedAt: NOW }), // reift
     };
     const a = categoryProgress(categories, chunks, states, NOW).find((x) => x.category.id === 'a')!;
     expect(a.stable).toBe(1);
@@ -112,7 +120,13 @@ describe('areaProgress', () => {
   it('gruppiert Themen unter ihren Bereich und summiert ehrlich', () => {
     const states: Record<string, ChunkState> = {
       c1: make('c1', { provenStableAt: NOW }), // Thema a (area-1)
-      c3: make('c3', { dueAt: NOW - 1 }), // Thema b (area-2), fällig
+      // Fällig heißt: schon begegnet UND wieder dran. Eine nie gesehene Wendung
+      // ist Vorrat, keine Schuld (Ehrlichkeits-Audit 2026-07-25).
+      c3: make('c3', {
+        status: 'learning',
+        dueAt: NOW - 1,
+        history: [{ at: NOW - 2, result: 'good', segmentId: 's' }],
+      }),
     };
     const cp = categoryProgress(categories, chunks, states, NOW);
     const ap = areaProgress(areas, cp);

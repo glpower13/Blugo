@@ -19,7 +19,7 @@
 // „Fortschritt großzügiger anzeigen" und keinen Motivationsmodus. Wer so etwas
 // anbietet, hat die eine Design-Regel schon gebrochen.
 
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { ChunkState } from '../../domain/chunk';
 import { AiSettingsSection } from '../content/AiSettings';
 import {
@@ -32,10 +32,11 @@ import {
   type Preferences,
 } from '../../session/preferences';
 import { installOnDevice, onDeviceStatus, speechInputAvailable } from '../comprehension/speech';
-import { speakSwedish } from '../comprehension/tts';
+import { speakSwedish, swedishVoiceIsLocal } from '../comprehension/tts';
 import { VERIFICATION_META } from '../content/verification.generated';
 import { backupFilename, buildBackup, mergeStates, parseBackup } from '../../storage/transfer';
 import { IconBack, IconMic, IconSparkle, IconWave } from '../../ui/icons';
+import { Overlay } from '../../ui/Overlay';
 
 interface Props {
   name: string;
@@ -63,20 +64,27 @@ export function SettingsScreen({
   onClose,
 }: Props) {
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-ink/95 backdrop-blur-md">
+    <Overlay
+      labelledBy="settings-title"
+      onClose={onClose}
+      className="fixed inset-0 z-50 overflow-y-auto bg-ink/95 backdrop-blur-md"
+    >
       <div className="mx-auto w-full max-w-xl px-4 pb-[calc(3rem+env(safe-area-inset-bottom))] pt-[calc(1rem+env(safe-area-inset-top))]">
         <nav className="flex items-center justify-between gap-3 py-2">
           <button
             onClick={onClose}
-            className="glass-soft flex items-center gap-1.5 rounded-full py-1.5 pl-2.5 pr-3.5 text-sm text-paper"
-            aria-label="Einstellungen schließen"
+            className="glass-soft flex min-h-11 items-center gap-1.5 rounded-full pl-3 pr-4 text-sm text-paper"
+            aria-label="Fertig — Einstellungen schließen"
           >
             <IconBack className="h-4 w-4" /> Fertig
           </button>
         </nav>
 
         <header className="px-1 pb-1 pt-2">
-          <h1 className="font-display text-[1.6rem] font-semibold leading-tight text-paper">
+          <h1
+            id="settings-title"
+            className="font-display text-[1.6rem] font-semibold leading-tight text-paper"
+          >
             Einstellungen
           </h1>
           <p className="mt-1 text-xs leading-relaxed text-faint">
@@ -102,7 +110,7 @@ export function SettingsScreen({
           <AboutSection totalChunks={totalChunks} />
         </div>
       </div>
-    </div>
+    </Overlay>
   );
 }
 
@@ -147,8 +155,8 @@ function Chip({
       aria-pressed={active}
       className={
         active
-          ? 'btn-gold rounded-full px-3.5 py-1.5 text-sm font-medium text-ink'
-          : 'rounded-full border border-line px-3.5 py-1.5 text-sm text-paper'
+          ? 'btn-gold min-h-11 rounded-full px-4 text-sm font-medium text-ink'
+          : 'min-h-11 rounded-full border border-line px-4 text-sm text-paper'
       }
     >
       {children}
@@ -180,7 +188,7 @@ function Slider({
       step={step}
       value={value}
       onChange={(e) => onChange(Number(e.target.value))}
-      className="w-full accent-[#E7C08A]"
+      className="h-11 w-full accent-[#E7C08A]"
     />
   );
 }
@@ -190,18 +198,22 @@ function Slider({
 function YouSection({ name, onName }: { name: string; onName: (n: string) => void }) {
   return (
     <Section label="Du">
-      <label className="flex flex-col gap-1.5">
-        <span className="text-sm text-paper">Vorname</span>
+      <div className="flex flex-col gap-1.5">
+        <label htmlFor="pref-name" className="text-sm text-paper">
+          Vorname
+        </label>
         <input
+          id="pref-name"
+          aria-describedby="pref-name-hint"
           value={name}
           onChange={(e) => onName(e.target.value)}
           placeholder="wie sollen wir dich ansprechen?"
-          className="w-full rounded-lg border border-line bg-base px-3 py-2 text-paper"
+          className="min-h-11 w-full rounded-lg border border-line bg-base px-3 text-paper"
         />
-        <span className="text-xs text-faint">
+        <span id="pref-name-hint" className="text-xs text-faint">
           Wird in Begrüßungen und in Gesprächen benutzt. Leer lassen geht auch.
         </span>
-      </label>
+      </div>
 
       <div className="mt-4 rounded-xl border border-line bg-white/[0.03] p-3">
         <p className="text-sm text-paper">
@@ -249,7 +261,7 @@ function LearningSection({
 
       <button
         onClick={() => setAdvanced((v) => !v)}
-        className="mt-4 text-xs text-muted underline underline-offset-2"
+        className="mt-2 inline-flex min-h-11 items-center text-xs text-muted underline underline-offset-2"
       >
         {advanced ? 'Für Fortgeschrittene ausblenden' : 'Für Fortgeschrittene …'}
       </button>
@@ -300,6 +312,12 @@ function VoiceSection({
   prefs: Preferences;
   onPrefs: (p: Preferences) => void;
 }) {
+  // Stimmen laden asynchron — einmal nach dem Öffnen nachfassen.
+  const [voiceLocal, setVoiceLocal] = useState<boolean | undefined>(() => swedishVoiceIsLocal());
+  useEffect(() => {
+    const id = setTimeout(() => setVoiceLocal(swedishVoiceIsLocal()), 400);
+    return () => clearTimeout(id);
+  }, []);
   return (
     <Section label="Stimme" title="Wie schnell wird vorgelesen?">
       <div className="flex items-baseline justify-between gap-3">
@@ -319,13 +337,21 @@ function VoiceSection({
       />
       <button
         onClick={() => void speakSwedish('Hej! Vad kul att träffas.', prefs.speechRate)}
-        className="mt-3 flex items-center gap-2 rounded-full border border-line px-4 py-2 text-sm text-paper"
+        className="mt-3 flex min-h-11 items-center gap-2 rounded-full border border-line px-4 text-sm text-paper"
       >
         <IconWave className="h-4 w-4 text-brand" /> Probe hören
       </button>
+      {/* Vorher stand hier pauschal „Die Stimme kommt vom Gerät". Die Auswahl
+          fällt aber notfalls auf eine Netz-Stimme zurück — also sagen wir den
+          echten Zustand statt eines Versprechens (Ehrlichkeits-Audit). */}
       <p className="mt-2 text-xs leading-relaxed text-faint">
-        Die Stimme kommt vom Gerät, nicht aus dem Netz. Der „🐢 langsam"-Knopf im Lernen
-        bleibt immer deutlich langsamer als diese Einstellung.
+        {voiceLocal === undefined
+          ? 'Dein Gerät hat gerade keine schwedische Stimme. Dann liest die App lieber gar nicht vor, als Schwedisch mit falscher Stimme zu lesen.'
+          : voiceLocal
+            ? 'Diese Stimme läuft auf deinem Gerät — es geht nichts ins Netz.'
+            : 'Achtung: Dein Gerät hat nur eine Netz-Stimme für Schwedisch. Beim Vorlesen geht der Satz dann an deinen Browser-Hersteller.'}{' '}
+        Der Knopf „Langsamer" im Lernen bleibt immer deutlich langsamer als diese
+        Einstellung.
       </p>
     </Section>
   );
@@ -365,22 +391,26 @@ function SpeechSection({
 
   return (
     <Section label="Sprechen" title="Wo wird deine Stimme erkannt?">
-      <label className="flex items-start gap-3">
+      <div className="flex items-start gap-3">
         <input
+          id="pref-local-only"
           type="checkbox"
+          aria-describedby="pref-local-only-hint"
           checked={prefs.speechLocalOnly}
           onChange={(e) => onPrefs({ ...prefs, speechLocalOnly: e.target.checked })}
-          className="mt-1 h-4 w-4 accent-[#E7C08A]"
+          className="mt-1 h-5 w-5 shrink-0 accent-[#E7C08A]"
         />
         <span className="min-w-0">
-          <span className="block text-sm text-paper">Nur auf dem Gerät erkennen</span>
-          <span className="block text-xs leading-relaxed text-faint">
+          <label htmlFor="pref-local-only" className="block py-1 text-sm text-paper">
+            Nur auf dem Gerät erkennen
+          </label>
+          <span id="pref-local-only-hint" className="block text-xs leading-relaxed text-faint">
             Ohne diesen Haken schickt der Browser dein Audio zur Erkennung an seinen
             Hersteller, wenn kein Sprachpaket da ist. Mit Haken passiert das nie — dafür
             geht die Spracheingabe dann gar nicht.
           </span>
         </span>
-      </label>
+      </div>
 
       <div className="mt-4 rounded-xl border border-line bg-white/[0.03] p-3">
         <p className="text-xs leading-relaxed text-muted">
@@ -406,7 +436,7 @@ function SpeechSection({
               });
             }}
             disabled={busy}
-            className="rounded-full border border-line px-4 py-2 text-sm text-paper disabled:opacity-50"
+            className="min-h-11 rounded-full border border-line px-4 text-sm text-paper disabled:opacity-50"
           >
             {busy ? 'prüft …' : status === null ? 'Jetzt prüfen' : 'Erneut prüfen'}
           </button>
@@ -421,7 +451,7 @@ function SpeechSection({
                 });
               }}
               disabled={busy}
-              className="flex items-center gap-2 rounded-full border border-line px-4 py-2 text-sm text-paper disabled:opacity-50"
+              className="flex min-h-11 items-center gap-2 rounded-full border border-line px-4 text-sm text-paper disabled:opacity-50"
             >
               <IconMic className="h-4 w-4 text-brand" />
               {busy ? 'lädt …' : 'Sprachpaket holen'}
@@ -494,13 +524,13 @@ function DataSection({
       <div className="mt-4 flex flex-col gap-2">
         <button
           onClick={save}
-          className="btn-gold w-full rounded-xl px-4 py-2.5 font-medium text-ink"
+          className="btn-gold min-h-11 w-full rounded-xl px-4 font-medium text-ink"
         >
           Sichern ({states.length} Wendungen)
         </button>
         <button
           onClick={() => file.current?.click()}
-          className="w-full rounded-xl border border-line px-4 py-2.5 text-paper"
+          className="min-h-11 w-full rounded-xl border border-line px-4 text-paper"
         >
           Sicherung einlesen
         </button>
@@ -521,7 +551,7 @@ function DataSection({
       <p className="mt-2 text-xs leading-relaxed text-faint">
         Einlesen <span className="text-paper">führt zusammen</span> statt zu überschreiben:
         Bei jeder Wendung gewinnt der weiter fortgeschrittene Stand. Du kannst also auf zwei
-        Geräten lernen und beide Seiten behalten. Der KI-Schlüssel wandert bewusst
+        Geräten lernen und beide Seiten behalten. Der KI-Zugang wandert bewusst
         <span className="text-paper"> nicht </span>mit — er hätte in einer Datei nichts zu
         suchen.
       </p>
@@ -536,7 +566,7 @@ function DataSection({
         {!confirmWipe ? (
           <button
             onClick={() => setConfirmWipe(true)}
-            className="text-sm text-danger underline underline-offset-2"
+            className="inline-flex min-h-11 items-center text-sm text-danger underline underline-offset-2"
           >
             Alles löschen
           </button>
@@ -551,13 +581,13 @@ function DataSection({
             <div className="mt-3 flex gap-2">
               <button
                 onClick={() => void onWipe().then(() => setConfirmWipe(false))}
-                className="rounded-lg bg-danger px-4 py-2 text-sm font-medium text-ink"
+                className="min-h-11 rounded-lg bg-danger px-4 text-sm font-medium text-ink"
               >
                 Ja, alles löschen
               </button>
               <button
                 onClick={() => setConfirmWipe(false)}
-                className="rounded-lg border border-line px-4 py-2 text-sm text-paper"
+                className="min-h-11 rounded-lg border border-line px-4 text-sm text-paper"
               >
                 Abbrechen
               </button>
@@ -598,7 +628,7 @@ function AboutSection({ totalChunks }: { totalChunks: number }) {
         </div>
       </dl>
       <p className="mt-4 flex items-center gap-1.5 text-[0.7rem] text-faint">
-        <IconSparkle className="h-3 w-3" /> © 2026 Andreas Fink · neurolang
+        <IconSparkle className="h-3 w-3" /> © 2026 Andreas Fink · NEUROLANG
       </p>
     </Section>
   );

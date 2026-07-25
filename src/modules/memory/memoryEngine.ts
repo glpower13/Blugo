@@ -23,6 +23,9 @@ export const DAY_MS = 24 * 60 * 60 * 1000;
 /** Interval (days) at/after which a maintenance chunk counts as "stable". */
 export const STABLE_INTERVAL_DAYS = 90;
 
+/** Überstandene Pause (Tage), ab der eine Wendung als „reift" gilt. */
+export const MATURING_INTERVAL_DAYS = 21;
+
 /** Successful retrievals needed to promote recognition → production. */
 const PROMOTE_TO_PRODUCTION_AT = 2;
 
@@ -41,6 +44,8 @@ export function initialState(chunkId: string, now: number = Date.now()): ChunkSt
     lastReviewedAt: null,
     successStreak: 0,
     provenStableAt: null,
+    lapsedAt: null,
+    maturedAt: null,
     history: [],
     seenSegmentIds: [],
   };
@@ -130,6 +135,19 @@ export function schedule(
       ? now
       : state.provenStableAt;
 
+  // Zweiter, kürzerer Horizont — nach genau demselben Muster GEMESSEN und nicht
+  // geschätzt: eine tatsächlich überstandene Pause von ≥ 21 Tagen in der
+  // Produktions-Stufe. Vorher hing „reift" am neu GEPLANTEN Intervall.
+  const maturedAt =
+    result === 'good' && preStage === 'production' && preInterval >= MATURING_INTERVAL_DAYS
+      ? (state.maturedAt ?? now)
+      : (state.maturedAt ?? null);
+
+  // Ein Fehlschlag ist eine Messung wie jede andere — und die einzige, die einem
+  // erbrachten Beweis widersprechen kann. Sie wird deshalb festgehalten, statt
+  // den Beweis stillschweigend weiterlaufen zu lassen.
+  const lapsedAt = result === 'again' ? now : (state.lapsedAt ?? null);
+
   // Status lifecycle: new → learning → maintenance.
   status = deriveStatus(status, intervalDays, stage, successStreak);
 
@@ -147,6 +165,8 @@ export function schedule(
     intervalDays,
     successStreak,
     provenStableAt,
+    lapsedAt,
+    maturedAt,
     dueAt,
     lastReviewedAt: now,
     seenSegmentIds,

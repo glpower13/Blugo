@@ -22,3 +22,13 @@ Thumbs.db
 /generated/
 *.mp3
 *.wav
+
+# Wegwerf-Werkzeuge für Prüfläufe (Screenshots, Messungen, Audits).
+# Sie müssen im Projekt-Wurzelverzeichnis liegen, damit @playwright/test
+# aufgelöst wird — gehören aber nie in die Geschichte. Bleibendes Prüfwerkzeug
+# kommt nach tools/ oder e2e/.
+/_*.mjs
+/_*.ts
+/a11y-*.mjs
+/_*.png
+/shots/

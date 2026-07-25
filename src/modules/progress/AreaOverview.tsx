@@ -67,7 +67,7 @@ export function AreaOverview({ progress, focusTitle, onOpen, onClearFocus }: Pro
                     {p.maturing > 0 && (
                       <>
                         {' · '}
-                        <span className="text-success/70">{p.maturing}</span> reifen
+                        <span className="text-success/70">{p.maturing}</span> {p.maturing === 1 ? 'reift' : 'reifen'}
                       </>
                     )}
                   </p>

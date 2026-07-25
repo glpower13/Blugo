@@ -37,7 +37,7 @@ vorankommt. Ehrlichkeit ohne Lesbarkeit hilft niemandem.
 | Zone | Bedeutung | Bedingung |
 |---|---|---|
 | kräftig (Mint) | **bewiesen** | Produktion nach ≥ 90 Tagen überstanden (`isStable`) |
-| blasser (Mint 40 %) | **reift** | Produktion und ≥ 21 Tage überstanden, noch nicht bewiesen (`isMaturing`) |
+| blasser (Mint 40 %) | **reift** | Produktion und ≥ 21 Tage tatsächlich überstanden, noch nicht bewiesen (`isMaturing`, Vermerk `maturedAt`) |
 
 Beides ist **gemessenes Können**, nur an zwei Horizonten — der Balken lebt damit
 nach Wochen statt nach Monaten. Derselbe Aufbau im Ring auf der Übersicht
@@ -74,3 +74,58 @@ gleich auch wirklich plant — kein zweiter, hübscherer Rechenweg. Ein Test ver
 vorhergesagte mit der tatsächlichen Zahl; sie müssen gleich sein. Und „was noch fehlt" ist
 bewusst eine **Liste von Bedingungen**, kein Fortschrittsbalken: Der Beweis ist eine
 Prüfung, die man besteht oder nicht, kein Weg mit Prozenten.
+
+---
+
+## Nachtrag 2026-07-25 — Ehrlichkeits-Audit: drei Zahlen, die zu viel behaupteten
+
+Ein eigener Prüfdurchgang hat die Frage gestellt, die dieses Projekt an sich selbst
+stellen muss: **Behauptet irgendeine Zahl mehr, als sie gemessen hat?** Drei Befunde
+wurden im Browser reproduziert, nicht vermutet — und alle drei sind behoben.
+
+### 1. „reift" hing an einer Prognose, nicht an einer Messung
+
+`isMaturing` prüfte `intervalDays >= 21` — das gerade **neu geplante** Intervall. Eine
+Wendung galt also als „21 Tage überstanden", sobald die Engine 21 Tage *vorschlug*;
+tatsächlich überstanden waren im reproduzierten Fall 3 Tage.
+
+**Behoben:** Neues Feld `maturedAt` (`domain/chunk.ts`), gesetzt von `schedule()` beim
+ersten gelungenen Produktions-Abruf, dessen **vorheriges** Intervall bereits
+≥ 21 Tage (`MATURING_INTERVAL_DAYS`) war — exakt dasselbe Muster wie `provenStableAt`
+am 90-Tage-Horizont, nur kürzer. `isMaturing` liest nur noch diesen Vermerk.
+
+### 2. Ein erbrachter Beweis blieb stehen, nachdem die App das Gegenteil gemessen hatte
+
+`provenStableAt` ist ein historischer Vermerk: einmal gesetzt, blieb er. Fiel die
+Wendung danach wieder durch („Nochmal", Stufe zurück auf `recognition`, Intervall 0),
+zählte sie in der großen Zahl **weiter als bewiesen stabil**. Die Überschrift daneben
+lautet „Was du wirklich behalten hast" — Gegenwart. Das war die Zahl, gegen die dieses
+Projekt gebaut ist.
+
+**Behoben:** Neues Feld `lapsedAt` (Zeitpunkt des letzten Fehlschlags). `isStable` und
+`isMaturing` laufen über `stillHolds()`: Ein Vermerk gilt nur, solange kein **späterer**
+Fehlschlag danebensteht. Der historische Vermerk bleibt in den Daten — die Anzeige
+rechnet ihn heraus. Gelingt der Beweis erneut, zählt er wieder.
+
+### 3. „Verständnis-Abdeckung 100 %" bei drei angefassten Wendungen
+
+`coverage` rechnete über die **begonnenen** Wendungen, der Name versprach den Anteil
+**am Stoff**. Wer drei von 179 Wendungen einmal richtig hatte, las „100 %".
+
+**Behoben:** Die Zahl heißt jetzt **Trefferquote** und nennt ihre Bezugsgröße mit:
+„Trefferquote 100 % von 3 begonnenen (179 insgesamt)". Zwei Zahlen, weil eine allein
+irreführt — `coverageBase` in `Metrics` liefert den Nenner.
+
+### 4. Nebenbefund: „begegnet, aber noch nie gekonnt" lief unter „du verstehst sie"
+
+`directionSplit` kannte drei Eimer. Wer eine Wendung dreimal hintereinander **nicht**
+konnte, stand trotzdem unter „verstehst du" — weil die Stufe per Voreinstellung
+`recognition` heißt. Eine Fläche, die damit wirbt, die Richtung sei ein Messwert, darf
+kein Scheitern als Verständnis führen.
+
+**Behoben:** Vierter Eimer `struggling` (begegnet, noch nie ein gelungener Abruf), im
+Sprachpaar-Overlay als eigene, gedämpfte Zone sichtbar.
+
+**Leitplanke:** Sechs neue Tests sichern die vier Regeln (`metrics.test.ts`,
+`memoryEngine.test.ts`) — darunter der Fall „Beweis, dann Fehlschlag" und
+„nur geplantes Intervall zählt nicht".

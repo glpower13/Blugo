@@ -2,7 +2,7 @@
 //
 // Alles, was bisher auf der Startseite klebte und dort um Aufmerksamkeit
 // konkurrierte, bekommt hier seinen eigenen Raum: der Ring, das Gedächtnisfeld,
-// die Abdeckung, das Flow-Band.
+// die Abdeckung, das Erfolgsband.
 //
 // EHRLICHKEIT (`07-measurement.md`): „bewiesen" zählt nur nach echtem langem
 // Intervall in der Produktions-Richtung; „reift" ist die zweite gemessene Zone.
@@ -22,6 +22,7 @@ interface Props {
   active: number;
   dueNow: number;
   coverage: number;
+  coverageBase: number;
   totalChunks: number;
   successRate: number | null;
   spoken: number; // Wendungen, die laut gesagt und richtig erkannt wurden (P3)
@@ -34,6 +35,7 @@ export function ProgressView({
   active,
   dueNow,
   coverage,
+  coverageBase,
   totalChunks,
   successRate,
   spoken,
@@ -48,20 +50,35 @@ export function ProgressView({
       </header>
 
       <section className="glass rounded-2xl p-5">
-        <div className="flex items-center gap-5">
+        {/* Umbruchfähig: Bei 320 px und großer Systemschrift standen „reift" und
+            „stabil" komplett außerhalb der Karte — von drei Kennzahlen war eine
+            sichtbar (Layout-Audit 2026-07-25). Jetzt rutscht die Zahlenreihe
+            unter den Ring, statt aus dem Bild zu laufen. */}
+        <div className="flex flex-wrap items-center gap-x-5 gap-y-4">
           <MemoryRing stable={stable} maturing={maturing} total={totalChunks} />
-          <div className="flex flex-1 items-baseline justify-between gap-3">
-            <Stat value={active} label="aktiv" />
+          <div className="flex min-w-0 flex-1 basis-48 items-baseline justify-between gap-3">
+            <Stat value={active} label="aktiv" quiet />
             <Stat value={maturing} label="reift" />
-            <Stat value={stable} label="stabil" accent />
+            <Stat value={stable} label="bewiesen" accent />
           </div>
         </div>
+        {/* Beide Zahlen, weil eine allein irreführt: „100 %" bei drei angefassten
+            Wendungen ist wahr und trotzdem eine Lüge (Ehrlichkeits-Audit). */}
         <p className="mt-3 text-xs text-muted">
-          {dueNow} jetzt fällig · Verständnis-Abdeckung {Math.round(coverage * 100)} %
+          {/* „0 % von 0 begonnenen" ist keine Auskunft, sondern eine Formel ohne
+              Inhalt. Solange nichts begonnen ist, sagen wir das schlicht. */}
+          {coverageBase === 0 ? (
+            <>Noch nichts begonnen — {totalChunks} Wendungen warten.</>
+          ) : (
+            <>
+              {dueNow} jetzt fällig · Trefferquote {Math.round(coverage * 100)} % von{' '}
+              {coverageBase} begonnenen ({totalChunks} insgesamt)
+            </>
+          )}
         </p>
         {successRate !== null && (
           <p className="mt-1 text-xs text-faint">
-            Flow-Band: {bandStatus(successRate)} ({Math.round(successRate * 100)} % zuletzt)
+            Erfolgsband: {bandStatus(successRate)} ({Math.round(successRate * 100)} % zuletzt)
           </p>
         )}
         {/* Gesprochenes bekommt bewusst KEINE große Zahl: es ist eine Eigenschaft
@@ -83,15 +100,26 @@ export function ProgressView({
         </h2>
         <dl className="mt-3 space-y-2.5 text-xs leading-relaxed">
           <div>
-            <dt className="font-semibold text-success">stabil</dt>
+            <dt className="font-semibold text-success">bewiesen</dt>
             <dd className="text-faint">
               Nach über 90 Tagen Pause selbst gesagt — und es saß. Das ist der Beweis.
+              Fällst du später wieder durch, zählt sie nicht mehr mit, bis der Beweis
+              erneut gelingt.
             </dd>
           </div>
           <div>
             <dt className="font-semibold text-paper">reift</dt>
             <dd className="text-faint">
-              Über 21 Tage überstanden, selbst produziert, aber noch nicht bewiesen.
+              Eine Pause von über 21 Tagen überstanden und selbst produziert — aber die
+              90-Tage-Prüfung steht noch aus.
+            </dd>
+          </div>
+          <div>
+            <dt className="font-semibold text-muted">Trefferquote</dt>
+            <dd className="text-faint">
+              Wie sicher die Wendungen sitzen, die du schon angefangen hast. Sie sagt
+              nichts darüber, wie viel vom Stoff du schon kennst — dafür steht die zweite
+              Zahl daneben.
             </dd>
           </div>
           <div>
@@ -157,11 +185,29 @@ export function ProgressView({
   );
 }
 
-function Stat({ value, label, accent }: { value: number; label: string; accent?: boolean }) {
+/**
+ * `quiet` ist kein Schmuck, sondern die eine Design-Regel in Typografie: „aktiv"
+ * zählt bloße Anwesenheit. Vorher stand es genauso groß und genauso hell da wie
+ * die beiden GEMESSENEN Zahlen daneben — das Auge liest die drei dann als drei
+ * gleichwertige Erfolge (Ehrlichkeits-Audit 2026-07-25).
+ */
+function Stat({
+  value,
+  label,
+  accent,
+  quiet,
+}: {
+  value: number;
+  label: string;
+  accent?: boolean;
+  quiet?: boolean;
+}) {
   return (
     <div>
       <div
-        className={`tnum font-sans text-[2.4rem] font-bold leading-none ${accent ? 'text-success glow-success' : 'text-paper'}`}
+        className={`tnum font-sans font-bold leading-none ${
+          quiet ? 'text-[min(1.6rem,7.5vw)] text-muted' : 'text-[min(2.4rem,11vw)]'
+        } ${accent ? 'text-success glow-success' : quiet ? '' : 'text-paper'}`}
       >
         {value}
       </div>

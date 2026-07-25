@@ -1,7 +1,7 @@
 {
   "dictionaryEntries": 152719,
-  "wordsChecked": 427,
-  "stringsChecked": 3429,
+  "wordsChecked": 434,
+  "stringsChecked": 3423,
   "flagged": {
     "provrummet": {
       "verdict": "selten",
@@ -11,6 +11,11 @@
     "punkterat": {
       "verdict": "selten",
       "zipf": 1.78,
+      "inDict": false
+    },
+    "skruven": {
+      "verdict": "selten",
+      "zipf": 2.8,
       "inDict": false
     },
     "smaklig": {
