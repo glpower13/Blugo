@@ -95,7 +95,19 @@ export function SparringScene({ targets: dueTargets, learnerName, onProduced, on
   const [heard, setHeard] = useState('');
   const [openTargets, setOpenTargets] = useState(false); // Zielliste aufgedeckt = Krücke
   const [done, setDone] = useState<string[]>([]); // schon produzierte chunk-Ids
+  // Freihändig: nach jeder Partner-Zeile geht das Mikrofon von selbst an. Das ist
+  // der Unterschied zwischen „ich bediene eine App" und „ich telefoniere".
+  // Bewusst AUS als Voreinstellung — ein Mikrofon, das ungefragt zuhört, wäre
+  // ein Übergriff, kein Komfort.
+  const [handsFree, setHandsFree] = useState(false);
+  const [finished, setFinished] = useState(false); // Gespräch bewusst beendet
   const bottom = useRef<HTMLDivElement>(null);
+  // Die Hörschleife wird erst weiter unten gebaut; über diese Refs erreicht sie
+  // die Antwort-Funktion, ohne dass beide voneinander abhängen.
+  const listen = useRef<() => void>(() => {});
+  const handsFreeRef = useRef(false);
+  handsFreeRef.current = handsFree;
+  const finishedRef = useRef(false);
   const partner = aiRegistry.partner;
   const ttsOn = aiRegistry.synthesizer.isAvailable();
   // Im freien Modus gibt es keine Ziele — und damit nichts zu messen.
@@ -134,7 +146,10 @@ export function SparringScene({ targets: dueTargets, learnerName, onProduced, on
           setDe((d) => ({ ...d, [next.length - 1]: reply.de }));
           return next;
         });
-        if (ttsOn) void aiRegistry.synthesizer.speak({ text: reply.sv });
+        // Erst ausreden lassen, dann zuhören — sonst hört das Mikrofon die
+        // eigene Stimme des Geräts. `speak` erfüllt sich am Ende der Ausgabe.
+        if (ttsOn) await aiRegistry.synthesizer.speak({ text: reply.sv });
+        if (handsFreeRef.current && !finishedRef.current) listen.current();
       } catch (e) {
         setError(e instanceof Error ? e.message : 'Der Gesprächspartner antwortet gerade nicht.');
       } finally {
@@ -181,6 +196,14 @@ export function SparringScene({ targets: dueTargets, learnerName, onProduced, on
       say(text, true);
     },
   });
+  listen.current = mic.start;
+
+  // Alle Ziele gesagt → das Gespräch hat sein Ziel erreicht und darf enden.
+  // Es läuft NICHT endlos weiter, damit „fertig" ein echter Moment bleibt.
+  const allDone = targets.length > 0 && done.length >= targets.length;
+  const ended = finished || allDone;
+  // Ein beendetes Gespräch hört nicht weiter zu — auch nicht freihändig.
+  finishedRef.current = ended;
 
   // Ohne eingerichtete Cloud-KI gibt es diesen Modus nicht — und er behauptet
   // auch nicht, es gäbe ihn (kein toter Knopf).
@@ -305,6 +328,37 @@ export function SparringScene({ targets: dueTargets, learnerName, onProduced, on
             {setting.partner}
           </p>
 
+          {/* Freihändig + Beenden. Der Schalter steht offen da statt versteckt:
+              wer ihn nicht will, soll ihn sehen und ignorieren können. */}
+          {!ended && (
+            <div className="mt-2.5 flex flex-wrap items-center gap-2">
+              {mic.supported && (
+                <button
+                  onClick={() => setHandsFree((v) => !v)}
+                  aria-pressed={handsFree}
+                  className={
+                    handsFree
+                      ? 'rounded-full px-3 py-1 text-[0.7rem] font-medium'
+                      : 'rounded-full border border-line px-3 py-1 text-[0.7rem] text-muted'
+                  }
+                  style={
+                    handsFree
+                      ? { color: ACCENT, background: `${ACCENT}1f`, border: `1px solid ${ACCENT}66` }
+                      : undefined
+                  }
+                >
+                  {handsFree ? 'Freihändig an' : 'Freihändig'}
+                </button>
+              )}
+              <button
+                onClick={() => setFinished(true)}
+                className="rounded-full border border-line px-3 py-1 text-[0.7rem] text-muted"
+              >
+                Gespräch beenden
+              </button>
+            </div>
+          )}
+
           {/* Der ehrliche Zähler: Wendungen, nicht Minuten. */}
           {targets.length > 0 && (
             <div className="mt-3 rounded-xl border border-line bg-white/[0.03] p-3">
@@ -394,7 +448,68 @@ export function SparringScene({ targets: dueTargets, learnerName, onProduced, on
             <div ref={bottom} />
           </div>
 
-          {/* Eigene Äußerung: sprechen (der Punkt der Übung) oder tippen. */}
+          {/* Der Abschluss. Ehrlich in beide Richtungen: was du selbst gesagt
+              hast, steht namentlich da — und was nicht vorkam, wird nicht
+              verschwiegen. Keine Zeitangabe, kein Lob fürs Dabeisein. */}
+          {ended ? (
+            <div className="mt-4 rounded-2xl border border-success/30 bg-success/10 p-5">
+              <p className="font-display text-lg font-semibold text-success">
+                {allDone ? 'Alles gesagt.' : 'Gespräch beendet.'}
+              </p>
+              {targets.length === 0 ? (
+                <p className="mt-1.5 text-sm leading-relaxed text-muted">
+                  Geübt, nicht gemessen — hier gab es keine fälligen Wendungen, also gibt
+                  es auch keine Zahl.
+                </p>
+              ) : (
+                <>
+                  <p className="mt-1.5 text-sm leading-relaxed text-muted">
+                    <span className="text-paper">{done.length}</span> von {targets.length}{' '}
+                    {targets.length === 1 ? 'Wendung' : 'Wendungen'} hast du selbst gesagt —
+                    das zählt für deinen Erhalt.
+                  </p>
+                  <ul className="mt-3 flex flex-col gap-1.5">
+                    {targets.map((t) => (
+                      <li key={t.id} className="flex items-start gap-2 text-xs">
+                        <span
+                          aria-hidden="true"
+                          className={
+                            done.includes(t.id)
+                              ? 'mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-success'
+                              : 'mt-1 h-1.5 w-1.5 shrink-0 rounded-full bg-line'
+                          }
+                        />
+                        <span>
+                          <span lang="sv" className={done.includes(t.id) ? 'text-paper' : 'text-muted'}>
+                            {t.sv}
+                          </span>{' '}
+                          <span className="text-faint">
+                            — {done.includes(t.id) ? 'selbst gesagt' : 'kam nicht vor'}
+                          </span>
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </>
+              )}
+              <div className="mt-4 flex flex-wrap gap-2">
+                <button
+                  onClick={onExit}
+                  className="btn-gold rounded-xl px-5 py-2.5 font-medium text-ink"
+                >
+                  Fertig
+                </button>
+                {!allDone && (
+                  <button
+                    onClick={() => setFinished(false)}
+                    className="glass-soft rounded-xl px-4 py-2.5 text-paper"
+                  >
+                    Weiterreden
+                  </button>
+                )}
+              </div>
+            </div>
+          ) : (
           <form
             onSubmit={(e) => {
               e.preventDefault();
@@ -421,9 +536,16 @@ export function SparringScene({ targets: dueTargets, learnerName, onProduced, on
               Sagen
             </button>
             {mic.supported && <SpeakButton mic={mic} heard={heard} label="Antworte mit deiner Stimme" />}
+            {handsFree && (
+              <p className="text-[0.68rem] leading-relaxed text-faint">
+                Freihändig: Nach jeder Antwort deines Gegenübers geht das Mikrofon von
+                selbst an. Ausschalten geht oben jederzeit.
+              </p>
+            )}
           </form>
+          )}
 
-          {targets.length === 0 && (
+          {targets.length === 0 && !ended && (
             <p className="mt-3 text-[0.7rem] leading-relaxed text-faint">
               Übung, kein Beweis:{' '}
               {free

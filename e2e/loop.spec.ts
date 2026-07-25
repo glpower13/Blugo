@@ -488,3 +488,40 @@ test('sparring partner appears only with a cloud key, and admits when it measure
   expect(consoleErrors, consoleErrors.join('\n')).toHaveLength(0);
   expect(pageErrors, pageErrors.join('\n')).toHaveLength(0);
 });
+
+// Stufe B: Der Abschluss eines Sparring-Gesprächs (Ausbau nach P5).
+// Ein Gespräch, das nie endet, kann auch nie ehrlich abrechnen. Geprüft wird
+// deshalb: „Gespräch beenden" führt zu einer Bilanz, die bei nichts Fälligem
+// ausdrücklich sagt, dass nichts gemessen wurde — und man weiterreden kann.
+test('a sparring conversation can be ended and accounts for itself honestly', async ({ page }) => {
+  const pageErrors: string[] = [];
+  // Der Netzwerkfehler zur Cloud-KI ist hier ERWARTET (kein echter Schlüssel) —
+  // geprüft wird die Fläche, nicht der Anbieter.
+  page.on('pageerror', (e) => pageErrors.push(String(e)));
+
+  await page.goto('/');
+  await page.getByRole('button', { name: 'KI-Einstellungen' }).click();
+  await page.getByText('Claude (Cloud)').click();
+  await page.getByPlaceholder('sk-ant-…').fill('sk-ant-test-000');
+  await page.getByRole('button', { name: 'Speichern' }).click();
+
+  // Einstieg direkt von „Heute" (Sprechen gehört auf die erste Seite).
+  await page.getByRole('button', { name: /Sparring · sprechen/ }).click();
+  await page.getByRole('button', { name: /Im Café/ }).click();
+
+  // Freihändig ist wählbar und ausdrücklich NICHT voreingestellt.
+  const handsFree = page.getByRole('button', { name: 'Freihändig', exact: true });
+  await expect(handsFree).toHaveAttribute('aria-pressed', 'false');
+  await handsFree.click();
+  await expect(page.getByRole('button', { name: 'Freihändig an' })).toBeVisible();
+
+  await page.getByRole('button', { name: 'Gespräch beenden' }).click();
+  await expect(page.getByText('Gespräch beendet.')).toBeVisible();
+  await expect(page.getByText(/keine Zahl/)).toBeVisible();
+
+  // Weiterreden bringt die Eingabe zurück — „beendet" ist keine Sackgasse.
+  await page.getByRole('button', { name: 'Weiterreden' }).click();
+  await expect(page.getByRole('textbox', { name: 'Deine Antwort auf Schwedisch' })).toBeVisible();
+
+  expect(pageErrors, pageErrors.join('\n')).toHaveLength(0);
+});

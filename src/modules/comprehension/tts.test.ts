@@ -1,7 +1,7 @@
 // Tests der schwedischen Stimm-Auswahl (reine Funktion, ohne DOM).
 
 import { describe, expect, it } from 'vitest';
-import { selectSwedishVoice, type VoiceLike } from './tts';
+import { selectSwedishVoice, speakSwedish, type VoiceLike } from './tts';
 
 describe('selectSwedishVoice — Präferenz-Reihenfolge', () => {
   it('bevorzugt eine lokale sv-SE-Stimme', () => {
@@ -39,5 +39,14 @@ describe('selectSwedishVoice — Präferenz-Reihenfolge', () => {
 
   it('kommt mit leerer Liste klar', () => {
     expect(selectSwedishVoice([])).toBeUndefined();
+  });
+});
+
+// Der freihändige Sparring-Modus wartet auf das Ende der Sprachausgabe, bevor
+// er zuhört. Ohne Sprachausgabe darf dieses Warten NIE hängen bleiben — sonst
+// steht das Gespräch auf einem Gerät ohne Stimme für immer still.
+describe('speakSwedish — das Warten endet immer', () => {
+  it('erfüllt sich sofort, wenn das Gerät gar nicht sprechen kann', async () => {
+    await expect(speakSwedish('hej')).resolves.toBeUndefined();
   });
 });
