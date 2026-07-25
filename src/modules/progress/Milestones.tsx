@@ -54,20 +54,36 @@ export function Milestones({ progress }: { progress: MilestoneProgress[] }) {
               )}
               <span className="ml-auto whitespace-nowrap text-xs tabular-nums text-muted">
                 {m.proven} / {m.total} bewiesen
+                {/* BEFUND beim Ansehen (2026-07-25): Ohne diese Angabe stand
+                    „0 / 119 bewiesen" neben einem halb gefüllten Balken — die
+                    Fläche las sich wie halber Fortschritt, obwohl für den
+                    Meilenstein NICHTS zählte. Die blasse Zone muss sich selbst
+                    benennen, sonst behauptet sie mehr, als sie misst. */}
+                {m.maturing > 0 && (
+                  <span className="text-faint"> · {m.maturing} reift</span>
+                )}
               </span>
             </div>
 
             {/* Zwei Zonen wie im großen Balken: kräftig = bewiesen, blass = reift.
                 Der blasse Teil entscheidet NICHTS über „erreicht" — er zeigt nur,
-                dass da Arbeit liegt, die noch keinen Beweis hat. */}
+                dass da Arbeit liegt, die noch keinen Beweis hat. Deshalb ist er
+                deutlich schwächer und zusätzlich schraffiert: aus zwei Metern
+                Entfernung darf er nicht wie Fortschritt aussehen. */}
             <div className="mt-1.5 flex h-1.5 w-full overflow-hidden rounded-full bg-line">
               <div
                 className="h-full bg-success transition-[width] duration-700 ease-out"
                 style={{ width: `${m.total === 0 ? 0 : (m.proven / m.total) * 100}%` }}
               />
               <div
-                className="h-full bg-success/40 transition-[width] duration-700 ease-out"
-                style={{ width: `${m.total === 0 ? 0 : (m.maturing / m.total) * 100}%` }}
+                className="h-full transition-[width] duration-700 ease-out"
+                style={{
+                  width: `${m.total === 0 ? 0 : (m.maturing / m.total) * 100}%`,
+                  // #5FD0A0 ist `success` aus der Tailwind-Konfiguration; hier
+                  // als Literal, weil die Farbe dort kein CSS-Merkmal ist.
+                  backgroundImage:
+                    'repeating-linear-gradient(115deg, rgba(95,208,160,0.36) 0 3px, transparent 3px 6px)',
+                }}
               />
             </div>
 
