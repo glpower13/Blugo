@@ -21,7 +21,7 @@ import type { DialogScene } from '../../domain/dialog';
 import { aiRegistry } from '../content/aiRegistry';
 import type { SparringLine } from '../content/ports';
 import { useSpeechInput } from '../comprehension/useSpeechInput';
-import { matchedTargets } from './targets';
+import { matchedTargets, nearMisses, type NearMiss } from './targets';
 import { SpeakButton } from '../../ui/SpeakButton';
 import { SceneArt } from '../../ui/SceneArt';
 import { IconBack, IconChat, IconPlay, IconSparkle } from '../../ui/icons';
@@ -101,6 +101,9 @@ export function SparringScene({ targets: dueTargets, learnerName, onProduced, on
   // ein Übergriff, kein Komfort.
   const [handsFree, setHandsFree] = useState(false);
   const [finished, setFinished] = useState(false); // Gespräch bewusst beendet
+  // Fast-Treffer der letzten Äußerung: ein Hinweis an den Menschen, KEIN Eintrag
+  // in der Messung (`nearMisses` in targets.ts).
+  const [near, setNear] = useState<NearMiss[]>([]);
   const bottom = useRef<HTMLDivElement>(null);
   // Die Hörschleife wird erst weiter unten gebaut; über diese Refs erreicht sie
   // die Antwort-Funktion, ohne dass beide voneinander abhängen.
@@ -177,6 +180,9 @@ export function SparringScene({ targets: dueTargets, learnerName, onProduced, on
       }
       const hitIds = hits.map((h) => open.find((t) => t.sv === h.sv)!.id);
       if (hitIds.length > 0) setDone((d) => [...d, ...hitIds]);
+      // Knapp daneben? Dann sagen wir es — schweigen wäre die schlechteste
+      // Rückmeldung. Gezählt wird trotzdem nichts.
+      setNear(nearMisses(utterance, open.map((t) => ({ sv: t.sv, de: t.de }))));
       const history = [...lines, { who: 'you' as const, sv: utterance }];
       setLines(history);
       setTyped('');
@@ -427,6 +433,29 @@ export function SparringScene({ targets: dueTargets, learnerName, onProduced, on
                   </div>
                 </div>
               ),
+            )}
+
+            {/* Fast-Treffer: steht unter der eigenen Zeile, in der Farbe von
+                „noch nicht", und sagt ausdrücklich, dass es nicht zählt. */}
+            {near.length > 0 && !ended && (
+              <div className="ml-auto max-w-[92%] rounded-xl border border-warn/40 bg-warn/10 px-3 py-2">
+                {near.map((m) => (
+                  <p key={m.target.sv} className="text-xs leading-relaxed text-warn">
+                    Fast — du hast{' '}
+                    <span lang="sv" className="text-paper">
+                      „{m.said}"
+                    </span>{' '}
+                    gesagt, gemeint ist{' '}
+                    <span lang="sv" className="text-paper">
+                      „{m.target.sv}"
+                    </span>{' '}
+                    ({m.target.de}).
+                  </p>
+                ))}
+                <p className="mt-1 text-[0.66rem] text-faint">
+                  Zählt noch nicht — sag es noch einmal genau so, dann schon.
+                </p>
+              </div>
             )}
 
             {pending && (

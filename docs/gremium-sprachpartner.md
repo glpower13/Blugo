@@ -185,7 +185,14 @@ Drei Dinge, die beim Benutzen fehlten:
    Erfolge zu zeigen wäre die halbe Wahrheit. Ohne fällige Wendungen sagt die Bilanz
    ausdrücklich, dass es keine Zahl gibt. „Weiterreden" bleibt möglich — beendet ist keine
    Sackgasse.
-3. **Sprechen auf der ersten Seite.** Der Einstieg steht jetzt auch auf „Heute" — mit der
+3. **Fast-Treffer.** Wer „jag skulle vilja **har**" sagt statt „…vilja **ha**", hat die
+   Wendung erkennbar abgerufen und nur die Endung verfehlt — bisher passierte in diesem
+   Fall **nichts**, und keine Rückmeldung ist die schlechteste Rückmeldung. Jetzt steht
+   dort: *„Fast — du hast ‚…' gesagt, gemeint ist ‚…'."* Mit dem entscheidenden Zusatz:
+   **Zählt noch nicht.** „Fast" ist nicht „gesagt"; der Hinweis geht an den Menschen, nicht
+   in die Messung. Toleranz: höchstens zwei Zeichen Abweichung, gesucht in einem Fenster
+   von einem Wort mehr oder weniger.
+4. **Sprechen auf der ersten Seite.** Der Einstieg steht jetzt auch auf „Heute" — mit der
    ehrlichen Unterzeile: entweder *„N fällige Wendungen im Gespräch selbst sagen"* oder
    *„Gerade nichts fällig — reden geht, gemessen wird nichts."*
 

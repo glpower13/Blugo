@@ -11,6 +11,7 @@
 
 import type { Chunk, ChunkState } from '../../domain/chunk';
 import type { KnownPhrase } from '../content/ports';
+import { levenshtein } from '../comprehension/answerCheck';
 
 /** Vergleichsform: klein, ohne Satzzeichen, einfache Leerzeichen. Rein. */
 export function normalizePhrase(s: string): string {
@@ -77,4 +78,53 @@ export function pickTargets(
       return stage !== 0 ? stage : sa.dueAt - sb.dueAt;
     })
     .slice(0, max);
+}
+
+// --- Fast-Treffer ---------------------------------------------------------------
+//
+// WARUM ES DAS GIBT: Wer „jag skulle vilja har" sagt statt „…vilja ha", hat die
+// Wendung erkennbar abgerufen und nur die Endung verfehlt. Bisher passierte in
+// diesem Fall NICHTS — und keine Rückmeldung ist die schlechteste Rückmeldung.
+//
+// WARUM ES TROTZDEM NICHT ZÄHLT: „fast" ist nicht „gesagt". Der Fast-Treffer ist
+// ein Hinweis an den Menschen, kein Eintrag in der Messung. Diese Trennung ist
+// der ganze Punkt (die eine Design-Regel).
+
+/** Ab welcher Abweichung es kein Fast-Treffer mehr ist (Zeichen). */
+const NEAR_MAX_EDITS = 2;
+
+export interface NearMiss {
+  target: KnownPhrase;
+  /** Das Stück der Äußerung, das gemeint war. */
+  said: string;
+}
+
+/**
+ * Wortweise über die Äußerung schieben und das ähnlichste Stück je Ziel suchen.
+ * Rein. Liefert nur Ziele, die NICHT schon exakt getroffen wurden.
+ */
+export function nearMisses(utterance: string, targets: KnownPhrase[]): NearMiss[] {
+  const words = normalizePhrase(utterance).split(' ').filter(Boolean);
+  const out: NearMiss[] = [];
+  for (const t of targets) {
+    if (containsPhrase(utterance, t.sv)) continue; // schon echt getroffen
+    const p = normalizePhrase(t.sv);
+    if (!p) continue;
+    const n = p.split(' ').length;
+    let best: { said: string; dist: number } | null = null;
+    // Auch ein Wort mehr oder weniger darf als Fenster gelten — genau dort
+    // liegen die typischen Fehler (ein Wort vergessen, eins zu viel).
+    for (const size of [n - 1, n, n + 1]) {
+      if (size < 1) continue;
+      for (let i = 0; i + size <= words.length; i++) {
+        const said = words.slice(i, i + size).join(' ');
+        const dist = levenshtein(said, p);
+        if (!best || dist < best.dist) best = { said, dist };
+      }
+    }
+    if (best && best.dist > 0 && best.dist <= NEAR_MAX_EDITS) {
+      out.push({ target: t, said: best.said });
+    }
+  }
+  return out;
 }
