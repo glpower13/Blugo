@@ -53,6 +53,22 @@ export function swedishVoiceAvailable(): boolean {
   return ttsAvailable() && selectSwedishVoice(currentVoices()) !== undefined;
 }
 
+// Sprechtempo aus den Einstellungen (docs/gremium-einstellungen.md). Eine
+// veränderliche Voreinstellung statt eines durchgereichten Werts: Vorlesen wird
+// an einem Dutzend Stellen ausgelöst, und keine davon soll die Einstellung
+// kennen müssen.
+let defaultRate = 0.9;
+
+export function setSpeechRate(rate: number): void {
+  defaultRate = rate;
+}
+
+/** Das eingestellte Tempo. */
+export const speechRate = (): number => defaultRate;
+
+/** Das „langsam"-Tempo — immer deutlich unter dem eingestellten, nie zu langsam. */
+export const slowSpeechRate = (): number => Math.max(0.4, defaultRate - 0.3);
+
 /**
  * Liest den Text auf Schwedisch vor. `rate` < 1 = langsamer (Didaktik: Tempo).
  *
@@ -60,7 +76,7 @@ export function swedishVoiceAvailable(): boolean {
  * Modus im Sparring: erst ausreden lassen, dann zuhören. Ohne Sprachausgabe
  * erfüllt es sich sofort, damit der Aufrufer nicht hängt.
  */
-export function speakSwedish(text: string, rate = 0.9): Promise<void> {
+export function speakSwedish(text: string, rate = defaultRate): Promise<void> {
   if (!ttsAvailable()) return Promise.resolve();
   const u = new SpeechSynthesisUtterance(text);
   u.lang = 'sv-SE'; // auch ohne gelistete Stimme wählen viele Engines darüber sv

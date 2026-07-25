@@ -47,11 +47,6 @@ export function initialState(chunkId: string, now: number = Date.now()): ChunkSt
 }
 
 /**
- * Apply a graded retrieval result and return the next state.
- * FSRS treibt Stabilität/Schwierigkeit und damit das Intervall; die Stufen-,
- * Kurzzeit- und Beweis-Logik bleibt bewusst darüber (docs/03-method.md).
- */
-/**
  * Zusatz-Angaben zu einem Abruf, die den TERMIN NICHT beeinflussen dürfen.
  * `spoken` ist bewusst nur ein Vermerk in der Historie: Sprechen ist ein zweiter
  * Weg zum selben Beweis, kein leichterer und kein schwererer — die Engine darf
@@ -59,8 +54,21 @@ export function initialState(chunkId: string, now: number = Date.now()): ChunkSt
  */
 export interface ReviewMeta {
   spoken?: boolean;
+  /**
+   * Erhalt-Ziel des Lerners (FSRS „desired retention"). Steuert NUR die Länge
+   * des nächsten Intervalls — also den Aufwand. Der Beweis „bewiesen stabil"
+   * bleibt unberührt: Er verlangt einen gelungenen Produktions-Abruf nach einer
+   * TATSÄCHLICH vergangenen langen Pause, egal wie geplant wurde
+   * (docs/gremium-einstellungen.md §2.2).
+   */
+  retention?: number;
 }
 
+/**
+ * Apply a graded retrieval result and return the next state.
+ * FSRS treibt Stabilität/Schwierigkeit und damit das Intervall; die Stufen-,
+ * Kurzzeit- und Beweis-Logik bleibt bewusst darüber (docs/03-method.md).
+ */
 export function schedule(
   state: ChunkState,
   result: ReviewResult,
@@ -105,7 +113,7 @@ export function schedule(
     // Intervall = Zeit, bis die Abrufwahrscheinlichkeit auf die Ziel-Retention fällt.
     intervalDays = Math.max(
       1,
-      Math.round(intervalForRetention(stability, DEFAULT_REQUEST_RETENTION)),
+      Math.round(intervalForRetention(stability, meta.retention ?? DEFAULT_REQUEST_RETENTION)),
     );
   }
 

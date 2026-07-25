@@ -178,6 +178,18 @@ export interface ListenHandle {
 /** Sicherheitsnetz: ohne Ende von selbst nach dieser Zeit schließen. */
 const MAX_MS = 12_000;
 
+// Einstellung „nur auf dem Gerät erkennen" (docs/gremium-einstellungen.md).
+// Wer sie setzt, sagt: lieber gar keine Erkennung als gesendetes Audio. Das ist
+// eine Haltung, keine Bequemlichkeit — deshalb wird sie hart durchgesetzt und
+// nicht still unterlaufen, wenn kein Sprachpaket da ist.
+let localOnly = false;
+
+export function setSpeechLocalOnly(v: boolean): void {
+  localOnly = v;
+}
+
+export const speechLocalOnly = (): boolean => localOnly;
+
 /**
  * Hört EINEN Satz mit. Bevorzugt On-Device, fällt sonst auf die Server-Erkennung
  * zurück — und meldet über `mode`, was es geworden ist.
@@ -230,11 +242,19 @@ export function listenOnce(lang = 'sv-SE'): ListenHandle {
         if (s === 'ready') {
           rec.processLocally = true;
           mode = 'on-device';
+        } else if (localOnly) {
+          failure =
+            'Du hast „nur auf dem Gerät erkennen" eingestellt, und für Schwedisch fehlt das ' +
+            'Sprachpaket. In den Einstellungen kannst du es holen oder die Einstellung lösen.';
         }
       })
       .catch(() => {})
       .finally(() => {
         if (settled) return;
+        if (failure) {
+          finish();
+          return;
+        }
         try {
           rec.start();
           timer = setTimeout(() => {
