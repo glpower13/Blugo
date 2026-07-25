@@ -157,3 +157,21 @@ describe('spokenAloud (P3, docs/gremium-sprachpartner.md)', () => {
     expect(spokenAloud([make({ chunkId: 'a' })])).toBe(0);
   });
 });
+
+describe('„fällig" ist Wiederholung, nicht Vorrat', () => {
+  it('zählt nie begegnete Wendungen NICHT als fällig', () => {
+    // Eine frische Wendung steht per Voreinstellung auf „jetzt fällig". Am
+    // ersten Tag las man deshalb „179 jetzt fällig", ohne je etwas gesehen zu
+    // haben — eine Zahl, die Rückstand behauptet, wo keiner ist.
+    const frisch = make({ chunkId: 'n', status: 'new', dueAt: NOW });
+    const wirklichFaellig = make({
+      chunkId: 'f',
+      status: 'learning',
+      dueAt: NOW - 1000,
+      history: [{ at: NOW - 2000, result: 'good', segmentId: 's' }],
+    });
+    const m = computeMetrics([frisch, wirklichFaellig], NOW);
+    expect(m.dueNow).toBe(1);
+    expect(m.untouched).toBe(1);
+  });
+});

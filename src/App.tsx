@@ -62,6 +62,24 @@ type View =
   | { name: 'sparring' } // freies Gespräch mit dem KI-Partner (P4)
   | { name: 'session' };
 
+/**
+ * Nach jedem Ansichtswechsel den Fokus auf die neue Überschrift setzen.
+ *
+ * BEFUND (Barrierefreiheits-Audit 2026-07-25): Nach „Gespräch verlassen" stand
+ * der Fokus auf `<body>`. Wer mit der Tastatur arbeitet, musste sich jedes Mal
+ * neu durch die Reiterleiste tabben; ein Vorlese-Programm meldete den Wechsel
+ * gar nicht. Die Überschrift bekommt `tabIndex={-1}`, damit sie fokussierbar
+ * ist, ohne im Tabulator-Lauf aufzutauchen.
+ */
+function focusNewView(): void {
+  requestAnimationFrame(() => {
+    const h = document.querySelector<HTMLElement>('main h1');
+    if (!h) return;
+    h.tabIndex = -1;
+    h.focus({ preventScroll: true });
+  });
+}
+
 /** Zu welchem Reiter eine Drill-down-Ansicht gehört (für die aktive Markierung). */
 function tabOf(view: View): Tab {
   switch (view.name) {
@@ -225,14 +243,39 @@ export default function App() {
     const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
     if (!doc.startViewTransition || reduce) {
       update();
+      focusNewView();
       return;
     }
     document.documentElement.dataset.nav = direction;
     const t = doc.startViewTransition(() => flushSync(update));
     void t.finished.finally(() => {
       delete document.documentElement.dataset.nav;
+      focusNewView();
     });
   }, []);
+
+  /**
+   * Escape führt aus jeder fokussierten Fläche zurück auf „Heute".
+   *
+   * BEFUND DES DAUERLAUFS (47 Nutzer, 2026-07-25): In Sitzung, Gespräch und
+   * Sparring ist die Reiterleiste bewusst ausgeblendet — der Zurück-Knopf ist
+   * der EINZIGE Ausweg. Bleibt dort etwas hängen, sitzt der Nutzer fest, und
+   * jeder weitere Schritt scheitert. Eine zweite, immer erreichbare Tür kostet
+   * nichts und nimmt dem Fall die Schärfe. Zugleich behebt es den
+   * Barrierefreiheits-Befund „Escape schließt nirgends etwas".
+   *
+   * Überlagerungen (Einstellungen, Name, Sprachpaar) fangen Escape selbst ab
+   * und halten es mit `stopPropagation` bei sich — die oberste Fläche gewinnt.
+   */
+  useEffect(() => {
+    if (view.name === 'tab') return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape') return;
+      navigate('pop', () => setView({ name: 'tab', tab: 'today' }));
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [view.name, navigate]);
 
   // Theme focus for NEW intake (autonomy). No queue rebuild — the session builds
   // its queue fresh on start (buildQueue never biases due maintenance).
@@ -675,11 +718,18 @@ export default function App() {
         {/* ───────── LERN-SESSION (fokussiert) ───────── */}
         {view.name === 'session' && (
           <div className="mx-auto flex w-full max-w-xl flex-col gap-4">
+            {/* Die wichtigste Fläche der App hatte keine einzige Überschrift —
+                für ein Vorlese-Programm gab es hier keinen Einstiegspunkt
+                (Barrierefreiheits-Audit 2026-07-25). Sichtbar ist sie nicht
+                nötig: Modus-Abzeichen und Zähler stehen daneben. */}
+            <h1 className="sr-only">
+              Üben — Wendung {Math.min(pos + 1, Math.max(queue.length, 1))} von {queue.length}
+            </h1>
             <nav className="flex items-center justify-between gap-2 px-1">
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => navigate('pop', () => setView({ name: 'tab', tab: 'today' }))}
-                  className="glass-soft flex items-center gap-1 rounded-full py-1.5 pl-2 pr-3 text-sm text-paper"
+                  className="glass-soft flex min-h-11 items-center gap-1 rounded-full pl-2.5 pr-4 text-sm text-paper"
                   aria-label="Übersicht — Sitzung verlassen"
                 >
                   <IconBack className="h-4 w-4" /> Übersicht
@@ -690,7 +740,10 @@ export default function App() {
                 </span>
               </div>
               {!done && queue.length > 0 && (
-                <span className="text-xs font-medium uppercase tracking-wide text-faint">
+                <span
+                  aria-live="polite"
+                  className="text-xs font-medium uppercase tracking-wide text-muted"
+                >
                   {Math.min(pos + 1, queue.length)} / {queue.length}
                 </span>
               )}

@@ -120,7 +120,13 @@ describe('areaProgress', () => {
   it('gruppiert Themen unter ihren Bereich und summiert ehrlich', () => {
     const states: Record<string, ChunkState> = {
       c1: make('c1', { provenStableAt: NOW }), // Thema a (area-1)
-      c3: make('c3', { dueAt: NOW - 1 }), // Thema b (area-2), fällig
+      // Fällig heißt: schon begegnet UND wieder dran. Eine nie gesehene Wendung
+      // ist Vorrat, keine Schuld (Ehrlichkeits-Audit 2026-07-25).
+      c3: make('c3', {
+        status: 'learning',
+        dueAt: NOW - 1,
+        history: [{ at: NOW - 2, result: 'good', segmentId: 's' }],
+      }),
     };
     const cp = categoryProgress(categories, chunks, states, NOW);
     const ap = areaProgress(areas, cp);

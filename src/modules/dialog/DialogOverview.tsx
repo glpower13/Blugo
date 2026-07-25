@@ -97,8 +97,8 @@ export function DialogOverview({
       >
         <span
           className={
-            'flex items-center gap-2 text-[0.66rem] font-bold uppercase tracking-[0.14em] ' +
-            (sparringReady ? 'text-[#63C9B6]' : 'text-muted')
+            'flex items-center gap-2 text-[0.7rem] font-bold uppercase tracking-[0.14em] ' +
+            (sparringReady ? 'text-[#7EE0C4]' : 'text-paper')
           }
         >
           <IconChat className="h-3.5 w-3.5" /> Sparring · frei sprechen
@@ -106,7 +106,7 @@ export function DialogOverview({
         <p className="mt-1 font-display text-[1.05rem] font-semibold leading-tight text-paper">
           Rede mit jemandem, der dir zuhört
         </p>
-        <p className="mt-0.5 text-xs leading-relaxed text-muted">
+        <p className="mt-0.5 text-xs leading-relaxed text-paper/85">
           {!sparringReady
             ? 'Dafür brauchst du deinen eigenen KI-Zugang. Hier steht, wie du ihn hinterlegst.'
             : sparringTargets > 0
@@ -132,7 +132,7 @@ export function DialogOverview({
                   <li key={d.id}>
                     <button
                       onClick={() => onOpen(d.id)}
-                      className="glass-soft flex w-full items-start gap-3 rounded-xl p-3 text-left"
+                      className="glass-soft flex w-full items-start gap-2.5 rounded-xl p-3 text-left sm:gap-3"
                     >
                       <SpeechMark hue={hue} filled={total > 0 ? stable / total : 0} />
                       <div className="min-w-0 flex-1">
@@ -145,7 +145,7 @@ export function DialogOverview({
                           {total} deiner Antworten bewiesen
                         </p>
                       </div>
-                      <IconChevron className="mt-0.5 h-5 w-5 shrink-0 text-faint" />
+                      <IconChevron className="mt-0.5 h-[20px] w-[20px] shrink-0 text-faint" />
                     </button>
                   </li>
                 );
@@ -168,7 +168,7 @@ function SpeechMark({ hue, filled }: { hue: string; filled: number }) {
   return (
     <svg
       viewBox="0 0 40 34"
-      className="mt-0.5 h-9 w-10 shrink-0"
+      className="mt-0.5 h-[36px] w-[40px] shrink-0"
       aria-hidden="true"
       xmlns="http://www.w3.org/2000/svg"
     >

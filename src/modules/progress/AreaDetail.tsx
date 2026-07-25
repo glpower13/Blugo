@@ -34,7 +34,7 @@ export function AreaDetail({
       <nav className="flex items-center gap-2 px-1">
         <button
           onClick={onBack}
-          className="glass-soft flex items-center gap-1 rounded-full py-1.5 pl-2 pr-3 text-sm text-paper"
+          className="glass-soft flex min-h-11 items-center gap-1 rounded-full pl-2.5 pr-4 text-sm text-paper"
           aria-label="Zurück zu den Bereichen"
         >
           <IconBack className="h-4 w-4" /> Bereiche
@@ -45,14 +45,14 @@ export function AreaDetail({
         {/* Kontextueller Kopf: Icon + Bereichsname; großer Titel darunter. */}
         <div className="flex items-center gap-3">
           <AreaBadge hue={hue} Icon={Icon} />
-          <div>
+          <div className="min-w-0">
             <p
               className="text-[0.66rem] font-semibold uppercase tracking-[0.18em]"
               style={{ color: hue }}
             >
               Bereich
             </p>
-            <h1 className="font-display text-2xl font-semibold leading-tight text-paper">
+            <h1 className="hyphens-auto break-words font-display text-2xl font-semibold leading-tight text-paper">
               {area.title}
             </h1>
           </div>

@@ -63,7 +63,9 @@ export function categoryProgress(
         if (isActive(s)) active++;
         if (isMaturing(s)) maturing++;
         if (isStable(s)) stable++;
-        if (s.dueAt <= now) dueNow++;
+        // Nur begegnete Wendungen sind „fällig" — eine nie gesehene ist Vorrat,
+        // keine Schuld (Ehrlichkeits-Audit 2026-07-25).
+        if (s.dueAt <= now && (s.status !== 'new' || s.history.length > 0)) dueNow++;
       }
       return { category, total: ids.length, active, maturing, stable, dueNow };
     });

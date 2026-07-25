@@ -14,8 +14,14 @@ export default {
         brand: '#E7C08A', // Champagner-Gold — der eine edle Akzent (glüht auf Glas)
         'brand-soft': 'rgba(231,192,138,0.55)',
         paper: '#F7F7FA', // Apple-Weiß (Haupttext)
-        muted: 'rgba(236,236,244,0.78)', // iOS Sekundär-Label (lesbar auf Dunkelglas)
-        faint: 'rgba(236,236,244,0.5)', // iOS Tertiär-Label
+        // BARRIEREFREIHEITS-AUDIT 2026-07-25: Beide Töne lagen auf dem wandernden
+        // Aurora-Hintergrund unter der Lesbarkeitsschwelle — gemessen an echten
+        // gerenderten Pixeln bis hinunter auf 2,27:1 (Soll 4,5:1). Ursache war
+        // nicht die Schriftgröße, sondern die Durchsichtigkeit: Auf der
+        // Einstellungen-Fläche mit deckendem Grund war keine einzige von 20
+        // Textstellen zu schwach. Beide Werte sind deshalb angehoben.
+        muted: 'rgba(240,240,248,0.88)', // Sekundär-Label
+        faint: 'rgba(240,240,248,0.82)', // Tertiär-Label
         success: '#5FD0A0', // veredeltes Mint — nur für BEWIESEN Stabiles (Wahrheitssignal)
         warn: '#F0B354', // „schwer" (Ampel, sparsam)
         danger: '#F28C7C', // „nochmal" / Fehler (Ampel, sparsam)

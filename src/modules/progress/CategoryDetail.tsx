@@ -69,7 +69,7 @@ export function CategoryDetail({
         <button
           onClick={onBack}
           className="glass-soft flex items-center gap-1.5 rounded-full py-1.5 pl-2.5 pr-3.5 text-sm"
-          aria-label="Zurück zum Bereich"
+          aria-label={`${backLabel} — zurück zum Bereich`}
         >
           <IconBack className="h-4 w-4 text-paper" />
           <span style={{ color: hue }} className="font-medium">
@@ -84,7 +84,7 @@ export function CategoryDetail({
           <AreaBadge hue={hue} Icon={Icon} size="sm" />
           <div className="min-w-0">
             <p
-              className="truncate text-[0.66rem] font-semibold uppercase tracking-[0.16em]"
+              className="break-words text-[0.66rem] font-semibold uppercase tracking-[0.16em]"
               style={{ color: hue }}
             >
               {backLabel}

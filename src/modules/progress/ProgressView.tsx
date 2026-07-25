@@ -50,12 +50,16 @@ export function ProgressView({
       </header>
 
       <section className="glass rounded-2xl p-5">
-        <div className="flex items-center gap-5">
+        {/* Umbruchfähig: Bei 320 px und großer Systemschrift standen „reift" und
+            „stabil" komplett außerhalb der Karte — von drei Kennzahlen war eine
+            sichtbar (Layout-Audit 2026-07-25). Jetzt rutscht die Zahlenreihe
+            unter den Ring, statt aus dem Bild zu laufen. */}
+        <div className="flex flex-wrap items-center gap-x-5 gap-y-4">
           <MemoryRing stable={stable} maturing={maturing} total={totalChunks} />
-          <div className="flex flex-1 items-baseline justify-between gap-3">
-            <Stat value={active} label="aktiv" />
+          <div className="flex min-w-0 flex-1 basis-48 items-baseline justify-between gap-3">
+            <Stat value={active} label="aktiv" quiet />
             <Stat value={maturing} label="reift" />
-            <Stat value={stable} label="stabil" accent />
+            <Stat value={stable} label="bewiesen" accent />
           </div>
         </div>
         {/* Beide Zahlen, weil eine allein irreführt: „100 %" bei drei angefassten
@@ -88,7 +92,7 @@ export function ProgressView({
         </h2>
         <dl className="mt-3 space-y-2.5 text-xs leading-relaxed">
           <div>
-            <dt className="font-semibold text-success">stabil</dt>
+            <dt className="font-semibold text-success">bewiesen</dt>
             <dd className="text-faint">
               Nach über 90 Tagen Pause selbst gesagt — und es saß. Das ist der Beweis.
               Fällst du später wieder durch, zählt sie nicht mehr mit, bis der Beweis
@@ -173,11 +177,29 @@ export function ProgressView({
   );
 }
 
-function Stat({ value, label, accent }: { value: number; label: string; accent?: boolean }) {
+/**
+ * `quiet` ist kein Schmuck, sondern die eine Design-Regel in Typografie: „aktiv"
+ * zählt bloße Anwesenheit. Vorher stand es genauso groß und genauso hell da wie
+ * die beiden GEMESSENEN Zahlen daneben — das Auge liest die drei dann als drei
+ * gleichwertige Erfolge (Ehrlichkeits-Audit 2026-07-25).
+ */
+function Stat({
+  value,
+  label,
+  accent,
+  quiet,
+}: {
+  value: number;
+  label: string;
+  accent?: boolean;
+  quiet?: boolean;
+}) {
   return (
     <div>
       <div
-        className={`tnum font-sans text-[2.4rem] font-bold leading-none ${accent ? 'text-success glow-success' : 'text-paper'}`}
+        className={`tnum font-sans font-bold leading-none ${
+          quiet ? 'text-[min(1.6rem,7.5vw)] text-muted' : 'text-[min(2.4rem,11vw)]'
+        } ${accent ? 'text-success glow-success' : quiet ? '' : 'text-paper'}`}
       >
         {value}
       </div>

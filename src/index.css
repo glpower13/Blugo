@@ -159,13 +159,25 @@ body::after {
   }
 }
 
+/* Fokus-Ring: bewusst EIGEN definiert, nicht geerbt.
+   Der Audit vom 2026-07-25 hat gemessen, dass der Browser-Standardring hier
+   sehr gut sichtbar ist (12,7:1 auf Gold, 14,7:1 auf Glas) — aber die App hatte
+   keine einzige `focus:`-Regel. Ein späteres `outline-none` irgendwo hätte das
+   lautlos zerstört. Jetzt gehört der Ring uns, und er gilt nur bei
+   Tastaturbedienung (`:focus-visible`), nicht beim Antippen. */
+:focus-visible {
+  outline: 2px solid #f7f7fa;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
 @layer components {
   /* Milchglas-Fläche (frosted). Der obere Innen-Glanz macht die „Glaskante". */
   .glass {
     /* Dunkel getöntes Milchglas (iOS „dark material"): heller Text bleibt klar
        lesbar, der bunte Hintergrund schimmert gedämpft durch. Oben eine feine
        Licht-Kante als Glaskante. */
-    background-color: rgba(13, 15, 24, 0.56);
+    background-color: rgba(13, 15, 24, 0.74);
     background-image: linear-gradient(
       177deg,
       rgba(255, 255, 255, 0.09) 0%,
@@ -183,7 +195,7 @@ body::after {
   }
   /* Leichtere Glas-Variante für innere Panels/Chips (etwas heller = gehoben). */
   .glass-soft {
-    background-color: rgba(255, 255, 255, 0.07);
+    background-color: rgba(11, 13, 21, 0.5);
     background-image: linear-gradient(
       177deg,
       rgba(255, 255, 255, 0.08) 0%,

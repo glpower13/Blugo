@@ -16,6 +16,7 @@
 
 import type { DirectionSplit } from './metrics';
 import { IconBack } from '../../ui/icons';
+import { Overlay } from '../../ui/Overlay';
 
 interface Props {
   split: DirectionSplit;
@@ -27,13 +28,12 @@ export function LanguagePair({ split, onClose }: Props) {
   const pct = (n: number) => (total > 0 ? (n / total) * 100 : 0);
 
   return (
-    <div
+    <Overlay
+      labelledBy="pair-title"
+      onClose={onClose}
       className="fixed inset-0 z-50 flex items-end justify-center bg-ink/70 backdrop-blur-sm sm:items-center"
-      role="dialog"
-      aria-modal="true"
-      aria-label="Sprachpaar und Richtung"
-      onClick={onClose}
     >
+      <div className="absolute inset-0" onClick={onClose} aria-hidden="true" />
       <div
         className="glass max-h-[90dvh] w-full max-w-md overflow-y-auto rounded-t-3xl p-6 pb-[calc(1.5rem+env(safe-area-inset-bottom))] sm:rounded-3xl sm:pb-6"
         onClick={(e) => e.stopPropagation()}
@@ -43,13 +43,17 @@ export function LanguagePair({ split, onClose }: Props) {
             <p className="text-[0.66rem] font-semibold uppercase tracking-[0.18em] text-brand">
               Sprachpaar
             </p>
-            <h2 className="mt-1 font-display text-[1.4rem] font-semibold leading-tight text-paper">
+            <h2
+              id="pair-title"
+              className="mt-1 font-display text-[1.4rem] font-semibold leading-tight text-paper"
+            >
               Deutsch → Schwedisch
             </h2>
           </div>
           <button
             onClick={onClose}
-            className="glass-soft flex shrink-0 items-center gap-1 rounded-full py-1.5 pl-2 pr-3 text-sm text-paper"
+            aria-label="Zurück — Sprachpaar schließen"
+            className="glass-soft flex min-h-11 shrink-0 items-center gap-1 rounded-full pl-2.5 pr-4 text-sm text-paper"
           >
             <IconBack className="h-4 w-4" /> Zurück
           </button>
@@ -128,7 +132,7 @@ export function LanguagePair({ split, onClose }: Props) {
           Inhalt — deshalb steht hier auch keiner.
         </p>
       </div>
-    </div>
+    </Overlay>
   );
 }
 

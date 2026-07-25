@@ -3,6 +3,7 @@
 
 import { useState } from 'react';
 import { cleanName } from '../session/profile';
+import { Overlay } from './Overlay';
 
 interface Props {
   initial: string;
@@ -18,11 +19,21 @@ export function NameEditor({ initial, onSave, onClose }: Props) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-md">
+    <Overlay
+      labelledBy="name-title"
+      onClose={onClose}
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-md"
+    >
       <div className="glass rise w-full max-w-sm rounded-2xl p-5">
         <div className="mb-1 flex items-center justify-between">
-          <h2 className="text-base font-semibold text-paper">Wie heißt du?</h2>
-          <button onClick={onClose} className="text-muted" aria-label="Schließen">
+          <h2 id="name-title" className="text-base font-semibold text-paper">
+            Wie heißt du?
+          </h2>
+          <button
+            onClick={onClose}
+            className="-mr-2 flex h-11 w-11 shrink-0 items-center justify-center text-muted"
+            aria-label="Schließen"
+          >
             ✕
           </button>
         </div>
@@ -70,6 +81,6 @@ export function NameEditor({ initial, onSave, onClose }: Props) {
           </div>
         </form>
       </div>
-    </div>
+    </Overlay>
   );
 }

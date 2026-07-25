@@ -50,6 +50,10 @@ const DIALOG_ACCENT = '#63C9B6';
 
 export function DialogScene({ dialog, backLabel, areaHue, learnerName, onProduce, onExit }: Props) {
   const [step, setStep] = useState(0);
+  // Was der Lerner in DIESEM Gespräch wirklich geschafft hat. Die Schlusszeile
+  // zählte vorher alle „du"-Zeilen der Szene — also auch die, die er dreimal
+  // nicht konnte (Ehrlichkeits-Audit 2026-07-25).
+  const [graded, setGraded] = useState<{ good: number; total: number }>({ good: 0, total: 0 });
   const bottomRef = useRef<HTMLDivElement>(null);
 
   const turns = dialog.turns;
@@ -70,7 +74,7 @@ export function DialogScene({ dialog, backLabel, areaHue, learnerName, onProduce
         <button
           onClick={onExit}
           className="glass-soft flex items-center gap-1.5 rounded-full py-1.5 pl-2.5 pr-3.5 text-sm"
-          aria-label="Gespräch verlassen"
+          aria-label={`${backLabel} — Gespräch verlassen`}
         >
           <IconBack className="h-4 w-4 text-paper" />
           <span style={{ color: areaHue }} className="font-medium">
@@ -140,6 +144,10 @@ export function DialogScene({ dialog, backLabel, areaHue, learnerName, onProduce
                   ttsOn={ttsOn}
                   onGrade={(result, helpUsed, spoken) => {
                     onProduce(current, result, helpUsed, spoken);
+                    setGraded((g) => ({
+                      good: g.good + (result === 'good' ? 1 : 0),
+                      total: g.total + 1,
+                    }));
                     setStep((s) => s + 1);
                   }}
                 />
@@ -150,8 +158,9 @@ export function DialogScene({ dialog, backLabel, areaHue, learnerName, onProduce
               <div className="rounded-2xl border border-success/30 bg-success/10 p-5 text-center">
                 <p className="font-display text-lg font-semibold text-success">Gespräch geschafft.</p>
                 <p className="mt-1 text-sm text-muted">
-                  {turns.filter((t) => t.speaker === 'you').length} Wendungen im echten Kontext geübt —
-                  fließt in deinen Erhalt ein.
+                  {graded.good} von {graded.total}{' '}
+                  {graded.total === 1 ? 'Wendung' : 'Wendungen'} saßen. Alle {graded.total}{' '}
+                  fließen in deinen Erhalt ein — die, die nicht saßen, kommen früher wieder.
                 </p>
                 <button
                   onClick={onExit}
@@ -232,14 +241,14 @@ function PartnerTurn({
       {!revealed ? (
         // Hör-zuerst: nur Klang, Text verdeckt, auf Tipp aufdecken (Dual Coding).
         <div className="flex flex-col items-start gap-3">
-          <p className="select-none text-[1.4rem] font-semibold leading-tight text-paper blur-[6px]">
+          <p className="max-w-full select-none break-words text-[1.4rem] font-semibold leading-tight text-paper blur-[6px]">
             {sv}
           </p>
           <div className="flex flex-wrap items-center gap-2">
             {ttsOn && (
               <button
                 onClick={() => void aiRegistry.synthesizer.speak({ text: sv })}
-                className="btn-gold flex items-center gap-1.5 rounded-full px-4 py-2 text-sm font-medium text-ink"
+                className="btn-gold flex min-h-11 items-center gap-1.5 rounded-full px-4 text-sm font-medium text-ink"
                 aria-label="Hören"
               >
                 <IconPlay className="h-3.5 w-3.5" /> Hören
@@ -247,7 +256,7 @@ function PartnerTurn({
             )}
             <button
               onClick={() => setRevealed(true)}
-              className="rounded-full border border-line px-4 py-2 text-sm text-paper"
+              className="min-h-11 rounded-full border border-line px-4 text-sm text-paper"
             >
               Aufdecken
             </button>
@@ -256,22 +265,28 @@ function PartnerTurn({
         </div>
       ) : (
         <>
-          <div className="flex items-start justify-between gap-3">
-            <p lang="sv" className="text-[1.4rem] font-semibold leading-tight text-paper">
+          {/* `flex-wrap` + `min-w-0`: sonst schob die Knopfgruppe „Hören"
+              bis zu 63 px aus dem Bild und `overflow-hidden` schnitt sie ab
+              (Layout-Audit 2026-07-25). */}
+          <div className="flex flex-wrap items-start justify-between gap-x-3 gap-y-2">
+            <p
+              lang="sv"
+              className="min-w-0 flex-1 break-words text-[1.4rem] font-semibold leading-tight text-paper"
+            >
               {sv}
             </p>
             {ttsOn && (
               <div className="flex shrink-0 gap-2">
                 <button
                   onClick={() => void aiRegistry.synthesizer.speak({ text: sv })}
-                  className="flex items-center gap-1.5 rounded-full bg-brand/20 px-3 py-2 text-sm text-brand"
+                  className="flex min-h-11 items-center gap-1.5 rounded-full bg-brand/20 px-4 text-sm text-brand"
                   aria-label="Hören"
                 >
                   <IconPlay className="h-3 w-3" /> Hören
                 </button>
                 <button
                   onClick={() => void aiRegistry.synthesizer.speak({ text: sv, rate: slowSpeechRate() })}
-                  className="flex items-center rounded-full bg-brand/20 px-2.5 py-2 text-brand"
+                  className="flex min-h-11 min-w-11 items-center justify-center rounded-full bg-brand/20 px-3 text-brand"
                   aria-label="Langsam hören"
                   title="Langsamer"
                 >
@@ -285,14 +300,14 @@ function PartnerTurn({
             {turn.decoding && turn.decoding.length > 0 && (
               <button
                 onClick={() => setShowDecode((v) => !v)}
-                className="glass-soft rounded-full px-3.5 py-1.5 text-sm text-paper"
+                className="glass-soft min-h-11 rounded-full px-4 text-sm text-paper"
               >
                 {showDecode ? 'Dekodierung ausblenden' : 'Dekodierung'}
               </button>
             )}
             <button
               onClick={() => setShowTr((v) => !v)}
-              className="glass-soft rounded-full px-3.5 py-1.5 text-sm text-paper"
+              className="glass-soft min-h-11 rounded-full px-4 text-sm text-paper"
             >
               {showTr ? 'Übersetzung ausblenden' : 'Übersetzung'}
             </button>
@@ -405,7 +420,7 @@ function YouTurn({
                     setTyped(s);
                     setHelpUsed(true); // Vorschlag genutzt = Krücke gezogen
                   }}
-                  className="glass-soft rounded-full px-3.5 py-1.5 text-sm text-paper"
+                  className="glass-soft min-h-11 rounded-full px-4 text-sm text-paper"
                 >
                   {s}
                 </button>

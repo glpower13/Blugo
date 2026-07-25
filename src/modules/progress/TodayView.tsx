@@ -79,34 +79,43 @@ export function TodayView({
           <p className="wordmark font-display text-[0.82rem] font-semibold uppercase tracking-[0.24em] text-faint">
             neuro<span className="font-light text-brand">lang</span>
           </p>
-          <button onClick={onEditName} className="mt-1.5 block text-left">
+          {/* Die Überschrift lag vorher IN einem Knopf. ARIA wertet Knopf-Inhalte
+              als darstellend — die Startseite hatte damit für die
+              Überschriften-Navigation faktisch keine h1
+              (Barrierefreiheits-Audit 2026-07-25). Jetzt steht die Überschrift
+              für sich, das Bearbeiten ist ein eigenes Ziel daneben. */}
+          <div className="mt-1.5 flex flex-wrap items-center gap-x-2">
             <h1 className="font-display text-[1.6rem] font-semibold leading-tight text-paper">
+              <span lang="sv">Hej</span>
               {name ? (
                 <>
-                  Hej, <span className="text-brand">{name}</span>!
+                  , <span className="text-brand">{name}</span>
                 </>
-              ) : (
-                <>
-                  Hej! <span className="text-faint">＋ Dein Name</span>
-                </>
-              )}
+              ) : null}
+              !
             </h1>
-          </button>
+            <button
+              onClick={onEditName}
+              className="min-h-11 rounded-full px-2 text-sm text-faint underline underline-offset-4"
+            >
+              {name ? 'Namen ändern' : '＋ Dein Name'}
+            </button>
+          </div>
           {/* Antippbar: dahinter steht die ehrliche Richtungs-Auskunft statt eines
               Schalters (gremium-navigation.md §5, LanguagePair.tsx). */}
           <button
             onClick={onOpenPair}
-            className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-line bg-white/[0.04] px-3 py-1 text-[0.7rem] text-muted transition-colors hover:bg-white/[0.08]"
+            className="mt-2 inline-flex min-h-11 items-center gap-1.5 rounded-full border border-line bg-white/[0.04] px-4 text-[0.72rem] text-muted transition-colors hover:bg-white/[0.08]"
           >
             <span className="font-medium text-paper">Deutsch</span>
-            <span className="text-faint">→</span>
+            <span className="text-paper">→</span>
             <span className="font-medium text-paper">Schwedisch</span>
-            <span className="text-faint">⌄</span>
+            <span className="text-muted">⌄</span>
           </button>
         </div>
         <button
           onClick={onSettings}
-          className="glass-soft flex shrink-0 items-center justify-center rounded-full p-2.5 text-paper"
+          className="glass-soft flex h-11 w-11 shrink-0 items-center justify-center rounded-full text-paper"
           aria-label="Einstellungen"
           title="Einstellungen"
         >
@@ -200,7 +209,7 @@ export function TodayView({
             <span className="block font-display text-[0.95rem] font-semibold text-paper">
               Sparring · sprechen
             </span>
-            <span className="block text-[0.68rem] leading-relaxed text-faint">
+            <span className="block text-[0.72rem] leading-relaxed text-muted">
               {!sparringReady
                 ? 'Braucht deinen eigenen KI-Zugang — hier steht, wie das geht'
                 : sparringTargets > 0

@@ -151,7 +151,7 @@ läuft **nur noch auf Knopfdruck**, das Ergebnis wird gespeichert, und auch die
 Spracheingabe fragt nicht mehr von sich aus. Regel, die daraus folgt: *Was die Seite
 abschießen kann, läuft nicht im Hintergrund.*
 
-**Geprüft:** 233 Unit-Tests (22 neu — Zusammenführen, Sicherungsdatei, Aufwands-Faktor,
+**Geprüft:** die volle Unit-Test-Suite (22 neu — Zusammenführen, Sicherungsdatei, Aufwands-Faktor,
 Einstellungs-Normalisierung), 17 e2e (2 neu — die Fläche selbst und der ganze Weg
 *sichern → löschen → einlesen*).
 

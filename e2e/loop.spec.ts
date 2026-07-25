@@ -14,12 +14,12 @@ async function openTab(page: Page, label: string) {
 
 // Cloud-KI einrichten — seit der Einstellungs-Fläche EIN Ort statt eines Modals.
 async function configureCloud(page: Page) {
-  await page.getByRole('button', { name: 'KI-Einstellungen' }).click();
+  await page.getByRole('button', { name: 'Einstellungen' }).click();
   await expect(page.getByRole('heading', { name: 'Einstellungen' })).toBeVisible();
   await page.getByText('Claude (Cloud)').click();
   await page.getByPlaceholder('sk-ant-…').fill('sk-ant-test-000');
   await page.getByRole('button', { name: 'Speichern' }).click();
-  await page.getByRole('button', { name: 'Einstellungen schließen' }).click();
+  await page.getByRole('button', { name: /Einstellungen schließen/ }).click();
 }
 
 async function openLearn(page: Page) {
@@ -50,7 +50,7 @@ test('comprehension loop runs to completion without errors', async ({ page }) =>
   // Loop durchspielen (max. 15 Schritte)
   let reachedDone = false;
   for (let i = 0; i < 15; i++) {
-    if (await page.getByText('Session erledigt.').isVisible()) {
+    if (await page.getByText('Sitzung erledigt.').isVisible()) {
       reachedDone = true;
       break;
     }
@@ -64,7 +64,7 @@ test('comprehension loop runs to completion without errors', async ({ page }) =>
   }
 
   expect(reachedDone).toBe(true);
-  await expect(page.getByText('Session erledigt.')).toBeVisible();
+  await expect(page.getByText('Sitzung erledigt.')).toBeVisible();
   await expect(page.getByRole('button', { name: 'Zurück zur Übersicht' })).toBeVisible();
   expect(consoleErrors, consoleErrors.join('\n')).toHaveLength(0);
   expect(pageErrors, pageErrors.join('\n')).toHaveLength(0);
@@ -82,7 +82,7 @@ test('AI settings overlay opens, shows the login, and closes cleanly', async ({ 
 
   await page.goto('/');
 
-  await page.getByRole('button', { name: 'KI-Einstellungen' }).click();
+  await page.getByRole('button', { name: 'Einstellungen' }).click();
   await expect(page.getByRole('heading', { name: 'Einstellungen' })).toBeVisible();
 
   // Alle Abschnitte da — die Fläche ist EIN Ort, keine Resterampe.
@@ -107,8 +107,8 @@ test('AI settings overlay opens, shows the login, and closes cleanly', async ({ 
   await expect(page.getByPlaceholder('sk-ant-…')).toBeVisible();
 
   // schließen → Fläche verschwindet
-  await page.getByRole('button', { name: 'Einstellungen schließen' }).click();
-  await expect(page.getByText('Dein Claude-Zugangs-Schlüssel')).toHaveCount(0);
+  await page.getByRole('button', { name: /Einstellungen schließen/ }).click();
+  await expect(page.getByText('Dein KI-Zugang (Claude-Schlüssel)')).toHaveCount(0);
 
   expect(consoleErrors, consoleErrors.join('\n')).toHaveLength(0);
   expect(pageErrors, pageErrors.join('\n')).toHaveLength(0);
@@ -162,11 +162,11 @@ test('tree drill-down: area → theme shows phrases and a focus can be set', asy
   await expect(page.getByText(/von \d+ bewiesen/).first()).toBeVisible();
 
   // Fokus für neuen Stoff setzen
-  await page.getByRole('button', { name: 'Als Fokus für neuen Stoff' }).click();
-  await expect(page.getByRole('button', { name: /Im Fokus für neuen Stoff/ })).toBeVisible();
+  await page.getByRole('button', { name: 'Fokus setzen' }).click();
+  await expect(page.getByRole('button', { name: /Im Fokus/ })).toBeVisible();
 
   // Eine Ebene zurück zum Bereich → dort erscheint die Fokus-Zeile
-  await page.getByRole('button', { name: 'Zurück zum Bereich' }).click();
+  await page.getByRole('button', { name: /zurück zum Bereich/ }).click();
   await expect(page.getByText(/Fokus: Begrüßen & Kennenlernen/)).toBeVisible();
 
   expect(consoleErrors, consoleErrors.join('\n')).toHaveLength(0);
@@ -287,7 +287,7 @@ test('tab bar: all four rooms open, and the bar disappears inside a session', as
 
   // Gespräche → Fortschritt: die ehrliche Messung
   await openTab(page, 'Fortschritt');
-  await expect(page.getByText(/Verständnis-Abdeckung/)).toBeVisible();
+  await expect(page.getByText(/Trefferquote/).first()).toBeVisible();
   await expect(page.getByText('reift', { exact: true }).first()).toBeVisible(); // Zahl
   await expect(page.getByRole('term').filter({ hasText: 'reift' })).toBeVisible(); // Erklärung dazu
 
@@ -351,7 +351,7 @@ test('language pair sheet reports direction as a measurement, not a switch', asy
   await page.goto('/');
   await page.getByRole('button', { name: /Deutsch.*Schwedisch/ }).click();
 
-  const sheet = page.getByRole('dialog', { name: 'Sprachpaar und Richtung' });
+  const sheet = page.getByRole('dialog', { name: /Deutsch → Schwedisch/ });
   await expect(sheet).toBeVisible();
   await expect(sheet.getByText('sprichst du selbst', { exact: true })).toBeVisible();
   await expect(sheet.getByText('verstehst du', { exact: true })).toBeVisible();
@@ -359,7 +359,7 @@ test('language pair sheet reports direction as a measurement, not a switch', asy
   await expect(sheet.getByText('noch nicht begegnet')).toBeVisible();
   await expect(sheet.getByText(/Warum du die Richtung nicht umstellen kannst/)).toBeVisible();
 
-  await sheet.getByRole('button', { name: 'Zurück' }).click();
+  await sheet.getByRole('button', { name: /Zurück/ }).click();
   await expect(sheet).toHaveCount(0);
   expect(pageErrors, pageErrors.join('\n')).toHaveLength(0);
 });
@@ -458,7 +458,7 @@ test('speaking is offered next to typing in a dialogue, fully on screen', async 
   await expect(page.getByRole('button', { name: 'Prüfen' })).toBeVisible();
 
   // … und daneben steht das Mikrofon (in diesem Browser vorhanden).
-  const mic = page.getByRole('button', { name: 'Sag es auf Schwedisch' });
+  const mic = page.getByRole('button', { name: 'Sprich es auf Schwedisch' });
   await expect(mic).toBeVisible();
 
   // Kein Überstand über den Bildschirmrand (der Fehler von zuvor).
@@ -593,7 +593,7 @@ test('a learner can take their memory out as a file and read it back in', async 
 
   await page.goto('/');
   await expect(page.getByText('bewiesen stabil')).toBeVisible();
-  await page.getByRole('button', { name: 'KI-Einstellungen' }).click();
+  await page.getByRole('button', { name: 'Einstellungen' }).click();
 
   // Sichern — die Datei muss wirklich herunterkommen.
   const [download] = await Promise.all([
@@ -703,4 +703,56 @@ test('the app survives a raised system font size', async ({ page }) => {
     });
     expect(hidden, `hinter der Reiterleiste verdeckt in ${t}`).toBeNull();
   }
+});
+
+// Die Einstellungen waren nur ein `div`. Gemessen landeten 15 von 42
+// Tabulator-Sprüngen HINTER der Fläche — die Eingabetaste startete dort eine
+// Lern-Sitzung unter dem offenen Fenster (Barrierefreiheits-Audit 2026-07-25).
+test('eine offene Überlagerung hält Tastatur und Escape fest', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.getByText('bewiesen stabil')).toBeVisible();
+
+  await page.getByRole('button', { name: 'Einstellungen' }).click();
+  const dialog = page.getByRole('dialog');
+  await expect(dialog).toBeVisible();
+
+  // 1. Der Fokus steht IN der Fläche, nicht mehr auf dem verdeckten Auslöser.
+  await expect(async () => {
+    const inside = await page.evaluate(() => {
+      const d = document.querySelector('[role="dialog"]');
+      return !!d && d.contains(document.activeElement);
+    });
+    expect(inside).toBe(true);
+  }).toPass({ timeout: 2000 });
+
+  // 2. 30 Tabulator-Sprünge verlassen die Fläche kein einziges Mal.
+  for (let i = 0; i < 30; i++) {
+    await page.keyboard.press('Tab');
+    const inside = await page.evaluate(() => {
+      const d = document.querySelector('[role="dialog"]');
+      return !!d && d.contains(document.activeElement);
+    });
+    expect(inside, `Sprung ${i + 1} landete hinter der Fläche`).toBe(true);
+  }
+
+  // 3. Escape schließt — vorher tat die Taste nirgends etwas.
+  await page.keyboard.press('Escape');
+  await expect(dialog).toBeHidden();
+});
+
+// Die wichtigste Fläche der App hatte gemessen 0 Überschriften.
+test('jede Fläche hat genau eine Überschrift erster Ebene', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.getByText('bewiesen stabil')).toBeVisible();
+
+  for (const t of ['Heute', 'Lernen', 'Gespräche', 'Fortschritt']) {
+    await openTab(page, t);
+    const count = await page.locator('main h1').count();
+    expect(count, `Überschriften erster Ebene in ${t}`).toBe(1);
+  }
+
+  // Auch die Lern-Sitzung — dort war es vorher keine.
+  await openTab(page, 'Heute');
+  await page.getByRole('button', { name: /Weiterlernen|Loslegen|Lernen starten/ }).first().click();
+  await expect(page.locator('main h1')).toHaveCount(1);
 });

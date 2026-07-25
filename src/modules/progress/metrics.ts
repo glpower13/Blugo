@@ -7,7 +7,17 @@ export interface Metrics {
   active: number; // chunks currently in the loop
   maturing: number; // on the way to stable: production stage, interval grown, not yet proven
   stable: number; // chunks proven retained after a long gap
-  dueNow: number; // chunks due for retrieval right now
+  /**
+   * Fällig zur WIEDERHOLUNG — nur schon begegnete Wendungen.
+   *
+   * Vorher zählte diese Zahl jede Wendung mit `dueAt <= now`, und eine frische
+   * steht per Voreinstellung auf „jetzt". Am ersten Tag las man deshalb „179
+   * jetzt fällig", obwohl man nichts davon je gesehen hatte — eine Zahl, die
+   * Rückstand behauptet, wo keiner ist (Ehrlichkeits-Audit 2026-07-25).
+   */
+  dueNow: number;
+  /** Noch nie begegnet — Vorrat, keine Schuld. Bewusst getrennt gezählt. */
+  untouched: number;
   /**
    * Trefferquote 0..1 über die BEGONNENEN Wendungen — nicht über den Stoff.
    * Der Name „Abdeckung" hat genau das verwechselt: Er klingt nach „Anteil des
@@ -145,7 +155,8 @@ export function computeMetrics(states: ChunkState[], now: number = Date.now()): 
     active: activeStates.length,
     maturing: states.filter(isMaturing).length,
     stable: states.filter(isStable).length,
-    dueNow: states.filter((s) => s.dueAt <= now).length,
+    dueNow: activeStates.filter((s) => s.dueAt <= now).length,
+    untouched: states.length - activeStates.length,
     coverage: activeStates.length === 0 ? 0 : understoodWeight / activeStates.length,
     coverageBase: activeStates.length,
   };

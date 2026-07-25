@@ -31,6 +31,22 @@ export function selectSwedishVoice<T extends VoiceLike>(voices: readonly T[]): T
   );
 }
 
+/**
+ * Läuft die gewählte schwedische Stimme WIRKLICH auf dem Gerät?
+ *
+ * Die Einstellungen behaupteten „Die Stimme kommt vom Gerät, nicht aus dem
+ * Netz." — die Auswahl oben fällt aber notfalls auf eine Netz-Stimme zurück
+ * (`sv.find(isSvSe)`, `sv[0]`). Eine App, die Ehrlichkeit als Produkt hat, darf
+ * das nicht pauschal versprechen (Ehrlichkeits-Audit 2026-07-25).
+ *
+ * `undefined` = keine schwedische Stimme vorhanden; sonst der echte Zustand.
+ */
+export function swedishVoiceIsLocal(): boolean | undefined {
+  const v = selectSwedishVoice(currentVoices());
+  if (!v) return undefined;
+  return v.localService === true;
+}
+
 export function ttsAvailable(): boolean {
   return typeof window !== 'undefined' && 'speechSynthesis' in window;
 }

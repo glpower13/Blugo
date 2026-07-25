@@ -28,7 +28,7 @@
 ## Motivation / Messung
 - Wie viel Sichtbarkeit bekommt der „ehrliche Streak", ohne kontrollierend zu wirken?
 - Wie wird CEFR-Näherung transparent kommuniziert, ohne Überversprechen?
-- **Verständnis-Abdeckung** ist in M1 nur **stufengewichtet genähert** (Produktion voll, Wiedererkennen halb). Die echte Definition — Verständnis in *neuem Kontext* auf *Zielstufe* — ist noch offen; nachschärfen, sobald Kontext-/Level-Daten vorliegen.
+- **Trefferquote** — bis 2026-07-25 „Verständnis-Abdeckung"; umbenannt, weil der alte Name den Anteil *am Stoff* versprach, während über die *begonnenen* Wendungen gerechnet wurde — ist in M1 nur **stufengewichtet genähert** (Produktion voll, Wiedererkennen halb). Die echte Definition — Verständnis in *neuem Kontext* auf *Zielstufe* — ist noch offen; nachschärfen, sobald Kontext-/Level-Daten vorliegen.
 
 ## Navigation (seit `gremium-navigation.md`)
 - ~~„Weiterlernen · N fällig" verspricht mehr, als die Session hält.~~ **Entschieden
