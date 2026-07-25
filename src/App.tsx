@@ -147,6 +147,26 @@ export default function App() {
     () => (focusId ? (categories.find((c) => c.id === focusId)?.title ?? null) : null),
     [focusId, categories],
   );
+  // Was die NÄCHSTE Sitzung tatsächlich enthält.
+  //
+  // WARUM NICHT „fällig": Bei frischem Start sind alle 98 Wendungen fällig, die
+  // Sitzung lässt aber nur `recommendedNewCount` neue zu — der Knopf versprach 98
+  // und lieferte 3. Sachlich richtig, als Ankündigung falsch (10-open-questions.md).
+  //
+  // Motivation: Eine Wand aus 98 ist genau die Klippe, gegen die dieses Projekt
+  // gebaut ist (CLAUDE.md, „keine Klippe"). Eine kleine, endliche Zahl ist ein
+  // Zugehen-Signal — und sie ist WAHR, weil es exakt die Warteschlange ist, die
+  // gleich läuft. `buildQueue` ist deterministisch, also kann hier nichts driften:
+  // dieselbe Liste wird angezeigt und dann abgearbeitet.
+  const plannedSession = useMemo(
+    () =>
+      buildQueue(Object.values(states), Date.now(), recommendedNewCount(successRate), {
+        categoryByChunkId,
+        categoryId: focusId,
+      }),
+    [states, successRate, categoryByChunkId, focusId],
+  );
+
   // Dialoge je Thema (für den „Gespräch"-Einstieg im Thema-Detail).
   const dialogsByCategory = useMemo(() => {
     const map: Record<string, Dialog[]> = {};
@@ -186,22 +206,25 @@ export default function App() {
   // intake, never which due items surface.
   const enterSession = useCallback(
     (scope?: SessionScope) => {
-      const now = Date.now();
-      const maxNew = recommendedNewCount(successRate);
+      // Ohne Scope ist es genau die Warteschlange, die der Knopf angekündigt hat.
+      if (!scope) {
+        setQueue(plannedSession);
+        setPos(0);
+        setView({ name: 'session' });
+        return;
+      }
       const inScope = (chunkId: string) =>
-        !scope ||
-        (scope.kind === 'category'
+        scope.kind === 'category'
           ? categoryByChunkId[chunkId] === scope.id
-          : areaByChunkId[chunkId] === scope.id);
+          : areaByChunkId[chunkId] === scope.id;
       const pool = Object.values(states).filter((s) => inScope(s.chunkId));
-      const focus: NewFocus | undefined = scope
-        ? undefined
-        : { categoryByChunkId, categoryId: focusId };
-      setQueue(buildQueue(pool, now, maxNew, focus));
+      // Bereich/Thema üben: der Scope IST die Wahl — kein zusätzlicher Fokus.
+      const focus: NewFocus | undefined = undefined;
+      setQueue(buildQueue(pool, Date.now(), recommendedNewCount(successRate), focus));
       setPos(0);
       setView({ name: 'session' });
     },
-    [states, successRate, categoryByChunkId, areaByChunkId, focusId],
+    [plannedSession, states, successRate, categoryByChunkId, areaByChunkId],
   );
 
   const currentChunkId = queue[pos];
@@ -320,6 +343,7 @@ export default function App() {
               name={name}
               stable={metrics.stable}
               maturing={metrics.maturing}
+              sessionSize={plannedSession.length}
               dueNow={metrics.dueNow}
               totalChunks={chunks.length}
               areaCount={areaProg.length}

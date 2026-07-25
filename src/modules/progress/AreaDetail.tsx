@@ -35,9 +35,9 @@ export function AreaDetail({
         <button
           onClick={onBack}
           className="glass-soft flex items-center gap-1 rounded-full py-1.5 pl-2 pr-3 text-sm text-paper"
-          aria-label="Zurück zur Übersicht"
+          aria-label="Zurück zu den Bereichen"
         >
-          <IconBack className="h-4 w-4" /> Übersicht
+          <IconBack className="h-4 w-4" /> Bereiche
         </button>
       </nav>
 
@@ -77,10 +77,11 @@ export function AreaDetail({
         </button>
       </section>
 
-      {/* Die Themen des Bereichs (gleiche Optik wie die Übersicht). */}
+      {/* Ebene 2: schmale Zeilen statt Karten — die Form sagt „eine Ebene tiefer". */}
       <CategoryOverview
         progress={areaProgress.categories}
         focusId={focusId}
+        hue={hue}
         onOpen={onOpenCategory}
         onClearFocus={onClearFocus}
       />

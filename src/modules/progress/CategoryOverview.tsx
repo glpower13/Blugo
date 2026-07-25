@@ -1,28 +1,35 @@
-// Themen-Übersicht (Navigations-Einstieg): jede Kachel ist anklickbar und führt
-// per Drill-down ins Thema-Detail. Zeigt die EHRLICHE Abdeckung (bewiesen stabil
-// von gesamt) — bewusst KEIN „Lektion erledigt"-Balken (docs/07-measurement.md;
-// die eine Design-Regel). Die Fokus-Wahl liegt im Detail.
+// Ebene 2 des Baums — SCHMALE ZEILEN (docs/gremium-navigation.md §4, Schritt 2).
+//
+// Eine Ebene tiefer als die Bildkarten: kein Bild mehr, nur noch ein kleines
+// Zeichen in der Bereichsfarbe, engere Zeilen, ein dünner Deckungsbalken rechts.
+// Der Sprung in der Form IST die Ortsangabe — man sieht ohne zu lesen, dass man
+// nicht mehr an der Wurzel steht.
+//
+// EHRLICHKEIT (docs/07-measurement.md): weiterhin zwei GEMESSENE Zonen
+// (bewiesen · reift), kein „Lektion erledigt". Die Fokus-Wahl liegt im Detail.
 
 import type { CategoryProgress } from './categories';
 import { IconChevron } from '../../ui/icons';
-import { HonestBar, HonestLegend } from './HonestBar';
 
 interface Props {
   progress: CategoryProgress[];
   focusId: string | null;
+  hue: string; // Kennfarbe des übergeordneten Bereichs
   onOpen: (categoryId: string) => void;
   onClearFocus: () => void;
 }
 
-export function CategoryOverview({ progress, focusId, onOpen, onClearFocus }: Props) {
+export function CategoryOverview({ progress, focusId, hue, onOpen, onClearFocus }: Props) {
   if (progress.length === 0) return null;
 
   const focused = progress.find((p) => p.category.id === focusId);
 
   return (
-    <section className="glass rounded-2xl p-5">
-      <div className="mb-3 flex items-baseline justify-between gap-3">
-        <h2 className="font-display text-lg font-semibold tracking-[0.01em] text-paper">Themen</h2>
+    <section>
+      <div className="mb-2.5 flex items-baseline justify-between gap-3 px-1">
+        <h2 className="font-display text-[1.05rem] font-semibold tracking-[0.01em] text-paper">
+          Themen
+        </h2>
         {focused && (
           <button onClick={onClearFocus} className="text-xs text-muted underline underline-offset-2">
             Fokus: {focused.category.title} · aufheben
@@ -30,35 +37,47 @@ export function CategoryOverview({ progress, focusId, onOpen, onClearFocus }: Pr
         )}
       </div>
 
-      <ul className="flex flex-col gap-3">
+      <ul className="flex flex-col gap-1.5">
         {progress.map((p) => {
           const isFocus = p.category.id === focusId;
+          const proven = p.total > 0 ? (p.stable / p.total) * 100 : 0;
+          const ripening = p.total > 0 ? (p.maturing / p.total) * 100 : 0;
           return (
             <li key={p.category.id}>
               <button
                 onClick={() => onOpen(p.category.id)}
-                className="glass-soft block w-full rounded-xl p-3.5 text-left"
+                className="flex w-full items-center gap-3 rounded-xl border border-line bg-white/[0.045] px-3 py-2.5 text-left transition-colors hover:bg-white/[0.075]"
               >
-                <div className="flex items-start justify-between gap-3">
-                  <div className="min-w-0">
-                    <p className="flex items-center gap-1.5 font-display text-[1.05rem] font-semibold tracking-[0.01em] text-paper">
-                      {isFocus && <span className="text-brand">★</span>}
-                      {p.category.title}
-                    </p>
-                    <p className="mt-0.5 text-xs text-muted">{p.category.blurb}</p>
-                  </div>
-                  <IconChevron className="mt-0.5 h-5 w-5 shrink-0 text-faint" />
-                </div>
-
-                {/* Ehrlicher Balken in zwei Zonen (kräftig = bewiesen, blass = reift) —
-                    beides gemessen, nie „erledigt" oder bloße Anwesenheit. */}
-                <HonestBar stable={p.stable} maturing={p.maturing} total={p.total} />
-                <HonestLegend
-                  stable={p.stable}
-                  maturing={p.maturing}
-                  total={p.total}
-                  dueNow={p.dueNow}
+                {/* Kleines Zeichen in der Bereichsfarbe — kein Bild mehr. */}
+                <span
+                  aria-hidden="true"
+                  className="h-7 w-1 shrink-0 rounded-full"
+                  style={{ backgroundColor: hue, opacity: isFocus ? 0.95 : 0.45 }}
                 />
+                <span className="min-w-0 flex-1">
+                  <span className="flex items-center gap-1.5">
+                    {isFocus && <span className="text-[0.7rem] text-brand">★</span>}
+                    <span className="truncate font-sans text-[0.88rem] font-semibold text-paper">
+                      {p.category.title}
+                    </span>
+                  </span>
+                  {/* Deckungsbalken: kräftig = bewiesen, blass = reift. */}
+                  <span className="mt-1.5 flex h-[3px] w-full overflow-hidden rounded-full bg-white/10">
+                    <span
+                      className="h-full bg-success transition-[width] duration-700 ease-out"
+                      style={{ width: `${proven}%` }}
+                    />
+                    <span
+                      className="h-full bg-success/40 transition-[width] duration-700 ease-out"
+                      style={{ width: `${ripening}%` }}
+                    />
+                  </span>
+                </span>
+                <span className="shrink-0 text-[0.68rem] tabular-nums text-faint">
+                  {p.stable}/{p.total}
+                  {p.dueNow > 0 && <span className="ml-1.5 text-brand">·{p.dueNow}</span>}
+                </span>
+                <IconChevron className="h-4 w-4 shrink-0 text-faint" />
               </button>
             </li>
           );

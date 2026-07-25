@@ -7,6 +7,11 @@
 // EHRLICHKEIT: Eine Szene zeigt an, wie viele ihrer „du"-Zeilen bereits bewiesen
 // sind — dieselbe Messung wie überall (`07-measurement.md`). Kein „Szene
 // abgeschlossen"-Haken: eine Szene ist nie fertig, sie wird gehalten.
+//
+// FORMSPRACHE (Schritt 2): Gespräche sind ein eigener Raum, also bekommen sie
+// ein eigenes Zeichen — zwei Sprechblasen, die gefüllte für die Szene-Person,
+// die offene für dich. Der Anteil ist gefüllt wie der Beweis-Anteil der Szene:
+// eine BILDLICHE Wiederholung derselben Zahl, kein zusätzlicher Punktestand.
 
 import type { Area, Category, ChunkState } from '../../domain/chunk';
 import type { Dialog } from '../../domain/dialog';
@@ -81,6 +86,7 @@ export function DialogOverview({ dialogs, categories, areas, states, onOpen }: P
                       onClick={() => onOpen(d.id)}
                       className="glass-soft flex w-full items-start gap-3 rounded-xl p-3 text-left"
                     >
+                      <SpeechMark hue={hue} filled={total > 0 ? stable / total : 0} />
                       <div className="min-w-0 flex-1">
                         <p className="font-display text-[0.95rem] font-semibold text-paper">
                           {d.title}
@@ -101,5 +107,45 @@ export function DialogOverview({ dialogs, categories, areas, states, onOpen }: P
         );
       })}
     </div>
+  );
+}
+
+/**
+ * Zwei Sprechblasen als Zeichen des Gesprächs-Raums. Die hintere (die Szene-Person)
+ * ist gefüllt, die vordere (du) offen — und ihr Füllstand entspricht dem Anteil
+ * bewiesener eigener Antworten. Rein bildlich, dieselbe gemessene Zahl wie im Text.
+ */
+function SpeechMark({ hue, filled }: { hue: string; filled: number }) {
+  const clamped = Math.max(0, Math.min(1, filled));
+  return (
+    <svg
+      viewBox="0 0 40 34"
+      className="mt-0.5 h-9 w-10 shrink-0"
+      aria-hidden="true"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <defs>
+        {/* Von unten nach oben auffüllen — wie ein Pegel, nicht wie ein Balken. */}
+        <linearGradient id={`sm-${clamped.toFixed(3)}`} x1="0" y1="1" x2="0" y2="0">
+          <stop offset={`${clamped * 100}%`} stopColor="#5FD0A0" stopOpacity="0.85" />
+          <stop offset={`${clamped * 100}%`} stopColor="#5FD0A0" stopOpacity="0" />
+        </linearGradient>
+      </defs>
+      {/* hinten: die Szene-Person spricht */}
+      <path
+        d="M3 3h22a3 3 0 0 1 3 3v10a3 3 0 0 1-3 3H12l-6 5v-5H3a3 3 0 0 1-3-3V6a3 3 0 0 1 3-3Z"
+        transform="translate(1 0)"
+        fill={hue}
+        opacity="0.34"
+      />
+      {/* vorne: deine Antwort — offen, Pegel = bewiesener Anteil */}
+      <path
+        d="M15 12h20a3 3 0 0 1 3 3v10a3 3 0 0 1-3 3h-3v5l-6-5H15a3 3 0 0 1-3-3V15a3 3 0 0 1 3-3Z"
+        fill={`url(#sm-${clamped.toFixed(3)})`}
+        stroke="#5FD0A0"
+        strokeOpacity="0.5"
+        strokeWidth="1.3"
+      />
+    </svg>
   );
 }

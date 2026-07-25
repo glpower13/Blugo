@@ -31,12 +31,11 @@
 - **Verständnis-Abdeckung** ist in M1 nur **stufengewichtet genähert** (Produktion voll, Wiedererkennen halb). Die echte Definition — Verständnis in *neuem Kontext* auf *Zielstufe* — ist noch offen; nachschärfen, sobald Kontext-/Level-Daten vorliegen.
 
 ## Navigation (seit `gremium-navigation.md`)
-- **„Weiterlernen · N fällig" verspricht mehr, als die Session hält.** Bei einem frischen
-  Start sind alle 98 Wendungen „fällig", die Session lässt aber nur `recommendedNewCount`
-  neue zu — der Knopf sagt 98, es kommen ~8. Sachlich stimmt die Zahl (der Gedächtnis-Zustand
-  ist so), als *Ankündigung* der nächsten Sitzung ist sie irreführend. Verhalten stammt aus
-  der alten Startseite, ist also keine Regression — aber auf dem Verteiler fällt es auf.
-  Offen: den Knopf auf die tatsächliche Sitzungsgröße umstellen, oder die Zahl weglassen?
+- ~~„Weiterlernen · N fällig" verspricht mehr, als die Session hält.~~ **Entschieden
+  2026-07-25:** Der Knopf zeigt die **tatsächliche Sitzungsgröße**. Eine Wand aus 98 ist die
+  Klippe, gegen die dieses Projekt gebaut ist; die Zahl ganz wegzulassen nähme die
+  Orientierung. Die Sitzungsgröße ist klein, endlich **und wahr**. Herleitung:
+  `gremium-navigation.md` §7c.
 - Reiterleiste unten (Daumen) oder ab `md` oben? Aktuell beides — gleiche Struktur, andere
   Position. Beobachten, ob der Wechsel irritiert.
 - Reiner Stöber-Modus für die Gegenrichtung Schwedisch → Deutsch (Minderheitsposition des
