@@ -50,3 +50,18 @@ describe('speakSwedish — das Warten endet immer', () => {
     await expect(speakSwedish('hej')).resolves.toBeUndefined();
   });
 });
+
+// Die App verspricht in den Einstellungen: „Dann liest die App lieber gar nicht
+// vor, als Schwedisch mit falscher Stimme zu lesen." Bis zum 2026-07-25 sprach
+// sie trotzdem — mit der Standardstimme des Geräts, also mit deutscher
+// Aussprache. Diese Tests halten das Versprechen fest.
+describe('ohne schwedische Stimme wird geschwiegen', () => {
+  it('unterscheidet „keine da" von „noch nicht geladen"', () => {
+    // Leere Liste heißt NICHT „keine schwedische Stimme" — viele Umgebungen
+    // reichen sie erst nach der ersten Nutzergeste nach. Wer beides verwechselt,
+    // schaltet die Ausgabe auf Geräten ab, auf denen sie funktioniert.
+    expect(selectSwedishVoice([])).toBeUndefined();
+    expect(selectSwedishVoice([{ lang: 'de-DE' }])).toBeUndefined();
+    expect(selectSwedishVoice([{ lang: 'sv-SE' }])).toBeDefined();
+  });
+});

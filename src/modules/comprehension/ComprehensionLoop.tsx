@@ -14,6 +14,7 @@ import { slowSpeechRate } from './tts';
 import { explainSchedule, whyNowSentence } from '../memory/explain';
 import { SpeakButton } from '../../ui/SpeakButton';
 import { IconPlay, IconSlow, IconWave, IconSparkle } from '../../ui/icons';
+import { VoiceMissingHint } from '../../ui/VoiceHint';
 
 const GRADE_LABEL: Record<ReviewResult, string> = {
   again: 'Nochmal',
@@ -290,6 +291,10 @@ export function ComprehensionLoop({
             </button>
           </div>
         )}
+        {/* Ohne schwedische Stimme bleiben die Knöpfe oben stumm — dann muss
+            hier stehen, warum. Ein stummer Knopf lässt den Lerner den Fehler
+            bei sich suchen. */}
+        {showFull && aiRegistry.synthesizer.isAvailable() && <VoiceMissingHint className="mt-2" />}
       </div>
 
       {/* 2. Verständnishilfen — nur wenn der Volltext ohnehin sichtbar ist (sonst

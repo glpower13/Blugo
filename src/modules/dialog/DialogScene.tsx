@@ -15,6 +15,7 @@ import { fillName } from '../../session/profile';
 import { IconBack, IconChat, IconPlay, IconSlow, IconSparkle } from '../../ui/icons';
 import { AreaWash } from '../../ui/areaTheme';
 import { SceneArt } from '../../ui/SceneArt';
+import { VoiceMissingHint } from '../../ui/VoiceHint';
 
 // Farbstimmung der Szene (liegt UNTER dem Szenenbild, gibt ihm Tiefe).
 const SCENE_GLOW: Record<Dialog['scene'], string> = {
@@ -266,6 +267,7 @@ function PartnerTurn({
               Aufdecken
             </button>
           </div>
+          {ttsOn && <VoiceMissingHint className="mt-2" />}
           <p className="text-xs text-faint">Erst hören — verstehst du es?</p>
         </div>
       ) : (
