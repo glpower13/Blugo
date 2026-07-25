@@ -339,3 +339,69 @@ test('language pair sheet reports direction as a measurement, not a switch', asy
   await expect(sheet).toHaveCount(0);
   expect(pageErrors, pageErrors.join('\n')).toHaveLength(0);
 });
+
+/**
+ * Wischen zwischen den Reitern (docs/gremium-navigation.md, `useSwipeTabs.ts`).
+ *
+ * Eine echte Wischgeste als Zeiger-Sequenz. Wichtig: NICHT vorher tippen — ein
+ * Tipp löst den Knopf darunter aus und die App springt in eine Detailansicht.
+ * (Genau daran ist der erste Anlauf dieses Tests gescheitert.)
+ */
+async function swipe(page: Page, fromX: number, toX: number, y = 300) {
+  await page.evaluate(
+    ([fx, tx, yy]) => {
+      const send = (type: string, x: number) => {
+        const el = document.elementFromPoint(Math.max(2, Math.min(388, x)), yy);
+        el?.dispatchEvent(
+          new PointerEvent(type, {
+            pointerId: 1,
+            pointerType: 'touch',
+            clientX: x,
+            clientY: yy,
+            bubbles: true,
+            cancelable: true,
+          }),
+        );
+      };
+      send('pointerdown', fx);
+      for (let i = 1; i <= 14; i++) send('pointermove', fx + ((tx - fx) * i) / 14);
+      send('pointerup', tx);
+    },
+    [fromX, toX, y],
+  );
+  await page.waitForTimeout(420);
+}
+
+const activeTab = (page: Page) =>
+  page.locator('nav[aria-label="Hauptbereiche"] [aria-current="page"]').innerText();
+
+test('swiping moves between tabs, and respects the browser edge gesture', async ({ page }) => {
+  await page.goto('/');
+  expect(await activeTab(page)).toBe('Heute');
+
+  // nach links wischen → nächster Reiter, zweimal hintereinander
+  await swipe(page, 300, 90);
+  expect(await activeTab(page)).toBe('Lernen');
+  await swipe(page, 300, 90);
+  expect(await activeTab(page)).toBe('Gespräche');
+
+  // nach rechts zurück
+  await swipe(page, 90, 300);
+  expect(await activeTab(page)).toBe('Lernen');
+
+  // Aus der RANDZONE darf nichts passieren: dort gehört die Geste dem Browser
+  // („zurück"). Sonst löst ein Wisch beides gleichzeitig aus.
+  await swipe(page, 8, 300);
+  expect(await activeTab(page), 'Randzone darf nicht greifen').toBe('Lernen');
+
+  // Zu kurzer Wisch federt zurück statt umzuschalten.
+  await swipe(page, 300, 262);
+  expect(await activeTab(page), 'kurzer Wisch darf nicht umschalten').toBe('Lernen');
+
+  // Am ersten Reiter nach rechts: Gummiband, kein Absturz, kein Wechsel.
+  await swipe(page, 90, 300);
+  await swipe(page, 90, 300);
+  expect(await activeTab(page)).toBe('Heute');
+  await swipe(page, 90, 340);
+  expect(await activeTab(page), 'am Anfang bleibt es beim ersten Reiter').toBe('Heute');
+});

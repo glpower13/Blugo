@@ -29,7 +29,8 @@ import { Backdrop } from './ui/Backdrop';
 import { NameEditor } from './ui/NameEditor';
 import { IconBack, IconTarget } from './ui/icons';
 import { areaVisual } from './ui/areaTheme';
-import { TabBar, type Tab } from './ui/TabBar';
+import { TabBar, TAB_IDS, type Tab } from './ui/TabBar';
+import { useSwipeTabs } from './ui/useSwipeTabs';
 const AiSettings = lazy(() =>
   import('./modules/content/AiSettings').then((m) => ({ default: m.AiSettings })),
 );
@@ -314,37 +315,20 @@ export default function App() {
     ? categories.find((c) => c.id === activeDialog.categoryId)
     : undefined;
 
-  return (
-    <>
-      <Backdrop />
-      <div className="grain" aria-hidden="true" />
-      {/* Globale Navigation — bewusst AUSSERHALB von <main>: dort trägt
-          `view-transition-name` ein `contain: layout`, das `position: fixed`
-          an <main> bindet statt ans Fenster (die Leiste scrollte weg). */}
-      {showTabs && (
-        <TabBar
-          active={tabOf(view)}
-          /* SOFORT, ohne Überblendung. Ein Reiterwechsel ist SEITWÄRTS-Navigation,
-             keine Bewegung im Baum — die Ansichts-Überblendung kostete dafür ~0,8 s
-             und ließ die Leiste selbst mitspringen. Richtungsanimationen bleiben
-             dem Drill-down vorbehalten, wo sie etwas bedeuten. */
-          onSelect={(tab) => setView({ name: 'tab', tab })}
-        />
-      )}
+  // ── Wischen zwischen den Reitern ──────────────────────────────────────────
+  const tabIndex = view.name === 'tab' ? TAB_IDS.indexOf(view.tab) : -1;
+  const swipe = useSwipeTabs(Math.max(0, tabIndex), TAB_IDS.length, (next) =>
+    setView({ name: 'tab', tab: TAB_IDS[next] }),
+  );
+  const neighbourTab = swipe.state.toIndex != null ? TAB_IDS[swipe.state.toIndex] : null;
+  const neighbourSide = swipe.state.toIndex != null && swipe.state.toIndex > tabIndex ? 1 : -1;
 
-      <main
-        className={`vt-page mx-auto flex min-h-dvh w-full max-w-md flex-col gap-4 px-4 pt-6 md:max-w-3xl md:px-6 ${
-          showTabs ? 'pb-32 md:pb-28' : 'pb-10'
-        }`}
-      >
-        {error && (
-          <section className="rounded-2xl border border-danger/40 bg-danger/10 p-4">
-            <p className="text-sm text-danger">{error}</p>
-          </section>
-        )}
-
+  /** Der Inhalt EINES Reiters — damit ihn der Wisch-Container zweimal zeigen kann. */
+  function renderTab(tab: Tab) {
+    return (
+      <>
         {/* ───────── HEUTE (Ebene 0 · der Verteiler) ───────── */}
-        {view.name === 'tab' && view.tab === 'today' && (
+        {tab === 'today' && (
           <>
             <TodayView
               name={name}
@@ -373,7 +357,7 @@ export default function App() {
         )}
 
         {/* ───────── LERNEN (Ebene 1 · der Baum) ───────── */}
-        {view.name === 'tab' && view.tab === 'learn' && (
+        {tab === 'learn' && (
           <div className="mx-auto flex w-full max-w-md flex-col gap-4 md:max-w-xl">
             <header className="px-1 pt-1">
               <h1 className="font-display text-[1.5rem] font-semibold leading-tight text-paper">
@@ -405,7 +389,7 @@ export default function App() {
         )}
 
         {/* ───────── GESPRÄCHE (eigener Raum statt drei Klicks tief) ───────── */}
-        {view.name === 'tab' && view.tab === 'talk' && !loading && (
+        {tab === 'talk' && !loading && (
           <DialogOverview
             dialogs={dialogs}
             categories={categories}
@@ -416,7 +400,7 @@ export default function App() {
         )}
 
         {/* ───────── FORTSCHRITT (die ehrliche Messung, eigener Raum) ───────── */}
-        {view.name === 'tab' && view.tab === 'progress' && (
+        {tab === 'progress' && (
           <ProgressView
             states={stateList}
             stable={metrics.stable}
@@ -427,6 +411,78 @@ export default function App() {
             totalChunks={chunks.length}
             successRate={successRate}
           />
+        )}
+
+      </>
+    );
+  }
+
+  return (
+    <>
+      <Backdrop />
+      <div className="grain" aria-hidden="true" />
+      {/* Globale Navigation — bewusst AUSSERHALB von <main>: dort trägt
+          `view-transition-name` ein `contain: layout`, das `position: fixed`
+          an <main> bindet statt ans Fenster (die Leiste scrollte weg). */}
+      {showTabs && (
+        <TabBar
+          active={tabOf(view)}
+          progress={view.name === 'tab' ? swipe.state.progress : 0}
+          /* SOFORT, ohne Überblendung. Ein Reiterwechsel ist SEITWÄRTS-Navigation,
+             keine Bewegung im Baum — die Ansichts-Überblendung kostete dafür ~0,8 s
+             und ließ die Leiste selbst mitspringen. Richtungsanimationen bleiben
+             dem Drill-down vorbehalten, wo sie etwas bedeuten. */
+          onSelect={(tab) => setView({ name: 'tab', tab })}
+        />
+      )}
+
+      <main
+        className={`vt-page mx-auto flex min-h-dvh w-full max-w-md flex-col gap-4 px-4 pt-6 md:max-w-3xl md:px-6 ${
+          showTabs ? 'pb-32 md:pb-28' : 'pb-10'
+        }`}
+      >
+        {error && (
+          <section className="rounded-2xl border border-danger/40 bg-danger/10 p-4">
+            <p className="text-sm text-danger">{error}</p>
+          </section>
+        )}
+
+        {/* Wischbarer Reiter-Bereich (docs/gremium-navigation.md, useSwipeTabs.ts).
+            Nur der aktive Reiter ist gemountet; der Nachbar kommt erst dazu,
+            WÄHREND gezogen wird — sonst kostete das Wischen die Ladezeit, die
+            gerade erst gewonnen wurde. */}
+        {view.name === 'tab' && (
+          <div
+            ref={swipe.ref}
+            {...swipe.handlers}
+            className="relative flex flex-1 flex-col overflow-hidden"
+          >
+            <div
+              className="flex flex-1 flex-col"
+              style={{
+                transform: `translateX(${swipe.state.dx}px)`,
+                transition: swipe.state.settling
+                  ? 'transform .19s cubic-bezier(.22,.61,.36,1)'
+                  : 'none',
+              }}
+            >
+              {renderTab(view.tab)}
+            </div>
+            {neighbourTab && (
+              <div
+                aria-hidden="true"
+                className="absolute inset-0 flex flex-col overflow-hidden"
+                style={{
+                  transform: `translateX(calc(${swipe.state.dx}px + ${neighbourSide}00%))`,
+                  transition: swipe.state.settling
+                    ? 'transform .19s cubic-bezier(.22,.61,.36,1)'
+                    : 'none',
+                }}
+              >
+                {renderTab(neighbourTab)}
+              </div>
+            )}
+          </div>
         )}
 
         {/* ───────── BEREICH-DETAIL (Ebene 1 → 2) ───────── */}
