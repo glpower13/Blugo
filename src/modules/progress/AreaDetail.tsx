@@ -63,7 +63,8 @@ export function AreaDetail({
           {areaProgress.maturing > 0 && (
             <>
               {' · '}
-              <span className="text-success/70">{areaProgress.maturing}</span> reifen
+              <span className="text-success/70">{areaProgress.maturing}</span>{' '}
+              {areaProgress.maturing === 1 ? 'reift' : 'reifen'}
             </>
           )}
           {dueNow > 0 && <> · {dueNow} fällig</>}

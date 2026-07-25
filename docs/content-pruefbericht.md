@@ -10,7 +10,7 @@
 
 ## Ergebnis
 
-- Geprüfte schwedische Zeichenketten: **3429**
+- Geprüfte schwedische Zeichenketten: **3430**
 - Verschiedene Wörter: **427**
 - ✅ alltagshäufig belegt (Zipf ≥ 3.0): **423**
 - ⚠️ selten belegt: **4**

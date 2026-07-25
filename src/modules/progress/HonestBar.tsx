@@ -48,27 +48,3 @@ export function HonestBar({ stable, maturing, total }: Props) {
     </div>
   );
 }
-
-/**
- * Die Zeile unter dem Balken — nennt beide Zonen beim Namen, damit die Farbe
- * nicht gedeutet werden muss. „0 bewiesen · 2 reifen · 6 fällig"
- */
-export function HonestLegend({
-  stable,
-  maturing,
-  total,
-  dueNow,
-}: Props & { dueNow: number }) {
-  return (
-    <p className="mt-1.5 text-xs text-muted">
-      <span className="text-success">{stable}</span> von {total} bewiesen
-      {maturing > 0 && (
-        <>
-          {' · '}
-          <span className="text-success/70">{maturing}</span> reifen
-        </>
-      )}
-      {dueNow > 0 && <> · {dueNow} fällig</>}
-    </p>
-  );
-}

@@ -8,7 +8,16 @@ export interface Metrics {
   maturing: number; // on the way to stable: production stage, interval grown, not yet proven
   stable: number; // chunks proven retained after a long gap
   dueNow: number; // chunks due for retrieval right now
-  coverage: number; // Verständnis-Abdeckung 0..1 (share of active chunks last understood)
+  /**
+   * Trefferquote 0..1 über die BEGONNENEN Wendungen — nicht über den Stoff.
+   * Der Name „Abdeckung" hat genau das verwechselt: Er klingt nach „Anteil des
+   * Ganzen", gerechnet wurde aber über `active`. Bei 3 von 179 angefassten
+   * Wendungen standen dort 100 % (Ehrlichkeits-Audit 2026-07-25). Die Fläche
+   * nennt jetzt beide Zahlen.
+   */
+  coverage: number;
+  /** Bezugsgröße der Trefferquote: wie viele Wendungen überhaupt begonnen sind. */
+  coverageBase: number;
 }
 
 /** A chunk is "active" once it has been encountered at least once. */
@@ -22,22 +31,43 @@ function lastWasGood(s: ChunkState): boolean {
 }
 
 /**
+ * Gilt ein erbrachter Beweis JETZT noch? Rein.
+ *
+ * Ein Beweis ist historisch wahr — er wurde erbracht. Aber die Zahlen auf der
+ * Startseite behaupten Gegenwart („was du wirklich behalten hast"). Ist die
+ * Wendung nach dem Beweis wieder durchgefallen, hat die App das Gegenteil
+ * GEMESSEN; sie weiter als bewiesen zu führen wäre genau die Art Zahl, gegen
+ * die dieses Projekt gebaut ist (Ehrlichkeits-Audit 2026-07-25).
+ */
+function stillHolds(at: number | null | undefined, s: ChunkState): boolean {
+  if (at == null) return false;
+  return s.lapsedAt == null || s.lapsedAt < at;
+}
+
+/**
  * A chunk is "stable" only once it has been *proven* so (docs/07-measurement.md):
  * a successful production recall after the scheduled interval had already
  * reached the horizon — i.e. it really survived a long gap. Measured, not
  * estimated; a merely long scheduled interval does not count (anti-Goodhart).
+ *
+ * Und der Beweis muss halten: Nach einem Fehlschlag zählt er nicht mehr, bis er
+ * neu erbracht ist.
  */
 export function isStable(s: ChunkState): boolean {
-  return s.provenStableAt != null;
+  return stillHolds(s.provenStableAt, s);
 }
 
 /**
- * On the way to stable: reliably in production with a grown interval, not yet proven.
- * Exported so every view names the same thing "reift" — the honest bar shows this
- * as its faint zone (docs/07-measurement.md).
+ * Auf dem Weg dorthin: eine TATSÄCHLICH überstandene Pause von ≥ 21 Tagen in der
+ * Produktions-Stufe, noch ohne den langen Beweis.
+ *
+ * Vorher stand hier `intervalDays >= 21` — das gerade neu GEPLANTE Intervall,
+ * also eine Prognose, während die Oberfläche „überstanden" behauptete. Jetzt
+ * zählt derselbe gemessene Vermerk wie beim langen Beweis (`maturedAt`), und er
+ * verfällt beim Fehlschlag genauso.
  */
 export function isMaturing(s: ChunkState): boolean {
-  return !isStable(s) && s.stage === 'production' && s.intervalDays >= 21;
+  return !isStable(s) && stillHolds(s.maturedAt, s);
 }
 
 /**
@@ -54,20 +84,33 @@ export function isMaturing(s: ChunkState): boolean {
  */
 export interface DirectionSplit {
   untouched: number; // noch nie begegnet
+  struggling: number; // begegnet, aber noch nie gekonnt
   recognition: number; // begegnet, du verstehst sie
   production: number; // du sagst sie selbst
 }
 
+/** Hat die Wendung je einen gelungenen Abruf gehabt? */
+const everSucceeded = (s: ChunkState): boolean => s.history.some((h) => h.result === 'good');
+
+/**
+ * EIGENER EIMER FÜR „begegnet, aber noch nie gekonnt": Vorher landete jede
+ * begegnete Wendung, die nicht in Produktion war, unter „verstehst du" — auch
+ * eine, die der Lerner dreimal hintereinander NICHT konnte. Eine Fläche, die
+ * damit wirbt, die Richtung sei ein Messwert, darf kein Scheitern als Verständnis
+ * führen (Ehrlichkeits-Audit 2026-07-25).
+ */
 export function directionSplit(states: ChunkState[]): DirectionSplit {
   let untouched = 0;
+  let struggling = 0;
   let recognition = 0;
   let production = 0;
   for (const s of states) {
     if (!isActive(s)) untouched++;
     else if (s.stage === 'production') production++;
-    else recognition++;
+    else if (everSucceeded(s)) recognition++;
+    else struggling++;
   }
-  return { untouched, recognition, production };
+  return { untouched, struggling, recognition, production };
 }
 
 /**
@@ -104,5 +147,6 @@ export function computeMetrics(states: ChunkState[], now: number = Date.now()): 
     stable: states.filter(isStable).length,
     dueNow: states.filter((s) => s.dueAt <= now).length,
     coverage: activeStates.length === 0 ? 0 : understoodWeight / activeStates.length,
+    coverageBase: activeStates.length,
   };
 }

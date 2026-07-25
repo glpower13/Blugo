@@ -22,6 +22,7 @@ interface Props {
   active: number;
   dueNow: number;
   coverage: number;
+  coverageBase: number;
   totalChunks: number;
   successRate: number | null;
   spoken: number; // Wendungen, die laut gesagt und richtig erkannt wurden (P3)
@@ -34,6 +35,7 @@ export function ProgressView({
   active,
   dueNow,
   coverage,
+  coverageBase,
   totalChunks,
   successRate,
   spoken,
@@ -56,8 +58,11 @@ export function ProgressView({
             <Stat value={stable} label="stabil" accent />
           </div>
         </div>
+        {/* Beide Zahlen, weil eine allein irreführt: „100 %" bei drei angefassten
+            Wendungen ist wahr und trotzdem eine Lüge (Ehrlichkeits-Audit). */}
         <p className="mt-3 text-xs text-muted">
-          {dueNow} jetzt fällig · Verständnis-Abdeckung {Math.round(coverage * 100)} %
+          {dueNow} jetzt fällig · Trefferquote {Math.round(coverage * 100)} % von{' '}
+          {coverageBase} begonnenen ({totalChunks} insgesamt)
         </p>
         {successRate !== null && (
           <p className="mt-1 text-xs text-faint">
@@ -86,12 +91,23 @@ export function ProgressView({
             <dt className="font-semibold text-success">stabil</dt>
             <dd className="text-faint">
               Nach über 90 Tagen Pause selbst gesagt — und es saß. Das ist der Beweis.
+              Fällst du später wieder durch, zählt sie nicht mehr mit, bis der Beweis
+              erneut gelingt.
             </dd>
           </div>
           <div>
             <dt className="font-semibold text-paper">reift</dt>
             <dd className="text-faint">
-              Über 21 Tage überstanden, selbst produziert, aber noch nicht bewiesen.
+              Eine Pause von über 21 Tagen überstanden und selbst produziert — aber die
+              90-Tage-Prüfung steht noch aus.
+            </dd>
+          </div>
+          <div>
+            <dt className="font-semibold text-muted">Trefferquote</dt>
+            <dd className="text-faint">
+              Wie sicher die Wendungen sitzen, die du schon angefangen hast. Sie sagt
+              nichts darüber, wie viel vom Stoff du schon kennst — dafür steht die zweite
+              Zahl daneben.
             </dd>
           </div>
           <div>

@@ -27,10 +27,20 @@ interface Status {
   dot: string;
 }
 
+/**
+ * EINE Quelle für den Einzelstatus — dieselbe wie für Ring, Balken und alle
+ * Zählungen. Vorher stand hier `status === 'maintenance'`, während Ring und
+ * Balken `isMaturing` benutzten: Der Themenkopf konnte „2 reifen" melden und
+ * direkt darunter beide Wendungen als „am Lernen" ausweisen
+ * (Ehrlichkeits-Audit 2026-07-25).
+ *
+ * „bewiesen" statt „sitzt": „Sitzt" ist die Beschriftung des
+ * Selbsteinschätzungs-Knopfes und meint dort etwas viel Schwächeres.
+ */
 function statusOf(s: ChunkState | undefined): Status {
   if (!s || (s.status === 'new' && s.history.length === 0)) return { label: 'neu', dot: 'bg-warn' };
-  if (isStable(s)) return { label: 'sitzt', dot: 'bg-success dot-glow' };
-  if (s.status === 'maintenance') return { label: 'reift', dot: 'bg-success' };
+  if (isStable(s)) return { label: 'bewiesen', dot: 'bg-success dot-glow' };
+  if (isMaturing(s)) return { label: 'reift', dot: 'bg-success' };
   return { label: 'am Lernen', dot: 'bg-brand' };
 }
 
@@ -89,7 +99,7 @@ export function CategoryDetail({
           {maturing > 0 && (
             <>
               {' · '}
-              <span className="text-success/70">{maturing}</span> reifen
+              <span className="text-success/70">{maturing}</span> {maturing === 1 ? 'reift' : 'reifen'}
             </>
           )}
         </p>

@@ -107,6 +107,27 @@ export interface ChunkState {
   // until then. This is the honest measure — retained after a real long gap,
   // not merely scheduled that far (docs/07-measurement.md; anti-Goodhart).
   provenStableAt: number | null;
+  /**
+   * Wann die Wendung zuletzt WIEDER GESCHEITERT ist („Nochmal"). Null, solange
+   * das nie passiert ist.
+   *
+   * WARUM ES DAS BRAUCHT: `provenStableAt` ist ein historischer Beweis — er wurde
+   * einmal erbracht und bleibt wahr. Die große Zahl auf der Startseite behauptet
+   * aber GEGENWART („was du wirklich behalten hast"). Ohne diesen Vermerk zählte
+   * eine Wendung weiter als bewiesen, obwohl die App gerade das Gegenteil
+   * gemessen hatte (Befund des Ehrlichkeits-Audits 2026-07-25).
+   */
+  lapsedAt?: number | null;
+  /**
+   * Wann die Wendung erstmals eine ÜBERSTANDENE Pause von ≥ 21 Tagen in der
+   * Produktions-Stufe hinter sich hatte. Null, bis das gemessen wurde.
+   *
+   * Vorher hing „reift" am gerade neu GEPLANTEN Intervall — also an einer
+   * Prognose, während die Oberfläche „überstanden" behauptete. Dieser Vermerk
+   * macht aus der Prognose eine Messung (dasselbe Muster wie `provenStableAt`,
+   * nur am kürzeren Horizont).
+   */
+  maturedAt?: number | null;
   history: ReviewEvent[];
   seenSegmentIds: string[]; // contexts already used → drive context variation
 }

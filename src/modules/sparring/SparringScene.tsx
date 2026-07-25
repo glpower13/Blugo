@@ -140,9 +140,15 @@ export function SparringScene({
         open.map((t) => ({ sv: t.sv, de: t.de })),
         lastPartnerLine,
       );
-      for (const hit of hits) {
-        const chunk = open.find((t) => t.sv === hit.sv);
-        if (chunk) onProduced(chunk, spoken, openTargets);
+      // AUFGEDECKTE ZIELLISTE ZÄHLT NICHT. Wer die Wendungen vor sich liegen hat
+      // und sie abliest, hat nichts abgerufen — das wäre der schnellste Weg zu
+      // „reift" und damit genau der Goodhart-Fall, den der Nachplapper-Filter an
+      // anderer Stelle verhindert (Ehrlichkeits-Audit 2026-07-25).
+      if (!openTargets) {
+        for (const hit of hits) {
+          const chunk = open.find((t) => t.sv === hit.sv);
+          if (chunk) onProduced(chunk, spoken, false);
+        }
       }
       const hitIds = hits.map((h) => open.find((t) => t.sv === h.sv)!.id);
       if (hitIds.length > 0) setDone((d) => [...d, ...hitIds]);
@@ -362,12 +368,13 @@ export function SparringScene({
                 <p className="text-xs text-muted">
                   <span className="text-paper">{done.length}</span> von {targets.length} selbst
                   gesagt
+                  {openTargets && <span className="text-warn"> · aufgedeckt, zählt nicht</span>}
                 </p>
                 <button
                   onClick={() => setOpenTargets((v) => !v)}
                   className="text-[0.7rem] text-muted underline underline-offset-2"
                 >
-                  {openTargets ? 'verstecken' : 'verraten (Krücke)'}
+                  {openTargets ? 'wieder verstecken' : 'verraten (zählt dann nicht)'}
                 </button>
               </div>
               {openTargets && (

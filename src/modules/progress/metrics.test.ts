@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { computeMetrics, isStable, directionSplit, spokenAloud } from './metrics';
+import { computeMetrics, isStable, isMaturing, directionSplit, spokenAloud } from './metrics';
 import { initialState } from '../memory/memoryEngine';
 import type { ChunkState } from '../../domain/chunk';
 
@@ -47,13 +47,38 @@ describe('metrics', () => {
     expect(computeMetrics([make({ status: 'new' })], NOW).coverage).toBe(0);
   });
 
-  it('maturing counts production chunks with a grown interval that are not yet proven stable', () => {
-    const maturing = make({ chunkId: 'm', stage: 'production', intervalDays: 50 }); // grown, unproven
-    const proven = make({ chunkId: 's', stage: 'production', intervalDays: 120, provenStableAt: NOW });
-    const early = make({ chunkId: 'e', stage: 'recognition', intervalDays: 50 }); // not production
-    const m = computeMetrics([maturing, proven, early], NOW);
-    expect(m.maturing).toBe(1); // only the unproven production chunk
-    expect(m.stable).toBe(1);
+  it('„reift" zählt nur ÜBERSTANDENE Pausen, kein bloß geplantes Intervall', () => {
+    // Ein langes GEPLANTES Intervall ist eine Prognose. Die Oberfläche sagt aber
+    // „überstanden" — also darf nur der gemessene Vermerk zählen.
+    const nurGeplant = make({ chunkId: 'g', stage: 'production', intervalDays: 50 });
+    const ueberstanden = make({ chunkId: 'm', stage: 'production', intervalDays: 50, maturedAt: NOW });
+    const proven = make({
+      chunkId: 's',
+      stage: 'production',
+      intervalDays: 120,
+      maturedAt: NOW,
+      provenStableAt: NOW,
+    });
+    const m = computeMetrics([nurGeplant, ueberstanden, proven], NOW);
+    expect(m.maturing).toBe(1); // nur die tatsächlich überstandene, noch unbewiesene
+    expect(m.stable).toBe(1); // die bewiesene zählt NICHT zusätzlich als reifend
+  });
+
+  it('ein Fehlschlag NACH dem Beweis nimmt den Beweis wieder weg', () => {
+    // Die große Zahl behauptet Gegenwart („was du wirklich behalten hast").
+    // Hat die App gerade das Gegenteil gemessen, darf sie nicht weiterzählen.
+    const gefallen = make({
+      chunkId: 'x',
+      stage: 'production',
+      provenStableAt: NOW,
+      maturedAt: NOW,
+      lapsedAt: NOW + 1000,
+      history: [{ at: NOW + 1000, result: 'again', segmentId: 's' }],
+    });
+    expect(isStable(gefallen)).toBe(false);
+    expect(isMaturing(gefallen)).toBe(false);
+    // Gelingt der Beweis danach erneut, zählt er wieder.
+    expect(isStable({ ...gefallen, provenStableAt: NOW + 2000 })).toBe(true);
   });
 });
 
@@ -75,17 +100,35 @@ describe('directionSplit — die Richtung ist gemessen, nicht gewählt', () => {
       history: [{ at: NOW, result: 'good' as const, segmentId: 's' }],
     });
     const d = directionSplit([seen('a', 'recognition'), seen('b', 'production'), seen('c', 'production')]);
-    expect(d).toEqual({ untouched: 0, recognition: 1, production: 2 });
+    expect(d).toEqual({ untouched: 0, struggling: 0, recognition: 1, production: 2 });
   });
 
-  it('die drei Eimer ergeben zusammen immer die Gesamtzahl', () => {
+  it('führt eine nie gekonnte Wendung NICHT als „du verstehst sie"', () => {
+    // Dreimal „Nochmal" ist gemessenes Scheitern. Es als Verständnis zu zählen
+    // wäre genau die Sorte Zahl, gegen die dieses Projekt gebaut ist.
+    const nurGescheitert = {
+      ...initialState('a', NOW),
+      status: 'learning' as const,
+      history: [
+        { at: NOW, result: 'again' as const, segmentId: 's' },
+        { at: NOW + 1, result: 'again' as const, segmentId: 's' },
+        { at: NOW + 2, result: 'again' as const, segmentId: 's' },
+      ],
+    };
+    const d = directionSplit([nurGescheitert]);
+    expect(d.struggling).toBe(1);
+    expect(d.recognition).toBe(0);
+  });
+
+  it('die vier Eimer ergeben zusammen immer die Gesamtzahl', () => {
     const states = [
       initialState('a', NOW),
-      { ...initialState('b', NOW), status: 'learning' as const, history: [{ at: NOW, result: 'good' as const, segmentId: 's' }] },
-      { ...initialState('c', NOW), stage: 'production' as const, status: 'learning' as const, history: [{ at: NOW, result: 'good' as const, segmentId: 's' }] },
+      { ...initialState('b', NOW), status: 'learning' as const, history: [{ at: NOW, result: 'again' as const, segmentId: 's' }] },
+      { ...initialState('c', NOW), status: 'learning' as const, history: [{ at: NOW, result: 'good' as const, segmentId: 's' }] },
+      { ...initialState('d', NOW), stage: 'production' as const, status: 'learning' as const, history: [{ at: NOW, result: 'good' as const, segmentId: 's' }] },
     ];
     const d = directionSplit(states);
-    expect(d.untouched + d.recognition + d.production).toBe(states.length);
+    expect(d.untouched + d.struggling + d.recognition + d.production).toBe(states.length);
   });
 });
 

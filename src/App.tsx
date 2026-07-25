@@ -86,7 +86,6 @@ export default function App() {
   const [pos, setPos] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [successRate, setSuccessRate] = useState<number | null>(null);
   const [showSettings, setShowSettings] = useState(false);
   // Einstellungen des Lerners (docs/gremium-einstellungen.md). Sie ändern den
   // AUFWAND, nie den Maßstab — deshalb liegen sie neben der Engine, nicht darin.
@@ -132,14 +131,12 @@ export default function App() {
         for (const c of cs) if (!byId[c.id]) byId[c.id] = initialState(c.id, now);
         // Adaptive difficulty: judge the recent success band (drives how many
         // NEW chunks a session admits — docs/04-product.md, anti-cliff).
-        const rate = recentSuccessRate(Object.values(byId));
         setAreas(ars);
         setCategories(cats);
         setDialogs(dlgs);
         setChunks(cs);
         setSegments(segs);
         setStates(byId);
-        setSuccessRate(rate);
         setFocusId(loadFocus());
         // Kein Vorab-Queue mehr: die Session baut ihre Warteschlange beim Start.
       } catch (e) {
@@ -166,6 +163,11 @@ export default function App() {
   }, []);
 
   const stateList = useMemo(() => Object.values(states), [states]);
+  // Die Erfolgsquote wurde bisher NUR beim Start berechnet. „(100 % zuletzt)"
+  // blieb dann eine ganze Sitzung lang stehen, obwohl gerade dreimal „Nochmal"
+  // gedrückt wurde — und die Anti-Klippen-Logik, die daran hängt, reagierte erst
+  // beim nächsten App-Start (Ehrlichkeits-Audit 2026-07-25).
+  const successRate = useMemo(() => recentSuccessRate(stateList), [stateList]);
   const metrics = useMemo(() => computeMetrics(stateList), [stateList]);
   // Laut Gesagtes (P3): eine Eigenschaft der Abrufe, keine zweite Währung.
   const spokenCount = useMemo(() => spokenAloud(stateList), [stateList]);
@@ -499,6 +501,7 @@ export default function App() {
             active={metrics.active}
             dueNow={metrics.dueNow}
             coverage={metrics.coverage}
+            coverageBase={metrics.coverageBase}
             totalChunks={chunks.length}
             successRate={successRate}
             spoken={spokenCount}

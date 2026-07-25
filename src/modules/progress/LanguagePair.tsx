@@ -23,7 +23,7 @@ interface Props {
 }
 
 export function LanguagePair({ split, onClose }: Props) {
-  const total = split.untouched + split.recognition + split.production;
+  const total = split.untouched + split.struggling + split.recognition + split.production;
   const pct = (n: number) => (total > 0 ? (n / total) * 100 : 0);
 
   return (
@@ -70,6 +70,10 @@ export function LanguagePair({ split, onClose }: Props) {
               className="h-full bg-brand/60 transition-[width] duration-700 ease-out"
               style={{ width: `${pct(split.recognition)}%` }}
             />
+            <div
+              className="h-full bg-warn/50 transition-[width] duration-700 ease-out"
+              style={{ width: `${pct(split.struggling)}%` }}
+            />
           </div>
 
           <dl className="mt-4 space-y-3.5">
@@ -84,6 +88,14 @@ export function LanguagePair({ split, onClose }: Props) {
               value={split.recognition}
               title="verstehst du"
               note="Du erkennst sie im Kontext. Die Engine hebt sie von selbst an, sobald der Abruf sitzt."
+            />
+            {/* Eigener Eimer, seit dem Ehrlichkeits-Audit: Vorher zählte eine
+                dreimal misslungene Wendung als „verstehst du". */}
+            <Row
+              swatch="bg-warn/50"
+              value={split.struggling}
+              title="begegnet, noch nicht gekonnt"
+              note="Schon gesehen, aber noch kein gelungener Abruf. Bewusst getrennt gezählt — Scheitern ist kein Verständnis."
             />
             <Row
               swatch="bg-line"
