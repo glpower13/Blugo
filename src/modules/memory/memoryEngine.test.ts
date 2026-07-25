@@ -45,6 +45,30 @@ describe('memoryEngine', () => {
     expect(s.seenSegmentIds).toEqual(['seg1', 'seg2']);
   });
 
+  // P3 (docs/gremium-sprachpartner.md): Gesprochenes wird VERMERKT, aber der
+  // Terminplan darf davon nicht abweichen — sonst wäre Sprechen ein zweiter,
+  // leichterer Maßstab statt eines zweiten Weges.
+  it('records a spoken retrieval in the history', () => {
+    const s = schedule(initialState('c1', NOW), 'good', 'seg1', NOW, { spoken: true });
+    expect(s.history[0].spoken).toBe(true);
+  });
+
+  it('leaves the flag off when nothing was spoken', () => {
+    const s = schedule(initialState('c1', NOW), 'good', 'seg1', NOW);
+    expect(s.history[0].spoken).toBeUndefined();
+  });
+
+  it('schedules a spoken retrieval EXACTLY like a typed one', () => {
+    const typed = schedule(initialState('c1', NOW), 'good', 'seg1', NOW);
+    const spoken = schedule(initialState('c1', NOW), 'good', 'seg1', NOW, { spoken: true });
+    expect(spoken.dueAt).toBe(typed.dueAt);
+    expect(spoken.intervalDays).toBe(typed.intervalDays);
+    expect(spoken.stability).toBe(typed.stability);
+    expect(spoken.difficulty).toBe(typed.difficulty);
+    expect(spoken.stage).toBe(typed.stage);
+    expect(spoken.provenStableAt).toBe(typed.provenStableAt);
+  });
+
   it('getDue returns only chunks whose dueAt has passed, most overdue first', () => {
     const a = { ...initialState('a', NOW), dueAt: NOW - 2 * DAY_MS };
     const b = { ...initialState('b', NOW), dueAt: NOW - 1 * DAY_MS };

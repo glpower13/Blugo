@@ -8,6 +8,8 @@ import type { ReviewResult } from '../../domain/chunk';
 import type { Dialog, DialogTurn } from '../../domain/dialog';
 import { aiRegistry } from '../content/aiRegistry';
 import { analyzeAnswer, type AnswerAnalysis } from '../comprehension/answerCheck';
+import { useSpeechInput } from '../comprehension/useSpeechInput';
+import { SpeakButton } from '../../ui/SpeakButton';
 import { fillName } from '../../session/profile';
 import { IconBack, IconChat, IconPlay, IconSlow, IconSparkle } from '../../ui/icons';
 import { AreaWash } from '../../ui/areaTheme';
@@ -33,7 +35,12 @@ interface Props {
   backLabel: string;
   areaHue: string; // Kennfarbe des Bereichs (Bereichs-Schimmer, Orientierung)
   learnerName: string; // Vorname des Lerners (personalisiert die Anrede); '' = keiner
-  onProduce: (turn: DialogTurn, result: ReviewResult, helpUsed: boolean) => void;
+  onProduce: (
+    turn: DialogTurn,
+    result: ReviewResult,
+    helpUsed: boolean,
+    spoken: boolean,
+  ) => void;
   onExit: () => void;
 }
 
@@ -130,8 +137,8 @@ export function DialogScene({ dialog, backLabel, areaHue, learnerName, onProduce
                 <YouTurn
                   turn={current}
                   ttsOn={ttsOn}
-                  onGrade={(result, helpUsed) => {
-                    onProduce(current, result, helpUsed);
+                  onGrade={(result, helpUsed, spoken) => {
+                    onProduce(current, result, helpUsed, spoken);
                     setStep((s) => s + 1);
                   }}
                 />
@@ -324,9 +331,11 @@ function YouTurn({
 }: {
   turn: DialogTurn;
   ttsOn: boolean;
-  onGrade: (result: ReviewResult, helpUsed: boolean) => void;
+  onGrade: (result: ReviewResult, helpUsed: boolean, spoken: boolean) => void;
 }) {
   const [typed, setTyped] = useState('');
+  const [heard, setHeard] = useState(''); // was die Spracheingabe verstanden hat
+  const [spokenOk, setSpokenOk] = useState(false); // gesprochen UND exakt erkannt
   const [helpUsed, setHelpUsed] = useState(false);
   const [phase, setPhase] = useState<'input' | 'feedback' | 'revealed'>('input');
   const [feedback, setFeedback] = useState<AnswerAnalysis | null>(null);
@@ -337,8 +346,11 @@ function YouTurn({
 
   const canExplain = aiRegistry.explainer !== null;
 
-  function check() {
-    const fb = analyzeAnswer(typed, turn.sv);
+  // Getippt ODER gesprochen — dieselbe Prüfung gegen denselben geprüften Chunk
+  // (docs/gremium-sprachpartner.md §3: zweiter Weg, kein zweiter Maßstab).
+  function check(value: string = typed, fromSpeech = false) {
+    const fb = analyzeAnswer(value, turn.sv);
+    setSpokenOk(fromSpeech && fb.correct);
     if (fb.correct) {
       setFeedback(null);
       setPhase('revealed');
@@ -348,6 +360,15 @@ function YouTurn({
       setPhase('feedback');
     }
   }
+
+  // Im Gespräch ist Sprechen der natürlichste Weg — hier zählt es genauso (P2).
+  const mic = useSpeechInput({
+    onHeard: (text) => {
+      setHeard(text);
+      setTyped(text);
+      check(text, true);
+    },
+  });
 
   async function askWhy() {
     const explainer = aiRegistry.explainer;
@@ -418,6 +439,16 @@ function YouTurn({
             >
               Prüfen
             </button>
+            {mic.supported && (
+              <>
+                <div className="flex items-center gap-3 pt-0.5" aria-hidden="true">
+                  <span className="h-px flex-1 bg-line" />
+                  <span className="text-[0.66rem] uppercase tracking-[0.16em] text-faint">oder</span>
+                  <span className="h-px flex-1 bg-line" />
+                </div>
+                <SpeakButton mic={mic} heard={heard} label="Sag es auf Schwedisch" />
+              </>
+            )}
           </form>
         </>
       )}
@@ -425,6 +456,15 @@ function YouTurn({
       {phase === 'feedback' && feedback && (
         <div>
           <p className="mb-2 text-sm text-warn">{feedback.hint}</p>
+          {heard && (
+            <p className="mb-2 text-xs text-faint">
+              Gesprochen · verstanden wurde{' '}
+              <span lang="sv" className="text-muted">
+                „{heard}"
+              </span>
+              . War das nicht deine Aussprache, sprich noch einmal.
+            </p>
+          )}
           <p className="mb-1 text-xs text-faint">
             <span className="text-success underline">grün</span> = fehlt ·{' '}
             <span className="text-danger line-through">rot</span> = zu viel getippt
@@ -453,6 +493,7 @@ function YouTurn({
               onClick={() => {
                 setFeedback(null);
                 setTyped('');
+                setHeard('');
                 setWhy({ state: 'idle', text: '' });
                 setPhase('input');
               }}
@@ -509,11 +550,26 @@ function YouTurn({
               </button>
             )}
           </div>
+          {spokenOk && (
+            <p className="mb-2 text-xs text-[#63C9B6]">Laut gesagt und richtig erkannt.</p>
+          )}
           <p className="mb-2 text-sm text-muted">Wie saß es?</p>
           <div className="grid grid-cols-3 gap-2">
-            <GradeButton label="Nochmal" tone="bg-danger" onClick={() => onGrade('again', helpUsed)} />
-            <GradeButton label="Fast" tone="bg-warn" onClick={() => onGrade('hard', helpUsed)} />
-            <GradeButton label="Sitzt" tone="bg-success" onClick={() => onGrade('good', helpUsed)} />
+            <GradeButton
+              label="Nochmal"
+              tone="bg-danger"
+              onClick={() => onGrade('again', helpUsed, spokenOk)}
+            />
+            <GradeButton
+              label="Fast"
+              tone="bg-warn"
+              onClick={() => onGrade('hard', helpUsed, spokenOk)}
+            />
+            <GradeButton
+              label="Sitzt"
+              tone="bg-success"
+              onClick={() => onGrade('good', helpUsed, spokenOk)}
+            />
           </div>
         </>
       )}

@@ -23,6 +23,7 @@ interface Props {
   coverage: number;
   totalChunks: number;
   successRate: number | null;
+  spoken: number; // Wendungen, die laut gesagt und richtig erkannt wurden (P3)
 }
 
 export function ProgressView({
@@ -34,6 +35,7 @@ export function ProgressView({
   coverage,
   totalChunks,
   successRate,
+  spoken,
 }: Props) {
   return (
     <div className="mx-auto flex w-full max-w-md flex-col gap-4 md:max-w-xl">
@@ -59,6 +61,14 @@ export function ProgressView({
         {successRate !== null && (
           <p className="mt-1 text-xs text-faint">
             Flow-Band: {bandStatus(successRate)} ({Math.round(successRate * 100)} % zuletzt)
+          </p>
+        )}
+        {/* Gesprochenes bekommt bewusst KEINE große Zahl: es ist eine Eigenschaft
+            der Abrufe, keine zweite Währung neben „stabil" (P3). Erst sichtbar,
+            wenn es sie wirklich gibt — eine 0 wäre eine Aufforderung. */}
+        {spoken > 0 && (
+          <p className="mt-1 text-xs text-[#63C9B6]">
+            {spoken} {spoken === 1 ? 'Wendung' : 'Wendungen'} schon laut gesagt und richtig erkannt
           </p>
         )}
         <div className="mt-3">
@@ -89,6 +99,16 @@ export function ProgressView({
               Schon einmal begegnet. Kein Fortschritt — nur der Umfang deines Repertoires.
             </dd>
           </div>
+          {spoken > 0 && (
+            <div>
+              <dt className="font-semibold text-[#63C9B6]">laut gesagt</dt>
+              <dd className="text-faint">
+                Du hast sie gesprochen und die Erkennung hat genau diese Wendung verstanden.
+                Über die Aussprache-Qualität sagt das nichts — dafür bräuchte es eine
+                Lautbewertung, die es hier ehrlich noch nicht gibt.
+              </dd>
+            </div>
+          )}
         </dl>
       </section>
     </div>

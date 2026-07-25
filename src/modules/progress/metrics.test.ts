@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { computeMetrics, isStable, directionSplit } from './metrics';
+import { computeMetrics, isStable, directionSplit, spokenAloud } from './metrics';
 import { initialState } from '../memory/memoryEngine';
 import type { ChunkState } from '../../domain/chunk';
 
@@ -86,5 +86,31 @@ describe('directionSplit — die Richtung ist gemessen, nicht gewählt', () => {
     ];
     const d = directionSplit(states);
     expect(d.untouched + d.recognition + d.production).toBe(states.length);
+  });
+});
+
+describe('spokenAloud (P3, docs/gremium-sprachpartner.md)', () => {
+  it('zählt Wendungen, die laut gesagt UND richtig erkannt wurden', () => {
+    const a = make({
+      chunkId: 'a',
+      history: [{ at: NOW, result: 'good', segmentId: 's1', spoken: true }],
+    });
+    const b = make({ chunkId: 'b', history: [{ at: NOW, result: 'good', segmentId: 's1' }] });
+    expect(spokenAloud([a, b])).toBe(1);
+  });
+
+  it('zählt eine Wendung nur EINMAL, egal wie oft sie gesprochen wurde', () => {
+    const a = make({
+      chunkId: 'a',
+      history: [
+        { at: NOW, result: 'good', segmentId: 's1', spoken: true },
+        { at: NOW + 1, result: 'good', segmentId: 's2', spoken: true },
+      ],
+    });
+    expect(spokenAloud([a])).toBe(1);
+  });
+
+  it('ist ohne Sprechen schlicht null — keine Anwesenheitszahl', () => {
+    expect(spokenAloud([make({ chunkId: 'a' })])).toBe(0);
   });
 });

@@ -47,16 +47,22 @@
   auch auf Schwedisch) — sondern dass gesprochene Abrufe in **dieselbe ehrliche Messung**
   laufen wie getippte. Redezeit wird **nie** zu Fortschritt verrechnet. Herleitung:
   `gremium-sprachpartner.md`.
-- **Backend ja/nein für den echten Sprachpartner (Stufe 1)?** OpenAI Realtime und Gemini Live
-  verlangen ausdrücklich **server-ausgestellte kurzlebige Token**; wir haben bewusst kein
-  Backend (`05-architecture.md`). Entweder erstes Backend oder dokumentierte BYOK-Ausnahme
-  mit Realtime-Schlüssel im Browser (größere Angriffsfläche als heute, weil dieser Schlüssel
-  Sprachminuten kostet).
-- **Anbieter + Kostenrahmen:** gemessene Praxiswerte ~0,06–0,24 $/min (OpenAI Realtime, mit
-  Caching ~0,05–0,10), Gemini Flash Live ~0,005 $ ein / 0,018 $ aus je Minute. Bei 15 min/Tag
-  sind das grob **3 € bis 30 € im Monat** — das sind zwei verschiedene Produkte.
+- ~~**Backend ja/nein für den echten Sprachpartner?**~~ **Umgangen 2026-07-25:** Der
+  Sparringspartner ist aus drei vorhandenen Teilen gebaut — Web-Speech-Erkennung (Ohr),
+  Claude über den eigenen Schlüssel (Kopf), Web-Speech-Ausgabe (Mund). Damit **kein
+  Backend, kein neuer Anbieter, keine zusätzlichen Kosten**; Preis ist Latenz (~1–3 s statt
+  ~0,3 s). Für einen *Lern*-Partner ist eine Denkpause kein Mangel. Herleitung:
+  `gremium-sprachpartner.md` §9.
+- **Echte Sprach-zu-Sprach-Verarbeitung** bleibt eine spätere Austausch-Option hinter
+  demselben `SparringPartner`-Port. Dann wieder offen: server-ausgestellte Token (also doch
+  ein Backend) und Kosten — gemessene Praxiswerte ~0,06–0,24 $/min (OpenAI Realtime, mit
+  Caching ~0,05–0,10), Gemini Flash Live ~0,005 $ ein / 0,018 $ aus je Minute; bei 15 min/Tag
+  grob **3 € bis 30 € im Monat**.
 - **Schwedische Stimmqualität** der Realtime-Anbieter: unbelegt, muss **angehört** werden,
-  bevor irgendetwas versprochen wird. Aus dieser Umgebung nicht prüfbar.
+  bevor irgendetwas versprochen wird. Aus dieser Umgebung nicht prüfbar. Gilt auch für die
+  Gerätestimme, die den Partner heute vorliest.
+- **Wie viele Ziele pro Gespräch?** Aktuell vier (`pickTargets`, Voreinstellung). Zu viele
+  machen das Gespräch zum Verhör, zu wenige verschenken die fällige Wiederholung. Beobachten.
 - **Datenschutz bei Stufe 0 (Nachsprechen):** Chrome/Safari schicken das Audio standardmäßig
   zum Hersteller-Server. Der On-Device-Pfad existiert
   (`SpeechRecognition.available({ processLocally: true })` + `install()`), ist für **Schwedisch**

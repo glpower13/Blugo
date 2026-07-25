@@ -17,7 +17,7 @@ import type { Area, Category, ChunkState } from '../../domain/chunk';
 import type { Dialog } from '../../domain/dialog';
 import { isStable } from '../progress/metrics';
 import { areaVisual, AreaBadge } from '../../ui/areaTheme';
-import { IconChevron } from '../../ui/icons';
+import { IconChat, IconChevron } from '../../ui/icons';
 
 interface Props {
   dialogs: Dialog[];
@@ -25,6 +25,10 @@ interface Props {
   areas: Area[];
   states: Record<string, ChunkState>;
   onOpen: (dialogId: string) => void;
+  /** Sparring öffnen — null, wenn keine Cloud-KI eingerichtet ist (P4). */
+  onOpenSparring: (() => void) | null;
+  /** Wie viele Wendungen der Partner gerade hervorlocken würde. */
+  sparringTargets: number;
 }
 
 /** Wie viele der produzierten Wendungen einer Szene sind bewiesen stabil? */
@@ -46,7 +50,15 @@ function sceneProof(dialog: Dialog, states: Record<string, ChunkState>) {
   return { total: ids.length, stable };
 }
 
-export function DialogOverview({ dialogs, categories, areas, states, onOpen }: Props) {
+export function DialogOverview({
+  dialogs,
+  categories,
+  areas,
+  states,
+  onOpen,
+  onOpenSparring,
+  sparringTargets,
+}: Props) {
   const areaOfCategory = new Map(categories.map((c) => [c.id, c.areaId]));
 
   // Nach Bereichen gruppieren, in Bereichs-Reihenfolge; leere Bereiche fallen weg.
@@ -68,6 +80,30 @@ export function DialogOverview({ dialogs, categories, areas, states, onOpen }: P
           Ganze Alltagsszenen — du hörst zu und antwortest selbst.
         </p>
       </header>
+
+      {/* Der Sparringspartner steht OBEN, aber nur wenn es ihn wirklich gibt:
+          er braucht den eigenen KI-Zugang des Nutzers (P4). Ein Knopf, der zu
+          einer Einstellungsseite führt, wäre Werbung — die bauen wir nicht. */}
+      {onOpenSparring && (
+        <button
+          onClick={onOpenSparring}
+          className="relative w-full overflow-hidden rounded-2xl border border-[#63C9B6]/45 bg-[#63C9B6]/10 px-4 py-3.5 text-left"
+        >
+          <span className="flex items-center gap-2 text-[0.66rem] font-bold uppercase tracking-[0.14em] text-[#63C9B6]">
+            <IconChat className="h-3.5 w-3.5" /> Sparring · frei sprechen
+          </span>
+          <p className="mt-1 font-display text-[1.05rem] font-semibold leading-tight text-paper">
+            Rede mit jemandem, der dir zuhört
+          </p>
+          <p className="mt-0.5 text-xs leading-relaxed text-muted">
+            {sparringTargets > 0
+              ? `Er versucht, dir ${sparringTargets} fällige ${
+                  sparringTargets === 1 ? 'Wendung' : 'Wendungen'
+                } zu entlocken. Was du selbst sagst, zählt.`
+              : 'Gerade ist nichts fällig — reden geht, gemessen wird dann aber nichts.'}
+          </p>
+        </button>
+      )}
 
       {groups.map(({ area, items }) => {
         const { hue, Icon } = areaVisual(area.id);

@@ -22,7 +22,7 @@ import { DialogOverview } from './modules/dialog/DialogOverview';
 const DialogScene = lazy(() =>
   import('./modules/dialog/DialogScene').then((m) => ({ default: m.DialogScene })),
 );
-import { computeMetrics, directionSplit } from './modules/progress/metrics';
+import { computeMetrics, directionSplit, spokenAloud } from './modules/progress/metrics';
 import { areaProgress, categoryProgress } from './modules/progress/categories';
 import { InstallButton } from './ui/InstallButton';
 import { Backdrop } from './ui/Backdrop';
@@ -35,6 +35,11 @@ const AiSettings = lazy(() =>
   import('./modules/content/AiSettings').then((m) => ({ default: m.AiSettings })),
 );
 import { initAiSettings } from './modules/content/aiSettings';
+import { aiRegistry } from './modules/content/aiRegistry';
+import { pickTargets } from './modules/sparring/targets';
+const SparringScene = lazy(() =>
+  import('./modules/sparring/SparringScene').then((m) => ({ default: m.SparringScene })),
+);
 
 // Ein Scope grenzt eine Session ein: ein ganzer Bereich oder ein einzelnes Thema.
 type SessionScope = { kind: 'area' | 'category'; id: string };
@@ -50,6 +55,7 @@ type View =
   | { name: 'area'; id: string }
   | { name: 'category'; id: string }
   | { name: 'dialog'; id: string }
+  | { name: 'sparring' } // freies Gespräch mit dem KI-Partner (P4)
   | { name: 'session' };
 
 /** Zu welchem Reiter eine Drill-down-Ansicht gehört (für die aktive Markierung). */
@@ -58,6 +64,7 @@ function tabOf(view: View): Tab {
     case 'tab':
       return view.tab;
     case 'dialog':
+    case 'sparring':
       return 'talk';
     default:
       return 'learn';
@@ -140,6 +147,13 @@ export default function App() {
 
   const stateList = useMemo(() => Object.values(states), [states]);
   const metrics = useMemo(() => computeMetrics(stateList), [stateList]);
+  // Laut Gesagtes (P3): eine Eigenschaft der Abrufe, keine zweite Währung.
+  const spokenCount = useMemo(() => spokenAloud(stateList), [stateList]);
+  // Fällige Wendungen, die der Sparringspartner hervorlocken soll (P4).
+  const sparringTargets = useMemo(
+    () => pickTargets(chunks, states, Date.now()),
+    [chunks, states],
+  );
   // Wie viele Wendungen in welcher RICHTUNG stehen (gemessen, nicht gewählt).
   const direction = useMemo(() => directionSplit(stateList), [stateList]);
   const catProgress = useMemo(
@@ -250,17 +264,23 @@ export default function App() {
     ? !currentState.history.some((h) => h.result === 'good')
     : true;
 
-  async function handleResult(result: ReviewResult, helpUsed: boolean) {
+  async function handleResult(result: ReviewResult, helpUsed: boolean, spoken = false) {
     if (submitting.current) return; // ignore rapid double-taps on the same item
     if (!currentChunk || !currentState || !currentSegment) return;
     submitting.current = true;
     try {
       const now = Date.now();
-      const next = schedule(currentState, result, currentSegment.id, now);
+      const next = schedule(currentState, result, currentSegment.id, now, { spoken });
       // Persist first; only advance the UI once the write succeeded, so a
       // storage failure is surfaced and never silently drops progress.
       await putChunkState(next);
-      await logEvent(currentChunk.id, { at: now, result, segmentId: currentSegment.id, helpUsed });
+      await logEvent(currentChunk.id, {
+        at: now,
+        result,
+        segmentId: currentSegment.id,
+        helpUsed,
+        ...(spoken ? { spoken: true } : {}),
+      });
       setStates((prev) => ({ ...prev, [currentChunk.id]: next }));
       // 'again' → re-queue at the end (relearn this session); else advance.
       setQueue((q) => (result === 'again' ? [...q, currentChunk.id] : q));
@@ -276,19 +296,61 @@ export default function App() {
   // Eine „du"-Zeile im Gespräch ist ein echter Abruf ihres Chunks → dieselbe
   // Memory-Engine wie der Loop (die eine Design-Regel: echtes Können, kein Schein).
   const handleDialogProduce = useCallback(
-    (dialogId: string, turn: DialogTurn, result: ReviewResult, helpUsed: boolean) => {
+    (
+      dialogId: string,
+      turn: DialogTurn,
+      result: ReviewResult,
+      helpUsed: boolean,
+      spoken = false,
+    ) => {
       const chunkId = turn.chunkId;
       if (!chunkId) return;
       const state = states[chunkId];
       if (!state) return;
       const now = Date.now();
       const segId = `dialog:${dialogId}:${turn.id}`;
-      const next = schedule(state, result, segId, now);
+      const next = schedule(state, result, segId, now, { spoken });
       void (async () => {
         try {
           await putChunkState(next);
-          await logEvent(chunkId, { at: now, result, segmentId: segId, helpUsed });
+          await logEvent(chunkId, {
+            at: now,
+            result,
+            segmentId: segId,
+            helpUsed,
+            ...(spoken ? { spoken: true } : {}),
+          });
           setStates((prev) => ({ ...prev, [chunkId]: next }));
+        } catch (e) {
+          console.error('Persist failed', e);
+          setError('Die Bewertung konnte nicht gespeichert werden. Bitte die App neu laden.');
+        }
+      })();
+    },
+    [states],
+  );
+
+  // Im Sparring produzierte Wendung: derselbe Weg wie überall (P4). Bewusst
+  // ohne Selbsteinschätzung — hier ist der Treffer objektiv: der Lerner hat die
+  // geprüfte Wendung selbst gesagt, ohne dass sie ihm vorgesagt wurde.
+  const handleSparringProduced = useCallback(
+    (chunk: Chunk, spoken: boolean, helpUsed: boolean) => {
+      const state = states[chunk.id];
+      if (!state) return;
+      const now = Date.now();
+      const segId = `sparring:${chunk.id}:${now}`;
+      const next = schedule(state, 'good', segId, now, { spoken });
+      void (async () => {
+        try {
+          await putChunkState(next);
+          await logEvent(chunk.id, {
+            at: now,
+            result: 'good',
+            segmentId: segId,
+            helpUsed,
+            ...(spoken ? { spoken: true } : {}),
+          });
+          setStates((prev) => ({ ...prev, [chunk.id]: next }));
         } catch (e) {
           console.error('Persist failed', e);
           setError('Die Bewertung konnte nicht gespeichert werden. Bitte die App neu laden.');
@@ -301,7 +363,7 @@ export default function App() {
   const done = !loading && pos >= queue.length;
   // Ebene 4 (Lernen/Gespräch): die globale Navigation verschwindet — nichts lenkt
   // ab (docs/gremium-navigation.md §4, „Formsprache je Ebene").
-  const showTabs = view.name !== 'session' && view.name !== 'dialog';
+  const showTabs = view.name !== 'session' && view.name !== 'dialog' && view.name !== 'sparring';
   const activeArea = view.name === 'area' ? areaProg.find((a) => a.area.id === view.id) : undefined;
   const activeCategory =
     view.name === 'category' ? categories.find((c) => c.id === view.id) : undefined;
@@ -396,6 +458,10 @@ export default function App() {
             areas={areas}
             states={states}
             onOpen={(id) => navigate('push', () => setView({ name: 'dialog', id }))}
+            onOpenSparring={
+              aiRegistry.partner ? () => navigate('push', () => setView({ name: 'sparring' })) : null
+            }
+            sparringTargets={sparringTargets.length}
           />
         )}
 
@@ -410,6 +476,7 @@ export default function App() {
             coverage={metrics.coverage}
             totalChunks={chunks.length}
             successRate={successRate}
+            spoken={spokenCount}
           />
         )}
 
@@ -537,8 +604,8 @@ export default function App() {
               backLabel={dialogCategory?.title ?? 'Zurück'}
               areaHue={areaVisual(dialogCategory?.areaId).hue}
               learnerName={name}
-              onProduce={(turn, result, helpUsed) =>
-                handleDialogProduce(activeDialog.id, turn, result, helpUsed)
+              onProduce={(turn, result, helpUsed, spoken) =>
+                handleDialogProduce(activeDialog.id, turn, result, helpUsed, spoken)
               }
               onExit={() =>
                 navigate('pop', () =>
@@ -549,6 +616,24 @@ export default function App() {
                   ),
                 )
               }
+            />
+          </Suspense>
+        )}
+
+        {/* ───────── SPARRING (freies Gespräch, gemessen — P4) ───────── */}
+        {view.name === 'sparring' && (
+          <Suspense
+            fallback={
+              <div className="glass mx-auto w-full max-w-xl rounded-2xl p-6 text-center text-muted">
+                Sparring lädt…
+              </div>
+            }
+          >
+            <SparringScene
+              targets={sparringTargets}
+              learnerName={name}
+              onProduced={handleSparringProduced}
+              onExit={() => navigate('pop', () => setView({ name: 'tab', tab: 'talk' }))}
             />
           </Suspense>
         )}

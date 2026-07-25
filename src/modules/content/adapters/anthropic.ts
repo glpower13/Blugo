@@ -11,6 +11,9 @@ import type {
   ExplainRequest,
   Explainer,
   GenerateSegmentRequest,
+  SparringPartner,
+  SparringReply,
+  SparringRequest,
 } from '../ports';
 
 const API_URL = 'https://api.anthropic.com/v1/messages';
@@ -244,6 +247,69 @@ export function createAnthropicGenerator(config: AnthropicConfig): ContentGenera
     async generate(req: GenerateSegmentRequest): Promise<Segment> {
       const json = await callMessages(config, buildGenerateBody(req, config.model));
       return parseSegment(extractText(json), req);
+    },
+  };
+}
+
+// --- P4: Der Sparringspartner (docs/gremium-sprachpartner.md §9) ----------------
+//
+// Der Unterschied zu jedem Wettbewerber steckt in DIESEM Prompt: Der Partner ist
+// nicht angehalten, ein schönes Gespräch zu führen, sondern BESTIMMTE fällige
+// Wendungen hervorzulocken, ohne sie selbst zu sagen. Sagt er sie, kann der Lerner
+// sie nur nachplappern — und eine nachgeplapperte Wendung ist kein Abruf. Genau
+// deshalb steht das Verbot doppelt im Prompt und wird zusätzlich im Abgleich
+// erzwungen (`matchedTargets` prüft gegen die letzte Partner-Zeile).
+
+const SPARRING_SYSTEM =
+  'Du spielst eine Person in einer schwedischen Alltagsszene und sprichst mit einem ' +
+  'Deutschen, der Schwedisch lernt. Regeln:\n' +
+  '1. Sprich AUSSCHLIESSLICH einfaches, natürliches Schwedisch — ein bis zwei kurze Sätze.\n' +
+  '2. Deine Aufgabe ist es, den Lernenden dazu zu bringen, die ZIEL-WENDUNGEN selbst zu ' +
+  'sagen. Stelle Fragen, auf die eine Ziel-Wendung die natürliche Antwort wäre.\n' +
+  '3. Sage die Ziel-Wendungen NIEMALS selbst und umschreibe sie nicht wörtlich — sonst ' +
+  'kann der Lernende sie nur nachsprechen, und das ist wertlos.\n' +
+  '4. Bleib in der Rolle. Keine Erklärungen, keine Korrekturen, kein Deutsch in der ' +
+  'schwedischen Zeile.\n' +
+  '5. Antworte NUR als JSON {"sv":"<deine schwedische Zeile>","de":"<deutsche Übersetzung>"} ' +
+  '— kein Markdown, kein Vorwort.';
+
+/** Baut den Request-Body für eine Partner-Zeile (rein, testbar). */
+export function buildSparringBody(req: SparringRequest, model: string): string {
+  const targets = req.targets.map((t) => `„${t.sv}" (= ${t.de})`).join(' · ');
+  const name = req.learnerName.trim();
+  const lines = req.history
+    .map((l) => `${l.who === 'partner' ? 'DU' : 'LERNENDER'}: ${l.sv}`)
+    .join('\n');
+  const user =
+    `Szene: ${req.scene}\nDu bist: ${req.partner}\n` +
+    (name ? `Der Lernende heißt ${name}.\n` : '') +
+    `Ziel-Wendungen, die du hervorlocken sollst (NIE selbst sagen): ${targets || '—'}\n\n` +
+    (lines ? `Bisher:\n${lines}\n\n` : '') +
+    'Sage jetzt deine nächste Zeile.';
+  return JSON.stringify({
+    model,
+    max_tokens: 400,
+    system: SPARRING_SYSTEM,
+    messages: [{ role: 'user', content: user }],
+  });
+}
+
+/** Liest die Partner-Zeile aus dem Modelltext (rein, tolerant). */
+export function parseSparringReply(text: string): SparringReply {
+  const obj = parseJsonLoose(text);
+  const sv = typeof obj.sv === 'string' ? obj.sv.trim() : '';
+  const de = typeof obj.de === 'string' ? obj.de.trim() : '';
+  if (!sv) throw new Error('Der Gesprächspartner hat nichts gesagt.');
+  return { sv, de };
+}
+
+/** Erzeugt einen Sparringspartner-Adapter, der Claude nutzt (BYOK). */
+export function createAnthropicSparringPartner(config: AnthropicConfig): SparringPartner {
+  return {
+    id: 'anthropic:' + config.model,
+    async reply(req: SparringRequest): Promise<SparringReply> {
+      const json = await callMessages(config, buildSparringBody(req, config.model));
+      return parseSparringReply(extractText(json));
     },
   };
 }
