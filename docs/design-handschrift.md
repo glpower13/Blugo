@@ -148,3 +148,31 @@ See im Morgenlicht, Stadion unter Flutlicht.
 
 Der Bereichston (`hue`) färbt nicht mehr das ganze Bild, sondern nur noch
 Umgebungslicht und Bildschirme — jede Szene hat ihre **eigene Tageszeit**.
+
+## Nachtrag 2026-07-25 — warum das neue Zeichen auf dem Handy nicht ankam
+
+**Beobachtung des Nutzers:** „Warum ist das Symbol auf meinem Handy immer noch das alte?"
+
+**Befund — ein echter Fehler im Deploy, nicht im Bild.** Der Server lieferte das
+neue Zeichen korrekt aus. Aber ich hatte nur den **Inhalt** der Dateien getauscht,
+nicht ihre **Namen** (`icons/icon-192.png` blieb `icons/icon-192.png`). Für ein
+installiertes PWA reicht das nicht:
+
+- **Android** baut beim Installieren ein **WebAPK** mit eingebackenem Icon. Später
+  fragt Chrome regelmäßig nur noch das **Manifest** ab, um Änderungen zu erkennen.
+  Bei gleichen Dateinamen ist das Manifest byte-gleich → „keine Änderung" → das
+  alte Icon bleibt **dauerhaft** auf dem Startbildschirm.
+- **Der Favicon-Cache** der Browser ist zusätzlich außergewöhnlich zäh und
+  ignoriert übliche Cache-Regeln oft.
+
+**Behebung:** Version im Dateinamen (`favicon-v2.svg`, `icon-192-v2.png`,
+`icon-512-v2.png`). Damit ändert sich das Manifest wirklich, Android holt ein
+neues WebAPK, und jeder Cache greift ins Leere.
+
+**Regel ab jetzt:** Ändert sich das Zeichen, wird `ICON_VERSION` in
+`tools/render-icons.mjs` erhöht und in `index.html` + `vite.config.ts` nachgezogen.
+`npm run icons` rendert die PNGs aus `favicon.svg` — **eine** Quelle für das Zeichen.
+
+**Was ich NICHT beheben kann:** Ein bereits auf den **iOS**-Startbildschirm gelegtes
+Symbol wird nie aktualisiert — dort hilft nur entfernen und neu ablegen. Das ist
+Verhalten des Betriebssystems.

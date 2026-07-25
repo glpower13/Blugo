@@ -17,7 +17,7 @@ export default defineConfig({
     react(),
     VitePWA({
       registerType: 'autoUpdate',
-      includeAssets: ['favicon.svg', 'icons/icon-192.png', 'icons/icon-512.png'],
+      includeAssets: ['favicon-v2.svg', 'icons/icon-192-v2.png', 'icons/icon-512-v2.png'],
       manifest: {
         name: 'NEUROLANG',
         short_name: 'NEUROLANG',
@@ -29,10 +29,15 @@ export default defineConfig({
         orientation: 'portrait',
         start_url: base,
         scope: base,
+        // Die Version im Dateinamen ist KEIN Cache-Trick, sondern das einzige
+        // Signal, an dem Android eine Icon-Änderung erkennt: Ein installiertes
+        // PWA fragt später nur noch das MANIFEST ab. Bleiben die Dateinamen
+        // gleich, ist das Manifest byte-gleich — und das alte Icon bleibt für
+        // immer auf dem Startbildschirm. Regel: Zeichen geändert → Version hoch.
         icons: [
-          { src: 'icons/icon-192.png', sizes: '192x192', type: 'image/png' },
-          { src: 'icons/icon-512.png', sizes: '512x512', type: 'image/png' },
-          { src: 'icons/icon-512.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
+          { src: 'icons/icon-192-v2.png', sizes: '192x192', type: 'image/png' },
+          { src: 'icons/icon-512-v2.png', sizes: '512x512', type: 'image/png' },
+          { src: 'icons/icon-512-v2.png', sizes: '512x512', type: 'image/png', purpose: 'maskable' },
         ],
       },
       workbox: {
