@@ -154,6 +154,12 @@ describe('Beugung von Bedeutung trennen', () => {
     expect(nurBeugung('hältst', 'halte')).toBe(true); // Umlaut gefaltet
     expect(nurBeugung('der Bon', 'den Bon')).toBe(true); // Artikel ignoriert
     expect(nurBeugung('gehe', 'gehen')).toBe(true); // gemeinsamer Stamm
+    // Der Fehler im Klassifikator selbst: die Familienlisten standen
+    // ungefaltet da, „konnen" traf „können" nie — und `kan` landete
+    // fälschlich in der Prüfliste.
+    expect(nurBeugung('kann', 'können')).toBe(true);
+    expect(nurBeugung('muss', 'müssen')).toBe(true);
+    expect(nurBeugung('ha', 'haben')).toBe(true);
   });
 
   it('lässt wirklich verschiedene Bedeutungen stehen', () => {

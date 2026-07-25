@@ -703,6 +703,19 @@ test('the app survives a raised system font size', async ({ page }) => {
       return null;
     });
     expect(hidden, `hinter der Reiterleiste verdeckt in ${t}`).toBeNull();
+
+    // 3. Die Seite darf sich NICHT seitwärts schieben lassen.
+    //
+    // Gemessen (2026-07-25): Acht Elemente ragen über die rechte Kante — alle
+    // gehören zur Hintergrund-Grafik, die mit `inset: -8%` bewusst größer als
+    // der Bildschirm ist, damit ihre langsame Drift nie eine Kante zeigt. Sie
+    // ist `position: fixed` und zählt daher nicht zum Scrollbereich. Der Test
+    // prüft nicht die Elemente, sondern den Schaden: Sobald echter Inhalt
+    // überläuft, wackelt die Seite seitwärts — und genau das fällt hier auf.
+    const seitwaerts = await page.evaluate(
+      () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+    );
+    expect(seitwaerts, `Seite lässt sich in ${t} seitwärts schieben`).toBeLessThanOrEqual(1);
   }
 });
 

@@ -25,6 +25,7 @@ import { SETTINGS, type SparringSetting } from './settings';
 import { SpeakButton } from '../../ui/SpeakButton';
 import { SceneArt } from '../../ui/SceneArt';
 import { IconBack, IconChat, IconPlay, IconSparkle } from '../../ui/icons';
+import { VoiceMissingHint } from '../../ui/VoiceHint';
 
 /** Modus-Signatur „Gespräch" (Teal) — wie im Dialog-Modus. */
 const ACCENT = '#63C9B6';
@@ -412,6 +413,10 @@ export function SparringScene({
                         <IconPlay className="h-3 w-3" /> Hören
                       </button>
                     )}
+                    {/* Ohne schwedische Stimme bleibt „Hören" still — und der
+                        freihändige Modus wartet dann auf eine Ausgabe, die es
+                        nicht gibt. Also sagen, warum. */}
+                    {ttsOn && <VoiceMissingHint className="w-full" />}
                     <button
                       onClick={() => setShowDe((s) => ({ ...s, [i]: !s[i] }))}
                       className="rounded-full border border-line px-3 py-1 text-xs text-muted"

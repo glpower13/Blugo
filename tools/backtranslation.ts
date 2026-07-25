@@ -173,6 +173,8 @@ const KNOWN_CONTEXT_DEPENDENT = new Set([
   // Präpositionen und Partikeln
   'i', 'på', 'för', 'av', 'ut', 'in', 'upp', 'åt', 'vid', 'ur', 'efter', 'under',
   'från', 'innan', 'än', 'ändå', 'först', 'mot', 'hos', 'genom', 'mellan', 'utan', 'ner',
+  // „kvar“ heißt übrig UND zurück — „stannade kvar“ ist zurückbleiben.
+  'kvar',
   // Hilfsverben und echte Homographen (var = wo/war, går = geht/gestern)
   'har', 'ska', 'får', 'var', 'går', 'gör', 'är',
   // Pronomen und Artikelwörter — Genus und Kasus kommen aus dem DEUTSCHEN Satz
@@ -198,7 +200,7 @@ const KNOWN_CONTEXT_DEPENDENT = new Set([
  */
 const BEUGUNG: string[][] = [
   ['bin', 'bist', 'ist', 'sind', 'seid', 'war', 'warst', 'waren', 'sei', 'wäre', 'sein'],
-  ['habe', 'hab', 'hast', 'hat', 'haben', 'habt', 'hatte', 'hattest', 'hatten'],
+  ['ha', 'habe', 'hab', 'hast', 'hat', 'haben', 'habt', 'hatte', 'hattest', 'hatten'],
   ['werde', 'wirst', 'wird', 'werden', 'werdet', 'wurde', 'wurden'],
   ['kann', 'kannst', 'können', 'könnt', 'konnte', 'könnte'],
   ['muss', 'musst', 'müssen', 'müsst', 'musste'],
@@ -223,6 +225,18 @@ const BEUGUNG: string[][] = [
 
 const ARTIKEL = new Set(BEUGUNG[9].concat(BEUGUNG[10]));
 
+/** Nur Umlaute falten — dieselbe Regel wie in `kern`. */
+const falten = (w: string) =>
+  w.replace(/ä/g, 'a').replace(/ö/g, 'o').replace(/ü/g, 'u').replace(/ß/g, 'ss');
+
+/**
+ * BEFUND beim Gegenlesen 2026-07-25: `kern` faltet Umlaute, die Familienlisten
+ * standen ungefaltet da — „konnen" traf „können" also nie, und `kan`
+ * (kann/kannst/können/könnt) landete als angeblicher Bedeutungs-Konflikt in der
+ * Prüfliste. Beide Seiten durch dieselbe Faltung, sonst prüft man Luft.
+ */
+const BEUGUNG_GEFALTET = BEUGUNG.map((f) => new Set(f.map(falten)));
+
 /** Glosse auf ihren Kern: Artikel weg, klein, getrimmt. */
 function kern(de: string): string {
   const w = de.toLowerCase().trim().split(/\s+/).filter((x) => !ARTIKEL.has(x));
@@ -240,7 +254,7 @@ export function nurBeugung(a: string, b: string): boolean {
   const x = kern(a);
   const y = kern(b);
   if (x === y) return true;
-  if (BEUGUNG.some((f) => f.includes(x) && f.includes(y))) return true;
+  if (BEUGUNG_GEFALTET.some((f) => f.has(x) && f.has(y))) return true;
   // Gemeinsamer Stamm: „gehe/gehst/gehen", „meine/meinst".
   const n = Math.min(x.length, y.length);
   if (n < 3) return false;
@@ -487,8 +501,11 @@ export function main(): number {
   const { text, hardFindings } = report(lines);
   writeFileSync(REPORT, text, 'utf-8');
   const drift = findDrift(lines).length;
-  const alleKonflikte = findConflicts(lines);
-  const conflicts = alleKonflikte.filter(istBedeutungsKonflikt).length;
+  // Dieselbe Zahl wie C1 im Bericht — sonst meldet die Konsole etwas anderes
+  // als das Dokument, und man weiß nicht mehr, welcher Zahl man glaubt.
+  const conflicts = findConflicts(lines).filter(
+    (c) => istBedeutungsKonflikt(c) && !KNOWN_CONTEXT_DEPENDENT.has(c.sv),
+  ).length;
   console.log('Bericht geschrieben: docs/content-rueckuebersetzung.md');
   console.log(`  ${lines.length} Zeilen geprüft`);
   console.log(`  hart: ${hardFindings} · Bedeutungs-Konflikte: ${conflicts} · Drift-Verdacht: ${drift}`);

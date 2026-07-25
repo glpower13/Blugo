@@ -188,3 +188,47 @@ Kaskade also rot werden, statt still zu veralten.
 - Entscheidung zu `hej då` (siehe 4b) durch die menschliche Prüfung.
 
 > **Anschluss:** menschliche Prüfliste `content-review-schwedisch.md` · Messung/Ehrlichkeit `07-measurement.md` · Content-Pipeline `08-content-pipeline.md` · offene Punkte `10-open-questions.md`.
+
+---
+
+## Nachtrag 2026-07-25 — eine Liste, die niemand liest, prüft nichts
+
+Stufe 2 (Rückübersetzung) meldete **248 Glossen-Konflikte**. Formal korrekt,
+praktisch wertlos: Fast jede Zeile war deutsche Beugung — `är` als
+„ist/bin/bist/sind" ist Grammatik, kein Befund. Eine Verdachtsliste, in der ein
+echter Fehler zwischen 240 Nicht-Fehlern steht, wird nicht durchgegangen. Damit
+verfehlt sie ihren einzigen Zweck: die menschliche Prüfung klein genug zu machen,
+dass sie stattfindet.
+
+**Der Bericht sortiert jetzt in drei Tabellen:**
+
+| | was drinsteht | Zahl |
+|---|---|---|
+| **C1 — zu prüfen** | verschiedene Bedeutungen, kein Funktionswort | **38** |
+| **C3 — Funktionswörter** | `på` = auf/an/am/im/über/bei — der Unterschied zwischen zwei Sprachen | 35 |
+| **C2 — nur Beugung** | „ist/bin", „der Bon/den Bon" | 157 |
+
+Nichts verschwindet: Alle drei Tabellen stehen vollständig im Bericht. Es ändert
+sich nur, unter welcher Überschrift eine Zeile steht — und damit, ob die Liste
+lesbar ist.
+
+**Was dabei sofort sichtbar wurde** (drei echte Fehler, die 248 Zeilen lang
+unentdeckt waren):
+
+1. `hej` in „hej då" war als **„tschüss"** glossiert. Wörtlich heißt es „hallo
+   dann" — und genau diesen Abstand sichtbar zu machen, ist der ganze Zweck des
+   Dekodierens.
+2. **„Prov igen"** war kein Schwedisch. Der Imperativ von `prova` ist `prova`;
+   `prov` ist das Substantiv.
+3. `provet` stand als „die Prüfung", die deutsche Bedeutung daneben sagte „die
+   Arbeit" — und „Arbeit" ist in dieser App schon `jobbet`.
+
+Dazu 26 Wörter mit uneinheitlicher Glosse vereinheitlicht (kvittot, tycker, tid,
+menyn, hemma …).
+
+**Und ein Fehler im Prüfwerkzeug selbst**, gefunden beim Gegenlesen der eigenen
+Änderung: Die Glossen werden vor dem Vergleich umlautgefaltet (ä→a), die
+Beugungsfamilien standen ungefaltet da. „konnen" traf „können" also nie, und
+`kan` (kann/kannst/können/könnt) landete als angeblicher Bedeutungs-Konflikt in
+der Prüfliste. Drei Tests halten die Trennung jetzt fest — ein Klassifikator, der
+zu großzügig wird, verschluckt echte Funde still.

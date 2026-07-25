@@ -14,7 +14,7 @@
 - ❌ **A** Glossen-Lücken (hart): **0**
 - ❌ **B** Kontext-Brüche (hart, Deckung < 0.5): **0**
 - ℹ️ **B2** starke Kontextvariation (erwünscht): **12**
-- ⚠️ **C** Glossen-Konflikte: **229** — davon **40 zu prüfen**, 34 kontextabhängige Funktionswörter, 155 nur deutsche Beugung
+- ⚠️ **C** Glossen-Konflikte: **230** — davon **38 zu prüfen**, 35 kontextabhängige Funktionswörter, 157 nur deutsche Beugung
 - ⚠️ **D** mögliche Bedeutungsdrift: **125** (Deckung < 0.34)
 
 ## ❌ A — Glossen-Lücken
@@ -50,8 +50,6 @@ Dasselbe schwedische Wort, verschiedene deutsche Bedeutungen — und es ist **ke
 
 | Schwedisch | Glossen | bekannt kontextabhängig |
 |---|---|---|
-| **ha** | „haben" (Wendung c-vill-ha) · „hab" (Wendung c-hadetbra) · „habe" (Segment s-a1v-nasta1) · „ha" (Gespräch dlg-nyanser/ny11) | — |
-| **kan** | „kann" (Wendung c-hjalpa) · „kannst" (Wendung c-upprepa) · „können" (Wendung c-bokaettmote) · „könnt" (Wendung c-narkannileverera) | — |
 | **andra** | „anderer" (Wendung c-aandrasidan) · „zweite" (Gespräch dlg-stadium/m8) · „andere" (Gespräch dlg-mix-vag/mv7) | — |
 | **ansökan** | „bewerbung" (Wendung c-skickatansokan) · „der bewerbung" (Segment s-b1j-referens1) · „der antrag" (Gespräch dlg-forsta/fo3) | — |
 | **mitt** | „mein" (Segment s-forlat1) · „mitten" (Gespräch dlg-berattelse/be5) · „meinen" (Gespräch dlg-mix-sprak/msp3) | — |
@@ -126,6 +124,7 @@ Dasselbe schwedische Wort, verschiedene deutsche Bedeutungen — und es ist **ke
 | **av** | „von" (Wendung c-harerfarenhet) · „ab" (Segment s-valkommenin2) | ja |
 | **då** | „dann" (Wendung c-hejda) · „denn" (Gespräch dlg-berattelse/be5) | ja |
 | **dig** | „dich" (Wendung c-ringerdig) · „dir" (Wendung c-vilkentidpassar) | ja |
+| **kvar** | „übrig" (Segment s-a2k-kvitto2) · „zurück" (Gespräch dlg-familj/fa7) | ja |
 | **med** | „mit" (Wendung c-jobbar) · „dabei" (Segment s-b1f-nar2) | ja |
 | **mig** | „mir" (Wendung c-hjalpa) · „mich" (Wendung c-ursaktamig) | ja |
 | **ner** | „unten" (Gespräch dlg-post/po7) · „nieder" (Gespräch dlg-mix-restaurang/mr3) | ja |
@@ -148,6 +147,8 @@ Vollständigkeit statt Schönfärberei: Diese Fälle stehen hier, damit nichts v
 | **bra** | „gut" (Wendung c-marbra) · „guter" (Wendung c-braformad) · „gutes" (Wendung c-ettbraargument) · „gute" (Gespräch dlg-kanslor/ks7) | — |
 | **din** | „deins" (Segment s-vilkenbil2) · „deine" (Gespräch dlg-fika/fk1) · „deinem" (Gespräch dlg-forsta/fo9) · „deinen" (Gespräch dlg-artighet/ar5) | — |
 | **fin** | „schön" (Segment s-tarden2) · „schöne" (Segment s-hurmangarum1) · „schöner" (Segment s-akaskidor1) · „schönen" (Gespräch dlg-halsning/hl11) | — |
+| **ha** | „haben" (Wendung c-vill-ha) · „hab" (Wendung c-hadetbra) · „habe" (Segment s-a1v-nasta1) · „ha" (Gespräch dlg-nyanser/ny11) | — |
+| **kan** | „kann" (Wendung c-hjalpa) · „kannst" (Wendung c-upprepa) · „können" (Wendung c-bokaettmote) · „könnt" (Wendung c-narkannileverera) | — |
 | **kommer** | „kommst" (Wendung c-varifran) · „komme" (Wendung c-centrum) · „kommt" (Wendung c-narkommerbrevet) · „kommen" (Gespräch dlg-nodfall/nd7) | — |
 | **nästa** | „nächste" (Wendung c-nastavecka) · „nächsten" (Gespräch dlg-lake/f11) · „nächster" (Gespräch dlg-post/po1) · „nächstes" (Gespräch dlg-mix-telefon/mt11) | — |
 | **ser** | „siehst" (Wendung c-vilkenserie) · „sehe" (Gespräch dlg-vardag/vd9) · „sieht" (Gespräch dlg-natur/nt7) · „sehen" (Gespräch dlg-mix-verkstad/mw11) | — |
