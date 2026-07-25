@@ -90,6 +90,11 @@ test('AI settings overlay opens, shows the login, and closes cleanly', async ({ 
   await expect(page.getByRole('heading', { name: 'Deine Daten' })).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Über' })).toBeVisible();
 
+  // Die On-Device-Prüfung läuft NICHT von allein — sie hat in der CI die Seite
+  // abgeschossen, als sie beim Aufbau der Fläche startete.
+  await expect(page.getByText('noch nicht geprüft')).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Jetzt prüfen' })).toBeVisible();
+
   // Der Erhalt-Ziel-Regler ist eingeklappt (progressive Offenlegung) …
   await expect(page.getByRole('slider', { name: 'Erhalt-Ziel' })).toHaveCount(0);
   await page.getByRole('button', { name: /Für Fortgeschrittene/ }).click();

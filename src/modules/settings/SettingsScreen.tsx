@@ -19,7 +19,7 @@
 // „Fortschritt großzügiger anzeigen" und keinen Motivationsmodus. Wer so etwas
 // anbietet, hat die eine Design-Regel schon gebrochen.
 
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import type { ChunkState } from '../../domain/chunk';
 import { AiSettingsSection } from '../content/AiSettings';
 import {
@@ -338,19 +338,19 @@ function SpeechSection({
   prefs: Preferences;
   onPrefs: (p: Preferences) => void;
 }) {
-  const [status, setStatus] = useState<'ready' | 'downloadable' | 'no' | 'checking'>('checking');
+  // Der Stand wird NUR auf Knopfdruck geprüft. Die Browser-Abfrage dazu hat
+  // dokumentierte Fehler und hat in unserer CI die ganze Seite abgeschossen, als
+  // sie beim Aufbau der Fläche von selbst lief. Etwas, das die Seite abschießen
+  // kann, läuft nicht im Hintergrund.
+  const [status, setStatus] = useState<'ready' | 'downloadable' | 'no' | null>(
+    prefs.speechOnDeviceReady ? 'ready' : null,
+  );
   const [busy, setBusy] = useState(false);
   const supported = speechInputAvailable();
 
-  useEffect(() => {
-    let alive = true;
-    void onDeviceStatus('sv-SE').then((s) => {
-      if (alive) setStatus(s);
-    });
-    return () => {
-      alive = false;
-    };
-  }, []);
+  function remember(ready: boolean) {
+    onPrefs({ ...prefs, speechOnDeviceReady: ready });
+  }
 
   if (!supported) {
     return (
@@ -383,34 +383,56 @@ function SpeechSection({
       </label>
 
       <div className="mt-4 rounded-xl border border-line bg-white/[0.03] p-3">
-        <p className="text-xs text-muted">
+        <p className="text-xs leading-relaxed text-muted">
           Schwedisch auf diesem Gerät:{' '}
           <span className="text-paper">
-            {status === 'checking'
-              ? 'wird geprüft …'
+            {status === null
+              ? 'noch nicht geprüft'
               : status === 'ready'
-                ? 'Sprachpaket vorhanden ✓'
+                ? 'Sprachpaket vorhanden ✓ — dein Audio bleibt hier'
                 : status === 'downloadable'
                   ? 'Sprachpaket ist verfügbar, aber noch nicht geladen'
                   : 'kein Sprachpaket — die Erkennung läuft beim Hersteller'}
           </span>
         </p>
-        {status === 'downloadable' && (
+        <div className="mt-2 flex flex-wrap gap-2">
           <button
             onClick={() => {
               setBusy(true);
-              void installOnDevice('sv-SE').then((ok) => {
+              void onDeviceStatus('sv-SE').then((s) => {
                 setBusy(false);
-                setStatus(ok ? 'ready' : 'downloadable');
+                setStatus(s);
+                remember(s === 'ready');
               });
             }}
             disabled={busy}
-            className="mt-2 flex items-center gap-2 rounded-full border border-line px-4 py-2 text-sm text-paper disabled:opacity-50"
+            className="rounded-full border border-line px-4 py-2 text-sm text-paper disabled:opacity-50"
           >
-            <IconMic className="h-4 w-4 text-brand" />
-            {busy ? 'lädt …' : 'Sprachpaket holen'}
+            {busy ? 'prüft …' : status === null ? 'Jetzt prüfen' : 'Erneut prüfen'}
           </button>
-        )}
+          {status === 'downloadable' && (
+            <button
+              onClick={() => {
+                setBusy(true);
+                void installOnDevice('sv-SE').then((ok) => {
+                  setBusy(false);
+                  setStatus(ok ? 'ready' : 'downloadable');
+                  remember(ok);
+                });
+              }}
+              disabled={busy}
+              className="flex items-center gap-2 rounded-full border border-line px-4 py-2 text-sm text-paper disabled:opacity-50"
+            >
+              <IconMic className="h-4 w-4 text-brand" />
+              {busy ? 'lädt …' : 'Sprachpaket holen'}
+            </button>
+          )}
+        </div>
+        <p className="mt-2 text-[0.7rem] leading-relaxed text-faint">
+          Wir fragen das nicht von allein ab: Diese Abfrage ist in manchen Browser-Fassungen
+          fehlerhaft, und sie im Hintergrund laufen zu lassen hat uns schon die Seite
+          abgeschossen.
+        </p>
       </div>
     </Section>
   );

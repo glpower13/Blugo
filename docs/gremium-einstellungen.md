@@ -142,6 +142,15 @@ Reihenfolge nach **Häufigkeit der Nutzung**, nicht nach technischer Verwandtsch
    in `schedule()` und beeinflusst dort **nur** die Intervall-Länge. `provenStableAt` bleibt
    unberührt — der Beweis ist empirisch, nicht rechnerisch.
 
+**Ein Fehler, den erst die CI gezeigt hat:** Der Abschnitt „Sprechen" fragte beim Aufbau
+selbst ab, ob das Gerät Schwedisch lokal erkennen kann. Diese Browser-Abfrage
+(`SpeechRecognition.available({ processLocally: true })`) hat dokumentierte Fehler — in der
+CI hat sie den **ganzen Renderer abgeschossen**, und mit ihm fünf Tests. Lokal lief es
+durch; ohne die CI wäre es auf irgendeinem Handy aufgeschlagen. Konsequenz: Die Abfrage
+läuft **nur noch auf Knopfdruck**, das Ergebnis wird gespeichert, und auch die
+Spracheingabe fragt nicht mehr von sich aus. Regel, die daraus folgt: *Was die Seite
+abschießen kann, läuft nicht im Hintergrund.*
+
 **Geprüft:** 233 Unit-Tests (22 neu — Zusammenführen, Sicherungsdatei, Aufwands-Faktor,
 Einstellungs-Normalisierung), 17 e2e (2 neu — die Fläche selbst und der ganze Weg
 *sichern → löschen → einlesen*).

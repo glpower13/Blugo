@@ -11,7 +11,7 @@ import { loadFocus, saveFocus } from './session/focus';
 import { loadName, saveName } from './session/profile';
 import { loadPreferences, savePreferences, type Preferences } from './session/preferences';
 import { setSpeechRate } from './modules/comprehension/tts';
-import { setSpeechLocalOnly } from './modules/comprehension/speech';
+import { setOnDeviceReady, setSpeechLocalOnly } from './modules/comprehension/speech';
 import { clearAll, putChunkStates } from './storage/db';
 import { knownPhrases } from './session/knownChunks';
 import { ComprehensionLoop } from './modules/comprehension/ComprehensionLoop';
@@ -157,7 +157,8 @@ export default function App() {
   useEffect(() => {
     setSpeechRate(prefs.speechRate);
     setSpeechLocalOnly(prefs.speechLocalOnly);
-  }, [prefs.speechRate, prefs.speechLocalOnly]);
+    setOnDeviceReady(prefs.speechOnDeviceReady);
+  }, [prefs.speechRate, prefs.speechLocalOnly, prefs.speechOnDeviceReady]);
 
   const updatePrefs = useCallback((p: Preferences) => {
     setPrefs(p);

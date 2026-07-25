@@ -30,6 +30,13 @@ export interface Preferences {
    * lieber gar keine Erkennung als gesendetes Audio.
    */
   speechLocalOnly: boolean;
+  /**
+   * Ergebnis der EINMALIGEN, ausdrücklich angestoßenen Prüfung, ob dieses Gerät
+   * Schwedisch selbst erkennen kann. Wird nicht von allein gesetzt — die Abfrage
+   * kann in manchen Browser-Fassungen die Seite abschießen und läuft deshalb nur
+   * auf Knopfdruck (siehe `speech.ts`).
+   */
+  speechOnDeviceReady: boolean;
 }
 
 export const RETENTION_MIN = 0.8;
@@ -51,6 +58,7 @@ export function defaultPreferences(): Preferences {
     newPerSession: null,
     speechRate: SPEECH_RATE_DEFAULT,
     speechLocalOnly: false,
+    speechOnDeviceReady: false,
   };
 }
 
@@ -79,6 +87,7 @@ export function normalizePreferences(raw: unknown): Preferences {
         ? clamp(r.speechRate, SPEECH_RATE_MIN, SPEECH_RATE_MAX)
         : d.speechRate,
     speechLocalOnly: r.speechLocalOnly === true,
+    speechOnDeviceReady: r.speechOnDeviceReady === true,
   };
 }
 
