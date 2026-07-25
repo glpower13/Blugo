@@ -324,9 +324,11 @@ export default function App() {
       {showTabs && (
         <TabBar
           active={tabOf(view)}
-          onSelect={(tab) =>
-            navigate(tab === tabOf(view) ? 'pop' : 'push', () => setView({ name: 'tab', tab }))
-          }
+          /* SOFORT, ohne Überblendung. Ein Reiterwechsel ist SEITWÄRTS-Navigation,
+             keine Bewegung im Baum — die Ansichts-Überblendung kostete dafür ~0,8 s
+             und ließ die Leiste selbst mitspringen. Richtungsanimationen bleiben
+             dem Drill-down vorbehalten, wo sie etwas bedeuten. */
+          onSelect={(tab) => setView({ name: 'tab', tab })}
         />
       )}
 

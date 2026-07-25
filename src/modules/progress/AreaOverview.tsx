@@ -52,6 +52,7 @@ export function AreaOverview({ progress, focusTitle, onOpen, onClearFocus }: Pro
                     Kulisse einen Ort macht. Text steht deshalb darunter. */}
                 <div className="relative h-36 w-full sm:h-40">
                   <AreaArt areaId={p.area.id} hue={hue} />
+                  <span className="grain-soft" aria-hidden="true" />
                 </div>
 
                 <div className="px-4 pb-3.5 pt-3">

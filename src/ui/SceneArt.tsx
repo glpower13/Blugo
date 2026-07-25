@@ -122,6 +122,7 @@ export function SceneArt({ scene, hue }: Props) {
           <Finish id={id} w={W} h={H} />
         </g>
       </svg>
+      <span className="grain-soft" aria-hidden="true" />
     </div>
   );
 }

@@ -229,11 +229,6 @@ export function SceneDefs({ id, children }: { id: string; children?: ReactNode }
       <filter id={`${id}-glow`} x="-120%" y="-120%" width="340%" height="340%">
         <feGaussianBlur stdDeviation="6" />
       </filter>
-      {/* Feines Korn gegen die Vektor-Sterilität. */}
-      <filter id={`${id}-grain`}>
-        <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="3" />
-        <feColorMatrix type="saturate" values="0" />
-      </filter>
       <radialGradient id={`${id}-vig`} cx="0.5" cy="0.48" r="0.78">
         <stop offset="52%" stopColor="#000" stopOpacity="0" />
         <stop offset="100%" stopColor="#000" stopOpacity="0.62" />
@@ -243,14 +238,16 @@ export function SceneDefs({ id, children }: { id: string; children?: ReactNode }
   );
 }
 
-/** Korn und Vignette zum Schluss über die Szene legen. */
+/**
+ * Vignette zum Schluss über die Szene legen — führt den Blick zur Mitte.
+ *
+ * Das KORN liegt bewusst NICHT mehr hier: als `feTurbulence` im SVG rechnete der
+ * Browser es für jedes Bild neu über die volle Fläche, und bei acht Bereichs-
+ * karten war genau das der Ruckler beim Reiterwechsel. Es kommt jetzt als
+ * gekachelte Auflage `.grain-soft` über den Bild-Container.
+ */
 export function Finish({ id, w, h }: { id: string; w: number; h: number }) {
-  return (
-    <>
-      <rect width={w} height={h} filter={`url(#${id}-grain)`} opacity="0.07" />
-      <rect width={w} height={h} fill={`url(#${id}-vig)`} />
-    </>
-  );
+  return <rect width={w} height={h} fill={`url(#${id}-vig)`} />;
 }
 
 /** Lichtpfütze auf einer waagerechten Fläche. */

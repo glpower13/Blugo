@@ -176,3 +176,21 @@ neues WebAPK, und jeder Cache greift ins Leere.
 **Was ich NICHT beheben kann:** Ein bereits auf den **iOS**-Startbildschirm gelegtes
 Symbol wird nie aktualisiert — dort hilft nur entfernen und neu ablegen. Das ist
 Verhalten des Betriebssystems.
+
+## Nachtrag 2026-07-25 — der Reiterwechsel stotterte
+
+**Beobachtung des Nutzers:** „Die Navigationsleiste hakt immer beim Umschalten."
+
+**Gemessen statt geraten:** 700–940 ms pro Reiterwechsel. Zwei Ursachen, beide behoben:
+
+| Ursache | Behebung |
+|---|---|
+| Jeder Reiterwechsel lief durch die **Ansichts-Überblendung** (0,36 s Animation plus ein `flushSync`-Vollrender) | Reiterwechsel ist **Seitwärts**-Navigation, kein Weg im Baum — jetzt ohne Überblendung. Richtungsanimationen bleiben dem Drill-down vorbehalten, wo sie etwas bedeuten. |
+| Das Korn lief als **`feTurbulence` pro Bild** über die volle Fläche — bei acht Bereichskarten acht Rauschberechnungen | Gekachelte Hintergrundgrafik `.grain-soft` über dem Bild-Container: der Browser rastert sie **einmal** und nutzt sie überall wieder. Optisch identisch. |
+
+Dazu bekam die Leiste einen eigenen `view-transition-name`. Beim Drill-down wird sie
+dadurch **nicht mitgeblendet**, sondern bleibt stehen — vorher sprang die aktive
+Markierung während des Übergangs sichtbar hin und her.
+
+**Ergebnis:** 52–100 ms in der Seite gemessen. Unter 100 ms wird eine Reaktion als
+unmittelbar wahrgenommen — das Stottern ist damit weg, nicht nur kleiner.

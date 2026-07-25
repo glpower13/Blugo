@@ -98,11 +98,6 @@ export function AreaArt({ areaId, hue }: Props) {
         <filter id={`${id}-glow`} x="-120%" y="-120%" width="340%" height="340%">
           <feGaussianBlur stdDeviation="6" />
         </filter>
-        {/* Feines Korn gegen die Vektor-Sterilität. */}
-        <filter id={`${id}-grain`}>
-          <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="3" />
-          <feColorMatrix type="saturate" values="0" />
-        </filter>
         <radialGradient id={`${id}-vig`} cx="0.5" cy="0.48" r="0.78">
           <stop offset="52%" stopColor="#000" stopOpacity="0" />
           <stop offset="100%" stopColor="#000" stopOpacity="0.62" />
@@ -111,7 +106,6 @@ export function AreaArt({ areaId, hue }: Props) {
 
       <rect width={W} height={H} fill={`url(#${id}-sky)`} />
       <Scene areaId={areaId} id={id} hue={hue} />
-      <rect width={W} height={H} filter={`url(#${id}-grain)`} opacity="0.07" />
       <rect width={W} height={H} fill={`url(#${id}-vig)`} />
     </svg>
   );
