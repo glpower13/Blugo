@@ -127,3 +127,24 @@ Drei Änderungen (Nutzerrückmeldung 2026-07-25):
 3. **Größer, in φ-Rhythmus.** Icons von 1,15 rem auf **1,5 rem**. Die senkrechte
    Gliederung folgt dem goldenen Schnitt: Icon + Abstand (1,5 + 0,28 = 1,78 rem) zur
    Beschriftungszeile (1,1 rem) steht bei **1,62** — also φ. Proportion statt Schätzung.
+
+## Nachtrag 2026-07-25 (später) — ein Bausteinkasten für alle Bilder
+
+Die Bereichsbilder waren auf Eigenfarbe, Volumen und echte Figuren umgebaut, die
+**Gesprächskulissen blieben flache Silhouetten** — auf demselben Bildschirm sah
+man zwei Qualitätsstufen nebeneinander.
+
+Statt den Code zu verdoppeln liegen die Bausteine jetzt in **`ui/sceneKit.tsx`**:
+Farbpalette, `Figure`, `House`, `Spruce`, `Pendant`, `Pool`, die Filter
+(Weichzeichnung/Schein/Korn) und `Finish` (Korn + Vignette). `AreaArt` und
+`SceneArt` nutzen beide dasselbe — **jede künftige Szene erbt das Niveau
+automatisch**, und die Bildregeln stehen an genau einer Stelle.
+
+Alle **zehn** Gesprächskulissen sind damit neu: Café mit Kanelbullar-Vitrine und
+drei Lichtkegeln, Hotel mit Schlüsselwand und Pflanze, Bahnhof mit beleuchtetem
+Zug am Bahnsteig, Laden mit Kleiderstange und Dalahäst, Praxis mit Liege und
+grünem Kreuz, Werkstatt, Zocken (Monitor als einzige Lichtquelle), Rennstrecke,
+See im Morgenlicht, Stadion unter Flutlicht.
+
+Der Bereichston (`hue`) färbt nicht mehr das ganze Bild, sondern nur noch
+Umgebungslicht und Bildschirme — jede Szene hat ihre **eigene Tageszeit**.
