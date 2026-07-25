@@ -4,7 +4,7 @@
 
 ## Was dieser Bericht beweist — und was nicht
 
-**Geprüft:** Jedes schwedische **Wort** ist ein echtes. real verwendetes schwedisches Wort. Grundlage: korpusbasierte Häufigkeiten (`wordfreq`. Zipf-Skala 0–8) plus Abgleich mit einem Wörterbuch (152.719 Einträge. Hunspell `dictionary-sv`).
+**Geprüft:** Jedes schwedische **Wort** ist ein echtes, real verwendetes schwedisches Wort. Grundlage: korpusbasierte Häufigkeiten (`wordfreq`, Zipf-Skala 0–8) plus Abgleich mit einem Wörterbuch (152.719 Einträge, Hunspell `dictionary-sv`).
 
 **NICHT geprüft:** Wortstellung, Satzbau, Idiomatik („sagt man das so?"), Register/Situationspassung und die Birkenbihl-Dekodierungen. Dafür bleibt eine **menschliche Prüfung** nötig (`content-review-schwedisch.md`) — dieser Bericht macht sie nur klein genug, um machbar zu sein.
 

@@ -27,7 +27,7 @@ Fragen → zwei verschiedene Werkzeuge.
 | Weg | Beweist | Beweist **nicht** | Evidenz |
 |---|---|---|---|
 | **Korpus-Häufigkeit** (`wordfreq`, Zipf-Skala) | Wort wird **real verwendet**, und wie häufig | Satzbau, Idiomatik, Register | **stark** |
-| **Wörterbuch** (Hunspell `dictionary-sv`, ~154.000 Einträge) | Rechtschreibung, gültige Wortform, å/ä/ö | Idiomatik | **stark**, aber eng |
+| **Wörterbuch** (Hunspell `dictionary-sv`, 152.719 Einträge) | Rechtschreibung, gültige Wortform, å/ä/ö | Idiomatik | **stark**, aber eng |
 | **Rückübersetzung** SV→DE | Bedeutung ist nicht verrutscht | Natürlichkeit | mittel |
 | **Community** (r/Svenska, Tandem) | Echte Muttersprachler, kostenlos | Langsam, ungleichmäßig | mittel |
 | **KI-Jury** (mehrere Modelle stimmen ab) | Grobe Schnitzer fallen auf | **Nichts sicher** | **schwach** |
@@ -54,7 +54,7 @@ wäre genau der Etikettenschwindel, den die eine Design-Regel verbietet.
 
 **Datenquellen (beide offline nach Installation, passend zur Kein-Backend-Architektur):**
 - `wordfreq` (PyPI) — korpusbasierte Worthäufigkeiten, Zipf-Skala 0–8, inkl. Schwedisch.
-- `dictionary-sv` (npm, devDependency) — Hunspell-Wörterbuch, ~154.000 Einträge.
+- `dictionary-sv` (npm, devDependency) — Hunspell-Wörterbuch, 152.719 Einträge.
 
 > **Randnotiz zur Umgebung:** Die Korp-Schnittstelle von Språkbanken (Uni Göteborg)
 > wäre die reichhaltigere Quelle (echte Belegstellen, n-Gramme), ist aus dieser
