@@ -28,6 +28,10 @@ const SCENE_GLOW: Record<Dialog['scene'], string> = {
   track: 'radial-gradient(70% 42% at 50% 0%, rgba(120,190,225,.14), transparent 60%)',
   lake: 'radial-gradient(70% 42% at 50% 0%, rgba(120,190,180,.15), transparent 60%)',
   stadium: 'radial-gradient(70% 42% at 50% 0%, rgba(130,200,140,.15), transparent 60%)',
+  office: 'radial-gradient(70% 42% at 50% 0%, rgba(159,182,201,.14), transparent 60%)',
+  home: 'radial-gradient(70% 42% at 50% 0%, rgba(231,168,90,.15), transparent 60%)',
+  street: 'radial-gradient(70% 42% at 50% 0%, rgba(155,140,150,.15), transparent 60%)',
+  school: 'radial-gradient(70% 42% at 50% 0%, rgba(201,183,127,.13), transparent 60%)',
   generic: 'radial-gradient(70% 42% at 50% 0%, rgba(231,192,138,.12), transparent 60%)',
 };
 

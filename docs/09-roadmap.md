@@ -69,5 +69,21 @@ Projekt keine schwedischsprachige Person dafür, und deshalb gibt es dafür auch
 keinen Zähler mehr — nur den Satz, der die Grenze nennt
 (`content-review-schwedisch.md`).
 
-**Nächster Schritt am Inhalt (offen):** Gespräche. 15 Szenen decken 59 der 379
-Wendungen ab; alles Neue ist bisher nur im Lern-Loop, nicht im Dialog.
+**Gespräche nachgezogen (2026-07-25, gleicher Tag).** Der Lern-Loop übt eine
+Wendung isoliert; ein Gespräch verlangt sie an der richtigen Stelle, mit einer
+Antwort davor und danach. Ein Thema ohne Szene bleibt deshalb halb geübt.
+
+| | vorher | jetzt |
+|---|---|---|
+| Gespräche | 15 | **55** |
+| Themen mit Gespräch | 15 von 55 | **55 von 55** |
+| Wendungen, die in einem Gespräch vorkommen | 59 | **293** |
+| Gesprächszeilen | 172 | **622** |
+
+Dazu vier neue Kulissen (`office`, `home`, `street`, `school`): vorher liefen
+über zwanzig Szenen auf der leeren Notfall-Fläche `generic` — eine Figur auf
+dunklem Grund. Jetzt hat jedes Gespräch einen Ort, den man in einem Blick
+erkennt.
+
+**Nächster Schritt am Inhalt (offen):** die restlichen 86 Wendungen, die noch
+in keinem Gespräch vorkommen — meist die zweite Hälfte großer Themen.

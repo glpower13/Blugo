@@ -1,11 +1,46 @@
 {
   "dictionaryEntries": 152719,
-  "wordsChecked": 873,
-  "stringsChecked": 9341,
+  "wordsChecked": 1169,
+  "stringsChecked": 12313,
   "flagged": {
     "automaten": {
       "verdict": "selten",
       "zipf": 2.93,
+      "inDict": false
+    },
+    "bakad": {
+      "verdict": "selten",
+      "zipf": 2.85,
+      "inDict": true
+    },
+    "bifoga": {
+      "verdict": "selten",
+      "zipf": 2.94,
+      "inDict": true
+    },
+    "fyrtiotvå": {
+      "verdict": "selten",
+      "zipf": 1.98,
+      "inDict": true
+    },
+    "handske": {
+      "verdict": "selten",
+      "zipf": 2.88,
+      "inDict": true
+    },
+    "jackorna": {
+      "verdict": "selten",
+      "zipf": 2.53,
+      "inDict": false
+    },
+    "offert": {
+      "verdict": "selten",
+      "zipf": 2.7,
+      "inDict": true
+    },
+    "offerten": {
+      "verdict": "selten",
+      "zipf": 2.06,
       "inDict": false
     },
     "provrummet": {
@@ -18,6 +53,11 @@
       "zipf": 1.78,
       "inDict": false
     },
+    "rätterna": {
+      "verdict": "selten",
+      "zipf": 2.69,
+      "inDict": false
+    },
     "skruven": {
       "verdict": "selten",
       "zipf": 2.8,
@@ -26,6 +66,11 @@
     "smaklig": {
       "verdict": "selten",
       "zipf": 2.82,
+      "inDict": true
+    },
+    "trehundra": {
+      "verdict": "selten",
+      "zipf": 2.98,
       "inDict": true
     },
     "trettiofem": {

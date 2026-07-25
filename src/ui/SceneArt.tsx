@@ -78,6 +78,31 @@ const SKIES: Record<string, [string, string][]> = {
     ['54%', '#12222E'],
     ['100%', '#1A2E28'],
   ],
+  // Beratungszimmer am Vormittag — nüchternes Tageslicht durch hohe Fenster
+  office: [
+    ['0%', '#26313C'],
+    ['58%', '#32404C'],
+    ['100%', '#3E4C58'],
+  ],
+  // Küche am Abend — nur die Lampe über dem Tisch brennt
+  home: [
+    ['0%', '#1C1826'],
+    ['56%', '#282234'],
+    ['100%', '#332B2E'],
+  ],
+  // Straße zwischen Häusern, später Nachmittag im Winterlicht
+  street: [
+    ['0%', '#1A2438'],
+    ['46%', '#2C3A50'],
+    ['78%', '#6B6472'],
+    ['100%', '#9A7A62'],
+  ],
+  // Kursraum, Neonlicht, draußen ist es längst dunkel
+  school: [
+    ['0%', '#1A2028'],
+    ['60%', '#242C36'],
+    ['100%', '#2E3742'],
+  ],
   generic: [
     ['0%', '#1B2440'],
     ['100%', '#2C3A4E'],
@@ -582,6 +607,223 @@ function Scene({ scene, hue, id }: { scene: DialogScene; hue: string; id: string
           <rect y="152" width={W} height="28" fill={C.night} />
           <Figure x={62} y={170} h={58} coat={4} lightFrom="right" />
           <Figure x={334} y={172} h={54} coat={5} flip lightFrom="left" />
+        </>
+      );
+
+    // ── BÜRO: Beratung über den Schreibtisch, Fenster im Rücken ───────────
+    case 'office':
+      return (
+        <>
+          <g filter={far} opacity="0.7">
+            {[16, 96, 176, 256, 336].map((x) => (
+              <g key={x}>
+                <rect x={x} y="18" width="58" height="52" fill="#0E141A" />
+                <rect x={x} y="18" width="58" height="52" fill={C.glass} opacity="0.2" />
+                <rect x={x} y="18" width="58" height="10" fill="#CFE6EC" opacity="0.15" />
+                <line x1={x + 29} y1="18" x2={x + 29} y2="70" stroke="#0E141A" strokeWidth="2" />
+              </g>
+            ))}
+          </g>
+          {/* Aktenregal an der Seite */}
+          <g opacity="0.9">
+            <rect x="6" y="72" width="70" height="4" fill={C.wood} />
+            <rect x="6" y="98" width="70" height="4" fill={C.wood} />
+            {['#5E4A38', '#44506A', '#4A5A50', '#6A4A46', '#5A5062'].map((c, i) => (
+              <rect key={i} x={12 + i * 12} y="60" width="9" height="12" fill={c} />
+            ))}
+            {['#4A5A68', '#6A5A44', '#43584A'].map((c, i) => (
+              <rect key={i} x={14 + i * 20} y="84" width="16" height="14" fill={c} />
+            ))}
+          </g>
+          {/* Der Schreibtisch quer durchs Bild — die Grenze zwischen den beiden */}
+          <rect x="0" y="112" width={W} height="12" rx="2" fill={C.wood} />
+          <rect x="0" y="112" width={W} height="4" fill={C.woodLit} opacity="0.75" />
+          <rect x="0" y="124" width={W} height="56" fill="#232A31" />
+          {/* Bildschirm in der Bereichsfarbe — das einzige bunte Licht */}
+          <g transform="translate(300 88)">
+            <rect x="-30" y="-22" width="60" height="34" rx="2" fill="#0C1218" />
+            <rect x="-27" y="-19" width="54" height="28" fill={hue} opacity="0.3" />
+            <rect x="-27" y="-19" width="54" height="7" fill={hue} opacity="0.5" />
+            <rect x="-6" y="12" width="12" height="6" fill="#1A222A" />
+            <rect x="-16" y="18" width="32" height="3" rx="1.5" fill="#1A222A" />
+            <circle r="34" fill={hue} opacity="0.14" filter={glow} />
+          </g>
+          {/* Papierstapel und Stift auf dem Tisch */}
+          <g transform="translate(150 104)">
+            <rect width="46" height="8" rx="1" fill="#E4E0D6" />
+            <rect y="-3" width="46" height="4" rx="1" fill="#F2EEE4" />
+            <g stroke="#8A8F96" strokeWidth="0.7">
+              <path d="M5 3 H40 M5 5.4 H30" />
+            </g>
+          </g>
+          <line x1="206" y1="110" x2="228" y2="104" stroke={C.brass} strokeWidth="2.2" strokeLinecap="round" />
+          {/* Beraterin dahinter, Kunde davor */}
+          <Figure x={252} y={112} h={48} coat={4} flip lightFrom="left" seated />
+          <Figure x={110} y={168} h={56} coat={0} lightFrom="right" seated />
+        </>
+      );
+
+    // ── ZUHAUSE: Küchentisch unter der Lampe, Fenster in die Nacht ────────
+    case 'home':
+      return (
+        <>
+          <g filter={far} opacity="0.7">
+            <rect x="26" y="20" width="92" height="58" fill="#0B0F1A" />
+            <g fill={C.lamp} opacity="0.5">
+              <rect x="38" y="34" width="6" height="8" />
+              <rect x="58" y="48" width="6" height="8" />
+              <rect x="86" y="28" width="6" height="8" />
+              <rect x="100" y="54" width="6" height="8" />
+            </g>
+          </g>
+          <rect x="22" y="16" width="100" height="66" fill="none" stroke={C.trim} strokeWidth="3" />
+          <line x1="72" y1="16" x2="72" y2="82" stroke={C.trim} strokeWidth="2.4" />
+          {/* Küchenzeile rechts */}
+          <g opacity="0.95">
+            <rect x="286" y="86" width="114" height="8" fill={C.wood} />
+            <rect x="286" y="86" width="114" height="3" fill={C.woodLit} opacity="0.7" />
+            <rect x="286" y="94" width="114" height="30" fill="#2A2530" />
+            {[296, 330, 364].map((x) => (
+              <rect key={x} x={x} y="102" width="26" height="14" rx="2" fill="#352E3C" />
+            ))}
+            <rect x="292" y="42" width="102" height="4" fill={C.wood} />
+            {['#C9C4B8', '#D8CFC0', '#C9C4B8', '#B8AEA0'].map((c, i) => (
+              <rect key={i} x={300 + i * 22} y="30" width="13" height="12" rx="1.5" fill={c} />
+            ))}
+          </g>
+          {/* Hängelampe — der Lichtkegel ist die ganze Szene */}
+          <Pendant x={200} y={40} glow={glow} spread={62} floor={124} />
+          {/* Tisch mit zwei Bechern */}
+          <rect x="130" y="112" width="150" height="10" rx="2" fill={C.wood} />
+          <rect x="130" y="112" width="150" height="3.4" fill={C.woodLit} opacity="0.8" />
+          <rect x="146" y="122" width="7" height="34" fill="#2C1F14" />
+          <rect x="258" y="122" width="7" height="34" fill="#2C1F14" />
+          {[172, 240].map((x, i) => (
+            <g key={x} transform={`translate(${x} 112)`}>
+              <path d="M-6.5 0 q0 -11 6.5 -11 q6.5 0 6.5 11 Z" fill={i === 0 ? '#E4E0D6' : '#D8CFC0'} />
+              <path d="M0 -11 q6.5 0 6.5 11 q-3.2 0 -6.5 -11 Z" fill="#000" opacity="0.17" />
+            </g>
+          ))}
+          <rect y="124" width={W} height="56" fill="#251F2B" />
+          <g stroke="#000" strokeOpacity="0.26" strokeWidth="0.8">
+            <path d="M0 140 H400 M0 156 H400" />
+          </g>
+          <Figure x={158} y={172} h={54} coat={3} lightFrom="right" seated />
+          <Figure x={252} y={170} h={52} coat={1} flip lightFrom="left" seated />
+        </>
+      );
+
+    // ── STRASSE: zwischen den Häusern, letztes Licht, Schnee auf den Dächern
+    case 'street':
+      return (
+        <>
+          <g filter={far} opacity="0.72">
+            <path d="M0 96 L0 40 L14 26 L28 40 L28 96 Z" fill="#222C40" />
+            <rect x="34" y="52" width="34" height="44" fill="#26314A" />
+            <path d="M330 96 L330 34 L346 20 L362 34 L362 96 Z" fill="#222C40" />
+            <rect x="368" y="48" width="32" height="48" fill="#26314A" />
+            <g fill={C.lamp} opacity="0.45">
+              <rect x="8" y="52" width="6" height="8" />
+              <rect x="44" y="66" width="6" height="8" />
+              <rect x="340" y="46" width="6" height="8" />
+              <rect x="378" y="62" width="6" height="8" />
+            </g>
+          </g>
+          {/* Häuserzeile in Falunrot */}
+          <g>
+            <path d="M70 96 L70 44 L100 24 L130 44 L130 96 Z" fill={C.falu} />
+            <path d="M100 24 L130 44 L130 96 L100 96 Z" fill="#000" opacity="0.22" />
+            <rect x="82" y="56" width="14" height="18" fill="#141820" />
+            <rect x="82" y="56" width="14" height="18" fill={C.lamp} opacity="0.55" />
+            <rect x="106" y="56" width="14" height="18" fill="#141820" />
+            <path d="M70 44 L100 24 L130 44 Z" fill="#E8EAE4" opacity="0.5" />
+            <path d="M138 96 L138 52 L166 34 L194 52 L194 96 Z" fill={C.ochre} />
+            <path d="M166 34 L194 52 L194 96 L166 96 Z" fill="#000" opacity="0.24" />
+            <rect x="150" y="62" width="13" height="16" fill="#141820" />
+            <rect x="172" y="62" width="13" height="16" fill="#141820" />
+            <rect x="172" y="62" width="13" height="16" fill={C.lamp} opacity="0.4" />
+            <path d="M138 52 L166 34 L194 52 Z" fill="#E8EAE4" opacity="0.5" />
+            <path d="M202 96 L202 40 L234 20 L266 40 L266 96 Z" fill={C.faluDark} />
+            <path d="M234 20 L266 40 L266 96 L234 96 Z" fill="#000" opacity="0.2" />
+            <rect x="216" y="52" width="14" height="18" fill="#141820" />
+            <rect x="240" y="52" width="14" height="18" fill="#141820" />
+            <rect x="216" y="52" width="14" height="18" fill={C.lamp} opacity="0.45" />
+            <path d="M202 40 L234 20 L266 40 Z" fill="#E8EAE4" opacity="0.5" />
+            <path d="M274 96 L274 56 L300 40 L326 56 L326 96 Z" fill={C.mustard} />
+            <path d="M300 40 L326 56 L326 96 L300 96 Z" fill="#000" opacity="0.24" />
+            <rect x="286" y="66" width="13" height="16" fill="#141820" />
+            <path d="M274 56 L300 40 L326 56 Z" fill="#E8EAE4" opacity="0.5" />
+          </g>
+          {/* Straßenlaterne mit Lichtkegel auf den Gehweg */}
+          <line x1="150" y1="124" x2="150" y2="66" stroke="#1A1E26" strokeWidth="2.6" />
+          <circle cx="150" cy="63" r="13" fill={C.lamp} opacity="0.5" filter={glow} />
+          <circle cx="150" cy="63" r="3.4" fill={C.lampCore} />
+          {/* Gehweg mit Schneerest und feuchtem Asphalt */}
+          <rect y="96" width={W} height="18" fill="#E8EAE4" opacity="0.16" />
+          <rect y="112" width={W} height="68" fill="#1E222A" />
+          <Pool cx={150} cy={124} rx={46} />
+          <g stroke="#000" strokeOpacity="0.3" strokeWidth="0.8">
+            <path d="M0 132 H400 M0 148 H400 M0 166 H400" />
+          </g>
+          <Figure x={122} y={158} h={52} coat={0} lightFrom="right" />
+          <Figure x={186} y={160} h={50} coat={1} flip lightFrom="left" />
+          <Figure x={340} y={146} h={38} coat={4} dim={0.5} />
+        </>
+      );
+
+    // ── KURSRAUM: Tafel, Stuhlreihe, Neonlicht ────────────────────────────
+    case 'school':
+      return (
+        <>
+          {/* Tafel — das Zentrum des Raums */}
+          <rect x="52" y="20" width="216" height="74" rx="2" fill="#1E2A24" />
+          <rect x="52" y="20" width="216" height="74" rx="2" fill="none" stroke={C.wood} strokeWidth="4" />
+          <g stroke="#D8D4C8" strokeOpacity="0.5" strokeWidth="1.6" strokeLinecap="round">
+            <path d="M68 40 H150 M68 52 H124" />
+            <path d="M164 40 H244 M164 52 H210" />
+            <path d="M68 70 H206" />
+          </g>
+          <g stroke={C.brass} strokeOpacity="0.55" strokeWidth="1.4" strokeLinecap="round">
+            <path d="M68 46 H140 M164 46 H232" />
+          </g>
+          {/* Neonröhre unter der Decke */}
+          <rect x="120" y="6" width="160" height="5" rx="2.5" fill={C.lampCore} opacity="0.85" />
+          <rect x="120" y="6" width="160" height="16" fill={C.lamp} opacity="0.3" filter={glow} />
+          {/* Pinnwand rechts, Bereichsfarbe als Zettel */}
+          <g>
+            <rect x="286" y="34" width="98" height="58" rx="2" fill="#3A3228" />
+            {[0, 1, 2, 3].map((i) => (
+              <rect
+                key={i}
+                x={294 + (i % 2) * 46}
+                y={42 + Math.floor(i / 2) * 26}
+                width="38"
+                height="20"
+                rx="1.5"
+                fill={i % 3 === 0 ? hue : '#E4E0D6'}
+                opacity={i % 3 === 0 ? 0.55 : 0.8}
+              />
+            ))}
+          </g>
+          {/* Tischreihe von hinten — man sitzt im Kurs, nicht davor */}
+          <rect x="0" y="112" width={W} height="10" rx="2" fill={C.wood} />
+          <rect x="0" y="112" width={W} height="3.4" fill={C.woodLit} opacity="0.75" />
+          <rect y="122" width={W} height="58" fill="#232830" />
+          {[40, 210, 350].map((x) => (
+            <rect key={x} x={x} y="122" width="7" height="30" fill="#2C1F14" />
+          ))}
+          {/* Aufgeschlagenes Heft mit zwei Spalten — die Dekodierung als Motiv */}
+          <g transform="translate(120 112)">
+            <path d="M-40 0 L-2 -6 L-2 0 Z" fill="#EFE9DC" />
+            <path d="M38 0 L2 -6 L2 0 Z" fill="#E7E0D2" />
+            <g stroke="#8A8272" strokeWidth="0.7" opacity="0.75">
+              <path d="M-34 -3 H-8 M-34 -1.2 H-14" />
+              <path d="M8 -3 H34 M8 -1.2 H28" />
+            </g>
+          </g>
+          <Figure x={70} y={168} h={50} coat={2} lightFrom="right" seated />
+          <Figure x={186} y={166} h={48} coat={5} lightFrom="right" seated />
+          <Figure x={306} y={170} h={52} coat={3} flip lightFrom="left" seated />
         </>
       );
 
