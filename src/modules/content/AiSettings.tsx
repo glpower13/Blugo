@@ -83,7 +83,7 @@ export function AiSettings({ onClose }: { onClose: () => void }) {
           <ProviderCard
             active={isCloud}
             title="Claude (Cloud)"
-            desc="Automatische Wort-für-Wort-Übersetzung. Braucht deinen Schlüssel; Text geht an Anthropic."
+            desc="Dekodierung, Erklärungen, neue Kontexte — und der Sparringspartner zum Sprechen. Braucht deinen eigenen Schlüssel; Text geht an Anthropic."
             onClick={() => setProvider('anthropic')}
           />
         </div>

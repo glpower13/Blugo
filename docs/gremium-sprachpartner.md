@@ -198,7 +198,15 @@ Drei Dinge, die beim Benutzen fehlten:
    keine Jugendsprache" (Projektvorgabe). Die Liste liegt jetzt in `settings.ts` — ohne React,
    damit ein Test sie prüfen kann: keine doppelte Kulisse, kein Kürzel ohne Bild, kein zu
    kurzer Auftragssatz (dann würde sich der Partner die Szene selbst ausdenken).
-5. **Sprechen auf der ersten Seite.** Der Einstieg steht jetzt auch auf „Heute" — mit der
+5. **Sichtbar, auch ohne Zugang** *(Korrektur 2026-07-25, nach Rückmeldung)*. Zuerst war der
+   Einstieg versteckt, solange kein eigener KI-Zugang hinterlegt war — begründet mit „kein
+   toter Knopf". Der Nutzer hat den Modus daraufhin schlicht **nicht gefunden**. Die Regel war
+   richtig, ihre Anwendung falsch: Ein Knopf, der ehrlich sagt, was ihm fehlt, und den Weg
+   dorthin zeigt, ist kein toter Knopf. Ein unsichtbarer Modus ist dagegen ein Modus, den es
+   für den Nutzer nicht gibt. Jetzt steht der Einstieg immer da — gedämpft und mit der Zeile
+   „Braucht deinen eigenen KI-Zugang — hier steht, wie das geht", dahinter eine Anleitung in
+   drei Schritten und ein Knopf, der die Einstellungen öffnet.
+6. **Sprechen auf der ersten Seite.** Der Einstieg steht jetzt auch auf „Heute" — mit der
    ehrlichen Unterzeile: entweder *„N fällige Wendungen im Gespräch selbst sagen"* oder
    *„Gerade nichts fällig — reden geht, gemessen wird nichts."*
 

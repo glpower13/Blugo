@@ -30,8 +30,9 @@ interface Props {
   onStart: () => void;
   onGoLearn: () => void;
   onGoTalk: () => void;
-  /** Sparring öffnen — null, wenn keine Cloud-KI eingerichtet ist. */
-  onGoSparring: (() => void) | null;
+  onGoSparring: () => void;
+  /** Ist ein eigener KI-Zugang hinterlegt? Sonst kann der Partner nicht denken. */
+  sparringReady: boolean;
   /** Wie viele fällige Wendungen der Partner hervorlocken würde. */
   sparringTargets: number;
 }
@@ -64,6 +65,7 @@ export function TodayView({
   onGoLearn,
   onGoTalk,
   onGoSparring,
+  sparringReady,
   sparringTargets,
 }: Props) {
   const shown = useCountUp(stable);
@@ -174,29 +176,43 @@ export function TodayView({
       </div>
 
       {/* Sprechen ist der schwerste und wertvollste Abruf — er gehört auf die
-          erste Seite. Aber nur, wenn es ihn wirklich gibt (eigener KI-Zugang)
-          und nur mit dem, was er WIRKLICH kann: keine fälligen Wendungen, keine
-          Behauptung von Fortschritt. */}
-      {onGoSparring && !loading && (
+          erste Seite, und zwar IMMER.
+
+          Erster Entwurf versteckte diesen Einstieg, solange kein eigener
+          KI-Zugang hinterlegt war — „kein toter Knopf". Der Nutzer hat ihn
+          daraufhin schlicht nicht gefunden (2026-07-25). Ein Knopf, der ehrlich
+          sagt, was ihm fehlt, und den Weg dorthin zeigt, ist kein toter Knopf;
+          ein unsichtbarer Modus ist dagegen ein Modus, den es nicht gibt. */}
+      {!loading && (
         <button
           onClick={onGoSparring}
-          className="flex w-full items-center gap-3 rounded-2xl border border-[#63C9B6]/45 bg-[#63C9B6]/10 px-4 py-3 text-left"
+          className={
+            'flex w-full items-center gap-3 rounded-2xl px-4 py-3 text-left ' +
+            (sparringReady
+              ? 'border border-[#63C9B6]/45 bg-[#63C9B6]/10'
+              : 'border border-line bg-white/[0.04]')
+          }
         >
-          <IconMic className="h-5 w-5 shrink-0 text-[#63C9B6]" />
+          <IconMic
+            className={'h-5 w-5 shrink-0 ' + (sparringReady ? 'text-[#63C9B6]' : 'text-muted')}
+          />
           <span className="min-w-0">
             <span className="block font-display text-[0.95rem] font-semibold text-paper">
               Sparring · sprechen
             </span>
             <span className="block text-[0.68rem] leading-relaxed text-faint">
-              {sparringTargets > 0
-                ? `${sparringTargets} fällige ${
-                    sparringTargets === 1 ? 'Wendung' : 'Wendungen'
-                  } im Gespräch selbst sagen`
-                : 'Gerade nichts fällig — reden geht, gemessen wird nichts'}
+              {!sparringReady
+                ? 'Braucht deinen eigenen KI-Zugang — hier steht, wie das geht'
+                : sparringTargets > 0
+                  ? `${sparringTargets} fällige ${
+                      sparringTargets === 1 ? 'Wendung' : 'Wendungen'
+                    } im Gespräch selbst sagen`
+                  : 'Gerade nichts fällig — reden geht, gemessen wird nichts'}
             </span>
           </span>
         </button>
       )}
+
     </div>
   );
 }
