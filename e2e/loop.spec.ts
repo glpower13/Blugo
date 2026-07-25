@@ -275,3 +275,22 @@ test('tab bar: all four rooms open, and the bar disappears inside a session', as
   expect(consoleErrors, consoleErrors.join('\n')).toHaveLength(0);
   expect(pageErrors, pageErrors.join('\n')).toHaveLength(0);
 });
+
+// Stufe C (Regression): Die Reiterleiste muss AM FENSTER kleben, auch ganz unten.
+// Sie lag zuerst in <main>, und dort erzwingt `view-transition-name` ein
+// `contain: layout` — `position: fixed` bezog sich dadurch auf <main> statt aufs
+// Fenster, und die Leiste scrollte am Listenende weg.
+test('tab bar stays pinned to the viewport when scrolled to the end', async ({ page }) => {
+  await page.goto('/');
+  await openLearn(page);
+  await page.mouse.wheel(0, 6000); // bis ans Ende der Bereichsliste
+  await page.waitForTimeout(400);
+
+  const bar = page.getByRole('navigation', { name: 'Hauptbereiche' });
+  await expect(bar).toBeVisible();
+  const box = await bar.boundingBox();
+  const viewport = page.viewportSize()!;
+  expect(box, 'Leiste hat keine Box').not.toBeNull();
+  // Unterkante der Leiste == Unterkante des Fensters (±2 px für Safe-Area/Rundung)
+  expect(Math.abs(box!.y + box!.height - viewport.height)).toBeLessThanOrEqual(2);
+});
