@@ -15,13 +15,14 @@ import { AreaOverview } from './modules/progress/AreaOverview';
 import { AreaDetail } from './modules/progress/AreaDetail';
 import { CategoryDetail } from './modules/progress/CategoryDetail';
 import { TodayView } from './modules/progress/TodayView';
+import { LanguagePair } from './modules/progress/LanguagePair';
 import { ProgressView } from './modules/progress/ProgressView';
 import { DialogOverview } from './modules/dialog/DialogOverview';
 // Erst bei Bedarf laden (kleineres Startbündel → schnellere erste Anzeige).
 const DialogScene = lazy(() =>
   import('./modules/dialog/DialogScene').then((m) => ({ default: m.DialogScene })),
 );
-import { computeMetrics } from './modules/progress/metrics';
+import { computeMetrics, directionSplit } from './modules/progress/metrics';
 import { areaProgress, categoryProgress } from './modules/progress/categories';
 import { InstallButton } from './ui/InstallButton';
 import { Backdrop } from './ui/Backdrop';
@@ -79,6 +80,7 @@ export default function App() {
   // Vorname des Lerners (lokal): personalisiert Begrüßung & Gespräche.
   const [name, setName] = useState<string>(() => loadName());
   const [showName, setShowName] = useState(false);
+  const [showPair, setShowPair] = useState(false);
   // Navigation: Reiter (global) → Drill-down im Baum → fokussierte Lern-Session.
   const [view, setView] = useState<View>({ name: 'tab', tab: 'today' });
   // Guards against a fast double-tap grading the same item twice (P3 race).
@@ -137,6 +139,8 @@ export default function App() {
 
   const stateList = useMemo(() => Object.values(states), [states]);
   const metrics = useMemo(() => computeMetrics(stateList), [stateList]);
+  // Wie viele Wendungen in welcher RICHTUNG stehen (gemessen, nicht gewählt).
+  const direction = useMemo(() => directionSplit(stateList), [stateList]);
   const catProgress = useMemo(
     () => categoryProgress(categories, chunks, states),
     [categories, chunks, states],
@@ -352,6 +356,7 @@ export default function App() {
               loading={loading}
               onEditName={() => setShowName(true)}
               onSettings={() => setShowSettings(true)}
+              onOpenPair={() => setShowPair(true)}
               onStart={() => navigate('push', () => enterSession())}
               onGoLearn={() => navigate('push', () => setView({ name: 'tab', tab: 'learn' }))}
               onGoTalk={() => navigate('push', () => setView({ name: 'tab', tab: 'talk' }))}
@@ -547,24 +552,31 @@ export default function App() {
           </div>
         )}
 
-        {showSettings && (
-          <Suspense fallback={null}>
-            <AiSettings onClose={() => setShowSettings(false)} />
-          </Suspense>
-        )}
-
-        {showName && (
-          <NameEditor
-            initial={name}
-            onSave={(n) => {
-              saveName(n);
-              setName(n);
-              setShowName(false);
-            }}
-            onClose={() => setShowName(false)}
-          />
-        )}
       </main>
+
+      {/* Overlays ebenfalls AUSSERHALB von <main>: dort erzeugt
+          `view-transition-name` ein `contain: layout`, das einen eigenen
+          Stapelkontext aufmacht. Ein `z-50` darin kommt trotzdem nicht über die
+          Reiterleiste daneben — der Fußtext lag hinter ihr. */}
+        {showSettings && (
+        <Suspense fallback={null}>
+          <AiSettings onClose={() => setShowSettings(false)} />
+        </Suspense>
+      )}
+
+      {showPair && <LanguagePair split={direction} onClose={() => setShowPair(false)} />}
+
+      {showName && (
+        <NameEditor
+          initial={name}
+          onSave={(n) => {
+            saveName(n);
+            setName(n);
+            setShowName(false);
+          }}
+          onClose={() => setShowName(false)}
+        />
+      )}
     </>
   );
 }

@@ -288,6 +288,33 @@ wird gezeigt**. Begründung aus der Motivation:
 Technisch sichergestellt: Anzeige und Sitzung nutzen **dieselbe** berechnete Liste
 (`plannedSession`), sie können nicht auseinanderlaufen.
 
+## 7d. Schritt 4 gebaut (2026-07-25) — die Sprachpaar-Fläche
+
+Das Sprachpaar auf „Heute" ist antippbar. Dahinter steht **kein Schalter**, sondern
+die ehrliche Auskunft aus §5 (`progress/LanguagePair.tsx`, Messung
+`metrics.directionSplit`):
+
+| | zeigt |
+|---|---|
+| **sprichst du selbst** | Produktions-Stufe — die schwere Richtung, nur sie zählt für „bewiesen stabil" |
+| **verstehst du** | Wiedererkennungs-Stufe, begegnet |
+| **noch nicht begegnet** | eigener Eimer |
+
+**Der dritte Eimer ist der eigentliche Punkt.** Eine nie gesehene Wendung steht
+technisch auf `recognition` — sie als „du verstehst sie" zu zählen wäre die
+bequeme Lüge. Drei Tests sichern das ab, darunter: die drei Eimer ergeben immer
+die Gesamtzahl.
+
+Dazu ein Absatz, der in einem Satz erklärt, warum hier nichts umzuschalten ist —
+und was passieren würde, wenn doch. Kein Wettbewerber gibt diese Auskunft; dort
+stehen zwei Fähnchen.
+
+**Zweiter Fund derselben Ursache wie beim Dock:** Die Fläche lag zuerst in
+`<main>`. Dort erzeugt `view-transition-name` ein `contain: layout` und damit
+einen eigenen Stapelkontext — ein `z-50` darin kommt trotzdem nicht über die
+Reiterleiste daneben, der Fußtext lag dahinter. **Alle** Overlays (Sprachpaar,
+Name, KI-Einstellungen) stehen jetzt als Geschwister neben `<main>`.
+
 ## 8. Offene Fragen (nach `10-open-questions.md`)
 
 - Soll „Heute" bei leerem Fälligkeitsstand etwas anderes anbieten als „Weiterlernen"?

@@ -316,3 +316,26 @@ test('no control overflows the screen edge in a dialogue', async ({ page }) => {
     expect(box!.x + box!.width, `„${name}" ragt rechts heraus`).toBeLessThanOrEqual(width);
   }
 });
+
+// Stufe B: Die Sprachpaar-Fläche (docs/gremium-navigation.md §5) — sie zeigt die
+// Richtung als GEMESSENEN Stand statt als Schalter, und zählt nie begegnete
+// Wendungen bewusst getrennt statt sie als „verstanden" auszugeben.
+test('language pair sheet reports direction as a measurement, not a switch', async ({ page }) => {
+  const pageErrors: string[] = [];
+  page.on('pageerror', (e) => pageErrors.push(String(e)));
+
+  await page.goto('/');
+  await page.getByRole('button', { name: /Deutsch.*Schwedisch/ }).click();
+
+  const sheet = page.getByRole('dialog', { name: 'Sprachpaar und Richtung' });
+  await expect(sheet).toBeVisible();
+  await expect(sheet.getByText('sprichst du selbst', { exact: true })).toBeVisible();
+  await expect(sheet.getByText('verstehst du', { exact: true })).toBeVisible();
+  // Frischer Stand: alles ist „noch nicht begegnet" — nichts wird als verstanden ausgegeben.
+  await expect(sheet.getByText('noch nicht begegnet')).toBeVisible();
+  await expect(sheet.getByText(/Warum du die Richtung nicht umstellen kannst/)).toBeVisible();
+
+  await sheet.getByRole('button', { name: 'Zurück' }).click();
+  await expect(sheet).toHaveCount(0);
+  expect(pageErrors, pageErrors.join('\n')).toHaveLength(0);
+});

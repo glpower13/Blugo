@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { computeMetrics, isStable } from './metrics';
+import { computeMetrics, isStable, directionSplit } from './metrics';
 import { initialState } from '../memory/memoryEngine';
 import type { ChunkState } from '../../domain/chunk';
 
@@ -54,5 +54,37 @@ describe('metrics', () => {
     const m = computeMetrics([maturing, proven, early], NOW);
     expect(m.maturing).toBe(1); // only the unproven production chunk
     expect(m.stable).toBe(1);
+  });
+});
+
+describe('directionSplit — die Richtung ist gemessen, nicht gewählt', () => {
+  it('zählt nie begegnete Wendungen NICHT als „du verstehst sie"', () => {
+    // Eine frische Wendung steht per Voreinstellung auf `recognition`. Sie als
+    // verstanden zu zählen wäre die Lüge, gegen die dieses Projekt gebaut ist.
+    const d = directionSplit([initialState('a', NOW), initialState('b', NOW)]);
+    expect(d.untouched).toBe(2);
+    expect(d.recognition).toBe(0);
+    expect(d.production).toBe(0);
+  });
+
+  it('trennt Verstehen und Selbst-Sagen anhand der Stufe', () => {
+    const seen = (id: string, stage: 'recognition' | 'production') => ({
+      ...initialState(id, NOW),
+      stage,
+      status: 'learning' as const,
+      history: [{ at: NOW, result: 'good' as const, segmentId: 's' }],
+    });
+    const d = directionSplit([seen('a', 'recognition'), seen('b', 'production'), seen('c', 'production')]);
+    expect(d).toEqual({ untouched: 0, recognition: 1, production: 2 });
+  });
+
+  it('die drei Eimer ergeben zusammen immer die Gesamtzahl', () => {
+    const states = [
+      initialState('a', NOW),
+      { ...initialState('b', NOW), status: 'learning' as const, history: [{ at: NOW, result: 'good' as const, segmentId: 's' }] },
+      { ...initialState('c', NOW), stage: 'production' as const, status: 'learning' as const, history: [{ at: NOW, result: 'good' as const, segmentId: 's' }] },
+    ];
+    const d = directionSplit(states);
+    expect(d.untouched + d.recognition + d.production).toBe(states.length);
   });
 });
