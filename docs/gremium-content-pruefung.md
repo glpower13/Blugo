@@ -78,21 +78,75 @@ wäre genau der Etikettenschwindel, den die eine Design-Regel verbietet.
 Die drei seltenen sind sachlich in Ordnung (Umkleidekabine · fünfunddreißig ·
 „smaklig måltid" = guten Appetit) — nur eben nicht alltagshäufig.
 
+## 4b. Stufe 2 gebaut (2026-07-25) — Rückübersetzung
+
+`tools/backtranslation.ts` → `npm run check:backtranslation` → schreibt
+`docs/content-rueckuebersetzung.md`.
+
+**Warum kein KI-Übersetzer:** Der naheliegende Weg (Satz von einer KI zurück ins
+Deutsche übersetzen lassen) scheitert an derselben Warnung wie die KI-Jury —
+dieselbe Trainingsbasis, dieselben Fehler, kein Beweis. Stattdessen wird
+**gegen die eigenen Birkenbihl-Glossen** zurückgebaut. Das ist deterministisch,
+offline, kostenlos und prüft eine echte Eigenschaft: **Widerspruchsfreiheit**.
+
+Das Werkzeug liest den TypeScript-Seed **direkt** (nicht über Textmuster) — die
+Prüfung kann damit nicht von den Daten abdriften.
+
+| | prüft | Art |
+|---|---|---|
+| **A** Glossen-Lücken | schwedisches Wort ohne Wort-für-Wort-Entsprechung | **hart** |
+| **B** Kontext-Brüche | Segment übt eine Wendung, die darin nicht wiederzuerkennen ist | **hart** |
+| **B2** starke Kontextvariation | wo die Wiedererkennung am dünnsten wird | Hinweis |
+| **C** Glossen-Konflikte | dasselbe Wort, verschiedene deutsche Glossen | Verdachtsliste |
+| **D** Bedeutungsdrift | wörtlicher Rückbau deckt die behauptete Bedeutung kaum | Verdachtsliste |
+
+**Wichtige Design-Korrektur:** B verlangte zuerst, dass das Segment die Wendung
+**wörtlich** enthält — und meldete prompt 13 Fehler, die alle keine waren.
+Kontextvariation ist Schritt 4 des Loops: „jag har ont här" *soll* im zweiten
+Kontext als „det gör ont här" auftauchen. B misst deshalb jetzt **Deckung** mit
+Toleranz für Beugung und Zusammensetzung (`buss`/`bussen`, `gott`/`jättegott`)
+und schlägt erst unter 50 % an. Ein Prüfwerkzeug, das bei gesundem Inhalt Alarm
+schlägt, wird abgeschaltet — dann prüft gar nichts mehr.
+
+**Erstes Ergebnis (2026-07-25):** 332 Zeilen · **A 0 · B 0** · C 33 · D 23.
+
+**Ein echter Fund in C:** `hej` ist in `c-hejda` (`hej då`) mit **„tschüss"**
+glossiert, sonst mit „hallo". `hej` heißt nie „tschüss" — die Glosse trägt die
+Bedeutung der ganzen Wendung auf ein einzelnes Wort. Genau die Frage steht schon
+in `content-review-schwedisch.md` als Zweifelsfall; das Werkzeug hat sie
+unabhängig gefunden. **Nicht still korrigiert** — die Entscheidung
+(`hej då` als eine Formel führen oder `hej`/`då` sauber trennen) gehört zur
+menschlichen Prüfung.
+
+Die übrigen C-Einträge sind ganz überwiegend deutsche Beugung (`är` → ist/bin/bist)
+und schwedische Homographen (`var` = wo *und* war, `sen` = spät *und* dann) — also
+richtig. D ist erwartungsgemäß fast vollständig der Birkenbihl-Effekt selbst
+(`jag vill ha` = wörtlich „ich will haben", gemeint „ich möchte"). Beide Listen
+sind **Lesehilfe, kein Urteil**.
+
+Die harten Regeln (A, B) laufen als Tests in der normalen Kaskade mit
+(`tools/backtranslation.test.ts`), damit neuer Inhalt sie nicht unbemerkt bricht.
+
 ## 5. Was damit ausdrücklich NICHT bewiesen ist
 
-- **Wortstellung und Satzbau.**
+Nach Stufe 1 **und** 2 bleibt offen:
+
+- **Wortstellung und Satzbau.** Beide Stufen prüfen Wörter und Widerspruchs-
+  freiheit, keine Reihenfolge.
 - **Idiomatik** — ob ein Kellner in Stockholm wirklich `Vad får det lov att vara?` sagt.
 - **Register** (Du/Sie, Höflichkeitsgrad) über eine Szene hinweg.
-- **Die Birkenbihl-Dekodierungen** — Wort-für-Wort-Glossen stehen in keinem Korpus.
+- **Ob die Übersetzung stimmt.** Ein Satz kann lückenlos glossiert, in sich
+  widerspruchsfrei — und trotzdem falsch übersetzt sein.
 
 Deshalb bleibt Stufe 3 nötig. Der Gewinn ist nicht, sie zu ersetzen, sondern sie
-**klein genug zu machen, dass sie tatsächlich passiert**.
+**klein genug zu machen, dass sie tatsächlich passiert**: aus „1.764 Sätze
+durchackern" sind ~56 geordnete Verdachtsfälle plus die Frage nach Satzbau und Ton
+geworden.
 
 ## 6. Offen / nächste Schritte
 
 - Status-Feld am Inhalt + ehrliches Abzeichen in der App (Stufe 4).
-- Rückübersetzungs-Prüfung (Stufe 2).
 - Wortfolgen-Abgleich gegen ein echtes Korpus, sobald erreichbar (Korp/Språkbanken).
-- Kompakte Restliste für die menschliche Prüfung erzeugen.
+- Entscheidung zu `hej då` (siehe 4b) durch die menschliche Prüfung.
 
 > **Anschluss:** menschliche Prüfliste `content-review-schwedisch.md` · Messung/Ehrlichkeit `07-measurement.md` · Content-Pipeline `08-content-pipeline.md` · offene Punkte `10-open-questions.md`.

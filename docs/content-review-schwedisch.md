@@ -18,6 +18,25 @@
 > als **selten** markierten Wörter aus dem Bericht (`provrummet`, `trettiofem`,
 > `smaklig`) — sie sind sachlich in Ordnung, aber nicht alltagshäufig.
 
+> **🔁 Stufe 2 erledigt (2026-07-25) — Rückübersetzung.**
+> `npm run check:backtranslation` baut jeden Satz aus seinen Birkenbihl-Glossen
+> zurück ins Deutsche und hält ihn gegen die behauptete Bedeutung. Ergebnis in
+> **`content-rueckuebersetzung.md`**: **0 Glossen-Lücken · 0 Kontext-Brüche**,
+> dazu **33 Glossen-Konflikte** und **23 Drift-Verdachtsfälle** als geordnete
+> Leseliste.
+>
+> **Konkret für die Prüfperson — das ist jetzt die Arbeitsliste:**
+> 1. Abschnitt **C** des Berichts: Wörter mit mehreren Glossen. Das meiste ist
+>    deutsche Beugung (`är` → ist/bin/bist) und richtig. **Ein echter Fund:**
+>    `hej` ist in `hej då` mit „tschüss" glossiert, sonst mit „hallo" — `hej`
+>    heißt aber nie „tschüss". Bewusst **nicht** still korrigiert (steht unten
+>    schon als Zweifelsfall).
+> 2. Abschnitt **D**: die 23 Sätze, deren wörtlicher Rückbau am weitesten von der
+>    Bedeutung wegliegt. Fast alle sind der gewollte Birkenbihl-Effekt — aber
+>    genau dort würde ein echter Übersetzungsfehler stecken.
+> 3. Danach bleibt für den Menschen nur noch das, was keine Maschine kann:
+>    **Wortstellung, Ton/Register und „sagt man das wirklich so?"**
+
 > **⚠️ Erweiterung 2026-07-23 (abends):** Der Seed steht jetzt in einem **Baum**
 > (Bereich → Thema → Wendung) und wurde erneut deutlich vergrößert — jetzt **6 Bereiche,
 > 17 Themen, 98 Wendungen, 195 Kontext-Sätze** (Quelle: `src/modules/content/seedSegments.ts`).
@@ -182,6 +201,7 @@ deutsch und nur Anzeige — nicht zu prüfen.
 ## Nach der Freigabe (Checkliste)
 
 - [x] **Stufe 1** — maschinelle Vorprüfung grün (`content-pruefbericht.md`, 0 unbelegte Wörter).
+- [x] **Stufe 2** — Rückübersetzung grün (`content-rueckuebersetzung.md`, 0 harte Funde).
 - [ ] Korrekturen in `src/modules/content/seedSegments.ts` eingepflegt.
 - [ ] Platzhalter-Warnhinweis im Dateikopf entfernt/entschärft.
 - [ ] Ggf. auf ~20 Segmente ergänzt (weitere Alltagssituationen).

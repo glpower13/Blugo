@@ -4,6 +4,8 @@ import { defineConfig } from 'vitest/config';
 // (playwright.config.ts) — keep the two from picking up each other's files.
 export default defineConfig({
   test: {
-    include: ['src/**/*.test.ts'],
+    // tools/ = Prüfwerkzeuge für den Inhalt (docs/gremium-content-pruefung.md);
+    // ihre harten Regeln sollen in derselben Kaskade laufen wie der App-Code.
+    include: ['src/**/*.test.ts', 'tools/**/*.test.ts'],
   },
 });
