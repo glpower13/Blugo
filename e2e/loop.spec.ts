@@ -617,3 +617,37 @@ test('a learner can take their memory out as a file and read it back in', async 
 
   expect(pageErrors, pageErrors.join('\n')).toHaveLength(0);
 });
+
+// Stufe B: „Warum jetzt?" — die Selbstauskunft der Engine.
+// Eine App, die behauptet, ihre Zahlen seien wahr, muss ihre eigene Entscheidung
+// offenlegen können. Geprüft wird, dass die Auskunft erscheint, den Beweis-Stand
+// nennt und beim Wechsel der Wendung wieder zu ist (kein Zustand, der klebt).
+test('the session explains why this phrase is up right now', async ({ page }) => {
+  const consoleErrors: string[] = [];
+  const pageErrors: string[] = [];
+  page.on('console', (m: ConsoleMessage) => {
+    if (m.type() === 'error') consoleErrors.push(m.text());
+  });
+  page.on('pageerror', (e) => pageErrors.push(String(e)));
+
+  await page.goto('/');
+  await startSession(page);
+
+  // Standardmäßig zu — die Auskunft drängt sich nicht auf.
+  await expect(page.getByText('Bewiesen stabil:')).toHaveCount(0);
+  await page.getByRole('button', { name: 'Warum jetzt?' }).click();
+
+  await expect(page.getByText(/zum ersten Mal|Fällig seit|jetzt fällig/)).toBeVisible();
+  await expect(page.getByText('Bewiesen stabil:')).toBeVisible();
+  await expect(page.getByText('noch nicht')).toBeVisible();
+  // Was zum Beweis fehlt, steht ausdrücklich da.
+  await expect(page.getByText(/du sagst sie selbst/)).toBeVisible();
+
+  // Nächste Wendung → wieder zu.
+  await page.getByRole('button', { name: 'Auflösen' }).click();
+  await page.getByRole('button', { name: 'Selbsteinschätzung: Sitzt' }).click();
+  await expect(page.getByText('Bewiesen stabil:')).toHaveCount(0);
+
+  expect(consoleErrors, consoleErrors.join('\n')).toHaveLength(0);
+  expect(pageErrors, pageErrors.join('\n')).toHaveLength(0);
+});

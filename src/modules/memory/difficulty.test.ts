@@ -6,6 +6,7 @@ import {
   SUCCESS_BAND,
   bandStatus,
   recentSuccessRate,
+  newCountFor,
   recommendedNewCount,
 } from './difficulty';
 import { initialState } from './memoryEngine';
@@ -62,5 +63,28 @@ describe('difficulty — bandStatus', () => {
     expect(bandStatus(0.95)).toBe('zu leicht');
     expect(bandStatus(0.5)).toBe('zu fordernd');
     expect(bandStatus(0.82)).toBe('im Flow-Band');
+  });
+});
+
+// Der Deckel aus den Einstellungen (docs/gremium-einstellungen.md). Ein Regler,
+// der nichts tut, ist schlimmer als keiner — deshalb steht seine Wirkung hier.
+describe('newCountFor — Empfehlung mit Deckel', () => {
+  it('lässt die Engine allein entscheiden, wenn kein Deckel gesetzt ist', () => {
+    expect(newCountFor(null, null)).toBe(recommendedNewCount(null));
+    expect(newCountFor(0.95, null)).toBe(recommendedNewCount(0.95));
+  });
+
+  it('bremst, wenn der Deckel kleiner ist als die Empfehlung', () => {
+    expect(newCountFor(0.95, 1)).toBe(1);
+  });
+
+  it('BESCHLEUNIGT NIE über die Empfehlung hinaus — sonst wäre er eine Abkürzung an der Anti-Klippe vorbei', () => {
+    const auto = recommendedNewCount(0.5); // zu fordernd → Engine drosselt
+    expect(newCountFor(0.5, 8)).toBe(auto);
+    expect(newCountFor(0.5, 8)).toBeLessThan(8);
+  });
+
+  it('kommt mit einem unsinnigen Deckel klar', () => {
+    expect(newCountFor(0.9, -3)).toBe(0);
   });
 });

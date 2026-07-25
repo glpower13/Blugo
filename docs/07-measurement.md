@@ -50,3 +50,27 @@ Sie bleibt eine nüchterne Zahl im Text.
 **Leitplanke:** Die beiden Zonen sind per Definition disjunkt (`isMaturing`
 schließt `isStable` aus) — zwei Tests in `categories.test.ts` sichern, dass keine
 Wendung doppelt zählt und der Balken nie über 100 % läuft.
+
+---
+
+## Selbstauskunft: „Warum jetzt?" *(gebaut 2026-07-25)*
+
+Jede Lern-App entscheidet, was du als Nächstes siehst, und keine sagt dir, warum. Man soll
+dem Algorithmus glauben. Für eine App, deren Versprechen „unsere Zahlen sind wahr" lautet,
+ist das ein Widerspruch: **Eine Messung, die man nicht nachvollziehen kann, ist eine
+Behauptung.**
+
+In der Sitzung steht deshalb neben der Kopfzeile ein „Warum jetzt?". Dahinter, aus dem
+echten Zustand gerechnet (`src/modules/memory/explain.ts`):
+
+- warum sie fällig ist (pünktlich · seit N Tagen überfällig · Kurzzeit-Wiederholung · neu),
+- wann sie zuletzt dran war,
+- auf welcher Stufe sie steht und wie oft sie in Folge saß,
+- **wann sie wiederkommt, wenn es jetzt sitzt**,
+- ob sie bewiesen stabil ist — und wenn nicht, **was genau dafür noch fehlt**.
+
+**Die Regel, die das ehrlich hält:** Die Vorschau läuft durch **dieselbe** `schedule()`, die
+gleich auch wirklich plant — kein zweiter, hübscherer Rechenweg. Ein Test vergleicht die
+vorhergesagte mit der tatsächlichen Zahl; sie müssen gleich sein. Und „was noch fehlt" ist
+bewusst eine **Liste von Bedingungen**, kein Fortschrittsbalken: Der Beweis ist eine
+Prüfung, die man besteht oder nicht, kein Weg mit Prozenten.
