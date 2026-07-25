@@ -41,6 +41,32 @@
 - Reiner Stöber-Modus für die Gegenrichtung Schwedisch → Deutsch (Minderheitsposition des
   Gremiums, `gremium-navigation.md` §5): nur bauen, wenn er **nichts** misst.
 
+## Sprechen / KI-Sprachpartner (seit `gremium-sprachpartner.md`, Nutzerfrage 2026-07-25)
+- **Entschieden 2026-07-25 (Richtung):** Sprechen wird gebaut, aber der Burggraben ist
+  **nicht** „mit einer KI reden" (das haben Duolingo Max, Speak und TalkPal bereits, TalkPal
+  auch auf Schwedisch) — sondern dass gesprochene Abrufe in **dieselbe ehrliche Messung**
+  laufen wie getippte. Redezeit wird **nie** zu Fortschritt verrechnet. Herleitung:
+  `gremium-sprachpartner.md`.
+- **Backend ja/nein für den echten Sprachpartner (Stufe 1)?** OpenAI Realtime und Gemini Live
+  verlangen ausdrücklich **server-ausgestellte kurzlebige Token**; wir haben bewusst kein
+  Backend (`05-architecture.md`). Entweder erstes Backend oder dokumentierte BYOK-Ausnahme
+  mit Realtime-Schlüssel im Browser (größere Angriffsfläche als heute, weil dieser Schlüssel
+  Sprachminuten kostet).
+- **Anbieter + Kostenrahmen:** gemessene Praxiswerte ~0,06–0,24 $/min (OpenAI Realtime, mit
+  Caching ~0,05–0,10), Gemini Flash Live ~0,005 $ ein / 0,018 $ aus je Minute. Bei 15 min/Tag
+  sind das grob **3 € bis 30 € im Monat** — das sind zwei verschiedene Produkte.
+- **Schwedische Stimmqualität** der Realtime-Anbieter: unbelegt, muss **angehört** werden,
+  bevor irgendetwas versprochen wird. Aus dieser Umgebung nicht prüfbar.
+- **Datenschutz bei Stufe 0 (Nachsprechen):** Chrome/Safari schicken das Audio standardmäßig
+  zum Hersteller-Server. Der On-Device-Pfad existiert
+  (`SpeechRecognition.available({ processLocally: true })` + `install()`), ist für **Schwedisch**
+  aber gerätespezifisch und fehlerbehaftet. Offen: Standard-Einstellung, Formulierung des
+  Hinweises.
+- **Was gilt als „gesagt"?** Der Transkript-Abgleich muss Erkennungsfehler verzeihen, ohne
+  Falsches durchzuwinken. Die Schwelle ist eine echte Entscheidung, kein Detail.
+- **Langzeit-Erhalt durch Sprechen** ist **[SCHWACH]** belegt (Studien laufen Wochen, nicht
+  Monate) — darf nicht behauptet werden, auch wenn es plausibel ist.
+
 ## Recht / Betrieb (später)
 - DSGVO, Speicherort, Konten, Sync.
 - Umgang mit KI-generiertem Content (Qualität, Haftung, Kennzeichnung).
