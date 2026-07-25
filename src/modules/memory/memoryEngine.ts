@@ -51,11 +51,22 @@ export function initialState(chunkId: string, now: number = Date.now()): ChunkSt
  * FSRS treibt Stabilität/Schwierigkeit und damit das Intervall; die Stufen-,
  * Kurzzeit- und Beweis-Logik bleibt bewusst darüber (docs/03-method.md).
  */
+/**
+ * Zusatz-Angaben zu einem Abruf, die den TERMIN NICHT beeinflussen dürfen.
+ * `spoken` ist bewusst nur ein Vermerk in der Historie: Sprechen ist ein zweiter
+ * Weg zum selben Beweis, kein leichterer und kein schwererer — die Engine darf
+ * es deshalb nicht belohnen (docs/gremium-sprachpartner.md §3).
+ */
+export interface ReviewMeta {
+  spoken?: boolean;
+}
+
 export function schedule(
   state: ChunkState,
   result: ReviewResult,
   segmentId: string,
   now: number = Date.now(),
+  meta: ReviewMeta = {},
 ): ChunkState {
   const preInterval = state.intervalDays; // interval the chunk had survived so far
   const preStage = state.stage;
@@ -131,7 +142,10 @@ export function schedule(
     dueAt,
     lastReviewedAt: now,
     seenSegmentIds,
-    history: [...state.history, { at: now, result, segmentId }],
+    history: [
+      ...state.history,
+      meta.spoken ? { at: now, result, segmentId, spoken: true } : { at: now, result, segmentId },
+    ],
   };
 }
 

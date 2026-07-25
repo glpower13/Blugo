@@ -75,6 +75,16 @@ export interface ReviewEvent {
   result: ReviewResult;
   segmentId: string; // which context it was retrieved in (for variation tracking)
   helpUsed?: boolean; // did the learner reveal a hint before answering? (docs/04-product.md)
+  /**
+   * Set ONLY when the answer was SPOKEN and the recognised words matched the
+   * verified chunk exactly (docs/gremium-sprachpartner.md, P3). Deliberately
+   * narrow: this records that the learner said the right Swedish out loud and a
+   * recogniser agreed — it does NOT claim the pronunciation was good. Recognisers
+   * normalise generously, and no honest pronunciation score exists here yet
+   * (docs/gremium-feedback.md §6). Everything the app displays about speaking
+   * must stay inside that limit.
+   */
+  spoken?: boolean;
 }
 
 /**

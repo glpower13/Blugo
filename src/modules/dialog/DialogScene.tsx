@@ -35,7 +35,12 @@ interface Props {
   backLabel: string;
   areaHue: string; // Kennfarbe des Bereichs (Bereichs-Schimmer, Orientierung)
   learnerName: string; // Vorname des Lerners (personalisiert die Anrede); '' = keiner
-  onProduce: (turn: DialogTurn, result: ReviewResult, helpUsed: boolean) => void;
+  onProduce: (
+    turn: DialogTurn,
+    result: ReviewResult,
+    helpUsed: boolean,
+    spoken: boolean,
+  ) => void;
   onExit: () => void;
 }
 
@@ -132,8 +137,8 @@ export function DialogScene({ dialog, backLabel, areaHue, learnerName, onProduce
                 <YouTurn
                   turn={current}
                   ttsOn={ttsOn}
-                  onGrade={(result, helpUsed) => {
-                    onProduce(current, result, helpUsed);
+                  onGrade={(result, helpUsed, spoken) => {
+                    onProduce(current, result, helpUsed, spoken);
                     setStep((s) => s + 1);
                   }}
                 />
@@ -326,10 +331,11 @@ function YouTurn({
 }: {
   turn: DialogTurn;
   ttsOn: boolean;
-  onGrade: (result: ReviewResult, helpUsed: boolean) => void;
+  onGrade: (result: ReviewResult, helpUsed: boolean, spoken: boolean) => void;
 }) {
   const [typed, setTyped] = useState('');
   const [heard, setHeard] = useState(''); // was die Spracheingabe verstanden hat
+  const [spokenOk, setSpokenOk] = useState(false); // gesprochen UND exakt erkannt
   const [helpUsed, setHelpUsed] = useState(false);
   const [phase, setPhase] = useState<'input' | 'feedback' | 'revealed'>('input');
   const [feedback, setFeedback] = useState<AnswerAnalysis | null>(null);
@@ -342,8 +348,9 @@ function YouTurn({
 
   // Getippt ODER gesprochen — dieselbe Prüfung gegen denselben geprüften Chunk
   // (docs/gremium-sprachpartner.md §3: zweiter Weg, kein zweiter Maßstab).
-  function check(value: string = typed) {
+  function check(value: string = typed, fromSpeech = false) {
     const fb = analyzeAnswer(value, turn.sv);
+    setSpokenOk(fromSpeech && fb.correct);
     if (fb.correct) {
       setFeedback(null);
       setPhase('revealed');
@@ -359,7 +366,7 @@ function YouTurn({
     onHeard: (text) => {
       setHeard(text);
       setTyped(text);
-      check(text);
+      check(text, true);
     },
   });
 
@@ -543,11 +550,26 @@ function YouTurn({
               </button>
             )}
           </div>
+          {spokenOk && (
+            <p className="mb-2 text-xs text-[#63C9B6]">Laut gesagt und richtig erkannt.</p>
+          )}
           <p className="mb-2 text-sm text-muted">Wie saß es?</p>
           <div className="grid grid-cols-3 gap-2">
-            <GradeButton label="Nochmal" tone="bg-danger" onClick={() => onGrade('again', helpUsed)} />
-            <GradeButton label="Fast" tone="bg-warn" onClick={() => onGrade('hard', helpUsed)} />
-            <GradeButton label="Sitzt" tone="bg-success" onClick={() => onGrade('good', helpUsed)} />
+            <GradeButton
+              label="Nochmal"
+              tone="bg-danger"
+              onClick={() => onGrade('again', helpUsed, spokenOk)}
+            />
+            <GradeButton
+              label="Fast"
+              tone="bg-warn"
+              onClick={() => onGrade('hard', helpUsed, spokenOk)}
+            />
+            <GradeButton
+              label="Sitzt"
+              tone="bg-success"
+              onClick={() => onGrade('good', helpUsed, spokenOk)}
+            />
           </div>
         </>
       )}

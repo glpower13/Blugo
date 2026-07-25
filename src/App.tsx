@@ -22,7 +22,7 @@ import { DialogOverview } from './modules/dialog/DialogOverview';
 const DialogScene = lazy(() =>
   import('./modules/dialog/DialogScene').then((m) => ({ default: m.DialogScene })),
 );
-import { computeMetrics, directionSplit } from './modules/progress/metrics';
+import { computeMetrics, directionSplit, spokenAloud } from './modules/progress/metrics';
 import { areaProgress, categoryProgress } from './modules/progress/categories';
 import { InstallButton } from './ui/InstallButton';
 import { Backdrop } from './ui/Backdrop';
@@ -140,6 +140,8 @@ export default function App() {
 
   const stateList = useMemo(() => Object.values(states), [states]);
   const metrics = useMemo(() => computeMetrics(stateList), [stateList]);
+  // Laut Gesagtes (P3): eine Eigenschaft der Abrufe, keine zweite Währung.
+  const spokenCount = useMemo(() => spokenAloud(stateList), [stateList]);
   // Wie viele Wendungen in welcher RICHTUNG stehen (gemessen, nicht gewählt).
   const direction = useMemo(() => directionSplit(stateList), [stateList]);
   const catProgress = useMemo(
@@ -250,17 +252,23 @@ export default function App() {
     ? !currentState.history.some((h) => h.result === 'good')
     : true;
 
-  async function handleResult(result: ReviewResult, helpUsed: boolean) {
+  async function handleResult(result: ReviewResult, helpUsed: boolean, spoken = false) {
     if (submitting.current) return; // ignore rapid double-taps on the same item
     if (!currentChunk || !currentState || !currentSegment) return;
     submitting.current = true;
     try {
       const now = Date.now();
-      const next = schedule(currentState, result, currentSegment.id, now);
+      const next = schedule(currentState, result, currentSegment.id, now, { spoken });
       // Persist first; only advance the UI once the write succeeded, so a
       // storage failure is surfaced and never silently drops progress.
       await putChunkState(next);
-      await logEvent(currentChunk.id, { at: now, result, segmentId: currentSegment.id, helpUsed });
+      await logEvent(currentChunk.id, {
+        at: now,
+        result,
+        segmentId: currentSegment.id,
+        helpUsed,
+        ...(spoken ? { spoken: true } : {}),
+      });
       setStates((prev) => ({ ...prev, [currentChunk.id]: next }));
       // 'again' → re-queue at the end (relearn this session); else advance.
       setQueue((q) => (result === 'again' ? [...q, currentChunk.id] : q));
@@ -276,18 +284,30 @@ export default function App() {
   // Eine „du"-Zeile im Gespräch ist ein echter Abruf ihres Chunks → dieselbe
   // Memory-Engine wie der Loop (die eine Design-Regel: echtes Können, kein Schein).
   const handleDialogProduce = useCallback(
-    (dialogId: string, turn: DialogTurn, result: ReviewResult, helpUsed: boolean) => {
+    (
+      dialogId: string,
+      turn: DialogTurn,
+      result: ReviewResult,
+      helpUsed: boolean,
+      spoken = false,
+    ) => {
       const chunkId = turn.chunkId;
       if (!chunkId) return;
       const state = states[chunkId];
       if (!state) return;
       const now = Date.now();
       const segId = `dialog:${dialogId}:${turn.id}`;
-      const next = schedule(state, result, segId, now);
+      const next = schedule(state, result, segId, now, { spoken });
       void (async () => {
         try {
           await putChunkState(next);
-          await logEvent(chunkId, { at: now, result, segmentId: segId, helpUsed });
+          await logEvent(chunkId, {
+            at: now,
+            result,
+            segmentId: segId,
+            helpUsed,
+            ...(spoken ? { spoken: true } : {}),
+          });
           setStates((prev) => ({ ...prev, [chunkId]: next }));
         } catch (e) {
           console.error('Persist failed', e);
@@ -410,6 +430,7 @@ export default function App() {
             coverage={metrics.coverage}
             totalChunks={chunks.length}
             successRate={successRate}
+            spoken={spokenCount}
           />
         )}
 
@@ -537,8 +558,8 @@ export default function App() {
               backLabel={dialogCategory?.title ?? 'Zurück'}
               areaHue={areaVisual(dialogCategory?.areaId).hue}
               learnerName={name}
-              onProduce={(turn, result, helpUsed) =>
-                handleDialogProduce(activeDialog.id, turn, result, helpUsed)
+              onProduce={(turn, result, helpUsed, spoken) =>
+                handleDialogProduce(activeDialog.id, turn, result, helpUsed, spoken)
               }
               onExit={() =>
                 navigate('pop', () =>

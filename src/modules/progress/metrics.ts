@@ -70,6 +70,24 @@ export function directionSplit(states: ChunkState[]): DirectionSplit {
   return { untouched, recognition, production };
 }
 
+/**
+ * Wie viele Wendungen der Lerner schon LAUT gesagt hat — und zwar so, dass ein
+ * Erkenner genau den geprüften Chunk verstanden hat (docs/gremium-sprachpartner.md, P3).
+ *
+ * WARUM DAS EHRLICH IST: Diese Zahl lässt sich nicht durch Anwesenheit erzeugen.
+ * Man muss die richtige schwedische Wendung aussprechen; ein Vorbeireden zählt nicht.
+ * Sie ist damit ein Signal echten Könnens — und ausdrücklich KEINE zweite Währung
+ * neben „bewiesen stabil": sie zählt Wendungen, nicht Minuten, und sie ersetzt
+ * nichts.
+ *
+ * WAS SIE NICHT SAGT: nichts über die Aussprache-QUALITÄT. Erkenner normalisieren
+ * großzügig. Jede Anzeige dazu muss „gesagt und erkannt" heißen, nie „richtig
+ * ausgesprochen" (docs/gremium-feedback.md §6).
+ */
+export function spokenAloud(states: ChunkState[]): number {
+  return states.filter((s) => s.history.some((h) => h.spoken)).length;
+}
+
 export function computeMetrics(states: ChunkState[], now: number = Date.now()): Metrics {
   const activeStates = states.filter(isActive);
   // Verständnis-Abdeckung (docs/07-measurement.md), M1-Näherung: gewichtet nach

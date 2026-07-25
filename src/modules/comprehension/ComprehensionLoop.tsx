@@ -35,7 +35,9 @@ interface Props {
   segment: Segment;
   chunk: Chunk;
   stage: 'recognition' | 'production';
-  onResult: (result: ReviewResult, helpUsed: boolean) => void;
+  // `spoken` = die Antwort kam GESPROCHEN und wurde exakt als der geprüfte Chunk
+  // erkannt (P3). Nur dieser enge Fall wird vermerkt — siehe ReviewEvent.spoken.
+  onResult: (result: ReviewResult, helpUsed: boolean, spoken: boolean) => void;
   known?: KnownPhrase[]; // Wendungen, die der Lerner schon kann (für echtes i+1)
   // Neuer Chunk? Dann Bedeutung/Dekodierung SOFORT zeigen (verständlicher Input,
   // docs/gremium-darstellung.md). Bei bekanntem Chunk bleibt die Stütze zu (Abruf).
@@ -57,6 +59,7 @@ export function ComprehensionLoop({
   const [helpUsed, setHelpUsed] = useState(false); // pulled a hint before answering?
   const [typed, setTyped] = useState(''); // production: the learner's typed answer
   const [heard, setHeard] = useState(''); // was die Spracheingabe verstanden hat
+  const [spokenOk, setSpokenOk] = useState(false); // gesprochen UND exakt erkannt
   const [autoGrade, setAutoGrade] = useState<ReviewResult | null>(null);
   // Formatives Feedback bei Produktion (Abweichung + Hinweis, docs/gremium-feedback.md).
   const [feedback, setFeedback] = useState<AnswerAnalysis | null>(null);
@@ -84,6 +87,7 @@ export function ComprehensionLoop({
     setHelpUsed(false);
     setTyped('');
     setHeard('');
+    setSpokenOk(false);
     setAutoGrade(null);
     setFeedback(null);
     setWhy({ state: 'idle', text: '' });
@@ -142,8 +146,12 @@ export function ComprehensionLoop({
   // `value` kommt getippt ODER gesprochen herein — GENAU dieselbe Prüfung, damit
   // Sprechen ein zweiter Weg zum selben Beweis ist und kein zweiter Maßstab
   // (docs/gremium-sprachpartner.md §3).
-  function submitTyped(value: string = typed) {
+  function submitTyped(value: string = typed, fromSpeech = false) {
     const fb = analyzeAnswer(value, chunk.sv);
+    // Vermerk nur, wenn GESPROCHEN und exakt getroffen. Ein Tipp-Versuch danach
+    // löscht ihn wieder — sonst stünde am Ende „gesprochen" an einer Wendung,
+    // die getippt wurde.
+    setSpokenOk(fromSpeech && fb.correct);
     setAutoGrade(fb.grade);
     setWhy({ state: 'idle', text: '' });
     if (fb.correct) {
@@ -161,7 +169,7 @@ export function ComprehensionLoop({
     onHeard: (text) => {
       setHeard(text);
       setTyped(text);
-      submitTyped(text);
+      submitTyped(text, true);
     },
   });
 
@@ -544,10 +552,27 @@ export function ComprehensionLoop({
                 Deine Eingabe: „{typed || '—'}" · Vorschlag: {GRADE_LABEL[autoGrade]}
               </p>
             )}
+            {spokenOk && (
+              <p className="mb-2 text-xs text-[#63C9B6]">
+                Laut gesagt und richtig erkannt.
+              </p>
+            )}
             <div className="grid grid-cols-3 gap-2">
-              <GradeButton label="Nochmal" tone="bg-danger" onClick={() => onResult('again', helpUsed)} />
-              <GradeButton label="Schwer" tone="bg-warn" onClick={() => onResult('hard', helpUsed)} />
-              <GradeButton label="Sitzt" tone="bg-success" onClick={() => onResult('good', helpUsed)} />
+              <GradeButton
+                label="Nochmal"
+                tone="bg-danger"
+                onClick={() => onResult('again', helpUsed, spokenOk)}
+              />
+              <GradeButton
+                label="Schwer"
+                tone="bg-warn"
+                onClick={() => onResult('hard', helpUsed, spokenOk)}
+              />
+              <GradeButton
+                label="Sitzt"
+                tone="bg-success"
+                onClick={() => onResult('good', helpUsed, spokenOk)}
+              />
             </div>
           </>
         )}
