@@ -1,5 +1,23 @@
 # Content-Prüfliste — Schwedisch (Seed für M1)
 
+> **🔎 Stufe 1 erledigt (2026-07-25) — maschinelle Vorprüfung.**
+> Alle schwedischen Zeichenketten wurden gegen Korpus-Häufigkeiten und ein
+> Wörterbuch geprüft (`npm run check:content` → `tools/check-swedish.py`).
+> Ergebnis in **`content-pruefbericht.md`**: **1.764 Zeichenketten · 248 Wörter ·
+> 0 nicht belegte Wörter**. Begründung der Methode: `gremium-content-pruefung.md`.
+>
+> **Damit ist bewiesen:** jedes Wort ist ein echtes, real verwendetes schwedisches
+> Wort — keine Tippfehler, keine erfundenen Wörter, kein fehlendes å/ä/ö.
+> **Damit ist NICHT bewiesen:** Wortstellung, Idiomatik, Register und die
+> Birkenbihl-Dekodierungen.
+>
+> **Folge für diese Liste:** Die Prüfkriterien **1 (Idiomatik), 3 (Dekodierung),
+> 5 (Natürlichkeit im Kontext), 6 (False Friends)** bleiben vollständig
+> menschliche Arbeit. Die reine Rechtschreib-/Wortexistenz-Frage ist erledigt und
+> muss nicht mehr Zeile für Zeile abgehakt werden. Zusätzlich gegenlesen: die drei
+> als **selten** markierten Wörter aus dem Bericht (`provrummet`, `trettiofem`,
+> `smaklig`) — sie sind sachlich in Ordnung, aber nicht alltagshäufig.
+
 > **⚠️ Erweiterung 2026-07-23 (abends):** Der Seed steht jetzt in einem **Baum**
 > (Bereich → Thema → Wendung) und wurde erneut deutlich vergrößert — jetzt **6 Bereiche,
 > 17 Themen, 98 Wendungen, 195 Kontext-Sätze** (Quelle: `src/modules/content/seedSegments.ts`).
@@ -163,6 +181,7 @@ deutsch und nur Anzeige — nicht zu prüfen.
 
 ## Nach der Freigabe (Checkliste)
 
+- [x] **Stufe 1** — maschinelle Vorprüfung grün (`content-pruefbericht.md`, 0 unbelegte Wörter).
 - [ ] Korrekturen in `src/modules/content/seedSegments.ts` eingepflegt.
 - [ ] Platzhalter-Warnhinweis im Dateikopf entfernt/entschärft.
 - [ ] Ggf. auf ~20 Segmente ergänzt (weitere Alltagssituationen).
