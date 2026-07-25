@@ -14,7 +14,7 @@
 - ❌ **A** Glossen-Lücken (hart): **0**
 - ❌ **B** Kontext-Brüche (hart, Deckung < 0.5): **0**
 - ℹ️ **B2** starke Kontextvariation (erwünscht): **12**
-- ⚠️ **C** Glossen-Konflikte: **230** — davon **38 zu prüfen**, 35 kontextabhängige Funktionswörter, 157 nur deutsche Beugung
+- ⚠️ **C** Glossen-Konflikte: **224** — davon **0 zu prüfen**, 29 der App bekannt und dem Lerner erklärt, 35 kontextabhängige Funktionswörter, 160 nur deutsche Beugung
 - ⚠️ **D** mögliche Bedeutungsdrift: **125** (Deckung < 0.34)
 
 ## ❌ A — Glossen-Lücken
@@ -48,6 +48,12 @@ Hier weicht der zweite Kontext deutlich von der Wendung ab. **Das soll so sein**
 
 Dasselbe schwedische Wort, verschiedene deutsche Bedeutungen — und es ist **kein** Funktionswort, bei dem das normal wäre. Hier erlebt ein Lerner den Unterschied als Widerspruch. Das ist die Liste, die ein Mensch wirklich durchgehen sollte.
 
+Keine. ✅
+
+## ✅ C1b — der App bekannt, dem Lerner erklärt
+
+Auch hier trägt dasselbe Wort zwei Bedeutungen — aber die App sagt es. In der Dekodierung steht ein Satz wie „kort heißt hier »Karte« — es heißt auch »kurz«". Der Lerner erlebt den Unterschied damit als Stoff und nicht als Widerspruch. Gepflegt in `src/modules/content/polysemy.ts`, am Inhalt festgehalten durch `polysemy.test.ts`.
+
 | Schwedisch | Glossen | bekannt kontextabhängig |
 |---|---|---|
 | **andra** | „anderer" (Wendung c-aandrasidan) · „zweite" (Gespräch dlg-stadium/m8) · „andere" (Gespräch dlg-mix-vag/mv7) | — |
@@ -63,7 +69,6 @@ Dasselbe schwedische Wort, verschiedene deutsche Bedeutungen — und es ist **ke
 | **gång** | „mal" (Wendung c-engangtill) · „gang" (Gespräch dlg-mix-telefon/mt5) | — |
 | **gott** | „lecker" (Wendung c-vargott) · „gut" (Segment s-a1t-tre1) | — |
 | **högt** | „hoch" (Segment s-b2v-pris2) · „laut" (Gespräch dlg-traditioner/tr9) | — |
-| **hyr** | „mieten" (Wendung c-hyraenbil) · „vermietet" (Gespräch dlg-resa/rs9) | — |
 | **ifrån** | „davon" (Gespräch dlg-kanslor/ks11) · „her" (Gespräch dlg-familj/fa1) | — |
 | **kort** | „karte" (Wendung c-medkort) · „kurz" (Wendung c-kortsagtgickdetbra) | — |
 | **lager** | „lager" (Segment s-a2k-mindre1) · „schichten" (Gespräch dlg-natur/nt11) | — |
@@ -74,19 +79,11 @@ Dasselbe schwedische Wort, verschiedene deutsche Bedeutungen — und es ist **ke
 | **ringde** | „klingelte" (Segment s-b2e-samtidigt1) · „riefst an" (Gespräch dlg-berattelse/be7) | — |
 | **runt** | „rund" (Segment s-b1f-sjunger1) · „um" (Gespräch dlg-arzt/a11) | — |
 | **så** | „so" (Wendung c-tack) · „also" (Gespräch dlg-inbjudan/ib3) | — |
-| **sammanfatta** | „zusammenfassen" (Wendung c-forattsammanfatta) · „fasse zusammen" (Gespräch dlg-mix-sprak/msp11) | — |
-| **se** | „sehen" (Segment s-b1m-rekom2) · „sieh" (Gespräch dlg-natur/nt5) | — |
-| **skönt** | „schön" (Gespräch dlg-berattelse/be11) · „angenehm" (Gespräch dlg-vader/vr9) | — |
 | **skulle** | „würden" (Gespräch dlg-asikt/as3) · „sollte" (Gespräch dlg-mix-nyheter/mn9) | — |
 | **stannade** | „hielt" (Gespräch dlg-berattelse/be5) · „blieb" (Gespräch dlg-familj/fa7) | — |
-| **täckning** | „abdeckung" (Wendung c-daligtackning) · „empfang" (Segment s-daligtackning3) | — |
 | **tid** | „zeit" (Wendung c-vilkentidpassar) · „termin" (Wendung c-bokaentid) | — |
-| **trevlig** | „schönen" (Gespräch dlg-restaurant/r10) · „angenehme" (Gespräch dlg-ticket/t7) | — |
-| **trevligt** | „nett" (Wendung c-trevligt) · „angenehm" (Segment s-trevligt3) | — |
 | **utanför** | „außerhalb" (Wendung c-utanforbudgeten) · „draußen" (Gespräch dlg-tid/tid7) | — |
 | **vad** | „was" (Wendung c-kostar) · „wie" (Wendung c-vadroligt) | — |
-| **vem** | „wer" (Wendung c-vemvann) · „wen" (Gespräch dlg-inbjudan/ib11) | — |
-| **vilse** | „verirrt" (Wendung c-vilse) · „irre" (Segment s-vilse3) | — |
 | **visst** | „klar" (Gespräch dlg-shop/g5) · „wohl" (Gespräch dlg-halsning/hl1) | — |
 
 ## ℹ️ C3 — Funktionswörter (Bedeutung kommt aus dem Satz)
@@ -203,7 +200,6 @@ Vollständigkeit statt Schönfärberei: Diese Fälle stehen hier, damit nichts v
 | **budgeten** | „des budgets" (Wendung c-utanforbudgeten) · „das budget" (Gespräch dlg-debatt/db3) | — |
 | **byter** | „tauscht" (Segment s-b1r-pengar1) · „tauschen" (Gespräch dlg-reklamation/rk11) | — |
 | **dagen** | „den tag" (Wendung c-tvaganger) · „tag" (Segment s-vilketvader1) | — |
-| **dålig** | „schlechte" (Wendung c-daligtackning) · „schlechten" (Segment s-daligtackning3) | — |
 | **ditt** | „deine" (Wendung c-dittpersonnummer) · „deinen" (Gespräch dlg-mix-hotell/mh5) | — |
 | **dörren** | „der tür" (Gespräch dlg-fika/fk1) · „die tür" (Gespräch dlg-mix-hotell/mh9) | — |
 | **eftermiddagen** | „den nachmittag" (Gespräch dlg-vader/vr3) · „nachmittag" (Gespräch dlg-mix-nyheter/mn7) | — |
@@ -228,6 +224,7 @@ Vollständigkeit statt Schönfärberei: Diese Fälle stehen hier, damit nichts v
 | **heter** | „heiße" (Wendung c-heter) · „heißt" (Segment s-namn1) | — |
 | **hittar** | „finde" (Wendung c-tappatvaska) · „findest" (Gespräch dlg-klader/kl1) | — |
 | **hjälp** | „hilfe" (Wendung c-hjalp) · „hilf" (Segment s-hjalpe2) | — |
+| **hyr** | „mieten" (Wendung c-hyraenbil) · „mietet" (Gespräch dlg-resa/rs9) | — |
 | **jobbade** | „arbeiteten" (Segment s-b1g-nojd2) · „arbeitete" (Segment s-b1j-erfarenhet2) | — |
 | **jobbar** | „arbeitest" (Wendung c-jobbar) · „arbeite" (Wendung c-jobbarpakontor) | — |
 | **kakan** | „dem kuchen" (Segment s-a1f-te2) · „der kuchen" (Segment s-a1f-smakar2) | — |
@@ -269,6 +266,7 @@ Vollständigkeit statt Schönfärberei: Diese Fälle stehen hier, damit nichts v
 | **resan** | „die reise" (Wendung c-hurlangresan) · „der reise" (Segment s-a2b-utpengar1) | — |
 | **såg** | „sah" (Wendung c-sagennyhet) · „sahen" (Gespräch dlg-mix-halsa/mha9) | — |
 | **säg** | „sag" (Gespräch dlg-shop/g3) · „sage" (Gespräch dlg-sprak/sp7) | — |
+| **se** | „sehen" (Segment s-b1m-rekom2) · „sieh" (Gespräch dlg-natur/nt5) | — |
 | **sjön** | „den see" (Gespräch dlg-traning/tn3) · „see" (Gespräch dlg-natur/nt7) | — |
 | **skickar** | „schicke" (Wendung c-skickarmejl) · „schicken" (Gespräch dlg-tidsbokning/tb7) | — |
 | **smaklig** | „schmackhaft" (Wendung c-smaklig) · „schmackhafte" (Segment s-smaklig3) | — |
@@ -288,10 +286,12 @@ Vollständigkeit statt Schönfärberei: Diese Fälle stehen hier, damit nichts v
 | **tänker** | „denkst" (Segment s-b1o-inte2) · „denke" (Segment s-b2d-forklara1) | — |
 | **tiden** | „die zeit" (Wendung c-flyttatiden) · „der zeit" (Gespräch dlg-mix-restaurang/mr5) | — |
 | **tittar** | „schaue" (Wendung c-tittarbara) · „schauen" (Gespräch dlg-mix-verkstad/mw3) | — |
+| **trevlig** | „schönen" (Gespräch dlg-restaurant/r10) · „schöne" (Gespräch dlg-ticket/t7) | — |
 | **utmärkt** | „ausgezeichnet" (Gespräch dlg-restaurant/r8) · „ausgezeichnete" (Gespräch dlg-shop/g7) | — |
 | **varje** | „jeden" (Wendung c-ovarvarjedag) · „jedes" (Segment s-b1f-midsommar2) | — |
 | **väskan** | „die tasche" (Wendung c-packavaskan) · „der tasche" (Segment s-a2k-kvitto1) | — |
 | **vattnet** | „das wasser" (Wendung c-lugntvatten) · „dem wasser" (Gespräch dlg-resa/rs9) | — |
+| **vem** | „wer" (Wendung c-vemvann) · „wen" (Gespräch dlg-inbjudan/ib11) | — |
 | **ville** | „wollten" (Segment s-a1p-synd2) · „wollte" (Gespräch dlg-siffror/sf3) | — |
 | **vintern** | „dem winter" (Segment s-morkttidigt1) · „den winter" (Segment s-a2k-skor1) | — |
 

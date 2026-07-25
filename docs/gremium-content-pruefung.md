@@ -232,3 +232,70 @@ Beugungsfamilien standen ungefaltet da. „konnen" traf „können" also nie, un
 `kan` (kann/kannst/können/könnt) landete als angeblicher Bedeutungs-Konflikt in
 der Prüfliste. Drei Tests halten die Trennung jetzt fest — ein Klassifikator, der
 zu großzügig wird, verschluckt echte Funde still.
+
+---
+
+## Nachtrag 2 (2026-07-25): von 38 auf 0 — und was die App jetzt selbst erklärt
+
+Die 38 Zeilen aus Nachtrag 1 wurden einzeln durchgegangen. Beim Nachsehen im
+echten Inhalt zerfielen sie in drei Gruppen — und die größte war überhaupt kein
+Fehler.
+
+### Vier echte Fehler
+
+1. `vilse` war zweimal als **„irre"** glossiert. „Jag har gått vilse" heißt „ich
+   habe mich verirrt"; „irre" heißt auf Deutsch verrückt. → „verirrt".
+2. `täckning` stand dreimal als „Abdeckung", einmal als „Empfang". Die wörtliche
+   Ebene bleibt „Abdeckung", die freie Übersetzung sagt „Empfang" — genau diese
+   Trennung ist der Sinn der Dekodierung. → vereinheitlicht.
+3. `trevligt` stand siebenmal als „nett", einmal als „angenehm". → „nett".
+4. `hyr` in „hyr ut" war als **„vermietet"** glossiert, `ut` daneben als „aus" —
+   wörtlich gelesen ergab das „vermietet aus". `hyra ut` ist ein Partikelverb:
+   `hyr` = mietet, `ut` = aus. → „mietet".
+
+### Drei Fälle deutscher Beugung, die das Werkzeug nicht sah
+
+„sehen"/**„sieh"** und „wer"/**„wen"** teilen nur zwei Anfangsbuchstaben, die
+Schwelle liegt bei drei. Statt die Schwelle zu senken (und damit echte Funde zu
+verschlucken) wurden zwei Beugungsfamilien ergänzt. Bei der Gelegenheit fiel auf,
+dass `ARTIKEL` die Familien über ihren **Index** ansprach — eine neue Zeile in
+der Liste hätte still aus Artikeln Fürwörter gemacht. Jetzt über den Namen.
+
+### Und der eigentliche Punkt: 29 Wörter waren nie ein Fehler
+
+`kort` heißt wirklich „Karte" **und** „kurz". `mycket` heißt „viel" **und**
+„sehr". `när` heißt „wann" **und** „wenn". Das ist kein Widerspruch im Inhalt,
+das ist Schwedisch.
+
+Für den Lerner sah es trotzdem aus wie einer: Er lernt eine Bedeutung, trifft
+später die andere, und hält entweder die App für kaputt oder sich selbst für
+vergesslich. Beides ist falsch, und beides kostet Vertrauen.
+
+Statt eine Bedeutung zu erzwingen (und damit **falsch** zu werden), **sagt die
+App es jetzt.** In der Dekodierung steht unter dem Satz:
+
+> **kort** heißt hier „Karte" — es heißt auch „kurz". „med kort" ist mit Karte,
+> „kort sagt" heißt kurz gesagt.
+
+Gepflegt in `src/modules/content/polysemy.ts` (29 Wörter, jedes mit einem Satz,
+woran man erkennt, welche Bedeutung gerade gilt). Der Hinweis hängt an der
+Dekodierung — wer Wort-für-Wort-Hilfe zieht, bekommt sie ganz; wer ohne Krücke
+liest, wird nicht zugetextet. Höchstens zwei Hinweise pro Satz.
+
+**Die Behauptung wird gehalten, nicht geglaubt:** `polysemy.test.ts` prüft für
+jedes Wort, dass es im Inhalt vorkommt und dort tatsächlich mit mehr als einer
+Bedeutung glossiert ist. Ein erfundener Eintrag lässt den Lauf scheitern.
+
+### Stand
+
+| | vorher | jetzt |
+|---|---|---|
+| **C1 — ein Mensch muss ran** | 38 | **0** |
+| **C1b — dem Lerner erklärt** | — | 29 |
+| C3 — Funktionswörter | 35 | 35 |
+| C2 — nur deutsche Beugung | 157 | 160 |
+
+Ein Fehler im Anzeige-Filter kam noch heraus, gefunden vom eigenen Test: Die
+Prüfung „ist das nur die gebeugte Form?" verglich Zeichenketten, und „also"
+enthält „so" — bei `så` blieb an der Bedeutung „so" also nichts mehr zu sagen
+übrig. Jetzt werden ganze Wörter verglichen.

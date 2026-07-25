@@ -15,12 +15,44 @@ import { explainSchedule, whyNowSentence } from '../memory/explain';
 import { SpeakButton } from '../../ui/SpeakButton';
 import { IconPlay, IconSlow, IconWave, IconSparkle } from '../../ui/icons';
 import { VoiceMissingHint } from '../../ui/VoiceHint';
+import { andereBedeutungen, mehrdeutigeInDekodierung } from '../content/polysemy';
 
 const GRADE_LABEL: Record<ReviewResult, string> = {
   again: 'Nochmal',
   hard: 'Fast',
   good: 'Sitzt',
 };
+
+/**
+ * Sagt es, wenn ein Wort im Satz mehr als eine Bedeutung hat.
+ *
+ * WARUM: Ohne diesen Hinweis lernt jemand `kort` als „Karte", trifft es später
+ * als „kurz" und hält die App für widersprüchlich — oder schlimmer: sich selbst
+ * für vergesslich. Die zweite Bedeutung ist kein Fehler, sie ist der Stoff.
+ *
+ * Höchstens zwei auf einmal: Drei Erklärkästen unter einem Satz erschlagen die
+ * Begegnung, die hier eigentlich stattfinden soll.
+ */
+function MehrdeutigHinweis({ decoding }: { decoding: DecodingToken[] }) {
+  const treffer = mehrdeutigeInDekodierung(decoding)
+    .map(({ eintrag, hier }) => ({ eintrag, hier, andere: andereBedeutungen(eintrag, hier) }))
+    .filter((t) => t.andere.length > 0)
+    .slice(0, 2);
+  if (treffer.length === 0) return null;
+  return (
+    <div className="mt-3 flex flex-col gap-1.5">
+      {treffer.map(({ eintrag, hier, andere }) => (
+        <p key={eintrag.sv} className="text-[0.7rem] leading-relaxed text-muted">
+          <span lang="sv" className="font-medium text-paper">
+            {eintrag.sv}
+          </span>{' '}
+          heißt hier „{hier}" — es heißt auch {andere.map((b) => `„${b}"`).join(' oder ')}.{' '}
+          <span className="text-faint">{eintrag.hinweis}</span>
+        </p>
+      ))}
+    </div>
+  );
+}
 
 /**
  * Blendet den Ziel-Chunk im schwedischen Satz aus (Lückentext für die Produktion,
@@ -361,14 +393,17 @@ export function ComprehensionLoop({
       )}
 
       {showDecoding && (
-        <div className="mt-3 flex flex-wrap gap-x-4 gap-y-2">
-          {segment.decoding.map((t, i) => (
-            <span key={i} className="inline-flex flex-col items-center">
-              <span lang="sv" className="text-paper">{t.sv}</span>
-              <span className="text-xs text-muted">{t.de}</span>
-            </span>
-          ))}
-        </div>
+        <>
+          <div className="mt-3 flex flex-wrap gap-x-4 gap-y-2">
+            {segment.decoding.map((t, i) => (
+              <span key={i} className="inline-flex flex-col items-center">
+                <span lang="sv" className="text-paper">{t.sv}</span>
+                <span className="text-xs text-muted">{t.de}</span>
+              </span>
+            ))}
+          </div>
+          <MehrdeutigHinweis decoding={segment.decoding} />
+        </>
       )}
 
       {showIdiomatic && <p className="mt-3 italic text-muted">{segment.de}</p>}
@@ -437,14 +472,17 @@ export function ComprehensionLoop({
           </div>
           <p className="mt-1 italic text-muted">{genSegment.de}</p>
           {genSegment.decoding.length > 0 && (
-            <div className="mt-3 flex flex-wrap gap-x-4 gap-y-2">
-              {genSegment.decoding.map((t, i) => (
-                <span key={i} className="inline-flex flex-col items-center">
-                  <span lang="sv" className="text-paper">{t.sv}</span>
-                  <span className="text-xs text-muted">{t.de}</span>
-                </span>
-              ))}
-            </div>
+            <>
+              <div className="mt-3 flex flex-wrap gap-x-4 gap-y-2">
+                {genSegment.decoding.map((t, i) => (
+                  <span key={i} className="inline-flex flex-col items-center">
+                    <span lang="sv" className="text-paper">{t.sv}</span>
+                    <span className="text-xs text-muted">{t.de}</span>
+                  </span>
+                ))}
+              </div>
+              <MehrdeutigHinweis decoding={genSegment.decoding} />
+            </>
           )}
         </div>
       )}

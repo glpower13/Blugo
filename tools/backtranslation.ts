@@ -28,6 +28,7 @@ import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import { seedChunks, seedSegments } from '../src/modules/content/seedSegments';
 import { seedDialogs } from '../src/modules/content/seedDialogs';
+import { MEHRDEUTIGE_WOERTER } from '../src/modules/content/polysemy';
 
 export type Gloss = { sv: string; de: string };
 /** Alles, was eine schwedische Zeile mit Bedeutung und Glossen ist. */
@@ -163,6 +164,11 @@ export type Conflict = { sv: string; glosses: { de: string; where: string }[] };
  * Wörter, deren Glosse laut `content-review-schwedisch.md` bewusst vom Kontext
  * abhängt. Sie tauchen im Bericht auf, gelten aber nicht als Verdachtsfall.
  */
+// Was die App dem Lerner selbst erklärt, muss kein Mensch mehr aufklären.
+// Die Liste steht in `src/modules/content/polysemy.ts` und wird dort durch
+// einen Test am Inhalt gehalten. Hier zieht der Bericht sie nur ab.
+const ERKLAERT = new Set(MEHRDEUTIGE_WOERTER.map((m) => m.sv));
+
 const KNOWN_CONTEXT_DEPENDENT = new Set([
   // Ursprünglich aus `content-review-schwedisch.md`
   'till', 'om', 'med', 'få', 'tack',
@@ -213,7 +219,8 @@ const BEUGUNG: string[][] = [
   ['mein', 'meine', 'meinen', 'meinem', 'meiner', 'meins'],
   ['dein', 'deine', 'deinen', 'deinem', 'deiner', 'deins'],
   ['gut', 'gute', 'guter', 'gutes', 'guten', 'gutem'],
-  ['sehe', 'siehst', 'sieht', 'sehen', 'seht', 'sah', 'sahen', 'gesehen'],
+  ['sehe', 'siehst', 'sieht', 'sehen', 'seht', 'sieh', 'sah', 'sahen', 'gesehen'],
+  ['wer', 'wen', 'wem', 'wessen'],
   ['gebe', 'gibst', 'gibt', 'geben', 'gebt', 'gab', 'gib'],
   ['nehme', 'nimmst', 'nimmt', 'nehmen', 'nehmt', 'nimm'],
   ['esse', 'isst', 'essen', 'esst', 'iss', 'aß'],
@@ -223,7 +230,10 @@ const BEUGUNG: string[][] = [
   ['fahre', 'fahrst', 'fahrt', 'fahren', 'fuhr', 'fuhren'],
 ];
 
-const ARTIKEL = new Set(BEUGUNG[9].concat(BEUGUNG[10]));
+// Nach Name statt nach Index: Eine neue Familie in der Liste darf nicht
+// stillschweigend aus Artikeln Fürwörter machen.
+const familie = (kopf: string) => BEUGUNG.find((f) => f[0] === kopf) ?? [];
+const ARTIKEL = new Set([...familie('der'), ...familie('ein')]);
 
 /** Nur Umlaute falten — dieselbe Regel wie in `kern`. */
 const falten = (w: string) =>
@@ -334,8 +344,12 @@ function report(lines: Line[]): { text: string; hardFindings: number } {
   const kontext = conflicts.filter(
     (c) => istBedeutungsKonflikt(c) && KNOWN_CONTEXT_DEPENDENT.has(c.sv),
   );
+  const erklaert = conflicts.filter(
+    (c) => istBedeutungsKonflikt(c) && !KNOWN_CONTEXT_DEPENDENT.has(c.sv) && ERKLAERT.has(c.sv),
+  );
   const bedeutung = conflicts.filter(
-    (c) => istBedeutungsKonflikt(c) && !KNOWN_CONTEXT_DEPENDENT.has(c.sv),
+    (c) =>
+      istBedeutungsKonflikt(c) && !KNOWN_CONTEXT_DEPENDENT.has(c.sv) && !ERKLAERT.has(c.sv),
   );
   const drift = findDrift(lines);
 
@@ -372,6 +386,7 @@ function report(lines: Line[]): { text: string; hardFindings: number } {
   p(`- ℹ️ **B2** starke Kontextvariation (erwünscht): **${varied.length}**`);
   p(
     `- ⚠️ **C** Glossen-Konflikte: **${conflicts.length}** — davon **${bedeutung.length} zu prüfen**, ` +
+      `${erklaert.length} der App bekannt und dem Lerner erklärt, ` +
       `${kontext.length} kontextabhängige Funktionswörter, ${beugung.length} nur deutsche Beugung`,
   );
   p(`- ⚠️ **D** mögliche Bedeutungsdrift: **${drift.length}** (Deckung < ${DRIFT_THRESHOLD})`);
@@ -449,6 +464,20 @@ function report(lines: Line[]): { text: string; hardFindings: number } {
   else tabelle(bedeutung);
   p();
 
+  p('## ✅ C1b — der App bekannt, dem Lerner erklärt');
+  p();
+  p(
+    'Auch hier trägt dasselbe Wort zwei Bedeutungen — aber die App sagt es. In der ' +
+      'Dekodierung steht ein Satz wie „kort heißt hier »Karte« — es heißt auch »kurz«". ' +
+      'Der Lerner erlebt den Unterschied damit als Stoff und nicht als Widerspruch. ' +
+      'Gepflegt in `src/modules/content/polysemy.ts`, am Inhalt festgehalten durch ' +
+      '`polysemy.test.ts`.',
+  );
+  p();
+  if (!erklaert.length) p('Keine.');
+  else tabelle(erklaert);
+  p();
+
   p('## ℹ️ C3 — Funktionswörter (Bedeutung kommt aus dem Satz)');
   p();
   p(
@@ -504,7 +533,8 @@ export function main(): number {
   // Dieselbe Zahl wie C1 im Bericht — sonst meldet die Konsole etwas anderes
   // als das Dokument, und man weiß nicht mehr, welcher Zahl man glaubt.
   const conflicts = findConflicts(lines).filter(
-    (c) => istBedeutungsKonflikt(c) && !KNOWN_CONTEXT_DEPENDENT.has(c.sv),
+    (c) =>
+      istBedeutungsKonflikt(c) && !KNOWN_CONTEXT_DEPENDENT.has(c.sv) && !ERKLAERT.has(c.sv),
   ).length;
   console.log('Bericht geschrieben: docs/content-rueckuebersetzung.md');
   console.log(`  ${lines.length} Zeilen geprüft`);

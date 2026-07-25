@@ -854,7 +854,7 @@ const baseDialogs: Dialog[] = [
         decoding: [
           { sv: 'spår', de: 'Gleis' },
           { sv: 'tre', de: 'drei' },
-          { sv: 'trevlig', de: 'angenehme' },
+          { sv: 'trevlig', de: 'schöne' },
           { sv: 'resa', de: 'Reise' },
         ],
       },

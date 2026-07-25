@@ -794,3 +794,37 @@ test('in einer Überlagerung bleibt der Fokus beim Tippen im Feld', async ({ pag
   await page.keyboard.press('Escape');
   await expect(page.getByRole('button', { name: 'Einstellungen' })).toBeFocused();
 });
+
+// Stufe B: Ein Wort mit zwei Bedeutungen wird als solches BENANNT.
+//
+// Der Rückübersetzungs-Bericht führt 38 Wörter, die im Inhalt verschieden
+// glossiert sind. Bei den meisten ist das kein Fehler, sondern Schwedisch:
+// `vad` heißt „was" und „wie", `kort` „Karte" und „kurz". Ohne Hinweis erlebt
+// der Lerner das als Widerspruch — und sucht den Fehler bei sich. Der Hinweis
+// hängt an der Dekodierung: Wer Wort-für-Wort-Hilfe zieht, bekommt sie ganz.
+test('ein mehrdeutiges Wort wird im Lern-Loop als mehrdeutig erklärt', async ({ page }) => {
+  await page.goto('/');
+  await startSession(page);
+
+  let gefunden = '';
+  for (let i = 0; i < 8 && !gefunden; i++) {
+    const zu = page.getByRole('button', { name: 'Dekodierung', exact: true });
+    if (await zu.count()) await zu.click();
+    const hinweis = page.locator('p', { hasText: 'es heißt auch' });
+    if (await hinweis.count()) {
+      gefunden = (await hinweis.first().innerText()).replace(/\s+/g, ' ');
+      break;
+    }
+    const aufloesen = page.getByRole('button', { name: 'Auflösen' }).first();
+    if (!(await aufloesen.count())) break;
+    await aufloesen.click();
+    const sitzt = page.getByRole('button', { name: 'Selbsteinschätzung: Sitzt' }).first();
+    if (!(await sitzt.count())) break;
+    await sitzt.click();
+    await sitzt.waitFor({ state: 'detached', timeout: 3000 }).catch(() => {});
+  }
+
+  expect(gefunden, 'kein Mehrdeutigkeits-Hinweis in den ersten Karten').not.toBe('');
+  // Der Hinweis sagt BEIDE Bedeutungen und ordnet die aktuelle ein.
+  expect(gefunden).toMatch(/heißt hier „[^"]+" — es heißt auch „[^"]+"/);
+});
