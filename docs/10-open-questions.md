@@ -30,6 +30,18 @@
 - Wie wird CEFR-Näherung transparent kommuniziert, ohne Überversprechen?
 - **Verständnis-Abdeckung** ist in M1 nur **stufengewichtet genähert** (Produktion voll, Wiedererkennen halb). Die echte Definition — Verständnis in *neuem Kontext* auf *Zielstufe* — ist noch offen; nachschärfen, sobald Kontext-/Level-Daten vorliegen.
 
+## Navigation (seit `gremium-navigation.md`)
+- **„Weiterlernen · N fällig" verspricht mehr, als die Session hält.** Bei einem frischen
+  Start sind alle 98 Wendungen „fällig", die Session lässt aber nur `recommendedNewCount`
+  neue zu — der Knopf sagt 98, es kommen ~8. Sachlich stimmt die Zahl (der Gedächtnis-Zustand
+  ist so), als *Ankündigung* der nächsten Sitzung ist sie irreführend. Verhalten stammt aus
+  der alten Startseite, ist also keine Regression — aber auf dem Verteiler fällt es auf.
+  Offen: den Knopf auf die tatsächliche Sitzungsgröße umstellen, oder die Zahl weglassen?
+- Reiterleiste unten (Daumen) oder ab `md` oben? Aktuell beides — gleiche Struktur, andere
+  Position. Beobachten, ob der Wechsel irritiert.
+- Reiner Stöber-Modus für die Gegenrichtung Schwedisch → Deutsch (Minderheitsposition des
+  Gremiums, `gremium-navigation.md` §5): nur bauen, wenn er **nichts** misst.
+
 ## Recht / Betrieb (später)
 - DSGVO, Speicherort, Konten, Sync.
 - Umgang mit KI-generiertem Content (Qualität, Haftung, Kennzeichnung).

@@ -1,9 +1,20 @@
 import { test, expect, type Page, type ConsoleMessage } from '@playwright/test';
 
-// Von der Übersicht in eine Lern-Session wechseln (neue Navigation).
+// Vom Verteiler „Heute" in eine Lern-Session wechseln.
 async function startSession(page: Page) {
   await page.getByRole('button', { name: /Weiterlernen/ }).click();
   await expect(page.getByText(/Begegnung ·/)).toBeVisible();
+}
+
+// In den Reiter „Lernen" wechseln (globale Navigation, gremium-navigation.md).
+// Bewusst über die Landmarke: „Lernen" gibt es auch als Kachel auf „Heute".
+async function openTab(page: Page, label: string) {
+  await page.getByRole('navigation', { name: 'Hauptbereiche' }).getByRole('button', { name: label }).click();
+}
+
+async function openLearn(page: Page) {
+  await openTab(page, 'Lernen');
+  await expect(page.getByRole('heading', { name: 'Bereiche' })).toBeVisible();
 }
 
 // Stufe B: Übersicht → Session; der Comprehension-Loop läuft bis
@@ -18,10 +29,11 @@ test('comprehension loop runs to completion without errors', async ({ page }) =>
 
   await page.goto('/');
 
-  // App-Shell (Übersicht)
-  await expect(page.locator('h1')).toHaveText('neurolang');
-  await expect(page.getByText('reift', { exact: true })).toBeVisible();
-  await expect(page.getByText(/Verständnis-Abdeckung/)).toBeVisible();
+  // App-Shell: der Verteiler „Heute" zeigt EINE gemessene Zahl und EINEN Knopf.
+  await expect(page.getByRole('heading', { name: /Hej/ })).toBeVisible();
+  await expect(page.getByText('bewiesen stabil')).toBeVisible();
+  // Die Bereichsliste liegt jetzt hinter dem Reiter „Lernen", nicht mehr hier.
+  await expect(page.getByRole('heading', { name: 'Bereiche' })).toHaveCount(0);
 
   await startSession(page);
 
@@ -84,7 +96,7 @@ test('AI decode and generate buttons appear in the session once a cloud provider
   });
 
   await page.goto('/');
-  await expect(page.getByText(/Verständnis-Abdeckung/)).toBeVisible();
+  await expect(page.getByText('bewiesen stabil')).toBeVisible();
 
   // Cloud einrichten: Claude wählen, (Test-)Schlüssel eintragen, speichern
   await page.getByRole('button', { name: 'KI-Einstellungen' }).click();
@@ -112,7 +124,7 @@ test('tree drill-down: area → theme shows phrases and a focus can be set', asy
   page.on('pageerror', (e) => pageErrors.push(String(e)));
 
   await page.goto('/');
-  await expect(page.getByRole('heading', { name: 'Bereiche' })).toBeVisible();
+  await openLearn(page);
 
   // Ebene 1 → 2: in einen Bereich hineinklicken
   await page.getByRole('button', { name: /Erste Schritte/ }).click();
@@ -150,7 +162,8 @@ test('dialog mode: a scene runs and a produced line advances the conversation', 
 
   await page.goto('/');
 
-  // Übersicht → Bereich → Thema → Gespräch
+  // Lernen → Bereich → Thema → Gespräch
+  await openLearn(page);
   await page.getByRole('button', { name: /Essen & Café/ }).click();
   await page.getByRole('button', { name: /Im Restaurant/ }).first().click();
   await expect(page.getByRole('heading', { name: 'Im Restaurant' })).toBeVisible();
@@ -187,7 +200,7 @@ test('name personalisation: greeting on the home and address inside a dialog', a
 
   await page.goto('/');
 
-  // Vorname eintragen
+  // Vorname eintragen (die Begrüßung selbst ist der Einstieg)
   await page.getByRole('button', { name: /Dein Name/ }).click();
   await page.getByLabel('Dein Vorname').fill('Andreas');
   await page.getByRole('button', { name: 'Speichern' }).click();
@@ -196,6 +209,7 @@ test('name personalisation: greeting on the home and address inside a dialog', a
   await expect(page.getByText(/Hej, Andreas!/)).toBeVisible();
 
   // Im Gespräch wird man mit Namen angesprochen (erste Zeile ist Hör-zuerst)
+  await openLearn(page);
   await page.getByRole('button', { name: /Essen & Café/ }).click();
   await page.getByRole('button', { name: /Im Restaurant/ }).first().click();
   await page.getByRole('button', { name: /Im Restaurant: Tisch, bestellen, zahlen/ }).click();
@@ -220,6 +234,43 @@ test('pronunciation help toggles open in the session', async ({ page }) => {
 
   await page.getByRole('button', { name: /Aussprache/ }).click();
   await expect(page.getByRole('button', { name: 'Aussprache ausblenden' })).toBeVisible();
+
+  expect(consoleErrors, consoleErrors.join('\n')).toHaveLength(0);
+  expect(pageErrors, pageErrors.join('\n')).toHaveLength(0);
+});
+
+// Stufe B: die globale Navigation (docs/gremium-navigation.md, Schritt 1) —
+// alle vier Räume sind erreichbar, und beim Lernen verschwindet die Leiste.
+test('tab bar: all four rooms open, and the bar disappears inside a session', async ({ page }) => {
+  const consoleErrors: string[] = [];
+  const pageErrors: string[] = [];
+  page.on('console', (m: ConsoleMessage) => {
+    if (m.type() === 'error') consoleErrors.push(m.text());
+  });
+  page.on('pageerror', (e) => pageErrors.push(String(e)));
+
+  await page.goto('/');
+  const bar = page.getByRole('navigation', { name: 'Hauptbereiche' });
+  await expect(bar).toBeVisible();
+
+  // Heute → Lernen: der Baum liegt hier, nicht mehr auf der Startseite
+  await openLearn(page);
+
+  // Lernen → Gespräche: die Szenen haben einen eigenen Raum statt drei Klicks Tiefe
+  await openTab(page, 'Gespräche');
+  await expect(page.getByRole('heading', { name: 'Gespräche' })).toBeVisible();
+  await expect(page.getByRole('button', { name: /Im Restaurant: Tisch, bestellen, zahlen/ })).toBeVisible();
+
+  // Gespräche → Fortschritt: die ehrliche Messung
+  await openTab(page, 'Fortschritt');
+  await expect(page.getByText(/Verständnis-Abdeckung/)).toBeVisible();
+  await expect(page.getByText('reift', { exact: true }).first()).toBeVisible(); // Zahl
+  await expect(page.getByRole('term').filter({ hasText: 'reift' })).toBeVisible(); // Erklärung dazu
+
+  // Zurück nach Heute und in die Session → Ebene 4: nichts lenkt mehr ab
+  await openTab(page, 'Heute');
+  await startSession(page);
+  await expect(bar).toHaveCount(0);
 
   expect(consoleErrors, consoleErrors.join('\n')).toHaveLength(0);
   expect(pageErrors, pageErrors.join('\n')).toHaveLength(0);

@@ -170,3 +170,35 @@ export function IconSparkle({ className }: P) {
     </svg>
   );
 }
+
+/** Heute — Sonne über dem Horizont (der Tages-Verteiler, docs/gremium-navigation.md). */
+export function IconToday({ className }: P) {
+  return (
+    <svg {...box(className)} fill="none">
+      <g stroke="currentColor" strokeWidth="1.7" strokeLinecap="round">
+        <circle cx="12" cy="12.5" r="4.2" />
+        <line x1="12" y1="3.5" x2="12" y2="5.5" />
+        <line x1="12" y1="19.5" x2="12" y2="21.5" />
+        <line x1="3.5" y1="12.5" x2="5.5" y2="12.5" />
+        <line x1="18.5" y1="12.5" x2="20.5" y2="12.5" />
+        <line x1="6" y1="6.5" x2="7.4" y2="7.9" />
+        <line x1="16.6" y1="17.1" x2="18" y2="18.5" />
+        <line x1="18" y1="6.5" x2="16.6" y2="7.9" />
+        <line x1="7.4" y1="17.1" x2="6" y2="18.5" />
+      </g>
+    </svg>
+  );
+}
+
+/** Fortschritt — steigende Säulen (gemessenes Können, keine Trophäe). */
+export function IconChart({ className }: P) {
+  return (
+    <svg {...box(className)} fill="none">
+      <g stroke="currentColor" strokeWidth="1.9" strokeLinecap="round">
+        <line x1="5.5" y1="19" x2="5.5" y2="14.5" />
+        <line x1="12" y1="19" x2="12" y2="10" />
+        <line x1="18.5" y1="19" x2="18.5" y2="5.5" />
+      </g>
+    </svg>
+  );
+}

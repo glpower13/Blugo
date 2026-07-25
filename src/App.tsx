@@ -5,17 +5,18 @@ import type { Dialog, DialogTurn } from './domain/dialog';
 import { seedContentSource } from './modules/content/contentPipeline';
 import { getAllChunkStates, logEvent, putChunkState } from './storage/db';
 import { initialState, schedule } from './modules/memory/memoryEngine';
-import { bandStatus, recentSuccessRate, recommendedNewCount } from './modules/memory/difficulty';
+import { recentSuccessRate, recommendedNewCount } from './modules/memory/difficulty';
 import { buildQueue, pickSegmentForChunk, type NewFocus } from './session/buildQueue';
 import { loadFocus, saveFocus } from './session/focus';
 import { loadName, saveName } from './session/profile';
 import { knownPhrases } from './session/knownChunks';
 import { ComprehensionLoop } from './modules/comprehension/ComprehensionLoop';
-import { MemoryField } from './modules/progress/MemoryField';
-import { MemoryRing } from './modules/progress/MemoryRing';
 import { AreaOverview } from './modules/progress/AreaOverview';
 import { AreaDetail } from './modules/progress/AreaDetail';
 import { CategoryDetail } from './modules/progress/CategoryDetail';
+import { TodayView } from './modules/progress/TodayView';
+import { ProgressView } from './modules/progress/ProgressView';
+import { DialogOverview } from './modules/dialog/DialogOverview';
 // Erst bei Bedarf laden (kleineres Startbündel → schnellere erste Anzeige).
 const DialogScene = lazy(() =>
   import('./modules/dialog/DialogScene').then((m) => ({ default: m.DialogScene })),
@@ -25,9 +26,9 @@ import { areaProgress, categoryProgress } from './modules/progress/categories';
 import { InstallButton } from './ui/InstallButton';
 import { Backdrop } from './ui/Backdrop';
 import { NameEditor } from './ui/NameEditor';
-import { IconSettings, IconBack, IconPlay, IconTarget } from './ui/icons';
+import { IconBack, IconTarget } from './ui/icons';
 import { areaVisual } from './ui/areaTheme';
-import { useCountUp } from './ui/useCountUp';
+import { TabBar, type Tab } from './ui/TabBar';
 const AiSettings = lazy(() =>
   import('./modules/content/AiSettings').then((m) => ({ default: m.AiSettings })),
 );
@@ -36,14 +37,30 @@ import { initAiSettings } from './modules/content/aiSettings';
 // Ein Scope grenzt eine Session ein: ein ganzer Bereich oder ein einzelnes Thema.
 type SessionScope = { kind: 'area' | 'category'; id: string };
 
-// Die „Räume" der App (client-seitige Navigation, kein Router nötig): der Baum
-// Übersicht → Bereich → Thema → Session.
+// Die „Räume" der App (client-seitige Navigation, kein Router nötig).
+//
+// Seit gremium-navigation.md (Schritt 1) zweistufig: VIER Reiter als globale
+// Navigation, und darin der Drill-down des Baums (Bereich → Thema → Gespräch/
+// Session). Die Reiterleiste bleibt beim Drill-down sichtbar — man ist ja noch
+// im selben Raum — und verschwindet erst beim Lernen selbst (Ebene 4).
 type View =
-  | { name: 'home' }
+  | { name: 'tab'; tab: Tab }
   | { name: 'area'; id: string }
   | { name: 'category'; id: string }
   | { name: 'dialog'; id: string }
   | { name: 'session' };
+
+/** Zu welchem Reiter eine Drill-down-Ansicht gehört (für die aktive Markierung). */
+function tabOf(view: View): Tab {
+  switch (view.name) {
+    case 'tab':
+      return view.tab;
+    case 'dialog':
+      return 'talk';
+    default:
+      return 'learn';
+  }
+}
 
 export default function App() {
   const [areas, setAreas] = useState<Area[]>([]);
@@ -62,8 +79,8 @@ export default function App() {
   // Vorname des Lerners (lokal): personalisiert Begrüßung & Gespräche.
   const [name, setName] = useState<string>(() => loadName());
   const [showName, setShowName] = useState(false);
-  // Navigation: Übersicht → Thema-Detail (Drill-down) → fokussierte Lern-Session.
-  const [view, setView] = useState<View>({ name: 'home' });
+  // Navigation: Reiter (global) → Drill-down im Baum → fokussierte Lern-Session.
+  const [view, setView] = useState<View>({ name: 'tab', tab: 'today' });
   // Guards against a fast double-tap grading the same item twice (P3 race).
   const submitting = useRef(false);
 
@@ -254,6 +271,9 @@ export default function App() {
   );
 
   const done = !loading && pos >= queue.length;
+  // Ebene 4 (Lernen/Gespräch): die globale Navigation verschwindet — nichts lenkt
+  // ab (docs/gremium-navigation.md §4, „Formsprache je Ebene").
+  const showTabs = view.name !== 'session' && view.name !== 'dialog';
   const activeArea = view.name === 'area' ? areaProg.find((a) => a.area.id === view.id) : undefined;
   const activeCategory =
     view.name === 'category' ? categories.find((c) => c.id === view.id) : undefined;
@@ -271,118 +291,110 @@ export default function App() {
     <>
       <Backdrop />
       <div className="grain" aria-hidden="true" />
-      <main className="vt-page mx-auto flex min-h-dvh w-full max-w-md flex-col gap-4 px-4 pb-10 pt-6 md:max-w-5xl md:px-6">
+      <main
+        className={`vt-page mx-auto flex min-h-dvh w-full max-w-md flex-col gap-4 px-4 pt-6 md:max-w-3xl md:px-6 ${
+          showTabs ? 'pb-28 md:pb-10' : 'pb-10'
+        }`}
+      >
+        {/* Globale Navigation. Steht im DOM VOR dem Inhalt → ab md oben, auf
+            schmalen Geräten per `fixed` unten (Daumenreichweite). */}
+        {showTabs && (
+          <TabBar
+            active={tabOf(view)}
+            onSelect={(tab) =>
+              navigate(tab === tabOf(view) ? 'pop' : 'push', () => setView({ name: 'tab', tab }))
+            }
+          />
+        )}
+
         {error && (
           <section className="rounded-2xl border border-danger/40 bg-danger/10 p-4">
             <p className="text-sm text-danger">{error}</p>
           </section>
         )}
 
-        {/* ───────── ÜBERSICHT ───────── */}
-        {view.name === 'home' && (
+        {/* ───────── HEUTE (Ebene 0 · der Verteiler) ───────── */}
+        {view.name === 'tab' && view.tab === 'today' && (
           <>
-            <header className="flex items-start justify-between gap-3 px-1 pt-1">
-              <div>
-                <h1 className="wordmark font-display text-[1.7rem] font-semibold leading-none tracking-[0.02em] text-paper">
-                  neuro<span className="font-light text-brand">lang</span>
-                </h1>
-                <p className="mt-2 text-[0.72rem] font-medium uppercase tracking-[0.22em] text-muted">
-                  Deutsch → Schwedisch
-                </p>
-                {/* Persönliche Begrüßung / Namens-Einstieg (bleibt lokal). */}
-                <button
-                  onClick={() => setShowName(true)}
-                  className="mt-2 text-sm text-faint transition-colors hover:text-paper"
-                >
-                  {name ? (
-                    <span className="text-muted">
-                      Hej, <span className="font-medium text-brand">{name}</span>! ✎
-                    </span>
-                  ) : (
-                    <span>＋ Dein Name</span>
-                  )}
-                </button>
-              </div>
-              <button
-                onClick={() => setShowSettings(true)}
-                className="glass-soft flex shrink-0 items-center justify-center rounded-full p-2.5 text-paper"
-                aria-label="KI-Einstellungen"
-                title="KI-Einstellungen"
-              >
-                <IconSettings className="h-5 w-5" />
-              </button>
-            </header>
-
-            {/* Breiten-optimiert: ab md zwei Spalten (Übersicht/CTA | Themen). */}
-            <div className="grid gap-4 md:grid-cols-2 md:items-start">
-              <div className="flex flex-col gap-4">
-                {/* Ehrliche Fortschrittsanzeige (docs/07-measurement.md) */}
-                <section className="glass rounded-2xl p-5">
-                  <div className="flex items-center gap-5">
-                    <MemoryRing
-                      stable={metrics.stable}
-                      maturing={metrics.maturing}
-                      total={chunks.length}
-                    />
-                    <div className="flex flex-1 items-baseline justify-between gap-3">
-                      <Stat value={metrics.active} label="aktiv" />
-                      <Stat value={metrics.maturing} label="reift" />
-                      <Stat value={metrics.stable} label="stabil" accent />
-                    </div>
-                  </div>
-                  <p className="mt-3 text-xs text-muted">
-                    {metrics.dueNow} jetzt fällig · Verständnis-Abdeckung{' '}
-                    {Math.round(metrics.coverage * 100)} %
-                  </p>
-                  {successRate !== null && (
-                    <p className="mt-1 text-xs text-faint">
-                      Flow-Band: {bandStatus(successRate)} ({Math.round(successRate * 100)} % zuletzt)
-                    </p>
-                  )}
-                  <div className="mt-3">
-                    <MemoryField states={stateList} />
-                  </div>
-                </section>
-
-                {loading && <div className="shimmer h-[60px] w-full rounded-2xl" />}
-
-                {!loading && !error && (
-                  <button
-                    onClick={() => navigate('push', () => enterSession())}
-                    className="btn-gold flex items-center justify-center gap-2 rounded-2xl py-4 text-base font-semibold text-ink"
-                  >
-                    <IconPlay className="h-4 w-4" />
-                    {metrics.dueNow > 0 ? `Weiterlernen · ${metrics.dueNow} fällig` : 'Weiterlernen'}
-                  </button>
-                )}
-              </div>
-
-              {loading && (
-                <section className="glass flex flex-col gap-3 rounded-2xl p-5" aria-hidden="true">
-                  <div className="shimmer h-5 w-24 rounded" />
-                  <div className="shimmer h-16 w-full rounded-xl" />
-                  <div className="shimmer h-16 w-full rounded-xl" />
-                  <div className="shimmer h-16 w-full rounded-xl" />
-                </section>
-              )}
-
-              {!loading && !error && areaProg.length > 0 && (
-                <AreaOverview
-                  progress={areaProg}
-                  focusTitle={focusTitle}
-                  onOpen={(id) => navigate('push', () => setView({ name: 'area', id }))}
-                  onClearFocus={() => setFocus(null)}
-                />
-              )}
-            </div>
-
-            <div className="mt-auto flex flex-col gap-3 pt-4">
+            <TodayView
+              name={name}
+              stable={metrics.stable}
+              maturing={metrics.maturing}
+              dueNow={metrics.dueNow}
+              totalChunks={chunks.length}
+              areaCount={areaProg.length}
+              dialogCount={dialogs.length}
+              loading={loading}
+              onEditName={() => setShowName(true)}
+              onSettings={() => setShowSettings(true)}
+              onStart={() => navigate('push', () => enterSession())}
+              onGoLearn={() => navigate('push', () => setView({ name: 'tab', tab: 'learn' }))}
+              onGoTalk={() => navigate('push', () => setView({ name: 'tab', tab: 'talk' }))}
+            />
+            <div className="mx-auto mt-auto flex w-full max-w-md flex-col gap-3 pt-4 md:max-w-xl">
               <InstallButton />
               <p className="text-center text-[0.7rem] tracking-wide text-faint">
                 © 2026 Andreas Fink · neurolang
               </p>
             </div>
           </>
+        )}
+
+        {/* ───────── LERNEN (Ebene 1 · der Baum) ───────── */}
+        {view.name === 'tab' && view.tab === 'learn' && (
+          <div className="mx-auto flex w-full max-w-md flex-col gap-4 md:max-w-xl">
+            <header className="px-1 pt-1">
+              <h1 className="font-display text-[1.5rem] font-semibold leading-tight text-paper">
+                Lernen
+              </h1>
+              <p className="mt-1 text-xs text-faint">
+                Du wählst, woraus neuer Stoff kommt — Fälliges kommt trotzdem.
+              </p>
+            </header>
+
+            {loading && (
+              <section className="glass flex flex-col gap-3 rounded-2xl p-5" aria-hidden="true">
+                <div className="shimmer h-5 w-24 rounded" />
+                <div className="shimmer h-16 w-full rounded-xl" />
+                <div className="shimmer h-16 w-full rounded-xl" />
+                <div className="shimmer h-16 w-full rounded-xl" />
+              </section>
+            )}
+
+            {!loading && !error && areaProg.length > 0 && (
+              <AreaOverview
+                progress={areaProg}
+                focusTitle={focusTitle}
+                onOpen={(id) => navigate('push', () => setView({ name: 'area', id }))}
+                onClearFocus={() => setFocus(null)}
+              />
+            )}
+          </div>
+        )}
+
+        {/* ───────── GESPRÄCHE (eigener Raum statt drei Klicks tief) ───────── */}
+        {view.name === 'tab' && view.tab === 'talk' && !loading && (
+          <DialogOverview
+            dialogs={dialogs}
+            categories={categories}
+            areas={areas}
+            states={states}
+            onOpen={(id) => navigate('push', () => setView({ name: 'dialog', id }))}
+          />
+        )}
+
+        {/* ───────── FORTSCHRITT (die ehrliche Messung, eigener Raum) ───────── */}
+        {view.name === 'tab' && view.tab === 'progress' && (
+          <ProgressView
+            states={stateList}
+            stable={metrics.stable}
+            maturing={metrics.maturing}
+            active={metrics.active}
+            dueNow={metrics.dueNow}
+            coverage={metrics.coverage}
+            totalChunks={chunks.length}
+            successRate={successRate}
+          />
         )}
 
         {/* ───────── BEREICH-DETAIL (Ebene 1 → 2) ───────── */}
@@ -392,7 +404,7 @@ export default function App() {
             focusId={focusId}
             onOpenCategory={(id) => navigate('push', () => setView({ name: 'category', id }))}
             onClearFocus={() => setFocus(null)}
-            onBack={() => navigate('pop', () => setView({ name: 'home' }))}
+            onBack={() => navigate('pop', () => setView({ name: 'tab', tab: 'learn' }))}
             onPractice={() => navigate('push', () => enterSession({ kind: 'area', id: activeArea.area.id }))}
           />
         )}
@@ -411,7 +423,9 @@ export default function App() {
               onOpenDialog={(id) => navigate('push', () => setView({ name: 'dialog', id }))}
               onBack={() =>
                 navigate('pop', () =>
-                  setView(parentArea ? { name: 'area', id: parentArea.id } : { name: 'home' }),
+                  setView(
+                    parentArea ? { name: 'area', id: parentArea.id } : { name: 'tab', tab: 'learn' },
+                  ),
                 )
               }
               onPractice={() =>
@@ -443,7 +457,7 @@ export default function App() {
                   setView(
                     dialogCategory
                       ? { name: 'category', id: dialogCategory.id }
-                      : { name: 'home' },
+                      : { name: 'tab', tab: 'talk' },
                   ),
                 )
               }
@@ -457,7 +471,7 @@ export default function App() {
             <nav className="flex items-center justify-between gap-2 px-1">
               <div className="flex items-center gap-2">
                 <button
-                  onClick={() => navigate('pop', () => setView({ name: 'home' }))}
+                  onClick={() => navigate('pop', () => setView({ name: 'tab', tab: 'today' }))}
                   className="glass-soft flex items-center gap-1 rounded-full py-1.5 pl-2 pr-3 text-sm text-paper"
                   aria-label="Session verlassen"
                 >
@@ -498,7 +512,7 @@ export default function App() {
                   </p>
                 )}
                 <button
-                  onClick={() => navigate('pop', () => setView({ name: 'home' }))}
+                  onClick={() => navigate('pop', () => setView({ name: 'tab', tab: 'today' }))}
                   className="btn-gold mt-4 rounded-xl px-5 py-2.5 font-medium text-ink"
                 >
                   Zurück zur Übersicht
@@ -527,21 +541,5 @@ export default function App() {
         )}
       </main>
     </>
-  );
-}
-
-function Stat({ value, label, accent }: { value: number; label: string; accent?: boolean }) {
-  const shown = useCountUp(value);
-  return (
-    <div>
-      <div
-        className={`tnum font-sans text-[2.4rem] font-bold leading-none ${accent ? 'text-success glow-success' : 'text-paper'}`}
-      >
-        {shown}
-      </div>
-      <div className="mt-1.5 text-[0.68rem] font-medium uppercase tracking-[0.14em] text-muted">
-        {label}
-      </div>
-    </div>
   );
 }

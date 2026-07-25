@@ -179,6 +179,34 @@ gibt — die zeigen dort nur zwei Fähnchen.
 
 ---
 
+## 7b. Schritt 1 gebaut (2026-07-25)
+
+Die Reiterleiste und der Verteiler stehen. **Kein neues Modul, kein neuer Inhalt** —
+nur eine andere Anordnung.
+
+| Neu | Was |
+|---|---|
+| `ui/TabBar.tsx` | Vier Räume. Ein DOM-Knoten, zwei Positionen: `fixed` unten auf schmalen Geräten, ab `md` oben. Verschwindet auf Ebene 4. |
+| `progress/TodayView.tsx` | Der Verteiler: Wortmarke, Begrüßung, Sprachpaar, **eine** gemessene Zahl, **ein** Knopf, zwei Türen. |
+| `progress/ProgressView.tsx` | Die ehrliche Messung bekommt einen eigenen Raum — samt Glossar, was „stabil / reift / aktiv" heißen. |
+| `dialog/DialogOverview.tsx` | Die 8 Szenen, nach Bereichen gruppiert, mit ehrlichem „x von y deiner Antworten bewiesen". |
+
+**Entscheidungen unterwegs:**
+- **Wortmarke bleibt.** Erster Entwurf hatte sie weggelassen; die erste Ansicht muss aber
+  auch beantworten, *wo* man ist. Jetzt leise über der Begrüßung.
+- **Keine Zahl während des Ladens.** Die Türkacheln zeigen „lädt …" statt kurz „0 Bereiche" —
+  eine aufblitzende Null ist schlicht falsch.
+- **Ehrliche Null.** Steht „bewiesen stabil" auf 0, sagt der Verteiler das: „Noch nichts
+  bewiesen — das braucht Wochen, nicht Tage." Nicht kaschieren, nicht schönrechnen.
+- **Reiterleiste ohne Abzeichen.** Kein „3 neu!" — ein Abzeichen wäre ein Versprechen. Die
+  einzige fällige Zahl steht dort, wo sie etwas auslöst.
+
+**Ein Fund, bewusst NICHT still behoben:** Der Knopf sagt bei frischem Start
+„Weiterlernen · 98 fällig", die Sitzung enthält aber nur ~8 neue Wendungen. Die Zahl ist
+sachlich richtig (alle 98 sind fällig), als Ankündigung aber irreführend. Verhalten stammt
+aus der alten Startseite. Notiert in `10-open-questions.md` — die Entscheidung gehört nicht
+nebenbei getroffen.
+
 ## 8. Offene Fragen (nach `10-open-questions.md`)
 
 - Soll „Heute" bei leerem Fälligkeitsstand etwas anderes anbieten als „Weiterlernen"?
