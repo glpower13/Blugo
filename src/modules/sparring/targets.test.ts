@@ -3,7 +3,13 @@
 // der Lerner noch nie gesehen hat.
 
 import { describe, expect, it } from 'vitest';
-import { containsPhrase, matchedTargets, normalizePhrase, pickTargets } from './targets';
+import {
+  containsPhrase,
+  matchedTargets,
+  nearMisses,
+  normalizePhrase,
+  pickTargets,
+} from './targets';
 import { initialState } from '../memory/memoryEngine';
 import type { Chunk, ChunkState } from '../../domain/chunk';
 
@@ -106,5 +112,35 @@ describe('pickTargets', () => {
       ]),
     );
     expect(pickTargets(chunks, states, NOW, 2)).toHaveLength(2);
+  });
+});
+
+describe('nearMisses — Hinweis, aber niemals Punkte', () => {
+  const targets = [
+    { sv: 'jag skulle vilja ha', de: 'ich hätte gern' },
+    { sv: 'tack så mycket', de: 'vielen Dank' },
+  ];
+
+  it('erkennt eine knapp verfehlte Endung', () => {
+    const n = nearMisses('jag skulle vilja har en kaffe', targets);
+    expect(n.map((m) => m.target.sv)).toEqual(['jag skulle vilja ha']);
+  });
+
+  it('meldet NICHTS, wenn die Wendung exakt kam — dann ist es ein echter Treffer', () => {
+    expect(nearMisses('jag skulle vilja ha en kaffe', [targets[0]])).toEqual([]);
+  });
+
+  it('meldet nichts bei etwas völlig anderem', () => {
+    expect(nearMisses('var ligger stationen', targets)).toEqual([]);
+  });
+
+  it('zeigt, WAS gesagt wurde — sonst kann der Lerner nichts damit anfangen', () => {
+    const n = nearMisses('tack sa mycke', [targets[1]]);
+    expect(n).toHaveLength(1);
+    expect(n[0].said).toBe('tack sa mycke');
+  });
+
+  it('kommt mit einer leeren Äußerung klar', () => {
+    expect(nearMisses('', targets)).toEqual([]);
   });
 });
