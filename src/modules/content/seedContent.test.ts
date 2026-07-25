@@ -3,6 +3,11 @@
 
 import { describe, expect, it } from 'vitest';
 import { seedAreas, seedCategories, seedChunks, seedSegments } from './seedSegments';
+import {
+  VERIFICATION,
+  VERIFICATION_META,
+  VERIFICATION_REASON,
+} from './verification.generated';
 import { seedDialogs } from './seedDialogs';
 
 describe('seed content — Integrität', () => {
@@ -156,5 +161,41 @@ describe('seed dialogs — Integrität', () => {
         }
       }
     }
+  });
+});
+
+// Stufe 4 der Prüfkette: Der Prüf-Stand je Wendung wird ERZEUGT
+// (`npm run verify:build`). Diese Tests sind der Wächter dagegen, dass neuer
+// Inhalt dazukommt und die erzeugte Datei still veraltet — dann stünde an einer
+// nie geprüften Wendung nichts oder etwas Falsches.
+describe('Prüf-Stand (verification.generated.ts)', () => {
+  it('kennt JEDE Wendung — sonst ist die Datei veraltet', () => {
+    for (const c of seedChunks) {
+      expect(VERIFICATION[c.id], `kein Prüf-Stand für ${c.id} — npm run verify:build`).toBeDefined();
+    }
+  });
+
+  it('kennt keine Wendung, die es nicht mehr gibt', () => {
+    const ids = new Set(seedChunks.map((c) => c.id));
+    for (const id of Object.keys(VERIFICATION)) {
+      expect(ids.has(id), `Prüf-Stand für entfernte Wendung ${id}`).toBe(true);
+    }
+  });
+
+  it('behauptet NIRGENDS eine muttersprachliche Prüfung — es gab noch keine', () => {
+    expect(VERIFICATION_META.native).toBe(0);
+    expect(Object.values(VERIFICATION)).not.toContain('native');
+  });
+
+  it('begründet jede ungeprüfte Wendung', () => {
+    for (const [id, level] of Object.entries(VERIFICATION)) {
+      if (level === 'unchecked') expect(VERIFICATION_REASON[id]).toBeTruthy();
+    }
+  });
+
+  it('zählt in den Kennzahlen dasselbe wie in der Liste', () => {
+    const levels = Object.values(VERIFICATION);
+    expect(levels.filter((l) => l === 'machine')).toHaveLength(VERIFICATION_META.machine);
+    expect(levels.filter((l) => l === 'unchecked')).toHaveLength(VERIFICATION_META.unchecked);
   });
 });

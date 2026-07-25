@@ -13,6 +13,7 @@ import type { ChunkState } from '../../domain/chunk';
 import { MemoryRing } from './MemoryRing';
 import { MemoryField } from './MemoryField';
 import { bandStatus } from '../memory/difficulty';
+import { VERIFICATION_META } from '../content/verification.generated';
 
 interface Props {
   states: ChunkState[];
@@ -109,6 +110,47 @@ export function ProgressView({
               </dd>
             </div>
           )}
+        </dl>
+      </section>
+
+      {/* Woher der Inhalt kommt und wie weit er geprüft ist (Stufe 4 der
+          Prüfkette, docs/gremium-content-pruefung.md). Steht bewusst im Reiter
+          „Fortschritt": Wer wissen will, was seine Zahlen wert sind, muss auch
+          wissen, was der Stoff dahinter wert ist. */}
+      <section className="glass-soft rounded-2xl p-4">
+        <h2 className="text-[0.7rem] font-semibold uppercase tracking-[0.14em] text-muted">
+          Wie geprüft ist der Inhalt?
+        </h2>
+        <dl className="mt-3 space-y-2.5 text-xs leading-relaxed">
+          <div>
+            <dt className="font-semibold text-paper">
+              {VERIFICATION_META.machine} maschinell vorgeprüft
+            </dt>
+            <dd className="text-faint">
+              Jedes Wort ist belegtes Schwedisch — gegen ein Wörterbuch mit{' '}
+              {VERIFICATION_META.dictionaryEntries.toLocaleString('de-DE')} Einträgen und
+              gegen Korpus-Häufigkeiten.
+            </dd>
+          </div>
+          {VERIFICATION_META.unchecked > 0 && (
+            <div>
+              <dt className="font-semibold text-warn">
+                {VERIFICATION_META.unchecked} auffällig
+              </dt>
+              <dd className="text-faint">
+                Enthält ein seltenes Wort. Im Thema stehen sie markiert — sie sind nicht
+                zwingend falsch, aber ungeprüft.
+              </dd>
+            </div>
+          )}
+          <div>
+            <dt className="font-semibold text-danger">0 muttersprachlich geprüft</dt>
+            <dd className="text-faint">
+              Keine einzige Wendung hat bisher eine schwedischsprachige Person gegengelesen.
+              Wortstellung, Idiomatik und Ton kann keine Maschine bestätigen — deshalb steht
+              hier eine 0 und keine Beschönigung.
+            </dd>
+          </div>
         </dl>
       </section>
     </div>

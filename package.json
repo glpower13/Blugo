@@ -14,7 +14,8 @@
     "test:e2e": "playwright test",
     "check:content": "python3 tools/check-swedish.py",
     "check:backtranslation": "vite-node tools/check-backtranslation.ts",
-    "icons": "node tools/render-icons.mjs"
+    "icons": "node tools/render-icons.mjs",
+    "verify:build": "vite-node tools/build-verification.ts"
   },
   "dependencies": {
     "idb": "^8.0.0",

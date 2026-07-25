@@ -525,3 +525,34 @@ test('a sparring conversation can be ended and accounts for itself honestly', as
 
   expect(pageErrors, pageErrors.join('\n')).toHaveLength(0);
 });
+
+// Stufe B: Prüf-Stand des Inhalts (Stufe 4 der Prüfkette).
+// Die App darf über ihren eigenen Stoff nicht mehr behaupten, als geprüft ist.
+// Geprüft wird deshalb beides: dass die auffällige Wendung markiert ist, UND
+// dass im Fortschritt eine ehrliche 0 für „muttersprachlich geprüft" steht.
+test('content verification is stated honestly, down to the single phrase', async ({ page }) => {
+  const consoleErrors: string[] = [];
+  const pageErrors: string[] = [];
+  page.on('console', (m: ConsoleMessage) => {
+    if (m.type() === 'error') consoleErrors.push(m.text());
+  });
+  page.on('pageerror', (e) => pageErrors.push(String(e)));
+
+  await page.goto('/');
+  await openLearn(page);
+  await page.getByRole('button', { name: /Einkaufen/ }).first().click();
+  await page.getByRole('button', { name: /Im Geschäft/ }).first().click();
+
+  // Die auffällige Wendung trägt ihren Grund sichtbar bei sich …
+  await expect(page.getByText(/selten belegt/).first()).toBeVisible();
+  // … und die unauffälligen tragen KEIN Siegel (146 Haken wären ein Versprechen,
+  // das die maschinelle Prüfung nicht decken kann).
+  expect(await page.getByText(/selten belegt/).count()).toBe(1);
+
+  await openTab(page, 'Fortschritt');
+  await expect(page.getByText('Wie geprüft ist der Inhalt?')).toBeVisible();
+  await expect(page.getByText('0 muttersprachlich geprüft')).toBeVisible();
+
+  expect(consoleErrors, consoleErrors.join('\n')).toHaveLength(0);
+  expect(pageErrors, pageErrors.join('\n')).toHaveLength(0);
+});

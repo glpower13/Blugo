@@ -3,6 +3,7 @@
 // plus Fokus-Wahl und „dieses Thema üben". Navigation: Übersicht → hier hinein.
 
 import type { Category, Chunk, ChunkState } from '../../domain/chunk';
+import { VERIFICATION, VERIFICATION_REASON } from '../content/verification.generated';
 import type { Dialog } from '../../domain/dialog';
 import { isMaturing, isStable } from './metrics';
 import { IconBack, IconChat, IconChevron, IconPlay } from '../../ui/icons';
@@ -117,6 +118,16 @@ export function CategoryDetail({
                     {c.sv}
                   </p>
                   <p className="truncate text-xs text-muted">{c.de}</p>
+                  {/* Stufe 4 der Prüfkette: NUR die auffälligen Wendungen bekommen
+                      ein Zeichen. Ein Haken an den anderen 146 wäre ein Siegel,
+                      das niemand verdient hat — geprüft ist dort nur, dass jedes
+                      Wort echtes Schwedisch ist. */}
+                  {VERIFICATION[c.id] === 'unchecked' && (
+                    <p className="mt-0.5 text-[0.66rem] leading-snug text-warn">
+                      ⚠ {VERIFICATION_REASON[c.id] ?? 'maschinell auffällig'} — bitte mit
+                      Vorsicht lernen
+                    </p>
+                  )}
                 </div>
                 <span className="ml-auto shrink-0 text-[0.7rem] uppercase tracking-wide text-faint">
                   {st.label}

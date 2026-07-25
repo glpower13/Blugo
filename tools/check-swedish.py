@@ -29,6 +29,7 @@ BENUTZUNG
 
 from __future__ import annotations
 
+import json
 import re
 import sys
 from collections import defaultdict
@@ -45,6 +46,11 @@ SEED_FILES = [
     ROOT / "src/modules/content/seedDialogs.ts",
 ]
 REPORT = ROOT / "docs/content-pruefbericht.md"
+# Maschinenlesbares Ergebnis für Stufe 4 der Prüfkette (der Prüf-Stand je
+# Wendung in der App). Der Bericht ist für Menschen, diese Datei für
+# `tools/build-verification.ts` — beide entstehen aus demselben Lauf, damit sie
+# sich nie widersprechen können.
+VERDICTS = ROOT / "tools/flagged-words.json"
 
 # Schwellen auf der Zipf-Skala (log10 Vorkommen pro Milliarde Wörter).
 ZIPF_COMMON = 3.0  # ab hier alltagshäufig
@@ -232,7 +238,32 @@ def main() -> int:
     lines.append("")
 
     REPORT.write_text("\n".join(lines) + "\n", encoding="utf-8")
+
+    # Stufe 4: die auffälligen Wörter maschinenlesbar ablegen. Nur die
+    # auffälligen — „ok" ist die Regel und braucht keinen Eintrag.
+    flagged = {
+        word: {"verdict": verdict, "zipf": round(zipf, 2), "inDict": in_dict}
+        for word, (verdict, zipf, in_dict) in sorted(words.items())
+        if verdict != "ok"
+    }
+    VERDICTS.write_text(
+        json.dumps(
+            {
+                "dictionaryEntries": len(dictionary),
+                "wordsChecked": len(words),
+                "stringsChecked": len(sentences),
+                "flagged": flagged,
+            },
+            ensure_ascii=False,
+            indent=2,
+            sort_keys=False,
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+
     print(f"Bericht geschrieben: {REPORT.relative_to(ROOT)}")
+    print(f"Prüfdaten geschrieben: {VERDICTS.relative_to(ROOT)}")
     print(f"  {len(sentences)} Zeichenketten · {total_words} Wörter")
     print(f"  ok {ok} · selten {rare} · unbelegt {unproven}")
     return 1 if unproven else 0

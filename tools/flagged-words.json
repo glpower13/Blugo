@@ -1,0 +1,27 @@
+{
+  "dictionaryEntries": 152719,
+  "wordsChecked": 366,
+  "stringsChecked": 2783,
+  "flagged": {
+    "provrummet": {
+      "verdict": "selten",
+      "zipf": 2.22,
+      "inDict": false
+    },
+    "punkterat": {
+      "verdict": "selten",
+      "zipf": 1.78,
+      "inDict": false
+    },
+    "smaklig": {
+      "verdict": "selten",
+      "zipf": 2.82,
+      "inDict": true
+    },
+    "trettiofem": {
+      "verdict": "selten",
+      "zipf": 2.68,
+      "inDict": true
+    }
+  }
+}
