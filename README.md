@@ -169,7 +169,7 @@ Danach läuft der Ablauf automatisch und die App erscheint unter
 unter **Settings → Pages** und in der **Actions**-Übersicht. Diesen Link im Handy-Browser öffnen
 → „Zum Startbildschirm hinzufügen", fertig.
 
-> Hinweis: Die mitgelieferten schwedischen Inhalte sind seit 2026-07-23 deutlich erweitert (**8 Themen, ~43 Wendungen, ~85 Kontext-Sätze**), aber weiterhin **nicht muttersprachlich geprüft** — Prüfstand: `docs/content-review-schwedisch.md`. Der dauerhafte Ausbau läuft über die KI-Content-Fabrik (`docs/08-content-pipeline.md`).
+> Hinweis: Stand 2026-07-25 liegen **8 Bereiche, 30 Themen, 179 Wendungen und 15 Gespräche** bei. Davon sind **176 maschinell vorgeprüft** (jedes Wort gegen ein Wörterbuch mit 152.719 Einträgen und gegen Korpus-Häufigkeiten), **3 sind auffällig markiert** — und **0 sind muttersprachlich geprüft**. Wortstellung, Idiomatik und Ton kann keine Maschine bestätigen; die Prüfkette macht die menschliche Prüfung nur klein genug, um machbar zu sein (`docs/gremium-content-pruefung.md`, Prüfstand: `docs/content-review-schwedisch.md`). Der dauerhafte Ausbau läuft über die KI-Content-Fabrik (`docs/08-content-pipeline.md`).
 
 ### Gebaut vs. konzipiert (Ehrlichkeit, kein Überzeichnen)
 
