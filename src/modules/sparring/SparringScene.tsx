@@ -108,9 +108,16 @@ export function SparringScene({ targets: dueTargets, learnerName, onProduced, on
     bottom.current?.scrollIntoView({ behavior: 'smooth', block: 'end' });
   }, [lines, pending]);
 
-  /** Nächste Partner-Zeile holen (und vorlesen). */
+  /**
+   * Nächste Partner-Zeile holen (und vorlesen).
+   *
+   * `remaining` wird ausdrücklich HEREINGEREICHT statt aus dem Zustand gelesen:
+   * Wer gerade eine Wendung produziert hat, hat sie in dieser Runde noch nicht im
+   * Zustand — der Partner hätte sonst eine Runde lang weiter nach etwas gefragt,
+   * das schon gesagt war.
+   */
   const nextPartnerLine = useCallback(
-    async (history: SparringLine[], s: SparringSetting) => {
+    async (history: SparringLine[], s: SparringSetting, remaining: Chunk[]) => {
       if (!partner) return;
       setPending(true);
       setError('');
@@ -119,9 +126,7 @@ export function SparringScene({ targets: dueTargets, learnerName, onProduced, on
           scene: s.brief,
           partner: s.partner,
           learnerName,
-          targets: targets
-            .filter((t) => !done.includes(t.id))
-            .map((t) => ({ sv: t.sv, de: t.de })),
+          targets: remaining.map((t) => ({ sv: t.sv, de: t.de })),
           history,
         });
         setLines((prev) => {
@@ -136,7 +141,7 @@ export function SparringScene({ targets: dueTargets, learnerName, onProduced, on
         setPending(false);
       }
     },
-    [partner, learnerName, targets, done, ttsOn],
+    [partner, learnerName, ttsOn],
   );
 
   /** Eine eigene Äußerung abschicken — hier wird gemessen. */
@@ -155,12 +160,17 @@ export function SparringScene({ targets: dueTargets, learnerName, onProduced, on
         const chunk = open.find((t) => t.sv === hit.sv);
         if (chunk) onProduced(chunk, spoken, openTargets);
       }
-      if (hits.length > 0) setDone((d) => [...d, ...hits.map((h) => open.find((t) => t.sv === h.sv)!.id)]);
+      const hitIds = hits.map((h) => open.find((t) => t.sv === h.sv)!.id);
+      if (hitIds.length > 0) setDone((d) => [...d, ...hitIds]);
       const history = [...lines, { who: 'you' as const, sv: utterance }];
       setLines(history);
       setTyped('');
       setHeard('');
-      void nextPartnerLine(history, setting);
+      void nextPartnerLine(
+        history,
+        setting,
+        open.filter((t) => !hitIds.includes(t.id)),
+      );
     },
     [setting, pending, open, lastPartnerLine, openTargets, lines, onProduced, nextPartnerLine],
   );
@@ -244,7 +254,7 @@ export function SparringScene({ targets: dueTargets, learnerName, onProduced, on
               <button
                 onClick={() => {
                   setSetting(s);
-                  void nextPartnerLine([], s);
+                  void nextPartnerLine([], s, targets);
                 }}
                 className="group relative block w-full overflow-hidden rounded-2xl border border-line text-left"
                 style={{ backgroundColor: '#080B12' }}
@@ -374,7 +384,7 @@ export function SparringScene({ targets: dueTargets, learnerName, onProduced, on
               <div className="rounded-xl border border-danger/40 bg-danger/10 p-3">
                 <p className="text-xs text-danger">{error}</p>
                 <button
-                  onClick={() => void nextPartnerLine(lines, setting)}
+                  onClick={() => void nextPartnerLine(lines, setting, open)}
                   className="mt-2 rounded-full border border-line px-3 py-1 text-xs text-paper"
                 >
                   Noch einmal versuchen
