@@ -40,6 +40,36 @@ export function isMaturing(s: ChunkState): boolean {
   return !isStable(s) && s.stage === 'production' && s.intervalDays >= 21;
 }
 
+/**
+ * Wie viele Wendungen stehen in welcher RICHTUNG (docs/gremium-navigation.md §5).
+ *
+ * Die Richtung Deutsch→Schwedisch ist in NEUROLANG kein Schalter, sondern eine
+ * gemessene Stufe: die Engine führt jede Wendung von `recognition` („du
+ * verstehst sie") nach `production` („du sagst sie selbst"), sobald genug echte
+ * Abrufe gelungen sind. Nur ein Produktions-Abruf zählt für „bewiesen stabil".
+ *
+ * EHRLICH: Eine nie begegnete Wendung steht per Voreinstellung auf `recognition`
+ * — sie als „du verstehst sie" zu zählen wäre schlicht falsch. Sie bekommt
+ * deshalb einen eigenen Eimer.
+ */
+export interface DirectionSplit {
+  untouched: number; // noch nie begegnet
+  recognition: number; // begegnet, du verstehst sie
+  production: number; // du sagst sie selbst
+}
+
+export function directionSplit(states: ChunkState[]): DirectionSplit {
+  let untouched = 0;
+  let recognition = 0;
+  let production = 0;
+  for (const s of states) {
+    if (!isActive(s)) untouched++;
+    else if (s.stage === 'production') production++;
+    else recognition++;
+  }
+  return { untouched, recognition, production };
+}
+
 export function computeMetrics(states: ChunkState[], now: number = Date.now()): Metrics {
   const activeStates = states.filter(isActive);
   // Verständnis-Abdeckung (docs/07-measurement.md), M1-Näherung: gewichtet nach

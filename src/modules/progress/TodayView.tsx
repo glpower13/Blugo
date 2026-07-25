@@ -26,6 +26,7 @@ interface Props {
   loading: boolean;
   onEditName: () => void;
   onSettings: () => void;
+  onOpenPair: () => void;
   onStart: () => void;
   onGoLearn: () => void;
   onGoTalk: () => void;
@@ -54,6 +55,7 @@ export function TodayView({
   loading,
   onEditName,
   onSettings,
+  onOpenPair,
   onStart,
   onGoLearn,
   onGoTalk,
@@ -82,13 +84,17 @@ export function TodayView({
               )}
             </h1>
           </button>
-          {/* Sprachpaar: in Schritt 1 reine Auskunft. Antippbar mit der ehrlichen
-              Richtungs-Anzeige wird es in Schritt 4 (gremium-navigation.md §5). */}
-          <p className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-line bg-white/[0.04] px-3 py-1 text-[0.7rem] text-muted">
+          {/* Antippbar: dahinter steht die ehrliche Richtungs-Auskunft statt eines
+              Schalters (gremium-navigation.md §5, LanguagePair.tsx). */}
+          <button
+            onClick={onOpenPair}
+            className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-line bg-white/[0.04] px-3 py-1 text-[0.7rem] text-muted transition-colors hover:bg-white/[0.08]"
+          >
             <span className="font-medium text-paper">Deutsch</span>
             <span className="text-faint">→</span>
             <span className="font-medium text-paper">Schwedisch</span>
-          </p>
+            <span className="text-faint">⌄</span>
+          </button>
         </div>
         <button
           onClick={onSettings}
