@@ -12,13 +12,15 @@
     "lint": "eslint .",
     "test": "vitest run",
     "test:e2e": "playwright test",
-    "verify": "npm run typecheck && npm run lint && npm run test && npm run check:content && npm run check:decoding && npm run check:backtranslation && npm run verify:build && npm run check:generated && npm run build",
+    "verify": "npm run typecheck && npm run lint && npm run test && npm run check:content && npm run check:decoding && npm run check:backtranslation && npm run check:native && npm run verify:build && npm run check:generated && npm run build",
     "verify:all": "npm run verify && npm run test:e2e",
     "check:content": "python3 tools/check-swedish.py",
     "check:decoding": "vite-node tools/check-decoding.ts",
     "check:backtranslation": "vite-node tools/check-backtranslation.ts",
+    "check:native": "vite-node tools/check-native.ts",
     "check:generated": "git diff --quiet -- src/modules/content/verification.generated.ts || (echo \"\" && echo \"STOPP: verification.generated.ts weicht vom eingecheckten Stand ab.\" && echo \"Der Prüf-Stand wurde gerade neu erzeugt und unterscheidet sich — bitte die Datei mit einchecken.\" && echo \"So sieht die App nie andere Ehrlichkeits-Zahlen als der Inhalt hergibt.\" && exit 1)",
     "verify:build": "vite-node tools/build-verification.ts",
+    "review:sheet": "vite-node tools/review-sheet.ts",
     "icons": "node tools/render-icons.mjs"
   },
   "dependencies": {

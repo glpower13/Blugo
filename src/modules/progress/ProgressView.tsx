@@ -171,12 +171,31 @@ export function ProgressView({
               </dd>
             </div>
           )}
+          {/* Die Zahl war hier fest eingetippt — sie konnte sich also gar nicht
+              bewegen, selbst wenn jemand gegengelesen hätte. Jetzt kommt sie aus
+              dem Register (`content/muttersprachliche-pruefung.json`), und ein
+              Wächter lässt nur belegbare Einträge zu. */}
           <div>
-            <dt className="font-semibold text-danger">0 muttersprachlich geprüft</dt>
+            <dt
+              className={`font-semibold ${VERIFICATION_META.native > 0 ? 'text-success' : 'text-danger'}`}
+            >
+              {VERIFICATION_META.native} muttersprachlich geprüft
+            </dt>
             <dd className="text-faint">
-              Keine einzige Wendung hat bisher eine schwedischsprachige Person gegengelesen.
-              Wortstellung, Idiomatik und Ton kann keine Maschine bestätigen — deshalb steht
-              hier eine 0 und keine Beschönigung.
+              {VERIFICATION_META.native === 0 ? (
+                <>
+                  Keine einzige Wendung hat bisher eine schwedischsprachige Person
+                  gegengelesen. Wortstellung, Idiomatik und Ton kann keine Maschine
+                  bestätigen — deshalb steht hier eine 0 und keine Beschönigung.
+                </>
+              ) : (
+                <>
+                  Von einer schwedischsprachigen Person gegengelesen — Wortstellung,
+                  Idiomatik und Ton. Das ist die einzige Stufe, die eine Maschine nicht
+                  vergeben kann. Die übrigen {totalChunks - VERIFICATION_META.native} warten
+                  noch darauf.
+                </>
+              )}
             </dd>
           </div>
         </dl>

@@ -7,9 +7,12 @@
 //               Korpushäufigkeit). NICHT geprüft: Wortstellung, Idiomatik,
 //               Register — dafür braucht es einen Menschen.
 // 'unchecked' = mindestens ein Wort ist selten oder unbelegt.
-// 'native'    = kommt hier nie vor. Es gibt bislang keine muttersprachliche
-//               Gegenlesung — das zu behaupten wäre die Lüge, gegen die dieses
-//               Projekt gebaut ist.
+// 'native'    = von einer schwedischsprachigen Person gegengelesen. Kommt
+//               ausschließlich aus content/muttersprachliche-pruefung.json und
+//               nur, wenn der Wächter `npm run check:native` den Eintrag als
+//               belegbar durchgewinkt hat. Steht dort nichts, steht hier 0 —
+//               eine Prüfung zu behaupten, die nicht stattfand, wäre die Lüge,
+//               gegen die dieses Projekt gebaut ist.
 
 export type VerificationLevel = 'native' | 'machine' | 'unchecked';
 

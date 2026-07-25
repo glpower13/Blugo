@@ -315,3 +315,43 @@ irreführenden Zerlegung „in Tag". Beide Schreibungen sind korrektes Schwedisc
 4. **Interne Kennungen passen nicht zum Inhalt** (`c-vadjobbardu` enthält „jag har
    mycket att göra", `c-vihalleross` enthält „vi ligger under", `c-tappatvaska`
    enthält „jag hittar inte min väska"). Kein Nutzerproblem, aber ein Wartungsrisiko.
+
+---
+
+## Der Weg für die Gegenlesung *(gebaut 2026-07-25)*
+
+Bis hierher war „0 muttersprachlich geprüft" eine **Sackgasse**, keine Messung:
+Die Stufe `'native'` existierte als Typ, aber der Erzeuger schrieb fest
+`native: 0`. Selbst wenn morgen jemand alle 179 Wendungen gegengelesen hätte,
+hätte die App es nicht anzeigen können.
+
+Jetzt gibt es den Weg:
+
+| Schritt | Befehl / Datei |
+|---|---|
+| 1. Prüfbogen erzeugen | `npm run review:sheet` → `docs/pruefbogen-schwedisch.md` |
+| 2. Gegenlesen lassen | der Bogen zeigt je Wendung: Schwedisch, Deutsch, Wort-für-Wort, die Sätze, in denen sie vorkommt |
+| 3. Urteile eintragen | `content/muttersprachliche-pruefung.json` |
+| 4. Prüfen und übernehmen | `npm run verify` — der Wächter `check:native` prüft jeden Eintrag, `verify:build` hebt die Wendungen auf `'native'` |
+
+**Was der Wächter erzwingt** — und warum: „Muttersprachlich geprüft" ist die am
+leichtesten zu fälschende Zahl der ganzen App, weil sie in einer JSON-Datei
+steht und niemand ihr ansieht, ob ein Mensch dahinterstand. Ein Eintrag zählt
+deshalb nur, wenn er belegbar ist:
+
+- die prüfende Person ist im Register benannt, **samt Herkunft** (ein bloßer
+  Name belegt keine Sprachkompetenz),
+- die Wendung existiert wirklich,
+- das Datum steht als ISO-Datum da,
+- ein Urteil „korrigiert" nennt die **alte Fassung** — sonst ist die Korrektur
+  nicht nachvollziehbar,
+- keine Wendung zweimal.
+
+Fünf Fälschungsversuche wurden beim Bau gegen den Wächter gefahren; alle fünf
+brachen den Lauf ab. Ohne belegbaren Eintrag bleibt die Zahl bei 0 — lieber gar
+keine Zahl als eine erfundene.
+
+**Reihenfolge-Empfehlung für die Gegenlesung:** zuerst die Punkte aus dem
+Durchgang oben (B3 Sie/du, B4 `ni`, B5 `vilken`, B11 bestimmte Formen) — dort
+steht bereits eine konkrete Frage. Danach die drei maschinell auffälligen
+Wendungen. Erst dann der Rest von vorn.
