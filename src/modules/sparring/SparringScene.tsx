@@ -17,59 +17,17 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import type { Chunk } from '../../domain/chunk';
-import type { DialogScene } from '../../domain/dialog';
 import { aiRegistry } from '../content/aiRegistry';
 import type { SparringLine } from '../content/ports';
 import { useSpeechInput } from '../comprehension/useSpeechInput';
 import { matchedTargets, nearMisses, type NearMiss } from './targets';
+import { SETTINGS, type SparringSetting } from './settings';
 import { SpeakButton } from '../../ui/SpeakButton';
 import { SceneArt } from '../../ui/SceneArt';
 import { IconBack, IconChat, IconPlay, IconSparkle } from '../../ui/icons';
 
 /** Modus-Signatur „Gespräch" (Teal) — wie im Dialog-Modus. */
 const ACCENT = '#63C9B6';
-
-interface SparringSetting {
-  id: DialogScene;
-  title: string;
-  partner: string;
-  /** Der Satz, der als Kulisse in den Prompt geht. */
-  brief: string;
-}
-
-/** Kulissen. Bewusst wenige und alltäglich — der Ort ist Rahmen, nicht Inhalt. */
-export const SETTINGS: SparringSetting[] = [
-  {
-    id: 'cafe',
-    title: 'Im Café',
-    partner: 'Elin, die Bedienung',
-    brief: 'Ein Café in Stockholm. Du bist die Bedienung und kommst an den Tisch des Gastes.',
-  },
-  {
-    id: 'garage',
-    title: 'In der Werkstatt',
-    partner: 'Kalle, ein Kumpel',
-    brief: 'Eine Hobby-Werkstatt. Du schraubst mit deinem Kumpel am Auto und redest nebenbei.',
-  },
-  {
-    id: 'station',
-    title: 'Am Bahnhof',
-    partner: 'Jonas am Schalter',
-    brief: 'Der Hauptbahnhof. Du stehst am Schalter und hilfst einem Reisenden weiter.',
-  },
-  {
-    id: 'shop',
-    title: 'Beim Einkaufen',
-    partner: 'Maja im Laden',
-    brief: 'Ein kleiner Laden. Du bist im Verkauf und sprichst einen Kunden an.',
-  },
-  {
-    id: 'lake',
-    title: 'Am See',
-    partner: 'Erik beim Angeln',
-    brief: 'Ein ruhiger See am Abend. Ihr sitzt beim Angeln und unterhaltet euch.',
-  },
-];
 
 interface Props {
   targets: Chunk[]; // die heute fälligen Wendungen (schon begegnet)

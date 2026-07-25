@@ -192,7 +192,13 @@ Drei Dinge, die beim Benutzen fehlten:
    **Zählt noch nicht.** „Fast" ist nicht „gesagt"; der Hinweis geht an den Menschen, nicht
    in die Messung. Toleranz: höchstens zwei Zeichen Abweichung, gesucht in einem Fenster
    von einem Wort mehr oder weniger.
-4. **Sprechen auf der ersten Seite.** Der Einstieg steht jetzt auch auf „Heute" — mit der
+4. **Zehn Kulissen statt fünf.** Alle vorhandenen Szenenbilder sind jetzt auch als
+   Sparring-Ort wählbar — inklusive der modernen: **Zocken über Discord**, **Rallye-Strecke**,
+   **beim Spiel**. In deren Auftragssatz steht ausdrücklich „normales Erwachsenen-Schwedisch,
+   keine Jugendsprache" (Projektvorgabe). Die Liste liegt jetzt in `settings.ts` — ohne React,
+   damit ein Test sie prüfen kann: keine doppelte Kulisse, kein Kürzel ohne Bild, kein zu
+   kurzer Auftragssatz (dann würde sich der Partner die Szene selbst ausdenken).
+5. **Sprechen auf der ersten Seite.** Der Einstieg steht jetzt auch auf „Heute" — mit der
    ehrlichen Unterzeile: entweder *„N fällige Wendungen im Gespräch selbst sagen"* oder
    *„Gerade nichts fällig — reden geht, gemessen wird nichts."*
 
