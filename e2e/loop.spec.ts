@@ -1533,3 +1533,60 @@ test('an einem normalen Tag sagt niemand „willkommen zurück"', async ({ page 
   // Frisches Gerät, nichts angesammelt: Die Rückkehr-Ansprache wäre Theater.
   await expect(page.getByText('Willkommen zurück')).toHaveCount(0);
 });
+
+// ── Die ersten Wochen (docs/07-measurement.md §Die kleinste ehrliche Stufe) ───
+//
+// Befund 2026-07-26: Wer täglich übt und fast nichts falsch macht, sah sechs
+// Wochen lang nur „Noch nichts bewiesen". Die große Zahl bleibt zu Recht auf 0 —
+// gefüllt wird nur die Leere darunter, und zwar mit einem wahren Satz.
+test('nach der ersten Woche steht dort etwas Wahres statt einer Leere', async ({ page }, info) => {
+  const TAG = 86_400_000;
+  const jetzt = Date.now();
+
+  await page.goto('/');
+  await expect(page.getByText('bewiesen stabil')).toBeVisible();
+  // Frisch: Es gibt noch nichts zu sagen, und die App sagt genau das.
+  await expect(page.getByText(/Noch nichts bewiesen/)).toBeVisible();
+
+  await page.getByRole('button', { name: 'Einstellungen' }).click();
+  const [download] = await Promise.all([
+    page.waitForEvent('download'),
+    page.getByRole('button', { name: /^Sichern/ }).click(),
+  ]);
+  const roh = info.outputPath('roh-anfang.json');
+  await download.saveAs(roh);
+  await page.getByRole('button', { name: /Einstellungen schließen/ }).click();
+  const original = JSON.parse(await readFile(roh, 'utf-8')) as { states: Record<string, unknown>[] };
+
+  // Eine Woche fleißig: 23 Wendungen haben eine ECHTE Pause von vier Tagen
+  // überstanden — zwei Abrufe im Abstand von vier Tagen, der zweite gelungen.
+  const states = original.states.map((s, i) =>
+    i >= 23
+      ? s
+      : {
+          ...s,
+          status: 'maintenance',
+          stage: 'recognition',
+          intervalDays: 4,
+          stability: 4,
+          difficulty: 5,
+          dueAt: jetzt + 2 * TAG,
+          lastReviewedAt: jetzt - TAG,
+          successStreak: 2,
+          history: [
+            { at: jetzt - 5 * TAG, result: 'good', segmentId: 'x' },
+            { at: jetzt - TAG, result: 'good', segmentId: 'y' },
+          ],
+        },
+  );
+  const datei = info.outputPath('anfaenger.json');
+  await writeFile(datei, JSON.stringify({ ...original, states }));
+  await lernstandEinlesen(page, datei);
+
+  // Die große Zahl bleibt bei 0 — der Beweis braucht weiter über 90 Tage.
+  await expect(page.getByText('bewiesen stabil')).toBeVisible();
+  // Darunter steht jetzt aber etwas, das WAHR ist und sich bewegt.
+  await expect(page.getByText(/23 Wendungen halten schon eine Pause von drei Tagen/)).toBeVisible();
+  // Und der Satz nennt seine eigene Grenze im selben Atemzug.
+  await expect(page.getByText(/ein Anfang, kein Beweis/)).toBeVisible();
+});

@@ -19,6 +19,8 @@ interface Props {
   name: string;
   stable: number;
   maturing: number;
+  /** Kleinste ehrliche Stufe: hält eine überstandene Pause von 3 Tagen. */
+  holding: number;
   sessionSize: number; // was die nächste Sitzung WIRKLICH enthält
   dueNow: number;
   totalChunks: number;
@@ -44,12 +46,30 @@ interface Props {
 }
 
 /** Ehrliche Unterzeile zur großen Zahl — beschönigt eine 0 nicht. */
-function stageNote(stable: number, maturing: number, total: number): string {
+function stageNote(
+  stable: number,
+  maturing: number,
+  total: number,
+  holding: number,
+): string {
   if (stable > 0) {
     return maturing > 0 ? `von ${total} Wendungen · ${maturing} reifen` : `von ${total} Wendungen`;
   }
   if (maturing > 0) {
     return `${maturing} reifen — „bewiesen" wird daraus erst nach über 90 Tagen`;
+  }
+  // DIE ERSTEN WOCHEN (Befund 2026-07-26): Wer täglich übt und fast nichts
+  // falsch macht, sah hier SECHS WOCHEN lang nur „Noch nichts bewiesen".
+  // Die erste „reift"-Meldung kommt an Tag 45, die große Zahl bleibt über 140
+  // Tage auf 0. Das ist wahr — und trotzdem der Grund, warum jemand aufhört,
+  // bevor die App überhaupt zeigen kann, was sie kann.
+  //
+  // Erfunden wird dafür nichts: „gehalten" ist DASSELBE Signal wie „reift" und
+  // „bewiesen" — eine tatsächlich überstandene Pause plus gelungener Abruf —
+  // nur mit der kürzesten Pause, die etwas aussagt. Der Satz nennt seine eigene
+  // Grenze im selben Atemzug (`metrics.ts`).
+  if (holding > 0) {
+    return `${holding} ${holding === 1 ? 'Wendung hält' : 'Wendungen halten'} schon eine Pause von drei Tagen — ein Anfang, kein Beweis.`;
   }
   return 'Noch nichts bewiesen — der Beweis braucht über 90 Tage.';
 }
@@ -58,6 +78,7 @@ export function TodayView({
   name,
   stable,
   maturing,
+  holding,
   sessionSize,
   dueNow,
   totalChunks,
@@ -147,7 +168,7 @@ export function TodayView({
             bewiesen stabil
           </p>
           <p className="mx-auto mt-2 max-w-[26ch] text-xs leading-relaxed text-faint">
-            {stageNote(stable, maturing, totalChunks)}
+            {stageNote(stable, maturing, totalChunks, holding)}
           </p>
         </div>
       </section>

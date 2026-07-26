@@ -613,6 +613,7 @@ export default function App() {
               name={name}
               stable={metrics.stable}
               maturing={metrics.maturing}
+              holding={metrics.holding}
               sessionSize={plannedSession.length}
               dueNow={metrics.dueNow}
               totalChunks={chunks.length}

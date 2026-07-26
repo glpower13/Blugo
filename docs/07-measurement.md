@@ -241,3 +241,75 @@ Das ist Anti-Goodhart in seiner klarsten Form: Die App verbietet das Üben nicht
 Auf „Heute" lädt er weiterhin nur ein, solange kein einziger Abruf gelungen ist —
 dort ist er ein *Vorschlag für den ersten Schritt*. Als **Zugang** gehört er
 dorthin, wo aller Stoff wohnt, und zwar immer.
+
+## Nachtrag (2026-07-26): Die kleinste ehrliche Stufe — „hält drei Tage"
+
+### Der Befund
+
+Simuliert, mit einem fleißigen Anfänger: **jeden Tag** die volle Sitzung, fast
+nichts falsch. Was „Heute" ihm zeigt:
+
+| Tag | bewiesen stabil | reifen |
+|---|---|---|
+| 7 | 0 | 0 |
+| 21 | 0 | 0 |
+| 30 | 0 | 0 |
+| **45** | 0 | **1** |
+| 90 | 0 | 157 |
+| **140** | **0** | 404 |
+
+Die erste „reift"-Meldung kommt an **Tag 45**. Die große Zahl steht nach **140
+Tagen** perfekten Übens immer noch auf **0** — weil der Beweis eine tatsächlich
+überstandene Pause von über 90 Tagen verlangt, und die braucht in der Praxis ein
+halbes Jahr.
+
+Beides ist **wahr**. Und beides zusammen ist die Klippe am anderen Ende: Der
+Rückkehrer sprang ab, weil zu viel dastand; der Anfänger springt ab, weil sechs
+Wochen lang gar nichts steht. Die App verliert ihn, bevor sie zeigen kann, was
+sie kann.
+
+### Was NICHT getan wurde
+
+Die große Zahl bleibt unangetastet. „Bewiesen stabil" heißt weiter genau
+dasselbe: ein gelungener Produktions-Abruf nach über 90 Tagen. Es gibt keine
+zweite Währung, keine Punkte, keinen Streak — die Anti-Ziele aus `CLAUDE.md`
+stehen.
+
+### Was getan wurde
+
+Gefüllt wird die **Leere darunter**, mit einem wahren Satz:
+
+> 23 Wendungen halten schon eine Pause von drei Tagen — ein Anfang, kein Beweis.
+
+**Warum das die eine Design-Regel nicht bricht.** Hier wird kein neues Signal
+erfunden. Es ist **dasselbe** Signal wie „reift" und „bewiesen" — eine
+tatsächlich überstandene Pause plus ein gelungener Abruf. Der einzige
+Unterschied ist die **Länge** der Pause, nicht die Art des Nachweises:
+
+| Stufe | überstandene Pause | Stufe des Abrufs |
+|---|---|---|
+| hält | ≥ 3 Tage | beliebig |
+| reift | ≥ 21 Tage | Produktion |
+| bewiesen | > 90 Tage | Produktion |
+
+Anwesenheit zählt weiterhin **nichts**. Ein Test hält genau das fest: zehn Abrufe
+an einem Tag ergeben null. Ein „Nochmal" nach drei Wochen ergibt null — es ist
+der Beleg dafür, dass die Wendung weg war, nicht dafür, dass sie hält. Und wie
+die beiden anderen Stufen **verfällt** die Meldung nach einem späteren
+Fehlschlag (`lapsedAt`) und lebt erst wieder auf, wenn die Pause erneut
+überstanden wird.
+
+**Abgeleitet, nicht gespeichert.** `letzteUeberstandenePause()` liest die
+ohnehin aufgezeichnete Historie. Kein neues Feld im Lernstand, keine Migration,
+kein geändertes Sicherungsformat — und keine zweite Datenquelle, die von der
+ersten wegdriften kann.
+
+### Evidenzstufen
+
+| Aussage | Stufe |
+|---|---|
+| Ein Abruf nach einer überstandenen Pause belegt Behalten (Spacing) | **Fels** |
+| Eine längere überstandene Pause belegt mehr als eine kürzere | **stark** |
+| Dass genau 3 Tage die richtige unterste Schwelle sind | **schwach** |
+
+Deshalb heißt die Stufe „ein Anfang, kein Beweis" und nicht „Stufe 1 von 3".
