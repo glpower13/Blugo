@@ -6,7 +6,7 @@ import { seedContentSource } from './modules/content/contentPipeline';
 import { getAllChunkStates, logEvent, putChunkState } from './storage/db';
 import { initialState, schedule } from './modules/memory/memoryEngine';
 import { newCountFor, recentSuccessRate, scaffoldShouldOpen } from './modules/memory/difficulty';
-import { buildQueue, pickSegmentForChunk, type NewFocus } from './session/buildQueue';
+import { buildQueue, buildPracticeQueue, pickSegmentForChunk } from './session/buildQueue';
 import { loadFocus, saveFocus } from './session/focus';
 import { loadName, saveName } from './session/profile';
 import { loadPreferences, savePreferences, type Preferences, ungesicherteBeweise } from './session/preferences';
@@ -107,6 +107,9 @@ export default function App() {
   const [segments, setSegments] = useState<Segment[]>([]);
   const [states, setStates] = useState<Record<string, ChunkState>>({});
   const [queue, setQueue] = useState<string[]>([]);
+  // Ab welcher Stelle der Warteschlange die FREIWILLIGE Wiederholung beginnt.
+  // Alles davor war fällig oder neu; alles danach hat der Lerner selbst gewählt.
+  const [pflichtAnzahl, setPflichtAnzahl] = useState(0);
   const [pos, setPos] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -311,6 +314,7 @@ export default function App() {
       // Ohne Scope ist es genau die Warteschlange, die der Knopf angekündigt hat.
       if (!scope) {
         setQueue(plannedSession);
+        setPflichtAnzahl(plannedSession.length); // der Tagesplan ist ganz Pflicht
         setPos(0);
         setView({ name: 'session' });
         return;
@@ -321,8 +325,16 @@ export default function App() {
           : areaByChunkId[chunkId] === scope.id;
       const pool = Object.values(states).filter((s) => inScope(s.chunkId));
       // Bereich/Thema üben: der Scope IST die Wahl — kein zusätzlicher Fokus.
-      const focus: NewFocus | undefined = undefined;
-      setQueue(buildQueue(pool, Date.now(), newCountFor(successRate, prefs.newPerSession), focus));
+      // Und die Sitzung hat IMMER etwas zu tun: Ist nichts fällig, folgt
+      // freiwillige Wiederholung (`buildPracticeQueue`). Ein Knopf, der ins
+      // Leere führt, nimmt dem Lerner die Möglichkeit zurückzugehen.
+      const { queue: q, faellig } = buildPracticeQueue(
+        pool,
+        Date.now(),
+        newCountFor(successRate, prefs.newPerSession),
+      );
+      setQueue(q);
+      setPflichtAnzahl(faellig);
       setPos(0);
       setView({ name: 'session' });
     },
@@ -597,6 +609,8 @@ export default function App() {
                 focusTitle={focusTitle}
                 onOpen={(id) => navigate('push', () => setView({ name: 'area', id }))}
                 onClearFocus={() => setFocus(null)}
+                onStartpilot={() => navigate('push', () => setView({ name: 'startpilot' }))}
+                startpilotGelaufen={prefs.startpilotDoneAt !== null}
               />
             )}
           </div>
@@ -864,6 +878,29 @@ export default function App() {
                 </span>
               )}
             </nav>
+
+            {/* Ab hier hat der Lerner SELBST weitergemacht — nichts davon war
+                fällig. Der Satz steht genau einmal, an der Grenze, und sagt die
+                unbequeme Wahrheit: Häufiger üben bringt dem Beweis nichts, weil
+                der Beweis die PAUSE misst und nicht die Menge
+                (`07-measurement.md`). Verboten wird es trotzdem nicht — wer
+                zurückgehen will, darf das jederzeit. */}
+            {!done && pos >= pflichtAnzahl && queue.length > pflichtAnzahl && (
+              <section className="glass rounded-2xl border border-line px-4 py-3">
+                <p className="text-[0.7rem] font-semibold uppercase tracking-[0.14em] text-brand">
+                  Freiwillige Wiederholung
+                </p>
+                <p className="mt-1.5 text-xs leading-relaxed text-muted">
+                  {pflichtAnzahl === 0
+                    ? 'Hier ist gerade nichts fällig — du wiederholst freiwillig.'
+                    : 'Das Fällige ist durch — ab hier wiederholst du freiwillig.'}{' '}
+                  Das schadet nichts, bringt dem Gedächtnis aber wenig: Was du eben
+                  erst konntest, kannst du auch gleich noch. Für „bewiesen stabil"
+                  zählt allein, dass du es nach einer langen Pause noch kannst — mehr
+                  Wiederholungen machen diese Pause nicht kürzer, sondern länger.
+                </p>
+              </section>
+            )}
 
             {!done && currentChunk && currentSegment && currentState ? (
               <ComprehensionLoop

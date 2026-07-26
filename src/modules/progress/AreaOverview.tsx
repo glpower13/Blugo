@@ -13,15 +13,27 @@ import type { AreaProgress } from './categories';
 import { areaVisual } from '../../ui/areaTheme';
 import { AreaArt } from '../../ui/AreaArt';
 import { HonestBar } from './HonestBar';
+import { IconSprout } from '../../ui/icons';
 
 interface Props {
   progress: AreaProgress[];
   focusTitle: string | null; // Titel des fokussierten Themas (global), falls gesetzt
   onOpen: (areaId: string) => void;
   onClearFocus: () => void;
+  /** Den Startpiloten öffnen — von hier aus IMMER, nicht nur beim ersten Mal. */
+  onStartpilot: () => void;
+  /** Schon einmal durchgelaufen? Ändert nur die Beschriftung, nie die Erreichbarkeit. */
+  startpilotGelaufen: boolean;
 }
 
-export function AreaOverview({ progress, focusTitle, onOpen, onClearFocus }: Props) {
+export function AreaOverview({
+  progress,
+  focusTitle,
+  onOpen,
+  onClearFocus,
+  onStartpilot,
+  startpilotGelaufen,
+}: Props) {
   if (progress.length === 0) return null;
 
   return (
@@ -34,6 +46,30 @@ export function AreaOverview({ progress, focusTitle, onOpen, onClearFocus }: Pro
           </button>
         )}
       </div>
+
+      {/* Der Startpilot gehört hierher, wo aller Stoff wohnt — und zwar
+          DAUERHAFT. Auf „Heute" lädt er nur beim allerersten Mal ein; danach
+          war er bisher nur in den Einstellungen zu finden. Gemeldet
+          2026-07-26: „Es muss jederzeit die Möglichkeit geben, jeden
+          Themenbereich noch mal zu machen." Genau so ist es richtig. */}
+      <button
+        onClick={onStartpilot}
+        className="mb-3.5 flex w-full items-center gap-3 rounded-2xl border border-line bg-white/[0.04] px-4 py-3 text-left transition-colors hover:bg-white/[0.08]"
+      >
+        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand/15 text-brand">
+          <IconSprout className="h-4.5 w-4.5" />
+        </span>
+        <span className="min-w-0">
+          <span className="block text-sm font-medium text-paper">
+            Startpilot — die ersten sechzehn Wörter
+          </span>
+          <span className="block text-[0.7rem] leading-snug text-faint">
+            {startpilotGelaufen
+              ? 'Schon gelaufen. Jederzeit noch einmal durchgehen.'
+              : 'Der sanfteste Einstieg: ein Wort nach dem anderen, mit Ton.'}
+          </span>
+        </span>
+      </button>
 
       <ul className="flex flex-col gap-3.5">
         {progress.map((p) => {

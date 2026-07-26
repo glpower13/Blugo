@@ -1178,3 +1178,79 @@ test('wer schon etwas kann, bekommt den Startpiloten nicht mehr angeboten', asyn
   await page.getByRole('button', { name: 'Einstellungen' }).click();
   await expect(page.getByRole('button', { name: 'Startpilot öffnen' })).toBeVisible();
 });
+
+// Stufe B: Zurückgehen muss JEDERZEIT gehen (gemeldet 2026-07-26).
+//
+// „Dieses Thema üben" baute dieselbe Warteschlange wie der Tagesplan. Ist im
+// Thema nichts fällig und nichts neu, kam eine LEERE Sitzung heraus — ein
+// Knopf, der nichts tut. Jetzt folgt freiwillige Wiederholung, und an genau der
+// Stelle steht, was das für die Messung bedeutet: nichts Gutes und nichts
+// Schlimmes, aber der Beweis wird dadurch nicht schneller.
+test('ein Thema lässt sich auch dann üben, wenn nichts fällig ist', async ({ page }) => {
+  const frueher = Date.now() - 5 * 24 * 3600 * 1000;
+  const weitWeg = Date.now() + 60 * 24 * 3600 * 1000;
+  const ids = ['c-hej', 'c-heter', 'c-marbra', 'c-hejda', 'c-vises', 'c-varifran'];
+  const backup = {
+    app: 'neurolang',
+    version: 1,
+    exportedAt: Date.now(),
+    name: '',
+    preferences: {},
+    states: ids.map((chunkId, i) => ({
+      chunkId,
+      status: 'maintenance',
+      stage: 'production',
+      intervalDays: 60,
+      stability: 60,
+      difficulty: 5,
+      dueAt: weitWeg,
+      lastReviewedAt: frueher - i * 24 * 3600 * 1000,
+      successStreak: 4,
+      provenStableAt: null,
+      maturedAt: frueher,
+      lapsedAt: null,
+      seenSegmentIds: [],
+      history: [{ at: frueher - i * 24 * 3600 * 1000, result: 'good', segmentId: 's' }],
+    })),
+  };
+
+  await page.goto('/');
+  await expect(page.getByText('bewiesen stabil')).toBeVisible();
+  await page.getByRole('button', { name: 'Einstellungen' }).click();
+  await page.getByRole('button', { name: 'Sicherung einlesen' }).click();
+  await page.setInputFiles('input[type=file]', {
+    name: 'stand.json',
+    mimeType: 'application/json',
+    buffer: Buffer.from(JSON.stringify(backup)),
+  });
+  await expect(page.getByText(/Eingelesen:/)).toBeVisible();
+  await page.getByRole('button', { name: /Einstellungen schließen/ }).click();
+
+  await openLearn(page);
+  await page.getByRole('button', { name: /Erste Schritte/ }).click();
+  await page.getByRole('button', { name: /Begrüßen & Kennenlernen/ }).click();
+  await page.getByRole('button', { name: /Dieses Thema üben/ }).click();
+
+  // Nicht leer: alle sechs Wendungen stehen zur Wiederholung bereit.
+  await expect(page.getByText('Sitzung erledigt.')).toHaveCount(0);
+  await expect(page.getByText('1 / 6')).toBeVisible();
+
+  // Und die Einordnung steht da, wo sie hingehört.
+  await expect(page.getByText(/Freiwillige Wiederholung/i)).toBeVisible();
+  await expect(page.getByText(/nicht kürzer, sondern länger/)).toBeVisible();
+});
+
+// Stufe B: Der Startpilot ist DAUERHAFT erreichbar, nicht nur beim ersten Mal.
+test('der Startpilot steht dauerhaft im Reiter „Lernen"', async ({ page }) => {
+  await page.goto('/');
+  await openLearn(page);
+  const einstieg = page.getByRole('button', { name: /Startpilot — die ersten sechzehn Wörter/ });
+  await expect(einstieg).toBeVisible();
+  await einstieg.click();
+  await expect(page.getByText('Wort 1 von 16')).toBeVisible();
+
+  // Auch nach dem Verlassen bleibt er stehen — er ist kein einmaliges Angebot.
+  await page.getByRole('button', { name: 'Startpilot verlassen' }).click();
+  await openLearn(page);
+  await expect(einstieg).toBeVisible();
+});

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { buildQueue, MAX_NEW_PER_SESSION, pickSegmentForChunk } from './buildQueue';
+import { buildQueue, MAX_NEW_PER_SESSION, pickSegmentForChunk, buildPracticeQueue } from './buildQueue';
 import { DAY_MS, initialState } from '../modules/memory/memoryEngine';
 import type { Chunk, ChunkState } from '../domain/chunk';
 import { seedChunks, seedSegments } from '../modules/content/seedSegments';
@@ -104,5 +104,69 @@ describe('Kontext beim Nachlernen', () => {
       history: [{ at: NOW, result: 'again', segmentId: 's-gibt-es-nicht' }],
     });
     expect(pickSegmentForChunk(chunk, weg, seedSegments)?.id).toBe(kontexte[0].id);
+  });
+});
+
+// „Dieses Thema noch einmal" muss IMMER etwas zu tun haben — auch wenn im Thema
+// gerade nichts fällig ist. Sonst ist der Knopf ein toter Knopf.
+describe('Übungs-Warteschlange', () => {
+  const ids = ['c-a', 'c-b', 'c-c'];
+  const frisch = (id: string): ChunkState => initialState(id, NOW);
+  const gelernt = (id: string, zuletzt: number, faellig: number): ChunkState => ({
+    ...initialState(id, NOW),
+    status: 'maintenance',
+    lastReviewedAt: zuletzt,
+    dueAt: faellig,
+    history: [{ at: zuletzt, result: 'good', segmentId: 's' }],
+  });
+
+  it('liefert auch dann Stoff, wenn nichts fällig und nichts neu ist', () => {
+    const pool = ids.map((id) => gelernt(id, NOW - 5 * DAY_MS, NOW + 30 * DAY_MS));
+    const { queue, faellig } = buildPracticeQueue(pool, NOW);
+    expect(faellig, 'nichts war fällig').toBe(0);
+    expect(queue).toHaveLength(3);
+  });
+
+  it('setzt Fälliges immer nach vorn', () => {
+    const pool = [
+      gelernt('c-a', NOW - 40 * DAY_MS, NOW + 30 * DAY_MS), // nicht fällig, lange her
+      gelernt('c-b', NOW - 2 * DAY_MS, NOW - DAY_MS), // FÄLLIG
+      gelernt('c-c', NOW - 10 * DAY_MS, NOW + 5 * DAY_MS), // nicht fällig
+    ];
+    const { queue, faellig } = buildPracticeQueue(pool, NOW);
+    expect(queue[0]).toBe('c-b');
+    expect(faellig).toBe(1);
+  });
+
+  it('nimmt bei der freiwilligen Wiederholung das am längsten Unangefasste zuerst', () => {
+    const pool = [
+      gelernt('c-a', NOW - 3 * DAY_MS, NOW + 30 * DAY_MS),
+      gelernt('c-b', NOW - 30 * DAY_MS, NOW + 30 * DAY_MS),
+      gelernt('c-c', NOW - 12 * DAY_MS, NOW + 30 * DAY_MS),
+    ];
+    expect(buildPracticeQueue(pool, NOW).queue).toEqual(['c-b', 'c-c', 'c-a']);
+  });
+
+  it('nimmt nie eine Wendung zweimal in dieselbe Sitzung', () => {
+    const pool = [
+      gelernt('c-a', NOW - 2 * DAY_MS, NOW - DAY_MS),
+      gelernt('c-b', NOW - 9 * DAY_MS, NOW + DAY_MS),
+      frisch('c-c'),
+    ];
+    const { queue } = buildPracticeQueue(pool, NOW);
+    expect(new Set(queue).size).toBe(queue.length);
+  });
+
+  it('wiederholt nichts, was noch nie begegnet ist', () => {
+    // Nie begegneter Stoff ist NEU, nicht „Wiederholung" — er läuft über den
+    // Deckel für neuen Stoff, sonst kippt die Tagesdosis.
+    const pool = [frisch('c-a'), frisch('c-b'), frisch('c-c')];
+    const { queue, faellig } = buildPracticeQueue(pool, NOW, 1);
+    expect(queue).toHaveLength(1);
+    expect(faellig).toBe(1);
+  });
+
+  it('gibt eine leere Sitzung nur bei leerem Thema', () => {
+    expect(buildPracticeQueue([], NOW)).toEqual({ queue: [], faellig: 0 });
   });
 });
