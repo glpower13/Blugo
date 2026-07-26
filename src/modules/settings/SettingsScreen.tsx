@@ -659,6 +659,19 @@ function AboutSection({ totalChunks }: { totalChunks: number }) {
             auch so gesagt wird, kann das nicht ersetzen.
           </dd>
         </div>
+        {/* NACHGETRAGEN 2026-07-26: Hier stand „kein Konto, kein Server" — aber
+            nirgends, dass die App NICHTS KOSTET. Der Unterschied ist wichtig
+            genug, dass sogar der Auftraggeber selbst nachfragen musste. Wer sich
+            unsicher ist, ob eine App Geld kostet, probiert sie gar nicht erst. */}
+        <div>
+          <dt className="font-semibold text-paper">Kostet nichts</dt>
+          <dd className="text-faint">
+            Kein Abo, keine Einmalzahlung, keine Werbung. Alles, was du hier siehst — Lernen,
+            Gespräche, der Sparringspartner, die Stimme — läuft ohne einen Cent. Kosten
+            entstehen nur, wenn du <em>selbst</em> einen eigenen Cloud-Zugang einträgst; die
+            gehen dann direkt an deinen Anbieter, nie an uns. Ohne Zugang: null.
+          </dd>
+        </div>
         <div>
           <dt className="font-semibold text-paper">Kein Konto, kein Server</dt>
           <dd className="text-faint">
