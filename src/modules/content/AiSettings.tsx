@@ -4,6 +4,7 @@
 
 import { useState } from 'react';
 import { aiRegistry } from './aiRegistry';
+import { GRUNDGESETZ } from './adapters/prompts';
 import {
   applySettings,
   loadSettings,
@@ -247,6 +248,30 @@ export function AiSettingsSection({ onSaved }: { onSaved?: () => void }) {
               Hinweis: Beim Übersetzen verlässt der schwedische Text dein Gerät Richtung Anbieter.
             </p>
           </div>
+        )}
+
+        {/* OFFENLEGUNG. Die App legt an anderen Stellen ihre eigenen
+            Entscheidungen offen („Warum jetzt?", der Prüf-Stand am Inhalt). Was
+            sie im Namen des Lerners an eine fremde KI schickt, gehört genauso
+            dazu — er bezahlt es schließlich. */}
+        {(isCloud || isOffen) && (
+          <details className="mt-4 rounded-lg border border-line px-3 py-2">
+            <summary className="cursor-pointer text-xs text-muted">
+              Was die App deiner KI vorab sagt
+            </summary>
+            <p className="mt-2 text-[0.7rem] leading-relaxed text-faint">
+              Dieser Text geht bei <em>jedem</em> Aufruf mit, vor der eigentlichen Aufgabe.
+              Er kostet rund 340 Wort-Einheiten, also etwa 0,1 Cent — und er ist der Grund,
+              warum die KI weiß, wozu sie hier ist.
+            </p>
+            <pre className="mt-2 max-h-56 overflow-auto whitespace-pre-wrap break-words rounded bg-base p-2 text-[0.65rem] leading-relaxed text-muted">
+              {GRUNDGESETZ.trim()}
+            </pre>
+            <p className="mt-2 text-[0.7rem] leading-relaxed text-faint">
+              Ehrlich dazu: Das ist eine <em>Bitte</em> an die KI, keine Regel. Deshalb wird
+              jede Antwort zusätzlich geprüft — was durchfällt, siehst du gar nicht erst.
+            </p>
+          </details>
         )}
 
         <div className="mt-5 flex items-center gap-3">

@@ -1739,3 +1739,55 @@ test('ein beliebiger Anbieter treibt Dekodierung UND Sparringspartner', async ({
   await page.getByRole('button', { name: /Im Café/ }).click();
   await expect(page.getByText('Vad vill du ha?')).toBeVisible();
 });
+
+// ── Der Wächter über den Sparringspartner (Nutzerfrage 2026-07-26) ───────────
+//
+// „Woher weiß der Partner denn, dass er mit dieser App verbunden ist? Den
+// könnte ich ja theoretisch alles fragen." Er weiß es nur aus dem Prompt — und
+// ein Prompt ist eine Bitte. Geprüft wird deshalb die ANTWORT.
+test('bricht der Anbieter aus der Rolle aus, übernimmt der Grund-Partner', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.getByText('bewiesen stabil')).toBeVisible();
+
+  // Ein Anbieter, der die Rolle verlässt und auf Deutsch doziert.
+  await page.route('**/api.anthropic.com/**', async (route) => {
+    const kopf = {
+      'content-type': 'application/json',
+      'access-control-allow-origin': '*',
+      'access-control-allow-headers': '*',
+      'access-control-allow-methods': '*',
+    };
+    if (route.request().method() === 'OPTIONS') {
+      await route.fulfill({ status: 204, headers: kopf, body: '' });
+      return;
+    }
+    await route.fulfill({
+      status: 200,
+      headers: kopf,
+      body: JSON.stringify({
+        content: [
+          {
+            type: 'text',
+            text: JSON.stringify({
+              sv: 'Ich erkläre dir gerne, wie das mit der Grammatik funktioniert.',
+              de: 'Deutsch statt Schwedisch.',
+            }),
+          },
+        ],
+      }),
+    });
+  });
+
+  await configureCloud(page);
+  await openTab(page, 'Gespräche');
+  await page.getByRole('button', { name: /Rede mit jemandem/ }).click();
+  await page.getByRole('button', { name: /Im Café/ }).click();
+
+  // Die deutsche Zeile erscheint NICHT.
+  await expect(page.getByText(/Ich erkläre dir gerne/)).toHaveCount(0);
+  // Stattdessen wird gesagt, was passiert ist …
+  await expect(page.getByText(/nicht Schwedisch/)).toBeVisible();
+  await expect(page.getByText(/geprüften Zeile weiter/)).toBeVisible();
+  // … und das Gespräch läuft weiter, mit einer kuratierten Eröffnung.
+  await expect(page.getByText('Hej, välkommen!')).toBeVisible();
+});

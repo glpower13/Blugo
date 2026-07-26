@@ -21,6 +21,8 @@ import { aiRegistry } from '../content/aiRegistry';
 import type { SparringLine } from '../content/ports';
 import { useSpeechInput } from '../comprehension/useSpeechInput';
 import { matchedTargets, nearMisses, type NearMiss } from './targets';
+import { befundText, pruefeAntwort } from './waechter';
+import { seedPartner } from '../content/adapters/seedPartner';
 import { SETTINGS, type SparringSetting } from './settings';
 import { SpeakButton } from '../../ui/SpeakButton';
 import { SceneArt } from '../../ui/SceneArt';
@@ -58,6 +60,8 @@ export function SparringScene({
   const [showDe, setShowDe] = useState<Record<number, boolean>>({});
   const [pending, setPending] = useState(false);
   const [error, setError] = useState('');
+  // Was der Wächter beanstandet hat — kein Fehler, aber es gehört gesagt.
+  const [hinweis, setHinweis] = useState('');
   const [typed, setTyped] = useState('');
   const [heard, setHeard] = useState('');
   const [openTargets, setOpenTargets] = useState(false); // Zielliste aufgedeckt = Krücke
@@ -104,14 +108,39 @@ export function SparringScene({
       setPending(true);
       setError('');
       try {
-        const reply = await partner.reply({
+        const anfrage = {
           scene: s.brief,
           sceneId: s.id,
           partner: s.partner,
           learnerName,
           targets: remaining.map((t) => ({ sv: t.sv, de: t.de })),
           history,
-        });
+        };
+
+        // DER WÄCHTER (`waechter.ts`, Nutzerfrage 2026-07-26): Das Modell weiß
+        // nur aus dem Prompt, wozu es hier ist — und ein Prompt ist eine Bitte.
+        // Alles, was der Lerner tippt, geht wörtlich mit; wer die Rolle
+        // aushebeln will, kann es versuchen. Geprüft wird deshalb die ANTWORT:
+        // Schwedisch, kurz, und sie verrät die Lösung nicht.
+        //
+        // Ein zweiter Versuch, dann übernimmt der Grund-Partner. Der kann gar
+        // nicht aus der Rolle fallen — er spielt kuratierte Zeilen. Das Gespräch
+        // läuft weiter, statt mit einer Fehlermeldung zu enden.
+        let reply = await partner.reply(anfrage);
+        let befund = pruefeAntwort(reply, anfrage.targets);
+        if (befund) {
+          reply = await partner.reply(anfrage);
+          befund = pruefeAntwort(reply, anfrage.targets);
+        }
+        if (befund) {
+          reply = await seedPartner.reply(anfrage);
+          setHinweis(
+            `${befundText(befund)} Wir machen mit einer geprüften Zeile weiter.`,
+          );
+        } else {
+          setHinweis('');
+        }
+
         setLines((prev) => {
           const next = [...prev, { who: 'partner' as const, sv: reply.sv }];
           setDe((d) => ({ ...d, [next.length - 1]: reply.de }));
@@ -474,6 +503,14 @@ export function SparringScene({
             {pending && (
               <p className="flex items-center gap-1.5 text-xs text-faint">
                 <IconSparkle className="h-3 w-3" /> {setting.partner.split(',')[0]} überlegt …
+              </p>
+            )}
+            {/* Der Wächter hat eingegriffen. Kein Fehler des Lerners und kein
+                Absturz — aber verschweigen wäre falsch: Er soll wissen, dass
+                gerade nicht sein Anbieter geantwortet hat. */}
+            {hinweis && (
+              <p className="rounded-xl border border-warn/30 bg-warn/10 px-3 py-2 text-xs leading-relaxed text-warn">
+                {hinweis}
               </p>
             )}
             {error && (
