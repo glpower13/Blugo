@@ -38,7 +38,15 @@
 // ausgewählt.
 
 import type { SparringPartner, SparringReply, SparringRequest } from '../ports';
-import { seedDialogs } from '../seedDialogs';
+
+// ERST BEIM ERSTEN SATZ GELADEN, nicht beim Start der App. Ein statischer Import
+// zog die 277 kB Gespräche ins Startbündel — es wuchs von 833 kB auf 1.119 kB,
+// also ein Drittel mehr Ladezeit für JEDEN, auch für die, die nie ein Gespräch
+// öffnen. Der Build hat es gemeldet, und die Zahl stand im Protokoll.
+async function ladeDialoge() {
+  const m = await import('../seedDialogs');
+  return m.seedDialogs;
+}
 
 const norm = (t: string): string =>
   t
@@ -65,7 +73,7 @@ interface Anstoss {
  * Alle Partner-Zeilen der kuratierten Gespräche, jeweils mit der Wendung, die
  * unmittelbar danach vom Lerner kommt. Einmal beim Laden gebaut.
  */
-function baueAnstoesse(): Anstoss[] {
+function baueAnstoesse(seedDialogs: Awaited<ReturnType<typeof ladeDialoge>>): Anstoss[] {
   const raus: Anstoss[] = [];
   for (const d of seedDialogs) {
     for (let i = 0; i < d.turns.length; i++) {
@@ -90,17 +98,25 @@ function baueAnstoesse(): Anstoss[] {
   return raus;
 }
 
-let gecacht: Anstoss[] | null = null;
-const anstoesse = (): Anstoss[] => (gecacht ??= baueAnstoesse());
+/** Der einmal gebaute Vorrat an Anstößen — plus Wendung → Thema. */
+export interface Anstossliste {
+  alle: Anstoss[];
+  /** Zu welchem Thema eine Wendung gehört — für den Themen-Treffer zweiter Wahl. */
+  thema: Map<string, string>;
+}
 
-/** Zu welchem Thema eine Wendung gehört — für den Themen-Treffer zweiter Wahl. */
-function themaVon(zielSv: string): string | null {
-  for (const d of seedDialogs) {
-    for (const t of d.turns) {
-      if (t.speaker === 'you' && norm(t.sv) === norm(zielSv)) return d.categoryId;
+let gecacht: Promise<Anstossliste> | null = null;
+
+export function ladeAnstossliste(): Promise<Anstossliste> {
+  return (gecacht ??= ladeDialoge().then((dialoge) => {
+    const thema = new Map<string, string>();
+    for (const d of dialoge) {
+      for (const t of d.turns) {
+        if (t.speaker === 'you' && !thema.has(norm(t.sv))) thema.set(norm(t.sv), d.categoryId);
+      }
     }
-  }
-  return null;
+    return { alle: baueAnstoesse(dialoge), thema };
+  }));
 }
 
 /**
@@ -115,13 +131,15 @@ function themaVon(zielSv: string): string | null {
  *
  * Rein bis auf den Seed-Zugriff — deshalb einzeln testbar.
  */
-export function waehleAnstoss(req: SparringRequest): Anstoss | null {
+export function waehleAnstoss(liste: Anstossliste, req: SparringRequest): Anstoss | null {
   const gesagt = new Set(req.history.filter((l) => l.who === 'partner').map((l) => norm(l.sv)));
-  const frei = anstoesse().filter((a) => !gesagt.has(norm(a.sv)));
+  const frei = liste.alle.filter((a) => !gesagt.has(norm(a.sv)));
   if (frei.length === 0) return null;
 
   const ziele = req.targets.map((t) => norm(t.sv));
-  const themen = new Set(req.targets.map((t) => themaVon(t.sv)).filter(Boolean) as string[]);
+  const themen = new Set(
+    req.targets.map((t) => liste.thema.get(norm(t.sv))).filter(Boolean) as string[],
+  );
 
   // Am ANFANG eines Gesprächs zählt zweierlei zusätzlich: Es soll eine
   // Eröffnungszeile sein (nicht ein Satz aus der Mitte einer fremden Szene), und
@@ -175,7 +193,7 @@ export function nameEinsetzen(s: string, name: string): string {
 export const seedPartner: SparringPartner = {
   id: 'seed',
   async reply(req: SparringRequest): Promise<SparringReply> {
-    const a = waehleAnstoss(req);
+    const a = waehleAnstoss(await ladeAnstossliste(), req);
     if (!a) {
       throw new Error(
         'Der Grund-Partner hat alle kuratierten Zeilen gesagt. Mit einem eigenen ' +

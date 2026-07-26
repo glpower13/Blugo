@@ -303,6 +303,56 @@ behauptet es auch nicht.
   und die App behauptet es auch nicht.
 - Konkrete Modellwahl (LLM/TTS) → Anbieter-Entscheidung offen (`10-open-questions.md`); die Port-Schicht hält alle Wege offen.
 
+## Anbieter sind austauschbar — jetzt belegt *(Nutzerwunsch 2026-07-26)*
+
+„Die KI, die wir einsetzen, kann ja eine ganz andere sein. Das muss nicht Claude
+sein." Die Port-Schicht war dafür von Anfang an gebaut — es gab nur nie einen
+**zweiten** Adapter, der es beweist. Eine Architektur, deren Austauschbarkeit
+niemand ausprobiert hat, ist eine Behauptung.
+
+### Was jetzt drinsteht
+
+| Datei | Inhalt |
+|---|---|
+| `adapters/prompts.ts` | **Was** die KI tun soll: die vier Systemanweisungen, die Nutzer-Texte, das Auslesen der Antworten — anbieterunabhängig |
+| `adapters/shared.ts` | Wie Fehler klingen: HTTP-Status → klarer deutscher Satz, echte Anbieter-Meldung durchgereicht |
+| `adapters/anthropic.ts` | nur noch **der Draht** zu Claude |
+| `adapters/openaiCompatible.ts` | **der Draht zu allem anderen** |
+
+Vorher lagen Prompts und Auswertung im Claude-Adapter. Ein zweiter Anbieter
+hätte sie kopieren müssen — und zwei Kopien eines Prompts driften genauso
+auseinander wie zwei Kopien einer Prüfregel. Dann verhält sich die App je nach
+Anbieter anders, ohne dass es jemand entschieden hat. Ein Test hält jetzt fest,
+dass beide Adapter **dieselbe** Systemanweisung und denselben Nutzer-Text
+schicken; unterschiedlich ist allein das Format der Anfrage.
+
+### Was der generische Adapter abdeckt
+
+Alles, was die OpenAI-Chat-Schnittstelle spricht: OpenAI, Groq, Mistral,
+DeepSeek, Together, OpenRouter, Fireworks — **und lokale Server** (Ollama,
+LM Studio, llama.cpp, vLLM). Bei denen verlässt nichts das Gerät, und sie
+brauchen keinen Schlüssel: Ein leerer `Authorization`-Header lässt manche mit
+401 antworten, deshalb wird er dann gar nicht erst gesetzt.
+
+Der Nutzer trägt drei Dinge ein — Adresse, Modellname, Zugang (optional) — und
+bekommt Vorschläge als Knöpfe. Die Adresse wird nachsichtig behandelt:
+`https://api.openai.com`, `…/v1` und `…/v1/chat/completions` meinen dasselbe.
+An einem Schrägstrich zu scheitern wäre eine selbstgemachte Hürde.
+
+### Alle vier Fähigkeiten, jeder Anbieter
+
+Dekodierung · Erklärung · neuer Kontext · **Sparringspartner**. Ein e2e-Test
+fährt die App gegen einen *erfundenen* Anbieter und prüft, dass sowohl der
+Verbindungstest als auch das Gespräch darüber laufen.
+
+### Die ehrliche Grenze
+
+Die App kann **nicht** wissen, wie gut ein fremdes Modell Schwedisch kann.
+Deshalb ist es gut, dass das Tor (`quality/gate.ts`) hinter **jedem** Anbieter
+steht: Was ein schwaches Modell liefert, fällt dort durch, statt beim Lerner zu
+landen. Der Adapter macht Anbieter austauschbar — die Prüfung macht sie
+vergleichbar. Genau das sagt die Einstellungs-Fläche auch.
+
 ## Der Grund-Partner: Sparring ohne eigenen Zugang *(Nutzerwunsch 2026-07-26)*
 
 **Der Befund.** In der Registry stand `partner: null`. Wer keinen eigenen

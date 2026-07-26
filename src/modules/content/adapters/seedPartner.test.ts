@@ -3,8 +3,11 @@
 // nach, und eine nachgeplapperte Wendung ist kein Abruf.
 
 import { describe, expect, it } from 'vitest';
-import { nameEinsetzen, seedPartner, waehleAnstoss } from './seedPartner';
+import { ladeAnstossliste, nameEinsetzen, seedPartner, waehleAnstoss } from './seedPartner';
 import { seedDialogs } from '../seedDialogs';
+
+/** Die Liste wird einmal geladen und in allen Tests wiederverwendet. */
+const liste = await ladeAnstossliste();
 import type { SparringRequest } from '../ports';
 
 const norm = (s: string) =>
@@ -51,7 +54,7 @@ describe('Der Grund-Partner sagt die Ziel-Wendung nie selbst', () => {
     for (const d of seedDialogs) {
       for (const t of d.turns) {
         if (t.speaker !== 'you') continue;
-        const a = waehleAnstoss(anfrage({ targets: [{ sv: t.sv, de: t.de }] }));
+        const a = waehleAnstoss(liste, anfrage({ targets: [{ sv: t.sv, de: t.de }] }));
         if (a && norm(a.sv).includes(norm(t.sv))) {
           verstoesse.push(`${d.id}: „${a.sv}" enthält „${t.sv}"`);
         }
@@ -64,15 +67,16 @@ describe('Der Grund-Partner sagt die Ziel-Wendung nie selbst', () => {
 describe('Der Grund-Partner steuert auf die fällige Wendung zu', () => {
   it('wählt die kuratierte Zeile, die genau diese Wendung hervorlockt', () => {
     const ziel = einZiel();
-    const a = waehleAnstoss(anfrage({ targets: [ziel] }));
+    const a = waehleAnstoss(liste, anfrage({ targets: [ziel] }));
     expect(a).not.toBeNull();
     expect(norm(a!.zielSv)).toBe(norm(ziel.sv));
   });
 
   it('wiederholt sich nicht — was gesagt wurde, kommt nicht noch einmal', () => {
     const ziel = einZiel();
-    const erste = waehleAnstoss(anfrage({ targets: [ziel] }))!;
+    const erste = waehleAnstoss(liste, anfrage({ targets: [ziel] }))!;
     const zweite = waehleAnstoss(
+      liste,
       anfrage({ targets: [ziel], history: [{ who: 'partner', sv: erste.sv }] }),
     );
     expect(zweite).not.toBeNull();
@@ -81,7 +85,7 @@ describe('Der Grund-Partner steuert auf die fällige Wendung zu', () => {
 
   it('bricht nicht ab, wenn es für die Wendung keine kuratierte Frage gibt', () => {
     // Dritte Stufe: irgendetwas Geprüftes, damit das Gespräch weiterläuft.
-    const a = waehleAnstoss(anfrage({ targets: [{ sv: 'xyzåäö', de: 'gibt es nicht' }] }));
+    const a = waehleAnstoss(liste, anfrage({ targets: [{ sv: 'xyzåäö', de: 'gibt es nicht' }] }));
     expect(a).not.toBeNull();
   });
 });
@@ -123,13 +127,13 @@ describe('Der Grund-Partner steigt passend ein', () => {
     // BEIM SELBST-ANSEHEN AUFGEFALLEN: Die Bedienung im Café sagte als Erstes
     // „Kaffe?" — eine Zeile aus der Mitte eines fremden Gesprächs. Man stolperte
     // mitten hinein.
-    const a = waehleAnstoss(anfrage({ sceneId: 'cafe' }));
+    const a = waehleAnstoss(liste, anfrage({ sceneId: 'cafe' }));
     expect(a).not.toBeNull();
     expect(a!.eroeffnung).toBe(true);
   });
 
   it('bleibt in der gewählten Kulisse', () => {
-    const a = waehleAnstoss(anfrage({ sceneId: 'cafe' }));
+    const a = waehleAnstoss(liste, anfrage({ sceneId: 'cafe' }));
     expect(a!.scene).toBe('cafe');
   });
 
@@ -138,6 +142,7 @@ describe('Der Grund-Partner steigt passend ein', () => {
     // Frage nur in einer anderen Kulisse, gilt trotzdem die Frage.
     const ziel = einZiel();
     const a = waehleAnstoss(
+      liste,
       anfrage({ sceneId: 'lake', targets: [ziel], history: [{ who: 'partner', sv: 'x' }] }),
     );
     expect(a).not.toBeNull();

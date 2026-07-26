@@ -1685,3 +1685,57 @@ test('ein KI-Satz voller unbekannter Wörter wird verworfen', async ({ page }) =
   await expect(page.getByText(/Zu viel auf einmal/)).toBeVisible();
   await expect(page.getByText(/Neuer Kontext · KI-erzeugt/)).toHaveCount(0);
 });
+
+// ── Anbieter sind austauschbar (docs/08-content-pipeline.md §Anbieter) ───────
+//
+// Die Port-Schicht behauptet seit Monaten, die KI sei austauschbar — es gab nur
+// nie einen zweiten Adapter, der das beweist. Dieser Test fährt die App gegen
+// einen ERFUNDENEN Anbieter, der nur die OpenAI-Schnittstelle spricht.
+test('ein beliebiger Anbieter treibt Dekodierung UND Sparringspartner', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.getByText('bewiesen stabil')).toBeVisible();
+
+  // Ein Anbieter, den es nicht gibt — nur die Schnittstelle zählt.
+  await page.route('**/eigener-anbieter.test/**', async (route) => {
+    const kopf = {
+      'content-type': 'application/json',
+      'access-control-allow-origin': '*',
+      'access-control-allow-headers': '*',
+      'access-control-allow-methods': '*',
+    };
+    if (route.request().method() === 'OPTIONS') {
+      await route.fulfill({ status: 204, headers: kopf, body: '' });
+      return;
+    }
+    const body = route.request().postData() ?? '';
+    // Am Systemtext erkennen, WELCHE der vier Aufgaben gerade gestellt wurde.
+    const istSparring = body.includes('Du spielst eine Person');
+    const antwort = istSparring
+      ? { sv: 'Vad vill du ha?', de: 'Was möchtest du?' }
+      : { tokens: [{ sv: 'hur', de: 'wie' }, { sv: 'mår', de: 'geht' }, { sv: 'du', de: 'du' }] };
+    await route.fulfill({
+      status: 200,
+      headers: kopf,
+      body: JSON.stringify({ choices: [{ message: { content: JSON.stringify(antwort) } }] }),
+    });
+  });
+
+  // Einrichten: Adresse, Modell, kein Zugang (wie bei einem lokalen Server).
+  await page.getByRole('button', { name: 'Einstellungen' }).click();
+  await page.getByText('Anderer Anbieter').click();
+  await page.getByPlaceholder('https://api.openai.com/v1').fill('https://eigener-anbieter.test');
+  await page.getByPlaceholder('gpt-4o').fill('mein-modell');
+
+  // Der Verbindungstest geht über die Dekodierung — das ist Aufgabe eins.
+  await page.getByRole('button', { name: 'Verbindung testen' }).click();
+  await expect(page.getByText(/✓ Klappt/)).toBeVisible();
+  await page.getByRole('button', { name: 'Speichern' }).click();
+  await page.getByRole('button', { name: /Einstellungen schließen/ }).click();
+
+  // Und Aufgabe vier: der Sparringspartner spricht über denselben Anbieter.
+  await openTab(page, 'Gespräche');
+  await page.getByRole('button', { name: /Rede mit jemandem/ }).click();
+  await expect(page.getByText(/Cloud-Partner/)).toBeVisible();
+  await page.getByRole('button', { name: /Im Café/ }).click();
+  await expect(page.getByText('Vad vill du ha?')).toBeVisible();
+});

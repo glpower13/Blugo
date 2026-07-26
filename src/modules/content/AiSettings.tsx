@@ -9,6 +9,7 @@ import {
   loadSettings,
   saveSettings,
   MODEL_OPTIONS,
+  OPENAI_BEISPIELE,
   type AiProvider,
   type AiSettings as AiSettingsData,
 } from './aiSettings';
@@ -42,6 +43,12 @@ export function AiSettingsSection({ onSaved }: { onSaved?: () => void }) {
     setSaved(false);
   }
 
+  function setOpenAi(feld: 'baseUrl' | 'apiKey' | 'model', wert: string) {
+    setSettings((s) => ({ ...s, openai: { ...s.openai, [feld]: wert } }));
+    setTest({ state: 'idle', msg: '' });
+    setSaved(false);
+  }
+
   function save() {
     saveSettings(settings);
     applySettings(settings);
@@ -61,6 +68,7 @@ export function AiSettingsSection({ onSaved }: { onSaved?: () => void }) {
   }
 
   const isCloud = settings.provider === 'anthropic';
+  const isOffen = settings.provider === 'openai';
 
   return (
     <div>
@@ -74,7 +82,10 @@ export function AiSettingsSection({ onSaved }: { onSaved?: () => void }) {
         {/* Anbieter-Wahl */}
         <div className="flex flex-col gap-2">
           <ProviderCard
-            active={!isCloud}
+            /* `!isCloud` war richtig, solange es zwei Anbieter gab. Mit dem
+               dritten leuchteten „Auf dem Gerät" und „Anderer Anbieter"
+               gleichzeitig (beim Selbst-Ansehen aufgefallen). */
+            active={settings.provider === 'device'}
             title="Auf dem Gerät"
             desc="Kostenlos, kein Schlüssel, nichts verlässt das Gerät."
             onClick={() => setProvider('device')}
@@ -85,7 +96,101 @@ export function AiSettingsSection({ onSaved }: { onSaved?: () => void }) {
             desc="Dekodierung, Erklärungen, neue Kontexte — und der Sparringspartner zum Sprechen. Braucht deinen eigenen Schlüssel; Text geht an Anthropic."
             onClick={() => setProvider('anthropic')}
           />
+          <ProviderCard
+            active={isOffen}
+            title="Anderer Anbieter"
+            desc="Alles, was die OpenAI-Schnittstelle spricht: OpenAI, Groq, Mistral, OpenRouter — oder ein Server auf deinem eigenen Rechner (Ollama, LM Studio). Dann verlässt nichts das Gerät."
+            onClick={() => setProvider('openai')}
+          />
         </div>
+
+        {isOffen && (
+          <div className="mt-4 flex flex-col gap-3">
+            <label className="flex flex-col gap-1">
+              <span className="text-xs text-muted">Adresse des Anbieters</span>
+              <input
+                type="url"
+                inputMode="url"
+                autoComplete="off"
+                spellCheck={false}
+                value={settings.openai.baseUrl}
+                onChange={(e) => setOpenAi('baseUrl', e.target.value)}
+                placeholder="https://api.openai.com/v1"
+                className="rounded-lg border border-line bg-base px-3 py-2 text-sm text-paper"
+              />
+            </label>
+
+            {/* Klartext statt Rätselraten: Wer hier landet, weiß meistens, WELCHEN
+                Dienst er will — aber selten, welche Adresse der hat. */}
+            <div className="flex flex-wrap gap-1.5">
+              {OPENAI_BEISPIELE.map((b) => (
+                <button
+                  key={b.label}
+                  onClick={() => {
+                    setOpenAi('baseUrl', b.url);
+                    setOpenAi('model', b.modell);
+                  }}
+                  className="rounded-full border border-line px-2.5 py-1 text-[0.7rem] text-muted"
+                >
+                  {b.label}
+                </button>
+              ))}
+            </div>
+
+            <label className="flex flex-col gap-1">
+              <span className="text-xs text-muted">Modellname</span>
+              <input
+                type="text"
+                autoComplete="off"
+                spellCheck={false}
+                value={settings.openai.model}
+                onChange={(e) => setOpenAi('model', e.target.value)}
+                placeholder="gpt-4o"
+                className="rounded-lg border border-line bg-base px-3 py-2 text-sm text-paper"
+              />
+            </label>
+
+            <label className="flex flex-col gap-1">
+              <span className="text-xs text-muted">
+                Zugang <span className="text-faint">(bei einem Server auf deinem Rechner leer lassen)</span>
+              </span>
+              <input
+                type="password"
+                autoComplete="off"
+                spellCheck={false}
+                value={settings.openai.apiKey}
+                onChange={(e) => setOpenAi('apiKey', e.target.value)}
+                placeholder="sk-…"
+                className="rounded-lg border border-line bg-base px-3 py-2 text-sm text-paper"
+              />
+            </label>
+
+            <button
+              onClick={() => void testConnection()}
+              disabled={test.state === 'running' || !settings.openai.baseUrl.trim() || !settings.openai.model.trim()}
+              className="rounded-lg border border-line px-3 py-2 text-sm text-paper disabled:opacity-50"
+            >
+              {test.state === 'running' ? 'Teste …' : 'Verbindung testen'}
+            </button>
+
+            {test.state === 'ok' && (
+              <p className="text-xs leading-snug text-success">✓ Klappt: {test.msg}</p>
+            )}
+            {test.state === 'error' && (
+              <p className="rounded-lg border border-danger/30 bg-danger/10 px-3 py-2 text-sm leading-snug text-danger">
+                ✕ {test.msg}
+              </p>
+            )}
+
+            {/* Ehrlich: Die App kann nicht wissen, wie gut ein fremdes Modell
+                Schwedisch kann — deshalb steht hinter JEDEM Anbieter dasselbe Tor. */}
+            <p className="text-xs leading-relaxed text-faint">
+              Wie gut ein fremdes Modell Schwedisch kann, weiß diese App nicht. Sie prüft
+              deshalb hinter jedem Anbieter dasselbe: Was die Prüfung nicht besteht, bekommst
+              du gar nicht erst zu sehen.
+            </p>
+          </div>
+        )}
 
         {/* Login + Modell (nur bei Cloud) */}
         {isCloud && (
