@@ -147,6 +147,11 @@ export const MEHRDEUTIGE_WOERTER: Mehrdeutig[] = [
     hinweis: '„stanna" ist beides: anhalten und bleiben.',
   },
   {
+    sv: 'slut',
+    bedeutungen: ['Schluss', 'leer'],
+    hinweis: '„till slut" heißt zum Schluss, „är slut" heißt aufgebraucht oder leer.',
+  },
+  {
     sv: 'så',
     bedeutungen: ['so', 'also'],
     hinweis: 'Vor einem Eigenschaftswort heißt es so, am Satzanfang also.',

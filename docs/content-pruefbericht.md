@@ -10,10 +10,10 @@
 
 ## Ergebnis
 
-- Geprüfte schwedische Zeichenketten: **13435**
-- Verschiedene Wörter: **1275**
-- ✅ alltagshäufig belegt (Zipf ≥ 3.0): **1253**
-- ⚠️ selten belegt: **22**
+- Geprüfte schwedische Zeichenketten: **13723**
+- Verschiedene Wörter: **1322**
+- ✅ alltagshäufig belegt (Zipf ≥ 3.0): **1298**
+- ⚠️ selten belegt: **24**
 - ❌ nicht belegt (Tippfehler-Verdacht): **0**
 
 ## ❌ Nicht belegt — zuerst anschauen
@@ -34,6 +34,7 @@ Existiert, ist aber ungewöhnlich. Für Anfänger-Inhalt oft ein Zeichen, dass e
 | **papperen** | 2.47 | — | „Bra. Ta med papperen — och passet, alltid." · „papperen" |
 | **jackorna** | 2.53 | — | „Jaså? Jackorna sitter ofta lite löst." · „jackorna" |
 | **grannhuset** | 2.55 | — | „Hon som bor i grannhuset. Snäll, säger barnen." · „grannhuset" |
+| **incheckningen** | 2.64 | — | „var är incheckningen?" |
 | **trettiofem** | 2.68 | ja | „Trettiofem kronor, tack." · „trettiofem" |
 | **rätterna** | 2.69 | — | „Precis. Och mellan rätterna sjunger alla, högt och falskt." · „rätterna" |
 | **offert** | 2.70 | ja | „Här är vår offert. Priset gäller i två veckor." · „offert" |
@@ -48,6 +49,7 @@ Existiert, ist aber ungewöhnlich. Für Anfänger-Inhalt oft ein Zeichen, dass e
 | **tjugonde** | 2.95 | ja | „Var tjugonde minut. Men taxi går fortare." · „tjugonde" |
 | **föräldramöte** | 2.98 | ja | „Vi ska förresten på föräldramöte på tisdag." · „föräldramöte" |
 | **trehundra** | 2.98 | ja | „Trehundra kronor jämnt." · „trehundra" |
+| **handbagage** | 2.99 | ja | „jag har bara handbagage" |
 
 ## Sätze mit auffälligen Wörtern
 
@@ -94,6 +96,7 @@ Existiert, ist aber ungewöhnlich. Für Anfänger-Inhalt oft ein Zeichen, dass e
 | grannhuset | grannhuset |
 | handske | handske |
 | jackorna | jackorna |
+| jag har bara handbagage | handbagage |
 | offert | offert |
 | offerten | offerten |
 | papperen | papperen |
@@ -108,5 +111,6 @@ Existiert, ist aber ungewöhnlich. Für Anfänger-Inhalt oft ein Zeichen, dass e
 | tjugonde | tjugonde |
 | trehundra | trehundra |
 | trettiofem | trettiofem |
+| var är incheckningen? | incheckningen |
 | var är provrummet? | provrummet |
 
