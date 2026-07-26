@@ -1254,3 +1254,86 @@ test('der Startpilot steht dauerhaft im Reiter „Lernen"', async ({ page }) => 
   await openLearn(page);
   await expect(einstieg).toBeVisible();
 });
+
+// ── Das Tor für KI-erzeugte Sätze (docs/08-content-pipeline.md) ───────────────
+//
+// Der Anbieter wird hier abgefangen und antwortet nach Drehbuch. Das ist der
+// einzige Weg, den Fall zu zeigen, auf den es ankommt: ein Modell, das etwas
+// Kaputtes liefert. Er lässt sich nicht bestellen, indem man wartet.
+
+/**
+ * Fängt die Anthropic-API ab und baut die Antwort aus der Ziel-Wendung, die im
+ * Anfrage-Text steht. Dadurch ist der Test unabhängig davon, welche Wendung die
+ * Sitzung gerade vorlegt.
+ */
+async function stubGenerator(page: Page, art: 'kaputt' | 'sauber') {
+  await page.route('**/api.anthropic.com/**', async (route) => {
+    const kopf = {
+      'content-type': 'application/json',
+      'access-control-allow-origin': '*',
+      'access-control-allow-headers': '*',
+      'access-control-allow-methods': '*',
+    };
+    if (route.request().method() === 'OPTIONS') {
+      await route.fulfill({ status: 204, headers: kopf, body: '' });
+      return;
+    }
+    const body = route.request().postData() ?? '';
+    const treffer = /Ziel-Wendung[^„]*„([^\\"]+)\\?" \(Bedeutung: „([^\\"]+)\\?"\)/.exec(body);
+    const sv = treffer?.[1] ?? 'hej';
+    const de = treffer?.[2] ?? 'hallo';
+    // kaputt: Satz ohne jede Wort-für-Wort-Bedeutung — die interlineare Zeile
+    // wäre leer, der Birkenbihl-Schritt fiele aus. Harter Fall, egal welche
+    // Wendung gerade dran ist.
+    // sauber: die Wendung plus EIN erfundenes Wort, damit auch der offene
+    // Befund („nicht im geprüften Bestand") sichtbar wird.
+    const antwort =
+      art === 'kaputt'
+        ? { sv, de, decoding: [] }
+        : {
+            sv: `${sv} zzz`,
+            de: `${de} zzz`,
+            decoding: [
+              { sv, de },
+              { sv: 'zzz', de: 'zzz' },
+            ],
+          };
+    await route.fulfill({
+      status: 200,
+      headers: kopf,
+      body: JSON.stringify({ content: [{ type: 'text', text: JSON.stringify(antwort) }] }),
+    });
+  });
+}
+
+test('ein KI-Satz ohne Dekodierung wird verworfen statt beschriftet', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.getByText('bewiesen stabil')).toBeVisible();
+  await configureCloud(page);
+  await stubGenerator(page, 'kaputt');
+  await startSession(page);
+
+  await page.getByRole('button', { name: /Neuer Kontext/ }).click();
+
+  // Der Satz erscheint NICHT — und die App sagt, woran es lag.
+  await expect(page.getByText(/keine Wort-für-Wort-Dekodierung/)).toBeVisible();
+  await expect(page.getByText(/geprüfte Satz oben gilt weiter/)).toBeVisible();
+  await expect(page.getByText(/Neuer Kontext · KI-erzeugt/)).toHaveCount(0);
+});
+
+test('ein bestandener KI-Satz sagt, was geprüft ist — und was nicht', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.getByText('bewiesen stabil')).toBeVisible();
+  await configureCloud(page);
+  await stubGenerator(page, 'sauber');
+  await startSession(page);
+
+  await page.getByRole('button', { name: /Neuer Kontext/ }).click();
+
+  await expect(page.getByText(/Neuer Kontext · KI-erzeugt · maschinell geprüft/)).toBeVisible();
+  await expect(page.getByText(/Maschinell geprüft: jedes Wort hat eine Bedeutung/)).toBeVisible();
+  // Das erfundene Wort wird beim Namen genannt, nicht verschwiegen …
+  await expect(page.getByText(/Neu für die App: zzz/)).toBeVisible();
+  // … und die Grenze der Maschine steht im selben Absatz.
+  await expect(page.getByText(/dafür bräuchte es einen Muttersprachler/)).toBeVisible();
+});

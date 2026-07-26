@@ -127,6 +127,8 @@ export function ComprehensionLoop({
   const [genSegment, setGenSegment] = useState<Segment | null>(null);
   const [genState, setGenState] = useState<'idle' | 'loading' | 'error'>('idle');
   const [genError, setGenError] = useState('');
+  // Was das Tor zu diesem Satz sagen kann — und was ausdrücklich nicht.
+  const [genLabel, setGenLabel] = useState('');
 
   // Reset helpers whenever a new item appears. Bei NEUEM Chunk ist die Stütze
   // (Dekodierung + Übersetzung) sofort offen — damit der Input verständlich ist.
@@ -150,6 +152,7 @@ export function ComprehensionLoop({
     setGenSegment(null);
     setGenState('idle');
     setGenError('');
+    setGenLabel('');
   }, [segment.id, chunk.id, scaffoldOpen]);
 
   // Hat der Nutzer eine echte Cloud-KI eingerichtet? (Standard-Dekoder = 'seed'.)
@@ -174,20 +177,37 @@ export function ComprehensionLoop({
   // Nutzt der Nutzer eine echte Cloud-KI, die Inhalte erzeugen kann? (Seed erzeugt nichts Neues.)
   const canGenerate = aiRegistry.generator.id !== 'seed';
 
+  // Der neue Kontext geht durch DASSELBE Tor wie der handgeschriebene Inhalt
+  // (`quality/gate.ts`): Ein Satz mit fehlender Glosse, ohne die Ziel-Wendung
+  // oder mit gedrehter Verneinung wird verworfen und nicht beschriftet. Bis
+  // 2026-07-26 stand hier nur „nicht geprüft" — ein Warnhinweis als Ersatz für
+  // eine Prüfung, und damit das Gegenteil der einen Design-Regel.
   async function generateContext() {
     setHelpUsed(true);
     setGenState('loading');
     setGenError('');
+    setGenLabel('');
     try {
-      const seg = await aiRegistry.generator.generate({
-        chunkId: chunk.id,
-        sv: chunk.sv,
-        de: chunk.de,
-        level: segment.level + 1,
-        avoidSegmentIds: [segment.id],
-        known, // aus schon bekannten Wörtern bauen → nur die Ziel-Wendung ist neu
-      });
+      const [{ erzeugeGeprueft }, { ladeWissen }, { beschriftung }] = await Promise.all([
+        import('../content/quality/gepruefteErzeugung'),
+        import('../content/quality/wissen'),
+        import('../content/quality/gate'),
+      ]);
+      const { segment: seg, ergebnis } = await erzeugeGeprueft(
+        aiRegistry.generator,
+        {
+          chunkId: chunk.id,
+          sv: chunk.sv,
+          de: chunk.de,
+          level: segment.level + 1,
+          avoidSegmentIds: [segment.id],
+          known, // aus schon bekannten Wörtern bauen → nur die Ziel-Wendung ist neu
+        },
+        chunk,
+        await ladeWissen(),
+      );
       setGenSegment(seg);
+      setGenLabel(beschriftung(ergebnis));
       setGenState('idle');
     } catch (e) {
       setGenState('error');
@@ -443,18 +463,21 @@ export function ComprehensionLoop({
         </div>
       )}
 
+      {/* Die Begründung des Tors ist mehrzeilig — das Zeichen gehört an die erste
+          Zeile, nicht in die vertikale Mitte des Absatzes. */}
       {genState === 'error' && (
-        <p className="mt-3 flex items-center gap-1.5 text-xs text-danger">
-          <IconSparkle className="h-3 w-3" /> {genError}
+        <p className="mt-3 flex items-start gap-1.5 text-xs leading-relaxed text-danger">
+          <IconSparkle className="mt-0.5 h-3 w-3 shrink-0" /> <span>{genError}</span>
         </p>
       )}
 
-      {/* Neuer, KI-erzeugter Kontext (Kontextvariation, i+1). Ehrlich als ungeprüft
-          gekennzeichnet — echtes Können, nicht Schein (die eine Design-Regel). */}
+      {/* Neuer, KI-erzeugter Kontext (Kontextvariation, i+1). Er hat das Tor
+          bestanden — die Beschriftung darunter sagt, was das heißt UND was es
+          nicht heißt (die eine Design-Regel: echtes Können, nicht Schein). */}
       {genSegment && (
         <div className="mt-4 rounded-xl border border-brand/40 bg-brand/5 p-4">
           <p className="mb-2 flex items-center gap-1.5 text-xs uppercase tracking-wide text-brand">
-            <IconSparkle className="h-3.5 w-3.5" /> Neuer Kontext · KI-erzeugt · nicht geprüft
+            <IconSparkle className="h-3.5 w-3.5" /> Neuer Kontext · KI-erzeugt · maschinell geprüft
           </p>
           <div className="flex flex-col items-start gap-2 sm:flex-row sm:justify-between sm:gap-x-3">
             <p lang="sv" className="w-full min-w-0 break-words text-lg font-medium text-paper sm:flex-1">
@@ -483,6 +506,11 @@ export function ComprehensionLoop({
               </div>
               <MehrdeutigHinweis decoding={genSegment.decoding} />
             </>
+          )}
+          {genLabel && (
+            <p className="mt-3 border-t border-brand/20 pt-2 text-[0.68rem] leading-relaxed text-faint">
+              {genLabel}
+            </p>
           )}
         </div>
       )}

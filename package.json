@@ -12,7 +12,7 @@
     "lint": "eslint .",
     "test": "vitest run",
     "test:e2e": "playwright test",
-    "verify": "npm run typecheck && npm run lint && npm run test && npm run check:content && npm run check:decoding && npm run check:backtranslation && npm run verify:build && npm run check:generated && npm run build",
+    "verify": "npm run typecheck && npm run lint && npm run test && npm run check:content && npm run check:decoding && npm run check:backtranslation && npm run build:wissen && npm run verify:build && npm run check:generated && npm run build",
     "verify:all": "npm run verify && npm run test:e2e",
     "check:content": "npm run dump:swedish && python3 tools/check-swedish.py",
     "check:decoding": "vite-node tools/check-decoding.ts",
@@ -20,7 +20,8 @@
     "check:generated": "git diff --quiet -- src/modules/content/verification.generated.ts || (echo \"\" && echo \"STOPP: verification.generated.ts weicht vom eingecheckten Stand ab.\" && echo \"Der Prüf-Stand wurde gerade neu erzeugt und unterscheidet sich — bitte die Datei mit einchecken.\" && echo \"So sieht die App nie andere Ehrlichkeits-Zahlen als der Inhalt hergibt.\" && exit 1)",
     "verify:build": "vite-node tools/build-verification.ts",
     "icons": "node tools/render-icons.mjs",
-    "dump:swedish": "vite-node tools/run-dump-swedish.ts"
+    "dump:swedish": "vite-node tools/run-dump-swedish.ts",
+    "build:wissen": "vite-node tools/run-build-quality-knowledge.ts"
   },
   "dependencies": {
     "idb": "^8.0.0",

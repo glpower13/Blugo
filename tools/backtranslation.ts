@@ -33,6 +33,11 @@ import { dirname, join } from 'node:path';
 import { seedChunks, seedSegments } from '../src/modules/content/seedSegments';
 import { seedDialogs } from '../src/modules/content/seedDialogs';
 import { MEHRDEUTIGE_WOERTER } from '../src/modules/content/polysemy';
+import {
+  KONTEXTABHAENGIG,
+  nurBeugung,
+  zahlUndVerneinung,
+} from '../src/modules/content/quality/checks';
 
 export type Gloss = { sv: string; de: string };
 /** Alles, was eine schwedische Zeile mit Bedeutung und Glossen ist. */
@@ -173,110 +178,19 @@ export type Conflict = { sv: string; glosses: { de: string; where: string }[] };
 // einen Test am Inhalt gehalten. Hier zieht der Bericht sie nur ab.
 const ERKLAERT = new Set(MEHRDEUTIGE_WOERTER.map((m) => m.sv));
 
-const KNOWN_CONTEXT_DEPENDENT = new Set([
-  // Ursprünglich aus `content-review-schwedisch.md`
-  'till', 'om', 'med', 'få', 'tack',
-  // Ergänzt 2026-07-25: Wörter, deren deutsche Entsprechung KEINE feste Größe
-  // ist, sondern vom Satz gebildet wird. `på` heißt auf/an/am/im/über/bei — das
-  // ist keine Uneinheitlichkeit, das ist der Unterschied zwischen zwei Sprachen.
-  // Genau deshalb steht das Dekodieren daneben: es zeigt die fremde Struktur.
-  // Präpositionen und Partikeln
-  'i', 'på', 'för', 'av', 'ut', 'in', 'upp', 'åt', 'vid', 'ur', 'efter', 'under',
-  'från', 'innan', 'än', 'ändå', 'först', 'mot', 'hos', 'genom', 'mellan', 'utan', 'ner',
-  // „kvar“ heißt übrig UND zurück — „stannade kvar“ ist zurückbleiben.
-  'kvar',
-  // Hilfsverben und echte Homographen (var = wo/war, går = geht/gestern)
-  'har', 'ska', 'får', 'var', 'går', 'gör', 'är',
-  // Pronomen und Artikelwörter — Genus und Kasus kommen aus dem DEUTSCHEN Satz
-  'det', 'den', 'de', 'dem', 'som', 'en', 'ett', 'ingen', 'inget',
-  'mig', 'dig', 'sig', 'oss', 'er', 'henne', 'honom',
-  // Satz-Adverbien: „sedan" heißt seit/dann/danach, „då" dann/denn — die Nuance
-  // steht im deutschen Satz, nicht im schwedischen Wort.
-  'sedan', 'sen', 'då', 'ju', 'nog', 'väl', 'bara', 'redan', 'nu',
-]);
+// Die Liste steht seit 2026-07-26 in `src/modules/content/quality/checks.ts`:
+// Dasselbe Urteil („bei diesem Wort bildet der Satz das Deutsche") entscheidet
+// hier, welche Zeile ein Mensch ansehen muss, und im Tor, ob ein erzeugter Satz
+// gezeigt wird. Zwei Kopien wären zwei Maßstäbe.
+const KNOWN_CONTEXT_DEPENDENT = KONTEXTABHAENGIG;
 
-/**
- * Deutsche BEUGUNGSFAMILIEN der Funktionswörter.
- *
- * WARUM ES SIE BRAUCHT (Befund 2026-07-25): Die Konfliktliste hatte 248 Zeilen,
- * und fast jede war harmlos — `är` als „ist/bin/bist/sind/seid" ist keine
- * Uneinheitlichkeit, sondern deutsche Grammatik. Eine Liste, in der ein echter
- * Fehler zwischen 240 Nicht-Fehlern steht, wird nicht gelesen; damit erfüllt
- * sie ihren einzigen Zweck nicht (die menschliche Prüfung klein genug machen).
- *
- * Bewusst NUR unregelmäßige Funktionswörter: bei allem anderen reicht der
- * gemeinsame Wortstamm. Nichts wird hier verschwiegen — die Beugungsfälle
- * stehen weiter im Bericht, nur in einer zweiten Tabelle.
- */
-const BEUGUNG: string[][] = [
-  ['bin', 'bist', 'ist', 'sind', 'seid', 'war', 'warst', 'waren', 'sei', 'wäre', 'sein'],
-  ['ha', 'habe', 'hab', 'hast', 'hat', 'haben', 'habt', 'hatte', 'hattest', 'hatten'],
-  ['werde', 'wirst', 'wird', 'werden', 'werdet', 'wurde', 'wurden'],
-  ['kann', 'kannst', 'können', 'könnt', 'konnte', 'könnte'],
-  ['muss', 'musst', 'müssen', 'müsst', 'musste'],
-  ['soll', 'sollst', 'sollen', 'sollt', 'sollte', 'sollten'],
-  ['will', 'willst', 'wollen', 'wollt', 'wollte', 'wollten'],
-  ['darf', 'darfst', 'dürfen', 'dürft'],
-  ['mag', 'magst', 'mögen', 'mögt'],
-  ['der', 'die', 'das', 'den', 'dem', 'des'],
-  ['ein', 'eine', 'einen', 'einem', 'einer', 'eines', 'eins'],
-  ['mein', 'meine', 'meinen', 'meinem', 'meiner', 'meins'],
-  ['dein', 'deine', 'deinen', 'deinem', 'deiner', 'deins'],
-  ['gut', 'gute', 'guter', 'gutes', 'guten', 'gutem'],
-  ['sehe', 'siehst', 'sieht', 'sehen', 'seht', 'sieh', 'sah', 'sahen', 'gesehen'],
-  ['wer', 'wen', 'wem', 'wessen'],
-  ['helfe', 'hilfst', 'hilft', 'helfen', 'helft', 'hilf', 'half', 'geholfen'],
-  ['gebe', 'gibst', 'gibt', 'geben', 'gebt', 'gab', 'gib'],
-  ['nehme', 'nimmst', 'nimmt', 'nehmen', 'nehmt', 'nimm'],
-  ['esse', 'isst', 'essen', 'esst', 'iss', 'aß'],
-  ['spreche', 'sprichst', 'spricht', 'sprechen', 'sprecht', 'sprich'],
-  ['komme', 'kommst', 'kommt', 'kommen', 'komm', 'kam', 'kamst', 'kamt', 'kamen'],
-  ['weiss', 'weisst', 'wissen', 'wisst', 'wusste'],
-  ['fahre', 'fahrst', 'fahrt', 'fahren', 'fuhr', 'fuhren'],
-];
-
-// Nach Name statt nach Index: Eine neue Familie in der Liste darf nicht
-// stillschweigend aus Artikeln Fürwörter machen.
-const familie = (kopf: string) => BEUGUNG.find((f) => f[0] === kopf) ?? [];
-const ARTIKEL = new Set([...familie('der'), ...familie('ein')]);
-
-/** Nur Umlaute falten — dieselbe Regel wie in `kern`. */
-const falten = (w: string) =>
-  w.replace(/ä/g, 'a').replace(/ö/g, 'o').replace(/ü/g, 'u').replace(/ß/g, 'ss');
-
-/**
- * BEFUND beim Gegenlesen 2026-07-25: `kern` faltet Umlaute, die Familienlisten
- * standen ungefaltet da — „konnen" traf „können" also nie, und `kan`
- * (kann/kannst/können/könnt) landete als angeblicher Bedeutungs-Konflikt in der
- * Prüfliste. Beide Seiten durch dieselbe Faltung, sonst prüft man Luft.
- */
-const BEUGUNG_GEFALTET = BEUGUNG.map((f) => new Set(f.map(falten)));
-
-/** Glosse auf ihren Kern: Artikel weg, klein, getrimmt. */
-function kern(de: string): string {
-  const w = de.toLowerCase().trim().split(/\s+/).filter((x) => !ARTIKEL.has(x));
-  return (w.length ? w : [de.toLowerCase().trim()])
-    .join(' ')
-    // Umlaut falten: „hältst"/„halte" ist eine Beugung, der Umlaut verdeckt sie.
-    .replace(/ä/g, 'a')
-    .replace(/ö/g, 'o')
-    .replace(/ü/g, 'u')
-    .replace(/ß/g, 'ss');
-}
-
-/** Sind zwei Glossen nur zwei Formen DESSELBEN deutschen Wortes? */
-export function nurBeugung(a: string, b: string): boolean {
-  const x = kern(a);
-  const y = kern(b);
-  if (x === y) return true;
-  if (BEUGUNG_GEFALTET.some((f) => f.has(x) && f.has(y))) return true;
-  // Gemeinsamer Stamm: „gehe/gehst/gehen", „meine/meinst".
-  const n = Math.min(x.length, y.length);
-  if (n < 3) return false;
-  let gleich = 0;
-  while (gleich < n && x[gleich] === y[gleich]) gleich++;
-  return gleich >= 3;
-}
+// Die Beugungsregel (`nurBeugung`) liegt seit 2026-07-26 in der geteilten
+// Bibliothek `src/modules/content/quality/checks.ts`. Sie entscheidet dort auch
+// zur LAUFZEIT, ob eine frisch erzeugte KI-Glosse dem geprüften Inhalt
+// widerspricht. Hier wird sie nur noch weitergereicht — Bericht und Tor
+// beantworten dieselbe Frage damit nachweislich gleich, statt in zwei Kopien
+// auseinanderzudriften.
+export { nurBeugung };
 
 /**
  * Unterscheiden sich die Glossen eines Wortes wirklich in der BEDEUTUNG?
@@ -340,170 +254,20 @@ export function findDrift(lines: Line[]): Drift[] {
 
 // ── E: Zahlen und Verneinung ─────────────────────────────────────────────────
 //
-// WARUM ES DIESE PRÜFUNG GIBT: Abschnitt D misst die Wort-Deckung zwischen dem
-// wörtlichen Rückbau und der freien Übersetzung. Bei 125 Treffern war jeder
-// einzelne KORREKT — „smaklig måltid" heißt wörtlich „schmackhaft Mahlzeit" und
-// gemeint „Guten Appetit". Die Liste warnte also vor genau dem Effekt, den die
-// App bauen will. Eine Warnung, die nur das Produkt anzeigt, ist keine Prüfung.
-//
-// Zwei Dinge lassen sich dagegen HART prüfen, weil sie in beiden Sprachen
-// dasselbe sein MÜSSEN, egal wie idiomatisch übersetzt wird:
-//   1. Zahlen — „tre" darf nicht „vier" werden.
-//   2. Verneinung — wer `inte` sagt und im Deutschen kein „nicht" hat, hat
-//      die Aussage umgedreht. Das ist der teuerste Fehler, den es hier gibt.
+// Die REGEL steht nicht mehr hier, sondern in
+// `src/modules/content/quality/checks.ts` — derselbe Code prüft den Seed beim
+// Bauen und einen KI-erzeugten Satz zur Laufzeit. Zwei Kopien derselben Regel
+// driften auseinander, und ab dann prüft die Laufzeit etwas anderes als der
+// Bericht behauptet (Entscheidung 2026-07-26, docs/08-content-pipeline.md).
 export type ZahlNeinBefund = { where: string; sv: string; de: string; was: string };
-
-const SV_ZAHL: Record<string, number> = {
-  noll: 0, en: 1, ett: 1, två: 2, tre: 3, fyra: 4, fem: 5, sex: 6, sju: 7, åtta: 8,
-  nio: 9, tio: 10, tusen: 1000, elva: 11, tolv: 12, tretton: 13, fjorton: 14, femton: 15,
-  sexton: 16, sjutton: 17, arton: 18, nitton: 19, tjugo: 20, trettio: 30,
-  fyrtio: 40, femtio: 50, sextio: 60, sjuttio: 70, åttio: 80, nittio: 90, hundra: 100,
-};
-const DE_ZAHL: Record<string, number> = {
-  null: 0, ein: 1, eine: 1, einen: 1, eins: 1, zwei: 2, drei: 3, vier: 4, fünf: 5,
-  sechs: 6, sieben: 7, acht: 8, neun: 9, zehn: 10, elf: 11, zwölf: 12, dreizehn: 13,
-  vierzehn: 14, fünfzehn: 15, sechzehn: 16, siebzehn: 17, achtzehn: 18, neunzehn: 19,
-  zwanzig: 20, dreißig: 30, vierzig: 40, fünfzig: 50, sechzig: 60, siebzig: 70,
-  achtzig: 80, neunzig: 90, hundert: 100, tausend: 1000,
-};
-// „en/ett" ist im Schwedischen zugleich der unbestimmte Artikel, „ein" im
-// Deutschen auch — als Zahl gezählt gäbe das nur Rauschen. Ebenso Ordnungszahlen.
-const ZAHL_IGNORIEREN = new Set(['en', 'ett', 'ein', 'eine', 'einen', 'eins']);
-
-/**
- * Wortteile, die eine Zahl begleiten dürfen, ohne selbst eine zu sein:
- * Fugen („fünfUNDdreißig"), Häufigkeit („dreiMAL") und Ordnungsendungen
- * („tjugoNDE", „zwanzigSTE").
- */
-// ORDNUNGSZAHLEN BEWUSST NICHT: „andra" heißt im Schwedischen zweite UND andere,
-// und wo Deutsch „der Zwölfte" sagt, sagt Schwedisch „den tolfte" — die beiden
-// Sprachen bilden Ordnungszahlen zu verschieden, um sie gegeneinander zu prüfen.
-// Ohne diese Endungen bleiben Ordnungszahlen auf BEIDEN Seiten unerkannt; das
-// ist ehrlicher als eine Prüfung, die nur die eine Seite sieht.
-const ZAHL_ANHANG = ['und', 'mal', 'o', 't'];
-
-/**
- * Zerlegt EIN Wort vollständig in Zahlwörter und erlaubte Anhänge — oder gibt
- * `null` zurück, wenn auch nur ein Rest übrig bleibt.
- *
- * WARUM VOLLSTÄNDIG: Der erste Versuch prüfte nur den Wortanfang. Schwedische
- * Zahlwörter sind kurz, also galt „sjuk" (krank) als Sieben, „sjunger" (singt)
- * als Sieben und „trevligt" (nett) als Drei — 44 Falschmeldungen. Ein Wort ist
- * nur dann eine Zahl, wenn NICHTS übrig bleibt.
- */
-function zahlWort(wort: string, karte: Record<string, number>): number | null {
-  const stichwoerter = Object.keys(karte).sort((a, b) => b.length - a.length);
-  const anhaenge = [...ZAHL_ANHANG].sort((a, b) => b.length - a.length);
-  let rest = wort;
-  let summe = 0;
-  let zahlGesehen = false;
-  while (rest.length > 0) {
-    const z = stichwoerter.find((k) => rest.startsWith(k));
-    if (z) {
-      // „en/ett" und „ein" sind zugleich unbestimmte Artikel. Sie zählen NICHT
-      // als Zahl — sonst wäre jedes „ich wohne in einer Wohnung" ein Befund.
-      if (!ZAHL_IGNORIEREN.has(z)) {
-        summe += karte[z];
-        zahlGesehen = true;
-      }
-      rest = rest.slice(z.length);
-      continue;
-    }
-    const a = anhaenge.find((k) => rest.startsWith(k));
-    if (a) {
-      rest = rest.slice(a.length);
-      continue;
-    }
-    return null;
-  }
-  return zahlGesehen ? summe : null;
-}
-
-/**
- * Die Zahlenwerte eines Satzes. Aufeinanderfolgende Zahlwörter zählen als EINE
- * Zahl, damit „tre hundra" (zwei Wörter) und „dreihundert" (eins) dasselbe
- * ergeben. Es geht um Übereinstimmung zwischen den Sprachen, nicht um den
- * absolut richtigen Wert — beide Seiten werden gleich gerechnet.
- */
-function zahlen(text: string, karte: Record<string, number>): number[] {
-  const gefunden: number[] = [];
-  let offen: number | null = null;
-  for (const w of tokens(text)) {
-    const z = /^\d+$/.test(w) ? Number(w) : zahlWort(w, karte);
-    if (z === null) {
-      if (offen !== null) gefunden.push(offen);
-      offen = null;
-    } else {
-      offen = (offen ?? 0) + z;
-    }
-  }
-  if (offen !== null) gefunden.push(offen);
-  return gefunden.sort((a, b) => a - b);
-}
-
-const SV_NEIN = new Set([
-  'inte', 'aldrig', 'ingen', 'inget', 'inga', 'ingenting', 'utan', 'knappt', 'knappast',
-]);
-const DE_NEIN = new Set([
-  'nicht', 'nie', 'niemals', 'kein', 'keine', 'keinen', 'keinem', 'keiner', 'keins',
-  'nichts', 'ohne', 'niemand', 'nirgends', 'weder', 'kaum',
-]);
-
-/**
- * Redewendungen, bei denen die Verneinung ABSICHTLICH nur auf einer Seite steht.
- * „Här ligger en hund begraven" verneint nichts, heißt aber „da stimmt etwas
- * NICHT" — das ist der Birkenbihl-Effekt und kein Übersetzungsfehler.
- *
- * Bewusst als geschlossene Liste von Wendungs-Kennungen statt als Wortregel:
- * Eine Regel („`fehl` im Wort zählt als Verneinung") traf beim ersten Versuch
- * auch „empfehlen" und „Fehler" — und `^un` sogar „Und". Wer die Ausnahme nicht
- * benennen kann, hat sie nicht verstanden.
- */
-// Erkannt am schwedischen Wortlaut, nicht an der Kennung: Dieselbe Wendung
-// steht als Wendung, in drei Segmenten und in Gesprächen — eine Liste von
-// Kennungen wäre schon beim ersten neuen Segment wieder unvollständig.
-/**
- * Zeilen, in denen die Zahl auf beiden Seiten anders GEBAUT wird, ohne dass
- * sich der Wert ändert. Auch hier am Wortlaut erkannt, mit Begründung.
- */
-const ZAHL_ASYMMETRIE_OK = [
-  'var tjugonde', // „jede zwanzigste Minute" heißt auf Deutsch „alle zwanzig Minuten"
-];
-
-const NEIN_ASYMMETRIE_OK = [
-  'en hund begraven', // „hier liegt ein Hund begraben" = da stimmt etwas nicht
-];
 
 export function findZahlNein(lines: Line[]): ZahlNeinBefund[] {
   const befunde: ZahlNeinBefund[] = [];
   for (const line of lines) {
     const sv = stripPlaceholder(line.sv);
     const de = stripPlaceholder(line.de);
-
-    const zsv = zahlen(sv, SV_ZAHL);
-    const zde = zahlen(de, DE_ZAHL);
-    const zahlOk = ZAHL_ASYMMETRIE_OK.some((w) => sv.toLowerCase().includes(w));
-    if (zsv.join(',') !== zde.join(',') && !zahlOk) {
-      befunde.push({
-        where: line.where,
-        sv,
-        de,
-        was: `Zahlen: schwedisch [${zsv.join(', ')}] · deutsch [${zde.join(', ')}]`,
-      });
-    }
-
-    const nsv = tokens(sv).some((w) => SV_NEIN.has(w));
-    const nde = tokens(de).some((w) => DE_NEIN.has(w));
-    const ausgenommen = NEIN_ASYMMETRIE_OK.some((w) => sv.toLowerCase().includes(w));
-    if (nsv !== nde && !ausgenommen) {
-      befunde.push({
-        where: line.where,
-        sv,
-        de,
-        was: nsv
-          ? 'verneint auf Schwedisch, nicht auf Deutsch'
-          : 'verneint auf Deutsch, nicht auf Schwedisch',
-      });
+    for (const b of zahlUndVerneinung(sv, de)) {
+      befunde.push({ where: line.where, sv, de, was: b.was });
     }
   }
   return befunde;
