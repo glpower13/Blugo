@@ -32,6 +32,7 @@ import {
   glossenLuecke,
   KONTEXTABHAENGIG,
   unbekannteWoerter,
+  wortstellung,
   zahlUndVerneinung,
 } from './checks';
 
@@ -114,7 +115,14 @@ export function pruefeSegment(kandidat: Segment, chunk: Chunk, wissen: Wissen): 
     befunde.push({ art: 'hart', text: `Satz und Bedeutung passen nicht: ${z.was}.` });
   }
 
-  // 5. Widerspricht eine Glosse dem, was der Lerner schon gelernt hat?
+  // 5. Steht das Verb, wo es im Schwedischen stehen muss?
+  //    Hart, weil es echtes Falsch-Lernen ist: Wer „jag inte förstår" liest,
+  //    merkt sich die deutsche Wortfolge und sagt sie nachher.
+  for (const s of wortstellung(kandidat.sv)) {
+    befunde.push({ art: 'hart', text: `Schwedische Wortstellung: ${s.was}.` });
+  }
+
+  // 6. Widerspricht eine Glosse dem, was der Lerner schon gelernt hat?
   for (const k of glossenKonflikte(
     kandidat.decoding,
     wissen.glossen,
@@ -127,7 +135,7 @@ export function pruefeSegment(kandidat: Segment, chunk: Chunk, wissen: Wissen): 
     });
   }
 
-  // 6. Neue Wörter: kein Fehler, aber die Grenze dessen, was die App bestätigen kann.
+  // 7. Neue Wörter: kein Fehler, aber die Grenze dessen, was die App bestätigen kann.
   const unbekannt = unbekannteWoerter(kandidat.sv, wissen.woerter);
   if (unbekannt.length > 0) {
     befunde.push({
@@ -151,9 +159,13 @@ export function pruefeSegment(kandidat: Segment, chunk: Chunk, wissen: Wissen): 
  * Prüfung nicht deckt.
  */
 export function beschriftung(ergebnis: Pruefergebnis): string {
+  // „die zwei häufigsten" statt „die Wortstellung": Die Prüfung kennt genau zwei
+  // Muster (Verb nach Vorfeld, Verneinung nach Verb). „Wortstellung geprüft" wäre
+  // ein Siegel für eine Grammatikprüfung, die es hier nicht gibt.
   const basis =
     'Maschinell geprüft: jedes Wort hat eine Bedeutung, die Wendung steckt im Satz, ' +
-    'Zahlen und Verneinung stimmen überein, keine Glosse widerspricht dem geprüften Inhalt.';
+    'Zahlen und Verneinung stimmen überein, die zwei häufigsten Wortstellungs-Fehler ' +
+    'kommen nicht vor, keine Glosse widerspricht dem geprüften Inhalt.';
   const offen =
     ergebnis.unbekannt.length > 0
       ? ` Neu für die App: ${ergebnis.unbekannt.join(', ')} — diese Wörter stehen in keinem geprüften Satz.`

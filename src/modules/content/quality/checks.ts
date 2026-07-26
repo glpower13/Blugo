@@ -239,6 +239,97 @@ export function deckung(wendungSv: string, satzSv: string): number {
   return drin / want.length;
 }
 
+// ── Wortstellung: die zwei Fehler, die ein deutsches Modell wirklich macht ────
+//
+// WARUM DIESE PRÜFUNG (offener Punkt aus `docs/08-content-pipeline.md`: „Wort-
+// existenz ist maschinell abgedeckt, Wortfolgen noch nicht"): Schwedisch ist
+// eine V2-Sprache — im Hauptsatz steht das gebeugte Verb an zweiter Stelle, und
+// die Verneinung steht DAHINTER. Deutsch tut an beiden Stellen etwas anderes.
+// Ein Modell, das aus dem Deutschen heraus formuliert, produziert deshalb
+// „jag inte förstår" statt „jag förstår inte" und „imorgon jag kommer" statt
+// „imorgon kommer jag". Beides ist echtes Falsch-Lernen, kein Stilfehler.
+//
+// WAS DIESE PRÜFUNG AUSDRÜCKLICH NICHT IST: eine Grammatikprüfung. Sie kennt
+// GENAU ZWEI Muster. Alles andere an der Wortfolge bleibt ungeprüft und wird
+// auch nicht behauptet.
+//
+// WIE DIE LISTEN ENTSTANDEN SIND: gegen alle 17.794 schwedischen Zeichenketten
+// des geprüften Inhalts laufen gelassen, bis NULL Fehltreffer blieben. Was dabei
+// herausfiel, steht als Ausnahme unten — jede mit Grund. Eine Regel, die
+// richtiges Schwedisch anmeckert, ist schlimmer als keine: Sie wirft gute Sätze
+// weg und kostet den Lerner Geld auf dem eigenen Zugang.
+
+export type WortstellungBefund = { was: string; satz: string };
+
+/** Subjekt-Fürwörter, an denen sich der Satzbau festmachen lässt. */
+const SUBJEKT = ['jag', 'du', 'han', 'hon', 'vi', 'ni', 'de', 'det', 'den', 'man'];
+
+/**
+ * Satzadverbien, die im Hauptsatz NIE vor dem gebeugten Verb stehen.
+ *
+ * Bewusst ohne die Modalpartikeln `nog`, `väl` und `bara`: „det bara händer"
+ * kommt gesprochen vor, und eine Regel, die Umgangssprache als Fehler meldet,
+ * ist keine Regel, sondern eine Meinung.
+ */
+const SATZADVERB = ['inte', 'aldrig', 'alltid', 'ofta', 'redan'];
+
+/**
+ * Wörter, nach denen im Vorfeld ZWINGEND das Verb folgt (Inversion).
+ *
+ * Bewusst NICHT dabei, jedes mit Grund:
+ *   `kanske` — die berühmte Ausnahme: „kanske jag kan" ist zulässig.
+ *   `sedan`  — auch Nebensatz-Einleiter: „sedan jag kom hit" = seit ich herkam.
+ *   `då`     — auch „als": „då jag var liten".
+ *   `där`    — auch Relativ-Anschluss: „där jag bor".
+ */
+const VORFELD = [
+  'idag', 'imorgon', 'igår', 'nu', 'alltid', 'aldrig', 'ofta', 'ibland',
+  'snart', 'tyvärr', 'förresten', 'äntligen', 'dessutom', 'därför', 'här',
+];
+
+/** Satzweise zerlegen: Beide Regeln gelten am ANFANG, nicht irgendwo mittendrin. */
+function saetze(sv: string): string[] {
+  return sv
+    .split(/[.!?;:]+|\s—\s/)
+    .map((s) => s.trim())
+    .filter(Boolean);
+}
+
+/**
+ * Verstößt der Satz gegen eines der zwei Muster? Rein.
+ *
+ * Die Regeln greifen nur am Satzanfang. Ein Nebensatz mitten im Satz („…att jag
+ * inte förstår") ist damit außen vor — dort ist genau diese Stellung richtig,
+ * und das ist der Grund, warum die Regeln nicht einfach nach Wortpaaren suchen.
+ */
+export function wortstellung(sv: string): WortstellungBefund[] {
+  const befunde: WortstellungBefund[] = [];
+  for (const satz of saetze(sv)) {
+    const w = woerter(satz);
+    if (w.length < 3) continue;
+
+    if (SUBJEKT.includes(w[0]) && SATZADVERB.includes(w[1])) {
+      befunde.push({
+        satz,
+        was: `„${w[0]} ${w[1]} …" — im Hauptsatz steht „${w[1]}" HINTER dem Verb`,
+      });
+    }
+
+    // Ein Komma nach dem ersten Wort macht daraus einen Einschub statt eines
+    // Vorfelds: „Tyvärr, jag kan inte" ist richtig, „Tyvärr jag kan inte" nicht.
+    // Im eigenen Inhalt steht genau diese Bauform fünfmal — ohne die Ausnahme
+    // hätte die Regel den geprüften Bestand angemeckert.
+    const einschub = new RegExp(`^\\s*${w[0]}\\s*,`, 'iu').test(satz);
+    if (!einschub && VORFELD.includes(w[0]) && SUBJEKT.includes(w[1])) {
+      befunde.push({
+        satz,
+        was: `„${w[0]} ${w[1]} …" — nach „${w[0]}" am Satzanfang kommt erst das Verb, dann „${w[1]}"`,
+      });
+    }
+  }
+  return befunde;
+}
+
 // ── Beugung: zwei Formen desselben deutschen Wortes ──────────────────────────
 //
 // WARUM ES DIESE REGEL GIBT (Befund 2026-07-25): Die Konfliktliste des

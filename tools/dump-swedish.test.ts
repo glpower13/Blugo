@@ -47,3 +47,26 @@ describe('gesammelte schwedische Zeichenketten', () => {
     expect(sammle().length).toBeGreaterThan(14000);
   });
 });
+
+// ── Eichung der Wortstellungs-Regel ──────────────────────────────────────────
+//
+// Die Regel darf richtiges Schwedisch nicht anmeckern. Der einzige Maßstab, der
+// nicht behauptet ist, ist der eigene geprüfte Inhalt: 17.794 Zeichenketten, die
+// durch Wörterbuch, Korpus und Rückübersetzung gegangen sind. Meldet die Regel
+// hier auch nur einen Treffer, ist die REGEL verdächtig — nicht der Inhalt.
+//
+// Der Test steht bewusst hier und nicht bei den Prüfungen: Er läuft über ALLES
+// (Wendungen, Segmente, Gespräche) und wird damit auch von neuem Inhalt
+// getroffen, den jemand später hinzufügt.
+describe('Wortstellungs-Regel gegen den eigenen Inhalt geeicht', () => {
+  it('meldet im gesamten geprüften Inhalt nichts', async () => {
+    const { wortstellung } = await import('../src/modules/content/quality/checks');
+    const treffer: string[] = [];
+    for (const e of sammle()) {
+      for (const b of wortstellung(e.sv)) treffer.push(`${e.quelle}: „${b.satz}" — ${b.was}`);
+    }
+    // Alle auf einmal melden: Eine Liste, die beim ersten Fund abbricht, macht
+    // aus einem Befund fünf Läufe.
+    expect(treffer).toEqual([]);
+  });
+});
