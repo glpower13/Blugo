@@ -116,6 +116,58 @@ nicht durch sein eigenes Tor, ist das Tor falsch — nicht der Inhalt. Eine zu h
 Latte ist kein „sicherheitshalber streng": sie wirft gute Sätze weg und lässt die
 KI-Funktion kaputt aussehen, obwohl das Modell geliefert hat.
 
+## Der Vorrat: schreiben, bevor jemand wartet *(gebaut 2026-07-26)*
+
+Das Tor hat einen Preis: Ein verworfener Satz kostet einen zweiten Aufruf, und der
+Lerner steht vor einem drehenden Rad in genau dem Moment, in dem er lernen wollte.
+Der Vorrat (`src/modules/content/vorrat.ts`) verlegt beides nach hinten — erzeugt
+wird, **während** er ohnehin arbeitet; abgerufen wird sofort.
+
+### Die Ehrlichkeitsfrage, die dieses Stück entscheidet
+
+Bisher galt ein einfacher Vertrag: **ein Klick, ein Aufruf, ein paar Cent** auf dem
+eigenen Zugang des Lerners. Der Vorrat bricht ihn — er gibt Geld aus, ohne dass
+jemand geklickt hat. Das ist kein Detail, das ist eine andere Abmachung. Sie ist nur
+zulässig, wenn alles drei gilt, nicht eines davon:
+
+1. **Aus, bis der Lerner ihn einschaltet** (`Preferences.vorratAn`, Voreinstellung
+   `false`; `normalizePreferences` akzeptiert nur ein ausdrückliches `true` — eine
+   alte oder kaputte Datei darf die App nie zum Geldausgeben bringen).
+2. **Hart gedeckelt und sichtbar:** höchstens `VORRAT_MAX` = 12 Sätze insgesamt,
+   höchstens `NACHSCHUB_PRO_SITZUNG` = 4 neue je Sitzung. Beide Zahlen stehen im
+   Klartext an dem Schalter, der sie auslöst.
+3. **Nachsehbar und wegwerfbar:** Die Einstellungen zeigen die echte Zahl aus der
+   Ablage und haben einen Knopf, der sie auf null setzt.
+
+### Wann gefüllt wird
+
+Beim **Sitzungsstart**, für die Wendungen, die in dieser Warteschlange noch kommen
+(`queue.slice(1)` — für die laufende käme der Nachschub zu spät). Beim App-Start zu
+füllen hieße, für das bloße Öffnen Geld auszugeben.
+
+Nacheinander, nicht gleichzeitig: Vier parallele Aufrufe treffen eher ein
+Anbieter-Limit und verbrennen im Fehlerfall vier Beträge statt einem. **Beim ersten
+Fehler ist Schluss** — wer bei Aufruf eins ein 429 bekommt, bekommt es bei Aufruf
+zwei auch. Ein misslungener Nachschub wirft nie: Er ist Komfort-Verlust, kein
+Fehler, den der Lerner mitten im Lernen vorgehalten bekommt.
+
+### Warum das Urteil nicht mitgespeichert wird
+
+Naheliegend wäre, die Beschriftung beim Erzeugen festzuhalten. Sie wäre aber ein
+**Urteil von gestern**: Kommt neuer geprüfter Inhalt dazu, ändert sich, was „nicht
+im geprüften Bestand" heißt; werden die Regeln strenger, wäre ein damals
+angenommener Satz heute vielleicht keiner mehr. Gespeichert wird deshalb nur der
+**Satz**. Geprüft wird beim Herausnehmen, mit den Regeln von jetzt. Ein Satz, der
+die heutige Prüfung nicht besteht, wird verworfen — nicht mit einem alten Freispruch
+angezeigt.
+
+### Was der Vorrat NICHT ist
+
+Kein Lernstand. Er liegt in einem eigenen IndexedDB-Speicher (`vorrat`, DB-Fassung 2),
+wandert **nicht** in die Sicherung (`transfer.ts` nimmt nur Lernstände und
+Einstellungen) und fließt in keine Messung ein. Wer ihn löscht, verliert nichts als
+Wartezeit — und genau das sagt die Fläche auch.
+
 ### Echtes i+1: aus Bekanntem bauen *(gebaut 2026-07-23)*
 
 Der Generator bekommt jetzt die Wendungen mit, die der Lerner **schon kann**

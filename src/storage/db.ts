@@ -2,7 +2,23 @@
 // (docs/05-architecture.md: "Backend erst, wenn eine Entscheidung es zwingt").
 
 import { openDB, type DBSchema, type IDBPDatabase } from 'idb';
-import type { ChunkState, ReviewEvent } from '../domain/chunk';
+import type { ChunkState, ReviewEvent, Segment } from '../domain/chunk';
+
+/**
+ * Ein vorab erzeugter, vom Tor angenommener Satz (der Vorrat,
+ * docs/08-content-pipeline.md). Bewusst NICHT Teil des Lernstands: er ist
+ * jederzeit neu herstellbar und gehört deshalb weder in eine Sicherung noch in
+ * die Messung. Wer ihn löscht, verliert nichts als Wartezeit.
+ */
+export interface VorratEintrag {
+  /** Eindeutig, damit zwei Sätze zur selben Wendung nebeneinander liegen können. */
+  id: string;
+  chunkId: string;
+  segment: Segment;
+  erzeugtAm: number;
+  /** Welches Modell ihn geschrieben hat — die Fläche darf das sagen. */
+  modell: string;
+}
 
 interface NeurolangDB extends DBSchema {
   chunkStates: {
@@ -13,22 +29,34 @@ interface NeurolangDB extends DBSchema {
     key: number; // autoIncrement
     value: ReviewEvent & { chunkId: string };
   };
+  vorrat: {
+    key: string; // id
+    value: VorratEintrag;
+    indexes: { byChunk: string };
+  };
 }
 
 const DB_NAME = 'neurolang';
-const DB_VERSION = 1;
+// 2 (2026-07-26): Ablage für den Vorrat vorab erzeugter Sätze dazugekommen.
+const DB_VERSION = 2;
 
 let dbPromise: Promise<IDBPDatabase<NeurolangDB>> | null = null;
 
 function getDB(): Promise<IDBPDatabase<NeurolangDB>> {
   if (!dbPromise) {
     dbPromise = openDB<NeurolangDB>(DB_NAME, DB_VERSION, {
+      // Jeder Schritt einzeln abgesichert: Der Aufstieg von Fassung 1 darf den
+      // vorhandenen Lernstand unter keinen Umständen anfassen.
       upgrade(db) {
         if (!db.objectStoreNames.contains('chunkStates')) {
           db.createObjectStore('chunkStates', { keyPath: 'chunkId' });
         }
         if (!db.objectStoreNames.contains('sessionLog')) {
           db.createObjectStore('sessionLog', { autoIncrement: true });
+        }
+        if (!db.objectStoreNames.contains('vorrat')) {
+          const store = db.createObjectStore('vorrat', { keyPath: 'id' });
+          store.createIndex('byChunk', 'chunkId');
         }
       },
     });
@@ -72,4 +100,31 @@ export async function clearAll(): Promise<void> {
   const db = await getDB();
   await db.clear('chunkStates');
   await db.clear('sessionLog');
+  await db.clear('vorrat');
+}
+
+// --- Der Vorrat vorab erzeugter Sätze ------------------------------------------
+
+export async function vorratFuer(chunkId: string): Promise<VorratEintrag[]> {
+  return (await getDB()).getAllFromIndex('vorrat', 'byChunk', chunkId);
+}
+
+export async function vorratAnzahl(): Promise<number> {
+  return (await getDB()).count('vorrat');
+}
+
+export async function vorratChunkIds(): Promise<string[]> {
+  return (await getDB()).getAllKeysFromIndex('vorrat', 'byChunk') as Promise<string[]>;
+}
+
+export async function vorratHinzu(eintrag: VorratEintrag): Promise<void> {
+  await (await getDB()).put('vorrat', eintrag);
+}
+
+export async function vorratWeg(id: string): Promise<void> {
+  await (await getDB()).delete('vorrat', id);
+}
+
+export async function vorratLeeren(): Promise<void> {
+  await (await getDB()).clear('vorrat');
 }

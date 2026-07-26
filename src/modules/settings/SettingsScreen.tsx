@@ -22,6 +22,8 @@
 import { useEffect, useRef, useState } from 'react';
 import type { ChunkState } from '../../domain/chunk';
 import { AiSettingsSection } from '../content/AiSettings';
+import { VorratSettings } from '../content/VorratSettings';
+import { aiRegistry } from '../content/aiRegistry';
 import {
   NEW_PER_SESSION_OPTIONS,
   RETENTION_MAX,
@@ -67,6 +69,9 @@ export function SettingsScreen({
   onWipe,
   onClose,
 }: Props) {
+  // Ob ein eigener Cloud-Zugang eingerichtet ist. Als Zustand, damit das
+  // Speichern weiter unten sofort wirkt (siehe `onSaved`).
+  const [cloudAktiv, setCloudAktiv] = useState(() => aiRegistry.generator.id !== 'seed');
   return (
     <Overlay
       labelledBy="settings-title"
@@ -102,7 +107,13 @@ export function SettingsScreen({
           <VoiceSection prefs={prefs} onPrefs={onPrefs} />
           <SpeechSection prefs={prefs} onPrefs={onPrefs} />
           <Section label="KI & Sparringspartner" title="Wer denkt für die App mit?">
-            <AiSettingsSection />
+            {/* `onSaved` ist hier nicht Kosmetik: Das Speichern des Zugangs
+                tauscht die Port-Registry aus, löst aber von sich aus kein
+                Neuzeichnen aus. Ohne diesen Anstoß erschiene die Vorrats-Frage
+                erst, nachdem man die Einstellungen schließt und wieder öffnet —
+                beim Selbst-Ansehen aufgefallen. */}
+            <AiSettingsSection onSaved={() => setCloudAktiv(aiRegistry.generator.id !== 'seed')} />
+            <VorratSettings prefs={prefs} onPrefs={onPrefs} cloudAktiv={cloudAktiv} />
           </Section>
           <DataSection
             onPrefs={onPrefs}
