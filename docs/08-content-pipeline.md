@@ -17,13 +17,20 @@ Damit ein Anbieter später angebunden werden kann, **ohne die App umzubauen**, h
 die Pipeline an genormten **Ports** (Fähigkeits-Interfaces), nicht an Produkten
 (`src/modules/content/ports.ts`). Vier Fähigkeiten:
 
-| Port | Fähigkeit | Standard-Adapter heute | Anbieter-Adapter (Schritt C) |
+*Stand 2026-07-26 — die Spalte „Anbieter" ist keine Zukunft mehr:*
+
+| Port | Fähigkeit | Ohne eigenen Zugang | Mit eigenem Zugang |
 |---|---|---|---|
-| `ContentGenerator` | i+1-Segment on demand erzeugen (der Moat) | `seed` (bedient Seed-Kontexte) | ✅ Claude (`adapters/anthropic.ts`, BYOK) · weitere LLM |
-| `Decoder` | interlineare Dekodierung SV→DE | `seed` (kennt nur Seed) | ✅ Claude (`adapters/anthropic.ts`, BYOK) · weitere LLM |
-| `Explainer` | Tipp-Fehler freundlich erklären („Warum?") | — (nur mit Cloud) | ✅ Claude (BYOK) |
-| `SpeechSynthesizer` | Schwedisch vorlesen (TTS) | `web-speech` (on-device, zuverlässige sv-Stimme + Langsam) | natürliches TTS |
-| `SpeechRecognizer` | Schwedisch erkennen (ASR) | — (nur Vertrag) | ASR (post-M1) |
+| `ContentGenerator` | i+1-Segment on demand erzeugen (der Moat) | `seed` (bedient Seed-Kontexte) | ✅ Claude **oder jeder OpenAI-kompatible Dienst** |
+| `Decoder` | interlineare Dekodierung SV→DE | `seed` (kennt nur Seed) | ✅ Claude **oder jeder OpenAI-kompatible Dienst** |
+| `SparringPartner` | Gespräch, das fällige Wendungen hervorlockt | ✅ **`seed` — kuratierte Gespräche** (§Der Grund-Partner) | ✅ frei antwortend, jeder Anbieter |
+| `Explainer` | Tipp-Fehler freundlich erklären („Warum?") | — | ✅ jeder Anbieter |
+| `SpeechSynthesizer` | Schwedisch vorlesen (TTS) | `web-speech` (on-device, zuverlässige sv-Stimme + Langsam) | natürliches TTS (offen) |
+| `SpeechRecognizer` | Schwedisch erkennen (ASR) | `web-speech` (on-device) | — |
+
+**Der Punkt der linken Spalte:** Bis auf die Erklärung („Warum?") funktioniert
+jede Fähigkeit **ohne Zugang, ohne Netz und ohne einen Cent**. Ein eigener Zugang
+macht die App reicher, nicht erst benutzbar.
 
 Die **Registry** (`src/modules/content/aiRegistry.ts`) ist der EINE Ort, an dem die
 App ihre KI-Fähigkeit bezieht; ein Adapter wird per `setAiPorts(...)` getauscht.
