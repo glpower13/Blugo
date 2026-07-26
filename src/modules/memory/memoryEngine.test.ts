@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { DAY_MS, getDue, initialState, schedule } from './memoryEngine';
+import type { ChunkState } from '../../domain/chunk';
 
 const NOW = 1_700_000_000_000;
 
@@ -103,5 +104,58 @@ describe('memoryEngine', () => {
     const c = { ...initialState('c', NOW), dueAt: NOW + 5 * DAY_MS };
     const due = getDue([c, b, a], NOW);
     expect(due.map((s) => s.chunkId)).toEqual(['a', 'b']);
+  });
+});
+
+// Befund E-4 der Prüfkaskade (2026-07-25), im Lauf nachgestellt: `maturedAt`
+// hielt den ERSTEN Nachweis fest. Nach einem Fehlschlag lag der für immer vor
+// `lapsedAt` — „reift" war nicht mehr erreichbar, auch nach erneut
+// überstandenen 40 Tagen nicht. Der strenge 90-Tage-Beweis erneuerte sich, der
+// weiche nicht: genau verkehrt herum.
+describe('beide Nachweise sind wieder erreichbar (E-4)', () => {
+  const T0 = 1_700_000_000_000;
+
+  function ueberstandenInProduktion(s: ChunkState, tage: number, at: number): ChunkState {
+    return schedule(
+      { ...s, stage: 'production', intervalDays: tage, lastReviewedAt: at - tage * DAY_MS },
+      'good',
+      'seg',
+      at,
+    );
+  }
+
+  it('„reift" lässt sich nach einem Fehlschlag neu verdienen', () => {
+    let s = ueberstandenInProduktion(initialState('c', T0), 30, T0);
+    expect(s.maturedAt).toBe(T0);
+
+    const lapse = T0 + 40 * DAY_MS;
+    s = schedule(s, 'again', 'seg2', lapse);
+    expect(s.lapsedAt).toBe(lapse);
+
+    // Der neue Nachweis muss NACH dem Fehlschlag liegen, sonst zählt er nie wieder.
+    const wieder = lapse + 60 * DAY_MS;
+    s = ueberstandenInProduktion(s, 40, wieder);
+    expect(s.maturedAt).toBe(wieder);
+    expect(s.maturedAt!).toBeGreaterThan(s.lapsedAt!);
+  });
+
+  it('der 90-Tage-Beweis verhält sich genauso', () => {
+    let s = ueberstandenInProduktion(initialState('c', T0), 120, T0);
+    expect(s.provenStableAt).toBe(T0);
+
+    const lapse = T0 + 10 * DAY_MS;
+    s = schedule(s, 'again', 'seg2', lapse);
+
+    const wieder = lapse + 200 * DAY_MS;
+    s = ueberstandenInProduktion(s, 120, wieder);
+    expect(s.provenStableAt).toBe(wieder);
+    expect(s.provenStableAt!).toBeGreaterThan(s.lapsedAt!);
+  });
+
+  it('ein 90-Tage-Beweis setzt immer auch den 21-Tage-Vermerk', () => {
+    // 90 ≥ 21 — die beiden Schwellen dürfen nie auseinanderlaufen.
+    const s = ueberstandenInProduktion(initialState('c', T0), 120, T0);
+    expect(s.provenStableAt).not.toBeNull();
+    expect(s.maturedAt).not.toBeNull();
   });
 });

@@ -1,4 +1,5 @@
 import { test, expect, type Page, type ConsoleMessage } from '@playwright/test';
+import { writeFile } from 'node:fs/promises';
 
 // Vom Verteiler „Heute" in eine Lern-Session wechseln.
 async function startSession(page: Page) {
@@ -556,7 +557,8 @@ test('a sparring conversation can be ended and accounts for itself honestly', as
 // Stufe B: Prüf-Stand des Inhalts (Stufe 4 der Prüfkette).
 // Die App darf über ihren eigenen Stoff nicht mehr behaupten, als geprüft ist.
 // Geprüft wird deshalb beides: dass die auffällige Wendung markiert ist, UND
-// dass im Fortschritt eine ehrliche 0 für „muttersprachlich geprüft" steht.
+// dass der Fortschritt die Grenze des Inhalts als SATZ benennt (seit 2026-07-25
+// ohne Zähler: eine Skala, auf der man nie vorankommt, ist keine Auskunft).
 test('content verification is stated honestly, down to the single phrase', async ({ page }) => {
   const consoleErrors: string[] = [];
   const pageErrors: string[] = [];
@@ -578,7 +580,7 @@ test('content verification is stated honestly, down to the single phrase', async
 
   await openTab(page, 'Fortschritt');
   await expect(page.getByText('Wie geprüft ist der Inhalt?')).toBeVisible();
-  await expect(page.getByText('0 muttersprachlich geprüft')).toBeVisible();
+  await expect(page.getByText('Was hier niemand geprüft hat')).toBeVisible();
 
   expect(consoleErrors, consoleErrors.join('\n')).toHaveLength(0);
   expect(pageErrors, pageErrors.join('\n')).toHaveLength(0);
@@ -702,6 +704,19 @@ test('the app survives a raised system font size', async ({ page }) => {
       return null;
     });
     expect(hidden, `hinter der Reiterleiste verdeckt in ${t}`).toBeNull();
+
+    // 3. Die Seite darf sich NICHT seitwärts schieben lassen.
+    //
+    // Gemessen (2026-07-25): Acht Elemente ragen über die rechte Kante — alle
+    // gehören zur Hintergrund-Grafik, die mit `inset: -8%` bewusst größer als
+    // der Bildschirm ist, damit ihre langsame Drift nie eine Kante zeigt. Sie
+    // ist `position: fixed` und zählt daher nicht zum Scrollbereich. Der Test
+    // prüft nicht die Elemente, sondern den Schaden: Sobald echter Inhalt
+    // überläuft, wackelt die Seite seitwärts — und genau das fällt hier auf.
+    const seitwaerts = await page.evaluate(
+      () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
+    );
+    expect(seitwaerts, `Seite lässt sich in ${t} seitwärts schieben`).toBeLessThanOrEqual(1);
   }
 });
 
@@ -755,4 +770,411 @@ test('jede Fläche hat genau eine Überschrift erster Ebene', async ({ page }) =
   await openTab(page, 'Heute');
   await page.getByRole('button', { name: /Weiterlernen|Loslegen|Lernen starten/ }).first().click();
   await expect(page.locator('main h1')).toHaveCount(1);
+});
+
+// Befund E-1 der Prüfkaskade (2026-07-25): Der Fokusfang lief bei JEDEM Rendern
+// der Elternfläche neu, weil `onClose` als Inline-Funktion in der
+// Abhängigkeitsliste stand. Ein getipptes Zeichen ließ die Fläche rendern, der
+// Fokus sprang auf „Fertig" — von „Andreas" kam ein „A" an. Gemessen, nicht
+// vermutet. Dieser Test hält die Reparatur fest.
+test('in einer Überlagerung bleibt der Fokus beim Tippen im Feld', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.getByText('bewiesen stabil')).toBeVisible();
+
+  await page.getByRole('button', { name: 'Einstellungen' }).click();
+  const field = page.locator('#pref-name');
+  await expect(field).toBeVisible();
+  await field.click();
+
+  await page.keyboard.type('Andreas');
+  // Der ganze Name muss ankommen — nicht nur das erste Zeichen.
+  await expect(field).toHaveValue('Andreas');
+  await expect(field).toBeFocused();
+
+  // Und der Fokus muss beim Schließen auf den Auslöser zurück.
+  await page.keyboard.press('Escape');
+  await expect(page.getByRole('button', { name: 'Einstellungen' })).toBeFocused();
+});
+
+// Stufe B: Ein Wort mit zwei Bedeutungen wird als solches BENANNT.
+//
+// Der Rückübersetzungs-Bericht führt 38 Wörter, die im Inhalt verschieden
+// glossiert sind. Bei den meisten ist das kein Fehler, sondern Schwedisch:
+// `vad` heißt „was" und „wie", `kort` „Karte" und „kurz". Ohne Hinweis erlebt
+// der Lerner das als Widerspruch — und sucht den Fehler bei sich. Der Hinweis
+// hängt an der Dekodierung: Wer Wort-für-Wort-Hilfe zieht, bekommt sie ganz.
+test('ein mehrdeutiges Wort wird im Lern-Loop als mehrdeutig erklärt', async ({ page }) => {
+  await page.goto('/');
+  // Gezielt in ein Thema mit mehrdeutigen Wörtern: Seit es den Startpiloten gibt,
+  // beginnt eine frische Sitzung bei „hej"/„tack" — Ein-Wort-Äußerungen ohne
+  // zweite Bedeutung. Ein Fokus macht den Test wieder aussagekräftig.
+  await openLearn(page);
+  await page.getByRole('button', { name: /Erste Schritte/ }).click();
+  await page.getByRole('button', { name: /Begrüßen & Kennenlernen/ }).click();
+  await page.getByRole('button', { name: 'Fokus setzen' }).click();
+  await openTab(page, 'Heute');
+  await startSession(page);
+
+  let gefunden = '';
+  for (let i = 0; i < 12 && !gefunden; i++) {
+    const zu = page.getByRole('button', { name: 'Dekodierung', exact: true });
+    if (await zu.count()) await zu.click();
+    const hinweis = page.locator('p', { hasText: 'es heißt auch' });
+    if (await hinweis.count()) {
+      gefunden = (await hinweis.first().innerText()).replace(/\s+/g, ' ');
+      break;
+    }
+    const aufloesen = page.getByRole('button', { name: 'Auflösen' }).first();
+    if (!(await aufloesen.count())) break;
+    await aufloesen.click();
+    const sitzt = page.getByRole('button', { name: 'Selbsteinschätzung: Sitzt' }).first();
+    if (!(await sitzt.count())) break;
+    await sitzt.click();
+    await sitzt.waitFor({ state: 'detached', timeout: 3000 }).catch(() => {});
+  }
+
+  expect(gefunden, 'kein Mehrdeutigkeits-Hinweis in den ersten Karten').not.toBe('');
+  // Der Hinweis sagt BEIDE Bedeutungen und ordnet die aktuelle ein.
+  expect(gefunden).toMatch(/heißt hier „[^"]+" — es heißt auch „[^"]+"/);
+});
+
+// Stufe G (Stabilität): Die App verspricht „kein Backend, offline nutzbar".
+//
+// Das ist kein Nebensatz, sondern die Bedingung dafür, dass jemand im Zug oder
+// im Ausland weiterlernt — und genau dort bricht Erhalt sonst ab. Eine einzige
+// Laufzeit-Abfrage ins Netz würde das Versprechen still kassieren; nichts an
+// der Oberfläche würde es zeigen, solange der Entwickler online ist.
+//
+// Gemessen wird deshalb der ganze Weg ohne Netz: neu laden, die NACHGELADENEN
+// Gespräche öffnen (sie kommen aus einem eigenen Bündel) und eine Session
+// starten.
+test('ohne Netz bleibt die App vollständig benutzbar', async ({ page, context }) => {
+  await page.goto('/');
+  await expect(page.getByText('bewiesen stabil')).toBeVisible();
+
+  // Der Service Worker muss die Auslieferung übernommen haben, sonst prüft der
+  // Test nur den Browser-Cache und nicht das Versprechen.
+  await page.evaluate(() => navigator.serviceWorker.ready);
+  await page.reload();
+  await expect(page.getByText('bewiesen stabil')).toBeVisible();
+
+  // Beweis, dass hier der Service Worker ausliefert und nicht der Browser-Cache:
+  // Ohne einen kontrollierenden Worker prüfte dieser Test gar nichts.
+  expect(
+    await page.evaluate(() => !!navigator.serviceWorker.controller),
+    'kein Service Worker in Kontrolle — der Test würde nur den Browser-Cache prüfen',
+  ).toBe(true);
+
+  await context.setOffline(true);
+  try {
+    await page.reload();
+    await expect(page.getByText('bewiesen stabil')).toBeVisible();
+
+    // Eine Adresse, die es so noch nie gab — jemand öffnet einen Link oder lädt
+    // mit einem Anhängsel neu. Nur `navigateFallback` des Service Workers kann
+    // das ohne Netz beantworten. (Ein `fetch` darauf scheitert korrekt: Der
+    // Fallback gilt für Seitenaufrufe, nicht für einzelne Abfragen.)
+    await page.goto('/?nie-zuvor=1');
+    await expect(page.getByText('bewiesen stabil')).toBeVisible();
+
+    // Gespräche liegen in einem eigenen Bündel und werden erst bei Bedarf geholt.
+    await openTab(page, 'Gespräche');
+    await expect(page.getByRole('button', { name: /Im Restaurant/ })).toBeVisible();
+
+    // Und der Lern-Loop selbst.
+    await openTab(page, 'Heute');
+    await startSession(page);
+    await expect(page.getByRole('button', { name: 'Auflösen' })).toBeVisible();
+  } finally {
+    await context.setOffline(false);
+  }
+});
+
+// Stufe B: Der Hinweis auf die fehlende Sicherung — und seine Bedingung.
+//
+// Der gesamte Lernstand liegt in EINEM Browser. Dass er mit ihm verschwindet,
+// stand ehrlich in den Einstellungen — nur sieht dort niemand hinein, bevor es
+// zu spät ist. Der Hinweis steht deshalb neben der bewiesenen Zahl, ist aber
+// keine Dauer-Mahnung: Er nennt eine gemessene Menge und verschwindet, sobald
+// sie null ist. Geprüft wird beides — dass er bei nichts zu verlieren SCHWEIGT
+// und nach dem Sichern wieder verschwindet.
+test('der Sicherungs-Hinweis erscheint nur, wenn es etwas zu verlieren gibt', async ({
+  page,
+}, info) => {
+  await page.goto('/');
+  await expect(page.getByText('bewiesen stabil')).toBeVisible();
+
+  // Frischer Stand: nichts bewiesen, also kein Hinweis.
+  await openTab(page, 'Fortschritt');
+  await expect(page.getByText(/in keiner Sicherung/)).toHaveCount(0);
+
+  // Einen Stand einspielen, in dem etwas bewiesen ist.
+  const bewiesen = Date.now() - 5 * 24 * 3600 * 1000;
+  const backup = {
+    app: 'neurolang',
+    version: 1,
+    exportedAt: Date.now(),
+    name: '',
+    preferences: {},
+    states: ['c-hej', 'c-tack', 'c-hejda'].map((chunkId) => ({
+      chunkId,
+      status: 'review',
+      stage: 'production',
+      intervalDays: 120,
+      stability: 120,
+      difficulty: 5,
+      dueAt: Date.now() + 60 * 24 * 3600 * 1000,
+      lastReviewedAt: bewiesen,
+      successStreak: 6,
+      provenStableAt: bewiesen,
+      maturedAt: bewiesen,
+      lapsedAt: null,
+      history: [{ at: bewiesen, result: 'good', stage: 'production', intervalDays: 120 }],
+    })),
+  };
+  const datei = info.outputPath('bewiesen.json');
+  await writeFile(datei, JSON.stringify(backup));
+
+  await openTab(page, 'Heute');
+  await page.getByRole('button', { name: 'Einstellungen' }).click();
+  await page.getByRole('button', { name: 'Sicherung einlesen' }).click();
+  await page.setInputFiles('input[type=file]', datei);
+  await expect(page.getByText(/Eingelesen:/)).toBeVisible();
+  await page.getByRole('button', { name: /Einstellungen schließen/ }).click();
+
+  // Jetzt gibt es etwas zu verlieren — und der Hinweis sagt WIE VIEL.
+  await openTab(page, 'Fortschritt');
+  await expect(page.getByText(/bewiesene Wendungen stehen in keiner Sicherung/)).toBeVisible();
+
+  // Sichern — danach ist die Menge null und der Hinweis weg.
+  await page.getByRole('button', { name: 'Zu „Deine Daten"' }).click();
+  const [download] = await Promise.all([
+    page.waitForEvent('download'),
+    page.getByRole('button', { name: /^Sichern/ }).click(),
+  ]);
+  await download.saveAs(info.outputPath('nachher.json'));
+  await page.getByRole('button', { name: /Einstellungen schließen/ }).click();
+
+  await openTab(page, 'Fortschritt');
+  await expect(page.getByText(/in keiner Sicherung/)).toHaveCount(0);
+});
+
+// Stufe B: Die Anti-Klippe an der einzelnen Wendung (CLAUDE.md, nicht verhandelbar).
+//
+// „Wird etwas zu hart, nicht durchdrücken: erst mehr verständlichen Input +
+// leichtere Variante nachschieben, dann neu annähern."
+//
+// Gemessen 2026-07-26: Wer „Nochmal" drückte, bekam die Wendung in der Sitzung
+// zurück — mit ZUGEKLAPPTER Dekodierung und in einem NEUEN Satz. Beim
+// Wiedersehen war sie also schwerer als beim Scheitern. Dieser Test hält die
+// Gegenrichtung fest: derselbe Satz, offene Hilfe.
+test('nach einem „Nochmal" kommt derselbe Satz zurück, mit offener Hilfe', async ({
+  page,
+}) => {
+  // Ein Stand, in dem die Wendung schon einmal saß — sonst steht die Hilfe
+  // ohnehin offen (neuer Stoff) und der Test bewiese nichts.
+  const frueher = Date.now() - 30 * 24 * 3600 * 1000;
+  const backup = {
+    app: 'neurolang',
+    version: 1,
+    exportedAt: Date.now(),
+    name: '',
+    preferences: {},
+    states: [
+      {
+        chunkId: 'c-hej',
+        status: 'review',
+        stage: 'production',
+        intervalDays: 10,
+        stability: 10,
+        difficulty: 5,
+        dueAt: Date.now() - 3600 * 1000, // jetzt fällig
+        lastReviewedAt: frueher,
+        successStreak: 2,
+        provenStableAt: null,
+        maturedAt: null,
+        lapsedAt: null,
+        seenSegmentIds: [],
+        history: [{ at: frueher, result: 'good', segmentId: 's-hej1' }],
+      },
+    ],
+  };
+  await page.goto('/');
+  await expect(page.getByText('bewiesen stabil')).toBeVisible();
+  await page.getByRole('button', { name: 'Einstellungen' }).click();
+  await page.getByRole('button', { name: 'Sicherung einlesen' }).click();
+  await page.setInputFiles('input[type=file]', {
+    name: 'faellig.json',
+    mimeType: 'application/json',
+    buffer: Buffer.from(JSON.stringify(backup)),
+  });
+  await expect(page.getByText(/Eingelesen:/)).toBeVisible();
+  await page.getByRole('button', { name: /Einstellungen schließen/ }).click();
+
+  await startSession(page);
+
+  // Karte 1 ist die eingespielte, fällige Wendung — sie steht in der Produktion.
+  // Dort sind die Hilfen bis zum Auflösen ausgeblendet (man soll die Lösung
+  // nicht sehen, während man sie bilden soll). Also erst falsch antworten.
+  await page.getByLabel('Antwort auf Schwedisch').fill('fel svar');
+  await page.getByRole('button', { name: 'Prüfen' }).click();
+  // Nach der Prüfung kommt erst das formative Feedback, dann die Lösung.
+  await page.getByRole('button', { name: 'Auflösen' }).click();
+
+  // Jetzt liegt alles offen — den KONTEXT ablesen, um ihn später zu vergleichen.
+  await page.getByRole('button', { name: 'Übersetzung', exact: true }).click();
+  const kontextVorher = (await page.locator('main p.italic').first().innerText()).trim();
+  expect(kontextVorher.length, 'kein Kontext ablesbar').toBeGreaterThan(3);
+
+  const nochmal = page.getByRole('button', { name: 'Selbsteinschätzung: Nochmal' }).first();
+  await nochmal.click();
+  await nochmal.waitFor({ state: 'detached', timeout: 3000 }).catch(() => {});
+
+  // Die restlichen Karten abräumen, bis die gescheiterte Wendung wiederkommt.
+  // Erkannt am KONTEXT, nicht an der offenen Hilfe: Bei neuem Stoff steht die
+  // ohnehin offen — daran hätte der Test die falsche Karte gepackt.
+  const kontextJetzt = () =>
+    page
+      .locator('main p.italic')
+      .first()
+      .innerText()
+      .then((t) => t.trim())
+      .catch(() => '');
+
+  let wieder = (await kontextJetzt()) === kontextVorher;
+  for (let i = 0; i < 12 && !wieder; i++) {
+    const feld = page.getByLabel('Antwort auf Schwedisch');
+    if (await feld.count()) {
+      await feld.fill('fel');
+      await page.getByRole('button', { name: 'Prüfen' }).click();
+    }
+    const aufloesen = page.getByRole('button', { name: 'Auflösen' }).first();
+    if (!(await aufloesen.count())) break;
+    await aufloesen.click();
+    const g = page.getByRole('button', { name: 'Selbsteinschätzung: Sitzt' }).first();
+    if (!(await g.count())) break;
+    await g.click();
+    await g.waitFor({ state: 'detached', timeout: 3000 }).catch(() => {});
+    wieder = (await kontextJetzt()) === kontextVorher;
+  }
+
+  // 1. Sie kommt im SELBEN Satz zurück — eine neue Verpackung wäre nach dem
+  //    Scheitern schwerer statt leichter (Kontextvariation ist Schritt 4).
+  expect(wieder, 'die gescheiterte Wendung kam nicht im selben Satz zurück').toBe(true);
+
+  // 2. Und die Hilfe steht von selbst offen — ohne dass jemand sie aufziehen muss.
+  await expect(
+    page.getByRole('button', { name: 'Dekodierung ausblenden' }),
+    'die Hilfe war beim Nachlernen wieder zugeklappt',
+  ).toBeVisible();
+});
+
+// Stufe B: Der Startpilot — der erste Weg für jemanden ohne ein einziges Wort.
+//
+// Der Inhalt begann bisher bei „hur mår du?". Wer noch nie Schwedisch gesehen
+// hat, steht davor wie vor einer Wand. Der Startpilot führt durch sechzehn
+// Ein-Wort-Äußerungen und prüft nach je vier kurz nach.
+//
+// Zwei Dinge prüft dieser Test, weil sie die Regel der App tragen:
+//   1. Der Abschluss nennt das Ergebnis und sagt im selben Atemzug, dass es
+//      KEIN Beweis ist (Wiedererkennen aus drei Möglichkeiten).
+//   2. Die Einladung verschwindet nach dem Durchlauf — ein Angebot, das
+//      stehen bleibt, ist kein Angebot mehr.
+test('der Startpilot führt durch die ersten Wörter und wird danach unsichtbar', async ({
+  page,
+}) => {
+  const seitenFehler: string[] = [];
+  page.on('pageerror', (e) => seitenFehler.push(String(e)));
+
+  await page.goto('/');
+  await expect(page.getByText('bewiesen stabil')).toBeVisible();
+  await page.getByRole('button', { name: /Startpilot starten/ }).click();
+
+  // Erstes Wort: schwedisch groß, deutsche Bedeutung, und wann man es sagt.
+  await expect(page.getByText('Wort 1 von 16')).toBeVisible();
+  await expect(page.locator('section [lang="sv"]').first()).toHaveText('hej');
+
+  // Vier Begegnungen, dann die erste Probe.
+  for (let i = 0; i < 4; i++) await page.getByRole('button', { name: 'Verstanden' }).click();
+  await expect(page.getByText(/Kleine Probe · 1 von 4/)).toBeVisible();
+  await expect(page.locator('section button[lang="sv"]')).toHaveCount(3);
+
+  // Komplett durchspielen — immer die erste Möglichkeit, also mal richtig, mal falsch.
+  for (let i = 0; i < 90; i++) {
+    if (await page.getByRole('button', { name: /Los geht/ }).count()) break;
+    const weiter = page.getByRole('button', { name: 'Weiter' });
+    const verstanden = page.getByRole('button', { name: 'Verstanden' });
+    if (await weiter.count()) await weiter.click();
+    else if (await verstanden.count()) await verstanden.click();
+    else await page.locator('section button[lang="sv"]').first().click();
+  }
+
+  // Der Abschluss zählt — und ordnet das Gezählte sofort ein.
+  await expect(page.getByText(/wiedererkannt/)).toBeVisible();
+  await expect(page.getByText(/nicht als Beweis/)).toBeVisible();
+
+  await page.getByRole('button', { name: /Los geht/ }).click();
+  await expect(page.getByText('bewiesen stabil')).toBeVisible();
+  await expect(page.getByRole('button', { name: /Startpilot starten/ })).toHaveCount(0);
+
+  // Und er bleibt in den Einstellungen erreichbar.
+  await page.getByRole('button', { name: 'Einstellungen' }).click();
+  await expect(page.getByRole('button', { name: 'Noch einmal durchgehen' })).toBeVisible();
+
+  expect(seitenFehler, seitenFehler.join('\n')).toHaveLength(0);
+});
+
+// Stufe B: Der Startpilot wird NUR Anfängern angeboten.
+//
+// BEFUND 2026-07-26: Die Einladung hing allein an „noch nicht gelaufen". Wer
+// seinen Lernstand von einem anderen Gerät einliest, hat vielleicht hundert
+// Wendungen hinter sich — „Fang hier an, die ersten sechzehn Wörter" wäre für
+// den schlicht falsch. Angeboten wird er nur, solange kein einziger Abruf
+// gelungen ist.
+test('wer schon etwas kann, bekommt den Startpiloten nicht mehr angeboten', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.getByRole('button', { name: /Startpilot starten/ })).toBeVisible();
+
+  const frueher = Date.now() - 40 * 24 * 3600 * 1000;
+  const backup = {
+    app: 'neurolang',
+    version: 1,
+    exportedAt: Date.now(),
+    name: '',
+    preferences: {},
+    states: [
+      {
+        chunkId: 'c-hej',
+        status: 'review',
+        stage: 'production',
+        intervalDays: 20,
+        stability: 20,
+        difficulty: 5,
+        dueAt: Date.now() + 10 * 24 * 3600 * 1000,
+        lastReviewedAt: frueher,
+        successStreak: 3,
+        provenStableAt: null,
+        maturedAt: frueher,
+        lapsedAt: null,
+        seenSegmentIds: [],
+        history: [{ at: frueher, result: 'good', segmentId: 's-hej1' }],
+      },
+    ],
+  };
+
+  await page.getByRole('button', { name: 'Einstellungen' }).click();
+  await page.getByRole('button', { name: 'Sicherung einlesen' }).click();
+  await page.setInputFiles('input[type=file]', {
+    name: 'stand.json',
+    mimeType: 'application/json',
+    buffer: Buffer.from(JSON.stringify(backup)),
+  });
+  await expect(page.getByText(/Eingelesen:/)).toBeVisible();
+  await page.getByRole('button', { name: /Einstellungen schließen/ }).click();
+
+  // Ein einziger gelungener Abruf reicht: Dieser Mensch ist kein Anfänger mehr.
+  await expect(page.getByRole('button', { name: /Startpilot starten/ })).toHaveCount(0);
+  // Erreichbar bleibt er trotzdem.
+  await page.getByRole('button', { name: 'Einstellungen' }).click();
+  await expect(page.getByRole('button', { name: 'Startpilot öffnen' })).toBeVisible();
 });

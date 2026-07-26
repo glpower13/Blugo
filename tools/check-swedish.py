@@ -41,16 +41,18 @@ except ImportError:  # pragma: no cover - Hinweis statt Absturz
     sys.exit("Fehlt: pip install wordfreq")
 
 ROOT = Path(__file__).resolve().parent.parent
-SEED_FILES = [
-    ROOT / "src/modules/content/seedSegments.ts",
-    ROOT / "src/modules/content/seedDialogs.ts",
-]
+# Alle Inhaltsdateien — `seedSegments.ts`, `seedDialogs.ts` und der Stoff je
+# Meilenstein (`seedA1.ts` …). Bewusst ein Muster statt einer Liste: eine neue
+# Niveau-Datei darf nie stillschweigend UNGEPRÜFT in die App laufen.
+SEED_FILES = sorted((ROOT / "src/modules/content").glob("seed*.ts"))
 REPORT = ROOT / "docs/content-pruefbericht.md"
 # Maschinenlesbares Ergebnis für Stufe 4 der Prüfkette (der Prüf-Stand je
 # Wendung in der App). Der Bericht ist für Menschen, diese Datei für
 # `tools/build-verification.ts` — beide entstehen aus demselben Lauf, damit sie
 # sich nie widersprechen können.
 VERDICTS = ROOT / "tools/flagged-words.json"
+# Der Text, der wirklich in der App steht (aus `tools/dump-swedish.ts`).
+STRINGS = ROOT / "tools/swedish-strings.json"
 
 # Schwellen auf der Zipf-Skala (log10 Vorkommen pro Milliarde Wörter).
 ZIPF_COMMON = 3.0  # ab hier alltagshäufig
@@ -90,18 +92,34 @@ TOKEN_RE = re.compile(r"[A-Za-zÅÄÖåäöÉéÜüß]+")
 
 
 def collect_sentences() -> list[tuple[str, str]]:
-    """Alle schwedischen Zeichenketten samt Herkunftsdatei."""
-    out: list[tuple[str, str]] = []
-    for path in SEED_FILES:
-        if not path.exists():
-            continue
-        text = path.read_text(encoding="utf-8")
-        for _, value in SV_RE.findall(text):
-            out.append((path.name, value))
-        for block in SUGGEST_RE.findall(text):
-            for _, value in STRING_RE.findall(block):
-                out.append((path.name, value))
-    return out
+    """Alle schwedischen Zeichenketten samt Herkunft.
+
+    Die Liste kommt aus `tools/swedish-strings.json`, geschrieben von
+    `tools/dump-swedish.ts` aus den GELADENEN Inhaltsdaten.
+
+    BEFUND 2026-07-26, warum nicht mehr per Suchmuster über den Quelltext:
+    Das alte Muster `sv: '…'` fand nur Objekt-Literale. Inhaltsdateien, die
+    ihre Wendungen über eine Hilfsfunktion bauen (`c('c-ap-gate', 'cat-airport',
+    'vilken gate är det?', …)`), haben kein `sv:` im Text — ihre Sätze liefen
+    still an der Prüfung vorbei, und der Bericht meldete trotzdem
+    „unbelegt 0". Eine Prüfung, die von der Schreibweise einer Datei abhängt,
+    ist keine.
+
+    Fail-closed wie beim Wörterbuch: Fehlt die Datei oder ist sie auffällig
+    klein, wird abgebrochen statt leise weniger geprüft.
+    """
+    if not STRINGS.exists():
+        sys.exit(
+            f"Fehlt: {STRINGS.name} — erst `npm run dump:swedish` laufen lassen.\n"
+            "Ohne diese Datei würde die Prüfung stillschweigend nichts prüfen."
+        )
+    daten = json.loads(STRINGS.read_text(encoding="utf-8"))
+    if len(daten) < 2000:
+        sys.exit(
+            f"{STRINGS.name} enthält nur {len(daten)} Zeichenketten — das kann nicht "
+            "der ganze Inhalt sein. Abbruch statt einer Prüfung, die nichts sieht."
+        )
+    return [(e["quelle"], e["sv"]) for e in daten]
 
 
 def check_word(word: str, dictionary: set[str]) -> tuple[str, float, bool]:
@@ -120,6 +138,18 @@ def check_word(word: str, dictionary: set[str]) -> tuple[str, float, bool]:
 
 def main() -> int:
     dictionary = find_dictionary()
+    # Fail-closed (Prüf-Standard §3.2, Befund D-2 der Kaskade 2026-07-25):
+    # Fehlt das Wörterbuch, lief die Prüfung bisher trotzdem durch — mit einem
+    # leeren Satz. Der Bericht meldete dann „0 Einträge", und die App hätte in
+    # ihrem Ehrlichkeits-Abschnitt „gegen ein Wörterbuch mit 0 Einträgen"
+    # angezeigt: eine Prüfung behaupten, die nicht stattgefunden hat. Lieber
+    # laut abbrechen als leise weniger prüfen.
+    if len(dictionary) < 1000:
+        sys.exit(
+            "Wörterbuch nicht gefunden oder zu klein "
+            f"({len(dictionary)} Einträge). `npm ci` ausführen — die Prüfung "
+            "braucht node_modules/dictionary-sv/index.dic."
+        )
     sentences = collect_sentences()
     if not sentences:
         sys.exit("Keine schwedischen Zeichenketten gefunden — Pfade prüfen.")

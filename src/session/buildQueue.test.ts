@@ -72,3 +72,37 @@ describe('pickSegmentForChunk (context variation)', () => {
     expect(picked?.id).toBe(contexts[1].id); // the unseen one
   });
 });
+
+// Anti-Klippe an der einzelnen Wendung: Nach einem „Nochmal" darf der Kontext
+// nicht wechseln. Kontextvariation ist Schritt 4 und gehört hinter den Erfolg.
+describe('Kontext beim Nachlernen', () => {
+  const chunk = seedChunks[0];
+  const kontexte = seedSegments.filter((s) => s.chunkIds.includes(chunk.id));
+
+  const stand = (o: Partial<ChunkState>): ChunkState => ({ ...initialState(chunk.id, NOW), ...o });
+
+  it('zeigt nach einem „Nochmal" DENSELBEN Satz noch einmal', () => {
+    expect(kontexte.length, 'Testvoraussetzung: mehrere Kontexte').toBeGreaterThan(1);
+    const gescheitert = stand({
+      seenSegmentIds: [kontexte[0].id],
+      history: [{ at: NOW, result: 'again', segmentId: kontexte[0].id }],
+    });
+    expect(pickSegmentForChunk(chunk, gescheitert, seedSegments)?.id).toBe(kontexte[0].id);
+  });
+
+  it('variiert nach einem Erfolg wieder', () => {
+    const gelungen = stand({
+      seenSegmentIds: [kontexte[0].id],
+      history: [{ at: NOW, result: 'good', segmentId: kontexte[0].id }],
+    });
+    expect(pickSegmentForChunk(chunk, gelungen, seedSegments)?.id).toBe(kontexte[1].id);
+  });
+
+  it('fällt zurück, wenn der gescheiterte Satz nicht mehr existiert', () => {
+    const weg = stand({
+      seenSegmentIds: [],
+      history: [{ at: NOW, result: 'again', segmentId: 's-gibt-es-nicht' }],
+    });
+    expect(pickSegmentForChunk(chunk, weg, seedSegments)?.id).toBe(kontexte[0].id);
+  });
+});

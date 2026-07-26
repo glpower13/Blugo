@@ -1,27 +1,38 @@
-// SEED CONTENT — deutlich erweitert 2026-07-23, aber weiterhin PROVISORISCH.
+// SEED CONTENT — der GRUNDSTOCK. Der Ausbau je Meilenstein liegt in
+// `seedA1.ts`, `seedA2.ts`, `seedB1.ts`, `seedB2.ts`; ganz unten werden alle
+// vier zu EINEM Baum zusammengesetzt.
 //
 // ⚠️ EHRLICH: Dieser Inhalt ist von der KI/uns verfasst, **NICHT muttersprachlich
 // geprüft**. Er macht den Loop erlebbar und gibt jedem Chunk ≥2 Kontexte (Kontext-
-// variation — docs/03-method.md, Schritt 4), ist aber noch NICHT die geprüfte
-// Produktions-Qualität. Vor echtem Einsatz: schwedische Muttersprache-QS
-// (docs/content-review-schwedisch.md, docs/08-content-pipeline.md). Die
-// Dekodierungen sind STRUKTURELLE Wort-für-Wort-Glossen (Birkenbihl), keine
-// schönen Übersetzungen — deshalb wirken sie absichtlich holprig.
+// variation — docs/03-method.md, Schritt 4). Wortstellung, Idiomatik und Ton hat
+// niemand gegengelesen — das bleibt so, es gibt niemanden dafür
+// (docs/content-review-schwedisch.md). Die Dekodierungen sind STRUKTURELLE
+// Wort-für-Wort-Glossen (Birkenbihl), keine schönen Übersetzungen — deshalb
+// wirken sie absichtlich holprig.
 //
-// Stand 2026-07-25: 8 Bereiche · 30 Themen · 179 Wendungen · 15 Gespräche.
-// Zuletzt ergänzt: Wetter & Jahreszeiten, Wohnen & Zuhause, Arbeit & Beruf,
-// Telefon & Nachrichten, Winter & Schnee. Weiterer Ausbau über die
-// KI-Content-Fabrik (der Moat).
+// Stand 2026-07-25: 11 Bereiche · 55 Themen · 379 Wendungen · 934 Segmente ·
+// 15 Gespräche · 2,89 Kontexte je Wendung. Verteilung über die sprachlichen
+// Meilensteine: A1 108 · A2 119 · B1 104 · B2 48.
 //
 // Der maschinelle Prüf-Stand JE WENDUNG steht in `verification.generated.ts`
 // (Stufe 4 der Prüfkette). Nach jeder Inhaltsänderung neu erzeugen:
 //   npm run check:content && npm run verify:build
 
 import type { Area, Category, Chunk, Segment } from '../../domain/chunk';
+import * as fw from './seedFirstWords';
+import * as t1 from './seedThemes1';
+import * as t2 from './seedThemes2';
+import * as t3 from './seedThemes3';
+import * as t4 from './seedThemes4';
+import * as t5 from './seedThemes5';
+import * as a1 from './seedA1';
+import * as a2 from './seedA2';
+import * as b1 from './seedB1';
+import * as b2 from './seedB2';
 
 // Erste Ebene des Baums: Lebens-BEREICHE (docs/gremium-struktur.md). Der Lerner
 // browst flach: Bereich → Thema → Wendung, statt eine Endlosliste zu scrollen.
-export const seedAreas: Area[] = [
+const baseAreas: Area[] = [
   {
     id: 'area-basics',
     title: 'Erste Schritte',
@@ -43,7 +54,7 @@ export const seedAreas: Area[] = [
   {
     id: 'area-people',
     title: 'Menschen & Alltag',
-    blurb: 'Kennenlernen, Small Talk, Wetter, Wohnen, Arbeit.',
+    blurb: 'Kennenlernen, erzählen, Wetter, Arbeit, Gefühle.',
     order: 4,
   },
   {
@@ -75,13 +86,14 @@ export const seedAreas: Area[] = [
 // Zweite Ebene: Themen (Unterpunkte) je Bereich (docs/gremium-struktur.md). Themen
 // organisieren den Stoff und geben eine ehrliche Abdeckung + eine Fokus-Wahl für
 // NEUEN Stoff — KEINE „Lektionen" zum Abschließen (die Memory-Engine treibt den Loop).
-export const seedCategories: Category[] = [
+const baseCategories: Category[] = [
   {
     id: 'cat-greet',
     areaId: 'area-basics',
     title: 'Begrüßen & Kennenlernen',
     blurb: 'Hallo sagen, sich vorstellen, nach dem Befinden fragen.',
     order: 1,
+    cefr: 'A1',
   },
   {
     id: 'cat-understand',
@@ -89,6 +101,7 @@ export const seedCategories: Category[] = [
     title: 'Sich verständigen',
     blurb: 'Nachfragen, wenn du etwas nicht verstehst.',
     order: 2,
+    cefr: 'A1',
   },
   {
     id: 'cat-around',
@@ -96,6 +109,7 @@ export const seedCategories: Category[] = [
     title: 'Nach dem Weg fragen',
     blurb: 'Um Hilfe bitten, nach dem Weg und der Toilette fragen.',
     order: 1,
+    cefr: 'A1',
   },
   {
     id: 'cat-cafe',
@@ -103,6 +117,7 @@ export const seedCategories: Category[] = [
     title: 'Im Café',
     blurb: 'Etwas bestellen, nach dem Preis fragen, danke sagen.',
     order: 1,
+    cefr: 'A1',
   },
   {
     id: 'cat-food',
@@ -110,6 +125,7 @@ export const seedCategories: Category[] = [
     title: 'Essen & Trinken',
     blurb: 'Hunger, Durst, bestellen, guten Appetit.',
     order: 2,
+    cefr: 'A1',
   },
   {
     id: 'cat-family',
@@ -117,13 +133,18 @@ export const seedCategories: Category[] = [
     title: 'Familie & Herkunft',
     blurb: 'Woher du kommst, wo du wohnst, Familie.',
     order: 1,
+    cefr: 'A1',
   },
   {
     id: 'cat-daily',
     areaId: 'area-people',
-    title: 'Alltag & Small Talk',
-    blurb: 'Wetter, Beruf, Alter, sich verabschieden.',
+    // Hieß „Alltag & Small Talk" und stand damit im selben Bereich wie ein
+    // zweites Thema namens „Small Talk" — beim Ansehen des Baums 2026-07-26
+    // nicht auseinanderzuhalten. Jetzt heißen beide nach dem, was sie sind.
+    title: 'Über sich erzählen',
+    blurb: 'Alter, Beruf, Wetter — womit ein Gespräch anfängt.',
     order: 2,
+    cefr: 'A2',
   },
   {
     id: 'cat-numbers',
@@ -131,6 +152,7 @@ export const seedCategories: Category[] = [
     title: 'Zahlen & Zeit',
     blurb: 'Nach der Uhrzeit und dem Tag fragen.',
     order: 3,
+    cefr: 'A1',
   },
 
   // ── Erweiterung 2026-07-23 · neue Themen (nicht muttersprachlich geprüft) ──
@@ -140,6 +162,7 @@ export const seedCategories: Category[] = [
     title: 'Höflich & Basics',
     blurb: 'Ja, nein, danke, bitte, Entschuldigung.',
     order: 3,
+    cefr: 'A1',
   },
   {
     id: 'cat-transport',
@@ -147,6 +170,7 @@ export const seedCategories: Category[] = [
     title: 'Bus, Bahn & Taxi',
     blurb: 'Tickets, Abfahrt, Gleis, Haltestelle.',
     order: 2,
+    cefr: 'A2',
   },
   {
     id: 'cat-hotel',
@@ -154,6 +178,7 @@ export const seedCategories: Category[] = [
     title: 'Im Hotel',
     blurb: 'Zimmer, Preis, Frühstück, Schlüssel.',
     order: 3,
+    cefr: 'A2',
   },
   {
     id: 'cat-restaurant',
@@ -161,6 +186,7 @@ export const seedCategories: Category[] = [
     title: 'Im Restaurant',
     blurb: 'Tisch, Karte, bestellen, satt & zahlen.',
     order: 3,
+    cefr: 'A2',
   },
   {
     id: 'cat-shop',
@@ -168,6 +194,7 @@ export const seedCategories: Category[] = [
     title: 'Im Geschäft',
     blurb: 'Schauen, Größe, anprobieren, nehmen.',
     order: 1,
+    cefr: 'A1',
   },
   {
     id: 'cat-pay',
@@ -175,6 +202,7 @@ export const seedCategories: Category[] = [
     title: 'Bezahlen',
     blurb: 'Karte oder bar, Beleg, zu teuer.',
     order: 2,
+    cefr: 'A1',
   },
   {
     id: 'cat-groceries',
@@ -182,6 +210,7 @@ export const seedCategories: Category[] = [
     title: 'Im Supermarkt',
     blurb: 'Finden, fragen, Kilo & Tüte, Kasse.',
     order: 3,
+    cefr: 'A1',
   },
   {
     id: 'cat-health',
@@ -189,6 +218,7 @@ export const seedCategories: Category[] = [
     title: 'Beim Arzt & Apotheke',
     blurb: 'Krank, Schmerzen, Arzt, Apotheke.',
     order: 1,
+    cefr: 'A2',
   },
   {
     id: 'cat-help-emergency',
@@ -196,6 +226,7 @@ export const seedCategories: Category[] = [
     title: 'Notfall & Hilfe',
     blurb: 'Hilfe, Polizei, Krankenwagen, verlaufen.',
     order: 2,
+    cefr: 'A1',
   },
   {
     id: 'cat-hangout',
@@ -203,6 +234,7 @@ export const seedCategories: Category[] = [
     title: 'Abmachen & Treffen',
     blurb: 'Sich verabreden, absagen, „wir hören uns".',
     order: 1,
+    cefr: 'A2',
   },
   {
     id: 'cat-workshop',
@@ -210,6 +242,7 @@ export const seedCategories: Category[] = [
     title: 'In der Werkstatt',
     blurb: 'Schrauben, helfen, herausfinden was klappert.',
     order: 2,
+    cefr: 'B1',
   },
   {
     id: 'cat-motor',
@@ -217,6 +250,7 @@ export const seedCategories: Category[] = [
     title: 'Autos & Motorsport',
     blurb: 'Rennen schauen, mitfiebern, über Autos reden.',
     order: 3,
+    cefr: 'B1',
   },
   {
     id: 'cat-gaming',
@@ -224,6 +258,7 @@ export const seedCategories: Category[] = [
     title: 'Zocken & online',
     blurb: 'Zusammen spielen, im Sprachchat reden, kurz weg sein.',
     order: 4,
+    cefr: 'B1',
   },
   {
     id: 'cat-fishing',
@@ -231,6 +266,7 @@ export const seedCategories: Category[] = [
     title: 'Angeln',
     blurb: 'Am See: beißt was, was für ein Fisch, Petri Heil.',
     order: 1,
+    cefr: 'B1',
   },
   {
     id: 'cat-football',
@@ -238,6 +274,7 @@ export const seedCategories: Category[] = [
     title: 'Fußball & Zuschauen',
     blurb: 'Spielstand, Tore, mitfiebern, wer spielt.',
     order: 2,
+    cefr: 'B1',
   },
   {
     id: 'cat-training',
@@ -245,6 +282,7 @@ export const seedCategories: Category[] = [
     title: 'Trainieren',
     blurb: 'Laufen, Gym, verabreden zum Sport.',
     order: 3,
+    cefr: 'B1',
   },
   {
     id: 'cat-nature',
@@ -252,6 +290,7 @@ export const seedCategories: Category[] = [
     title: 'Raus in die Natur',
     blurb: 'Wandern, Wald, Wetter, Übernachten draußen.',
     order: 4,
+    cefr: 'B1',
   },
   {
     id: 'cat-weather',
@@ -259,13 +298,15 @@ export const seedCategories: Category[] = [
     title: 'Wetter & Jahreszeiten',
     blurb: 'Der Klassiker im Small Talk: Sonne, Wind, Regen.',
     order: 4,
+    cefr: 'A2',
   },
   {
     id: 'cat-home',
-    areaId: 'area-people',
+    areaId: 'area-home',
     title: 'Wohnen & Zuhause',
     blurb: 'Wohnung, Zimmer, Miete — und jemanden hereinbitten.',
     order: 5,
+    cefr: 'A2',
   },
   {
     id: 'cat-work',
@@ -273,6 +314,7 @@ export const seedCategories: Category[] = [
     title: 'Arbeit & Beruf',
     blurb: 'Was machst du beruflich, Termine, kurze Absprachen.',
     order: 6,
+    cefr: 'B1',
   },
   {
     id: 'cat-phone',
@@ -280,6 +322,7 @@ export const seedCategories: Category[] = [
     title: 'Telefon & Nachrichten',
     blurb: 'Anrufen, zurückrufen, kurz schreiben.',
     order: 4,
+    cefr: 'A2',
   },
   {
     id: 'cat-winter',
@@ -287,10 +330,11 @@ export const seedCategories: Category[] = [
     title: 'Winter & Schnee',
     blurb: 'Schnee, Glätte, früh dunkel — der schwedische Winter.',
     order: 5,
+    cefr: 'B1',
   },
 ];
 
-export const seedChunks: Chunk[] = [
+const baseChunks: Chunk[] = [
   {
     id: 'c-hej',
     categoryId: 'cat-greet',
@@ -417,7 +461,7 @@ export const seedChunks: Chunk[] = [
   // ── Erweiterung 2026-07-23 (nicht muttersprachlich geprüft, siehe Header) ──
 
   // Begrüßen & Kennenlernen
-  { id: 'c-hejda', categoryId: 'cat-greet', sv: 'hej då', de: 'tschüss', decoding: [{ sv: 'hej', de: 'tschüss' }, { sv: 'då', de: 'dann' }] },
+  { id: 'c-hejda', categoryId: 'cat-greet', sv: 'hej då', de: 'tschüss', decoding: [{ sv: 'hej', de: 'hallo' }, { sv: 'då', de: 'dann' }] },
   { id: 'c-vises', categoryId: 'cat-greet', sv: 'vi ses', de: 'wir sehen uns', decoding: [{ sv: 'vi', de: 'wir' }, { sv: 'ses', de: 'sehen uns' }] },
   { id: 'c-varifran', categoryId: 'cat-greet', sv: 'varifrån kommer du?', de: 'woher kommst du?', decoding: [{ sv: 'varifrån', de: 'woher' }, { sv: 'kommer', de: 'kommst' }, { sv: 'du', de: 'du' }] },
 
@@ -435,7 +479,7 @@ export const seedChunks: Chunk[] = [
   { id: 'c-centrum', categoryId: 'cat-around', sv: 'hur kommer jag till centrum?', de: 'wie komme ich ins Zentrum?', decoding: [{ sv: 'hur', de: 'wie' }, { sv: 'kommer', de: 'komme' }, { sv: 'jag', de: 'ich' }, { sv: 'till', de: 'zu' }, { sv: 'centrum', de: 'Zentrum' }] },
   { id: 'c-hoger', categoryId: 'cat-around', sv: 'till höger', de: 'nach rechts', decoding: [{ sv: 'till', de: 'nach' }, { sv: 'höger', de: 'rechts' }] },
   { id: 'c-vanster', categoryId: 'cat-around', sv: 'till vänster', de: 'nach links', decoding: [{ sv: 'till', de: 'nach' }, { sv: 'vänster', de: 'links' }] },
-  { id: 'c-raktfram', categoryId: 'cat-around', sv: 'rakt fram', de: 'geradeaus', decoding: [{ sv: 'rakt', de: 'gerade' }, { sv: 'fram', de: 'voraus' }] },
+  { id: 'c-raktfram', categoryId: 'cat-around', sv: 'rakt fram', de: 'geradeaus', decoding: [{ sv: 'rakt', de: 'gerade' }, { sv: 'fram', de: 'vorwärts' }] },
 
   // Zahlen & Zeit
   { id: 'c-klockan', categoryId: 'cat-numbers', sv: 'vad är klockan?', de: 'wie spät ist es?', decoding: [{ sv: 'vad', de: 'was' }, { sv: 'är', de: 'ist' }, { sv: 'klockan', de: 'die Uhr' }] },
@@ -495,7 +539,7 @@ export const seedChunks: Chunk[] = [
 
   // Im Restaurant (cat-restaurant)
   { id: 'c-bordtva', categoryId: 'cat-restaurant', sv: 'ett bord för två', de: 'ein Tisch für zwei', decoding: [{ sv: 'ett', de: 'ein' }, { sv: 'bord', de: 'Tisch' }, { sv: 'för', de: 'für' }, { sv: 'två', de: 'zwei' }] },
-  { id: 'c-menyn', categoryId: 'cat-restaurant', sv: 'kan jag få menyn?', de: 'kann ich die Karte haben?', decoding: [{ sv: 'kan', de: 'kann' }, { sv: 'jag', de: 'ich' }, { sv: 'få', de: 'bekommen' }, { sv: 'menyn', de: 'die Speisekarte' }] },
+  { id: 'c-menyn', categoryId: 'cat-restaurant', sv: 'kan jag få menyn?', de: 'kann ich die Karte haben?', decoding: [{ sv: 'kan', de: 'kann' }, { sv: 'jag', de: 'ich' }, { sv: 'få', de: 'bekommen' }, { sv: 'menyn', de: 'die Karte' }] },
   { id: 'c-tardenhar', categoryId: 'cat-restaurant', sv: 'jag tar den här', de: 'ich nehme das hier', decoding: [{ sv: 'jag', de: 'ich' }, { sv: 'tar', de: 'nehme' }, { sv: 'den', de: 'das' }, { sv: 'här', de: 'hier' }] },
   { id: 'c-rekommenderar', categoryId: 'cat-restaurant', sv: 'vad rekommenderar du?', de: 'was empfiehlst du?', decoding: [{ sv: 'vad', de: 'was' }, { sv: 'rekommenderar', de: 'empfiehlst' }, { sv: 'du', de: 'du' }] },
   { id: 'c-vargott', categoryId: 'cat-restaurant', sv: 'det var gott', de: 'das war lecker', decoding: [{ sv: 'det', de: 'das' }, { sv: 'var', de: 'war' }, { sv: 'gott', de: 'lecker' }] },
@@ -513,7 +557,7 @@ export const seedChunks: Chunk[] = [
   { id: 'c-medkort', categoryId: 'cat-pay', sv: 'kan jag betala med kort?', de: 'kann ich mit Karte zahlen?', decoding: [{ sv: 'kan', de: 'kann' }, { sv: 'jag', de: 'ich' }, { sv: 'betala', de: 'zahlen' }, { sv: 'med', de: 'mit' }, { sv: 'kort', de: 'Karte' }] },
   { id: 'c-kontant', categoryId: 'cat-pay', sv: 'jag betalar kontant', de: 'ich zahle bar', decoding: [{ sv: 'jag', de: 'ich' }, { sv: 'betalar', de: 'zahle' }, { sv: 'kontant', de: 'bar' }] },
   { id: 'c-blirdet', categoryId: 'cat-pay', sv: 'hur mycket blir det?', de: 'wie viel macht das?', decoding: [{ sv: 'hur', de: 'wie' }, { sv: 'mycket', de: 'viel' }, { sv: 'blir', de: 'wird' }, { sv: 'det', de: 'es' }] },
-  { id: 'c-kvitto', categoryId: 'cat-pay', sv: 'kan jag få kvittot?', de: 'kann ich den Beleg haben?', decoding: [{ sv: 'kan', de: 'kann' }, { sv: 'jag', de: 'ich' }, { sv: 'få', de: 'bekommen' }, { sv: 'kvittot', de: 'der Beleg' }] },
+  { id: 'c-kvitto', categoryId: 'cat-pay', sv: 'kan jag få kvittot?', de: 'kann ich den Beleg haben?', decoding: [{ sv: 'kan', de: 'kann' }, { sv: 'jag', de: 'ich' }, { sv: 'få', de: 'bekommen' }, { sv: 'kvittot', de: 'der Bon' }] },
   { id: 'c-fordyrt', categoryId: 'cat-pay', sv: 'det är för dyrt', de: 'das ist zu teuer', decoding: [{ sv: 'det', de: 'das' }, { sv: 'är', de: 'ist' }, { sv: 'för', de: 'zu' }, { sv: 'dyrt', de: 'teuer' }] },
 
   // Im Supermarkt (cat-groceries)
@@ -538,17 +582,17 @@ export const seedChunks: Chunk[] = [
   { id: 'c-nodsituation', categoryId: 'cat-help-emergency', sv: 'det är en nödsituation', de: 'das ist ein Notfall', decoding: [{ sv: 'det', de: 'das' }, { sv: 'är', de: 'ist' }, { sv: 'en', de: 'ein' }, { sv: 'nödsituation', de: 'Notfall' }] },
   { id: 'c-vilse', categoryId: 'cat-help-emergency', sv: 'jag har gått vilse', de: 'ich habe mich verlaufen', decoding: [{ sv: 'jag', de: 'ich' }, { sv: 'har', de: 'habe' }, { sv: 'gått', de: 'gegangen' }, { sv: 'vilse', de: 'verirrt' }] },
   { id: 'c-tappatvaska', categoryId: 'cat-help-emergency', sv: 'jag hittar inte min väska', de: 'ich finde meine Tasche nicht', decoding: [{ sv: 'jag', de: 'ich' }, { sv: 'hittar', de: 'finde' }, { sv: 'inte', de: 'nicht' }, { sv: 'min', de: 'meine' }, { sv: 'väska', de: 'Tasche' }] },
-  { id: 'c-sesses', categoryId: 'cat-hangout', sv: 'ska vi ses?', de: 'wollen wir uns treffen?', decoding: [{ sv: 'ska', de: 'sollen' }, { sv: 'vi', de: 'wir' }, { sv: 'ses', de: 'uns sehen' }] },
+  { id: 'c-sesses', categoryId: 'cat-hangout', sv: 'ska vi ses?', de: 'wollen wir uns treffen?', decoding: [{ sv: 'ska', de: 'sollen' }, { sv: 'vi', de: 'wir' }, { sv: 'ses', de: 'sehen uns' }] },
   { id: 'c-vihors', categoryId: 'cat-hangout', sv: 'vi hörs', de: 'wir hören uns', decoding: [{ sv: 'vi', de: 'wir' }, { sv: 'hörs', de: 'hören uns' }] },
   { id: 'c-pavag', categoryId: 'cat-hangout', sv: 'jag är på väg', de: 'ich bin unterwegs', decoding: [{ sv: 'jag', de: 'ich' }, { sv: 'är', de: 'bin' }, { sv: 'på', de: 'auf' }, { sv: 'väg', de: 'Weg' }] },
-  { id: 'c-lateskul', categoryId: 'cat-hangout', sv: 'det låter kul', de: 'das klingt nach Spaß', decoding: [{ sv: 'det', de: 'das' }, { sv: 'låter', de: 'klingt' }, { sv: 'kul', de: 'Spaß' }] },
+  { id: 'c-lateskul', categoryId: 'cat-hangout', sv: 'det låter kul', de: 'das klingt nach Spaß', decoding: [{ sv: 'det', de: 'das' }, { sv: 'låter', de: 'klingt' }, { sv: 'kul', de: 'schön' }] },
   { id: 'c-vadgordu', categoryId: 'cat-hangout', sv: 'vad gör du i helgen?', de: 'was machst du am Wochenende?', decoding: [{ sv: 'vad', de: 'was' }, { sv: 'gör', de: 'machst' }, { sv: 'du', de: 'du' }, { sv: 'i', de: 'in' }, { sv: 'helgen', de: 'dem Wochenende' }] },
   { id: 'c-ringerdig', categoryId: 'cat-hangout', sv: 'jag ringer dig sen', de: 'ich rufe dich später an', decoding: [{ sv: 'jag', de: 'ich' }, { sv: 'ringer', de: 'rufe an' }, { sv: 'dig', de: 'dich' }, { sv: 'sen', de: 'später' }] },
   { id: 'c-kanintekomma', categoryId: 'cat-hangout', sv: 'jag kan inte komma', de: 'ich kann nicht kommen', decoding: [{ sv: 'jag', de: 'ich' }, { sv: 'kan', de: 'kann' }, { sv: 'inte', de: 'nicht' }, { sv: 'komma', de: 'kommen' }] },
   { id: 'c-hallerpa', categoryId: 'cat-workshop', sv: 'vad håller du på med?', de: 'was machst du gerade?', decoding: [{ sv: 'vad', de: 'was' }, { sv: 'håller', de: 'hältst' }, { sv: 'du', de: 'du' }, { sv: 'på', de: 'an' }, { sv: 'med', de: 'mit' }] },
   { id: 'c-startarinte', categoryId: 'cat-workshop', sv: 'bilen startar inte', de: 'das Auto springt nicht an', decoding: [{ sv: 'bilen', de: 'das Auto' }, { sv: 'startar', de: 'startet' }, { sv: 'inte', de: 'nicht' }] },
   { id: 'c-hallden', categoryId: 'cat-workshop', sv: 'kan du hålla den här?', de: 'kannst du das hier halten?', decoding: [{ sv: 'kan', de: 'kannst' }, { sv: 'du', de: 'du' }, { sv: 'hålla', de: 'halten' }, { sv: 'den', de: 'das' }, { sv: 'här', de: 'hier' }] },
-  { id: 'c-latarkonstigt', categoryId: 'cat-workshop', sv: 'det låter konstigt', de: 'das hört sich komisch an', decoding: [{ sv: 'det', de: 'das' }, { sv: 'låter', de: 'klingt' }, { sv: 'konstigt', de: 'komisch' }] },
+  { id: 'c-latarkonstigt', categoryId: 'cat-workshop', sv: 'det låter konstigt', de: 'das hört sich komisch an', decoding: [{ sv: 'det', de: 'das' }, { sv: 'låter', de: 'klingt' }, { sv: 'konstigt', de: 'seltsam' }] },
   { id: 'c-motorn', categoryId: 'cat-workshop', sv: 'det är motorn', de: 'es ist der Motor', decoding: [{ sv: 'det', de: 'es' }, { sv: 'är', de: 'ist' }, { sv: 'motorn', de: 'der Motor' }] },
   { id: 'c-punkterat', categoryId: 'cat-workshop', sv: 'däcket är punkterat', de: 'der Reifen ist platt', decoding: [{ sv: 'däcket', de: 'der Reifen' }, { sv: 'är', de: 'ist' }, { sv: 'punkterat', de: 'durchstochen' }] },
   { id: 'c-fixardet', categoryId: 'cat-workshop', sv: 'jag fixar det', de: 'ich mache das', decoding: [{ sv: 'jag', de: 'ich' }, { sv: 'fixar', de: 'richte' }, { sv: 'det', de: 'das' }] },
@@ -594,7 +638,7 @@ export const seedChunks: Chunk[] = [
   { id: 'c-vilketvader', categoryId: 'cat-weather', sv: 'vilket väder!', de: 'was für ein Wetter!', decoding: [{ sv: 'vilket', de: 'welches' }, { sv: 'väder', de: 'Wetter' }] },
   { id: 'c-blasermycket', categoryId: 'cat-weather', sv: 'det blåser mycket', de: 'es ist sehr windig', decoding: [{ sv: 'det', de: 'es' }, { sv: 'blåser', de: 'weht' }, { sv: 'mycket', de: 'viel' }] },
   { id: 'c-blirsoligt', categoryId: 'cat-weather', sv: 'imorgon blir det soligt', de: 'morgen wird es sonnig', decoding: [{ sv: 'imorgon', de: 'morgen' }, { sv: 'blir', de: 'wird' }, { sv: 'det', de: 'es' }, { sv: 'soligt', de: 'sonnig' }] },
-  { id: 'c-tamedparaply', categoryId: 'cat-weather', sv: 'ta med paraply', de: 'nimm einen Schirm mit', decoding: [{ sv: 'ta', de: 'nimm' }, { sv: 'med', de: 'mit' }, { sv: 'paraply', de: 'Regenschirm' }] },
+  { id: 'c-tamedparaply', categoryId: 'cat-weather', sv: 'ta med paraply', de: 'nimm einen Schirm mit', decoding: [{ sv: 'ta', de: 'nimm' }, { sv: 'med', de: 'mit' }, { sv: 'paraply', de: 'Schirm' }] },
   { id: 'c-molnigt', categoryId: 'cat-weather', sv: 'det är molnigt idag', de: 'es ist heute bewölkt', decoding: [{ sv: 'det', de: 'es' }, { sv: 'är', de: 'ist' }, { sv: 'molnigt', de: 'wolkig' }, { sv: 'idag', de: 'heute' }] },
   { id: 'c-varmtinne', categoryId: 'cat-weather', sv: 'det är varmt inne', de: 'drinnen ist es warm', decoding: [{ sv: 'det', de: 'es' }, { sv: 'är', de: 'ist' }, { sv: 'varmt', de: 'warm' }, { sv: 'inne', de: 'drinnen' }] },
   { id: 'c-borilagenhet', categoryId: 'cat-home', sv: 'jag bor i en lägenhet', de: 'ich wohne in einer Wohnung', decoding: [{ sv: 'jag', de: 'ich' }, { sv: 'bor', de: 'wohne' }, { sv: 'i', de: 'in' }, { sv: 'en', de: 'einer' }, { sv: 'lägenhet', de: 'Wohnung' }] },
@@ -603,7 +647,7 @@ export const seedChunks: Chunk[] = [
   { id: 'c-bormedkompis', categoryId: 'cat-home', sv: 'jag bor med en kompis', de: 'ich wohne mit einem Kumpel', decoding: [{ sv: 'jag', de: 'ich' }, { sv: 'bor', de: 'wohne' }, { sv: 'med', de: 'mit' }, { sv: 'en', de: 'einem' }, { sv: 'kompis', de: 'Kumpel' }] },
   { id: 'c-hyranhog', categoryId: 'cat-home', sv: 'hyran är hög', de: 'die Miete ist hoch', decoding: [{ sv: 'hyran', de: 'die Miete' }, { sv: 'är', de: 'ist' }, { sv: 'hög', de: 'hoch' }] },
   { id: 'c-valkommenin', categoryId: 'cat-home', sv: 'välkommen in', de: 'komm herein', decoding: [{ sv: 'välkommen', de: 'willkommen' }, { sv: 'in', de: 'herein' }] },
-  { id: 'c-vadjobbardu', categoryId: 'cat-work', sv: 'jag har mycket att göra', de: 'ich habe viel zu tun', decoding: [{ sv: 'jag', de: 'ich' }, { sv: 'har', de: 'habe' }, { sv: 'mycket', de: 'viel' }, { sv: 'att', de: 'zu' }, { sv: 'göra', de: 'tun' }] },
+  { id: 'c-vadjobbardu', categoryId: 'cat-work', sv: 'jag har mycket att göra', de: 'ich habe viel zu tun', decoding: [{ sv: 'jag', de: 'ich' }, { sv: 'har', de: 'habe' }, { sv: 'mycket', de: 'viel' }, { sv: 'att', de: 'zu' }, { sv: 'göra', de: 'machen' }] },
   { id: 'c-jobbarpakontor', categoryId: 'cat-work', sv: 'jag jobbar på ett kontor', de: 'ich arbeite in einem Büro', decoding: [{ sv: 'jag', de: 'ich' }, { sv: 'jobbar', de: 'arbeite' }, { sv: 'på', de: 'auf' }, { sv: 'ett', de: 'einem' }, { sv: 'kontor', de: 'Büro' }] },
   { id: 'c-ledigidag', categoryId: 'cat-work', sv: 'jag är ledig idag', de: 'ich habe heute frei', decoding: [{ sv: 'jag', de: 'ich' }, { sv: 'är', de: 'bin' }, { sv: 'ledig', de: 'frei' }, { sv: 'idag', de: 'heute' }] },
   { id: 'c-motetborjar', categoryId: 'cat-work', sv: 'mötet börjar klockan nio', de: 'das Treffen beginnt um neun', decoding: [{ sv: 'mötet', de: 'das Treffen' }, { sv: 'börjar', de: 'beginnt' }, { sv: 'klockan', de: 'die Uhr' }, { sv: 'nio', de: 'neun' }] },
@@ -623,7 +667,7 @@ export const seedChunks: Chunk[] = [
   { id: 'c-morkttidigt', categoryId: 'cat-winter', sv: 'det blir mörkt tidigt', de: 'es wird früh dunkel', decoding: [{ sv: 'det', de: 'es' }, { sv: 'blir', de: 'wird' }, { sv: 'mörkt', de: 'dunkel' }, { sv: 'tidigt', de: 'früh' }] },
 ];
 
-export const seedSegments: Segment[] = [
+const baseSegments: Segment[] = [
   // c-hej in two contexts
   {
     id: 's-cafe',
@@ -808,7 +852,7 @@ export const seedSegments: Segment[] = [
       { sv: 'tack', de: 'danke' },
       { sv: 'så', de: 'so' },
       { sv: 'mycket', de: 'viel' },
-      { sv: 'hej', de: 'tschüss' },
+      { sv: 'hej', de: 'hallo' },
       { sv: 'då', de: 'dann' },
     ],
     chunkIds: ['c-tack'],
@@ -928,8 +972,8 @@ export const seedSegments: Segment[] = [
   // ── Erweiterung 2026-07-23 · je 2 Kontexte (nicht muttersprachlich geprüft) ──
 
   // c-hejda
-  { id: 's-hejda1', level: 1, sv: 'Tack och hej då!', de: 'Danke und tschüss!', decoding: [{ sv: 'tack', de: 'danke' }, { sv: 'och', de: 'und' }, { sv: 'hej', de: 'tschüss' }, { sv: 'då', de: 'dann' }], chunkIds: ['c-hejda'] },
-  { id: 's-hejda2', level: 1, sv: 'Hej då, vi ses!', de: 'Tschüss, wir sehen uns!', decoding: [{ sv: 'hej', de: 'tschüss' }, { sv: 'då', de: 'dann' }, { sv: 'vi', de: 'wir' }, { sv: 'ses', de: 'sehen uns' }], chunkIds: ['c-hejda', 'c-vises'] },
+  { id: 's-hejda1', level: 1, sv: 'Tack och hej då!', de: 'Danke und tschüss!', decoding: [{ sv: 'tack', de: 'danke' }, { sv: 'och', de: 'und' }, { sv: 'hej', de: 'hallo' }, { sv: 'då', de: 'dann' }], chunkIds: ['c-hejda'] },
+  { id: 's-hejda2', level: 1, sv: 'Hej då, vi ses!', de: 'Tschüss, wir sehen uns!', decoding: [{ sv: 'hej', de: 'hallo' }, { sv: 'då', de: 'dann' }, { sv: 'vi', de: 'wir' }, { sv: 'ses', de: 'sehen uns' }], chunkIds: ['c-hejda', 'c-vises'] },
   // c-vises
   { id: 's-vises1', level: 1, sv: 'Vi ses imorgon.', de: 'Wir sehen uns morgen.', decoding: [{ sv: 'vi', de: 'wir' }, { sv: 'ses', de: 'sehen uns' }, { sv: 'imorgon', de: 'morgen' }], chunkIds: ['c-vises'] },
   { id: 's-vises2', level: 1, sv: 'Okej, vi ses snart!', de: 'Okay, wir sehen uns bald!', decoding: [{ sv: 'okej', de: 'okay' }, { sv: 'vi', de: 'wir' }, { sv: 'ses', de: 'sehen uns' }, { sv: 'snart', de: 'bald' }], chunkIds: ['c-vises'] },
@@ -967,8 +1011,8 @@ export const seedSegments: Segment[] = [
   { id: 's-vanster1', level: 1, sv: 'Sväng till vänster.', de: 'Bieg nach links ab.', decoding: [{ sv: 'sväng', de: 'bieg ab' }, { sv: 'till', de: 'nach' }, { sv: 'vänster', de: 'links' }], chunkIds: ['c-vanster'] },
   { id: 's-vanster2', level: 1, sv: 'Det är till vänster.', de: 'Es ist links.', decoding: [{ sv: 'det', de: 'es' }, { sv: 'är', de: 'ist' }, { sv: 'till', de: 'nach' }, { sv: 'vänster', de: 'links' }], chunkIds: ['c-vanster'] },
   // c-raktfram
-  { id: 's-raktfram1', level: 1, sv: 'Gå rakt fram.', de: 'Geh geradeaus.', decoding: [{ sv: 'gå', de: 'geh' }, { sv: 'rakt', de: 'gerade' }, { sv: 'fram', de: 'voraus' }], chunkIds: ['c-raktfram'] },
-  { id: 's-raktfram2', level: 1, sv: 'Kör rakt fram, tack.', de: 'Fahr geradeaus, bitte.', decoding: [{ sv: 'kör', de: 'fahr' }, { sv: 'rakt', de: 'gerade' }, { sv: 'fram', de: 'voraus' }, { sv: 'tack', de: 'bitte' }], chunkIds: ['c-raktfram'] },
+  { id: 's-raktfram1', level: 1, sv: 'Gå rakt fram.', de: 'Geh geradeaus.', decoding: [{ sv: 'gå', de: 'geh' }, { sv: 'rakt', de: 'gerade' }, { sv: 'fram', de: 'vorwärts' }], chunkIds: ['c-raktfram'] },
+  { id: 's-raktfram2', level: 1, sv: 'Kör rakt fram, tack.', de: 'Fahr geradeaus, bitte.', decoding: [{ sv: 'kör', de: 'fahr' }, { sv: 'rakt', de: 'gerade' }, { sv: 'fram', de: 'vorwärts' }, { sv: 'tack', de: 'bitte' }], chunkIds: ['c-raktfram'] },
 
   // c-klockan
   { id: 's-klockan1', level: 1, sv: 'Ursäkta, vad är klockan?', de: 'Entschuldigung, wie spät ist es?', decoding: [{ sv: 'ursäkta', de: 'entschuldige' }, { sv: 'vad', de: 'was' }, { sv: 'är', de: 'ist' }, { sv: 'klockan', de: 'die Uhr' }], chunkIds: ['c-klockan'] },
@@ -1044,7 +1088,7 @@ export const seedSegments: Segment[] = [
   { id: 's-jatack2', level: 1, sv: 'Kaffe? Ja, tack!', de: 'Kaffee? Ja, bitte!', decoding: [{ sv: 'kaffe', de: 'Kaffee' }, { sv: 'ja', de: 'ja' }, { sv: 'tack', de: 'bitte' }], chunkIds: ['c-jatack'] },
   { id: 's-nejtack1', level: 1, sv: 'Nej, tack, jag är mätt.', de: 'Nein, danke, ich bin satt.', decoding: [{ sv: 'nej', de: 'nein' }, { sv: 'tack', de: 'danke' }, { sv: 'jag', de: 'ich' }, { sv: 'är', de: 'bin' }, { sv: 'mätt', de: 'satt' }], chunkIds: ['c-nejtack'] },
   { id: 's-nejtack2', level: 1, sv: 'Mer kaffe? Nej, tack.', de: 'Mehr Kaffee? Nein, danke.', decoding: [{ sv: 'mer', de: 'mehr' }, { sv: 'kaffe', de: 'Kaffee' }, { sv: 'nej', de: 'nein' }, { sv: 'tack', de: 'danke' }], chunkIds: ['c-nejtack'] },
-  { id: 's-varsagod1', level: 1, sv: 'Varsågod, här är menyn.', de: 'Bitte, hier ist die Karte.', decoding: [{ sv: 'varsågod', de: 'bitte' }, { sv: 'här', de: 'hier' }, { sv: 'är', de: 'ist' }, { sv: 'menyn', de: 'die Speisekarte' }], chunkIds: ['c-varsagod'] },
+  { id: 's-varsagod1', level: 1, sv: 'Varsågod, här är menyn.', de: 'Bitte, hier ist die Karte.', decoding: [{ sv: 'varsågod', de: 'bitte' }, { sv: 'här', de: 'hier' }, { sv: 'är', de: 'ist' }, { sv: 'menyn', de: 'die Karte' }], chunkIds: ['c-varsagod'] },
   { id: 's-varsagod2', level: 1, sv: 'Tack! – Varsågod.', de: 'Danke! – Bitte.', decoding: [{ sv: 'tack', de: 'danke' }, { sv: 'varsågod', de: 'bitte' }], chunkIds: ['c-varsagod'] },
   { id: 's-ingenfara1', level: 1, sv: 'Ingen fara, det är okej.', de: 'Kein Problem, es ist okay.', decoding: [{ sv: 'ingen', de: 'keine' }, { sv: 'fara', de: 'Gefahr' }, { sv: 'det', de: 'es' }, { sv: 'är', de: 'ist' }, { sv: 'okej', de: 'okay' }], chunkIds: ['c-ingenfara'] },
   { id: 's-ingenfara2', level: 1, sv: 'Förlåt! – Ingen fara.', de: 'Entschuldigung! – Kein Problem.', decoding: [{ sv: 'förlåt', de: 'verzeih' }, { sv: 'ingen', de: 'keine' }, { sv: 'fara', de: 'Gefahr' }], chunkIds: ['c-ingenfara', 'c-forlat'] },
@@ -1084,8 +1128,8 @@ export const seedSegments: Segment[] = [
   // Im Restaurant
   { id: 's-bordtva1', level: 1, sv: 'Hej, ett bord för två, tack.', de: 'Hallo, einen Tisch für zwei, bitte.', decoding: [{ sv: 'hej', de: 'hallo' }, { sv: 'ett', de: 'ein' }, { sv: 'bord', de: 'Tisch' }, { sv: 'för', de: 'für' }, { sv: 'två', de: 'zwei' }, { sv: 'tack', de: 'bitte' }], chunkIds: ['c-bordtva'] },
   { id: 's-bordtva2', level: 1, sv: 'Har ni ett bord för två?', de: 'Habt ihr einen Tisch für zwei?', decoding: [{ sv: 'har', de: 'haben' }, { sv: 'ni', de: 'ihr' }, { sv: 'ett', de: 'ein' }, { sv: 'bord', de: 'Tisch' }, { sv: 'för', de: 'für' }, { sv: 'två', de: 'zwei' }], chunkIds: ['c-bordtva'] },
-  { id: 's-menyn1', level: 1, sv: 'Kan jag få menyn, tack?', de: 'Kann ich die Karte haben, bitte?', decoding: [{ sv: 'kan', de: 'kann' }, { sv: 'jag', de: 'ich' }, { sv: 'få', de: 'bekommen' }, { sv: 'menyn', de: 'die Speisekarte' }, { sv: 'tack', de: 'bitte' }], chunkIds: ['c-menyn'] },
-  { id: 's-menyn2', level: 1, sv: 'Ursäkta, kan jag få menyn?', de: 'Entschuldigung, kann ich die Karte haben?', decoding: [{ sv: 'ursäkta', de: 'entschuldige' }, { sv: 'kan', de: 'kann' }, { sv: 'jag', de: 'ich' }, { sv: 'få', de: 'bekommen' }, { sv: 'menyn', de: 'die Speisekarte' }], chunkIds: ['c-menyn'] },
+  { id: 's-menyn1', level: 1, sv: 'Kan jag få menyn, tack?', de: 'Kann ich die Karte haben, bitte?', decoding: [{ sv: 'kan', de: 'kann' }, { sv: 'jag', de: 'ich' }, { sv: 'få', de: 'bekommen' }, { sv: 'menyn', de: 'die Karte' }, { sv: 'tack', de: 'bitte' }], chunkIds: ['c-menyn'] },
+  { id: 's-menyn2', level: 1, sv: 'Ursäkta, kan jag få menyn?', de: 'Entschuldigung, kann ich die Karte haben?', decoding: [{ sv: 'ursäkta', de: 'entschuldige' }, { sv: 'kan', de: 'kann' }, { sv: 'jag', de: 'ich' }, { sv: 'få', de: 'bekommen' }, { sv: 'menyn', de: 'die Karte' }], chunkIds: ['c-menyn'] },
   { id: 's-tardenhar1', level: 1, sv: 'Jag tar den här, tack.', de: 'Ich nehme das hier, bitte.', decoding: [{ sv: 'jag', de: 'ich' }, { sv: 'tar', de: 'nehme' }, { sv: 'den', de: 'das' }, { sv: 'här', de: 'hier' }, { sv: 'tack', de: 'bitte' }], chunkIds: ['c-tardenhar'] },
   { id: 's-tardenhar2', level: 1, sv: 'Jag tar den här och en kaffe.', de: 'Ich nehme das hier und einen Kaffee.', decoding: [{ sv: 'jag', de: 'ich' }, { sv: 'tar', de: 'nehme' }, { sv: 'den', de: 'das' }, { sv: 'här', de: 'hier' }, { sv: 'och', de: 'und' }, { sv: 'en', de: 'einen' }, { sv: 'kaffe', de: 'Kaffee' }], chunkIds: ['c-tardenhar'] },
   { id: 's-rekommenderar1', level: 1, sv: 'Vad rekommenderar du?', de: 'Was empfiehlst du?', decoding: [{ sv: 'vad', de: 'was' }, { sv: 'rekommenderar', de: 'empfiehlst' }, { sv: 'du', de: 'du' }], chunkIds: ['c-rekommenderar'] },
@@ -1116,8 +1160,8 @@ export const seedSegments: Segment[] = [
   { id: 's-kontant2', level: 1, sv: 'Nej, jag betalar kontant.', de: 'Nein, ich zahle bar.', decoding: [{ sv: 'nej', de: 'nein' }, { sv: 'jag', de: 'ich' }, { sv: 'betalar', de: 'zahle' }, { sv: 'kontant', de: 'bar' }], chunkIds: ['c-kontant'] },
   { id: 's-blirdet1', level: 1, sv: 'Hur mycket blir det?', de: 'Wie viel macht das?', decoding: [{ sv: 'hur', de: 'wie' }, { sv: 'mycket', de: 'viel' }, { sv: 'blir', de: 'wird' }, { sv: 'det', de: 'es' }], chunkIds: ['c-blirdet'] },
   { id: 's-blirdet2', level: 1, sv: 'Ursäkta, hur mycket blir det?', de: 'Entschuldigung, wie viel macht das?', decoding: [{ sv: 'ursäkta', de: 'entschuldige' }, { sv: 'hur', de: 'wie' }, { sv: 'mycket', de: 'viel' }, { sv: 'blir', de: 'wird' }, { sv: 'det', de: 'es' }], chunkIds: ['c-blirdet'] },
-  { id: 's-kvitto1', level: 1, sv: 'Kan jag få kvittot, tack?', de: 'Kann ich den Beleg haben, bitte?', decoding: [{ sv: 'kan', de: 'kann' }, { sv: 'jag', de: 'ich' }, { sv: 'få', de: 'bekommen' }, { sv: 'kvittot', de: 'der Beleg' }, { sv: 'tack', de: 'bitte' }], chunkIds: ['c-kvitto'] },
-  { id: 's-kvitto2', level: 1, sv: 'Får jag kvittot, tack?', de: 'Bekomme ich den Beleg, bitte?', decoding: [{ sv: 'får', de: 'bekomme' }, { sv: 'jag', de: 'ich' }, { sv: 'kvittot', de: 'der Beleg' }, { sv: 'tack', de: 'bitte' }], chunkIds: ['c-kvitto'] },
+  { id: 's-kvitto1', level: 1, sv: 'Kan jag få kvittot, tack?', de: 'Kann ich den Beleg haben, bitte?', decoding: [{ sv: 'kan', de: 'kann' }, { sv: 'jag', de: 'ich' }, { sv: 'få', de: 'bekommen' }, { sv: 'kvittot', de: 'der Bon' }, { sv: 'tack', de: 'bitte' }], chunkIds: ['c-kvitto'] },
+  { id: 's-kvitto2', level: 1, sv: 'Får jag kvittot, tack?', de: 'Bekomme ich den Beleg, bitte?', decoding: [{ sv: 'får', de: 'bekomme' }, { sv: 'jag', de: 'ich' }, { sv: 'kvittot', de: 'der Bon' }, { sv: 'tack', de: 'bitte' }], chunkIds: ['c-kvitto'] },
   { id: 's-fordyrt1', level: 1, sv: 'Nej, det är för dyrt.', de: 'Nein, das ist zu teuer.', decoding: [{ sv: 'nej', de: 'nein' }, { sv: 'det', de: 'das' }, { sv: 'är', de: 'ist' }, { sv: 'för', de: 'zu' }, { sv: 'dyrt', de: 'teuer' }], chunkIds: ['c-fordyrt'] },
   { id: 's-fordyrt2', level: 1, sv: 'Oj, det är för dyrt.', de: 'Oh, das ist zu teuer.', decoding: [{ sv: 'oj', de: 'oh' }, { sv: 'det', de: 'das' }, { sv: 'är', de: 'ist' }, { sv: 'för', de: 'zu' }, { sv: 'dyrt', de: 'teuer' }], chunkIds: ['c-fordyrt'] },
 
@@ -1160,14 +1204,14 @@ export const seedSegments: Segment[] = [
   { id: 's-vilse2', level: 1, sv: 'Ursäkta, jag har gått vilse.', de: 'Entschuldigung, ich habe mich verlaufen.', decoding: [{ sv: 'ursäkta', de: 'entschuldige' }, { sv: 'jag', de: 'ich' }, { sv: 'har', de: 'habe' }, { sv: 'gått', de: 'gegangen' }, { sv: 'vilse', de: 'verirrt' }], chunkIds: ['c-vilse'] },
   { id: 's-tappatvaska1', level: 1, sv: 'Jag hittar inte min väska.', de: 'Ich finde meine Tasche nicht.', decoding: [{ sv: 'jag', de: 'ich' }, { sv: 'hittar', de: 'finde' }, { sv: 'inte', de: 'nicht' }, { sv: 'min', de: 'meine' }, { sv: 'väska', de: 'Tasche' }], chunkIds: ['c-tappatvaska'] },
   { id: 's-tappatvaska2', level: 1, sv: 'Hjälp, jag hittar inte min väska!', de: 'Hilfe, ich finde meine Tasche nicht!', decoding: [{ sv: 'hjälp', de: 'Hilfe' }, { sv: 'jag', de: 'ich' }, { sv: 'hittar', de: 'finde' }, { sv: 'inte', de: 'nicht' }, { sv: 'min', de: 'meine' }, { sv: 'väska', de: 'Tasche' }], chunkIds: ['c-tappatvaska'] },
-  { id: 's-sesses1', level: 1, sv: 'Hej! Ska vi ses på lördag?', de: 'Hallo! Wollen wir uns am Samstag treffen?', decoding: [{ sv: 'hej', de: 'hallo' }, { sv: 'ska', de: 'sollen' }, { sv: 'vi', de: 'wir' }, { sv: 'ses', de: 'uns sehen' }, { sv: 'på', de: 'am' }, { sv: 'lördag', de: 'Samstag' }], chunkIds: ['c-sesses'] },
-  { id: 's-sesses2', level: 1, sv: 'Ska vi ses efter jobbet?', de: 'Wollen wir uns nach der Arbeit treffen?', decoding: [{ sv: 'ska', de: 'sollen' }, { sv: 'vi', de: 'wir' }, { sv: 'ses', de: 'uns sehen' }, { sv: 'efter', de: 'nach' }, { sv: 'jobbet', de: 'der Arbeit' }], chunkIds: ['c-sesses'] },
+  { id: 's-sesses1', level: 1, sv: 'Hej! Ska vi ses på lördag?', de: 'Hallo! Wollen wir uns am Samstag treffen?', decoding: [{ sv: 'hej', de: 'hallo' }, { sv: 'ska', de: 'sollen' }, { sv: 'vi', de: 'wir' }, { sv: 'ses', de: 'sehen uns' }, { sv: 'på', de: 'am' }, { sv: 'lördag', de: 'Samstag' }], chunkIds: ['c-sesses'] },
+  { id: 's-sesses2', level: 1, sv: 'Ska vi ses efter jobbet?', de: 'Wollen wir uns nach der Arbeit treffen?', decoding: [{ sv: 'ska', de: 'sollen' }, { sv: 'vi', de: 'wir' }, { sv: 'ses', de: 'sehen uns' }, { sv: 'efter', de: 'nach' }, { sv: 'jobbet', de: 'der Arbeit' }], chunkIds: ['c-sesses'] },
   { id: 's-vihors1', level: 1, sv: 'Okej, vi hörs!', de: 'Okay, wir hören uns!', decoding: [{ sv: 'okej', de: 'okay' }, { sv: 'vi', de: 'wir' }, { sv: 'hörs', de: 'hören uns' }], chunkIds: ['c-vihors'] },
   { id: 's-vihors2', level: 1, sv: 'Tack för idag, vi hörs.', de: 'Danke für heute, wir hören uns.', decoding: [{ sv: 'tack', de: 'danke' }, { sv: 'för', de: 'für' }, { sv: 'idag', de: 'heute' }, { sv: 'vi', de: 'wir' }, { sv: 'hörs', de: 'hören uns' }], chunkIds: ['c-vihors'] },
   { id: 's-pavag1', level: 1, sv: 'Jag är på väg nu.', de: 'Ich bin jetzt unterwegs.', decoding: [{ sv: 'jag', de: 'ich' }, { sv: 'är', de: 'bin' }, { sv: 'på', de: 'auf' }, { sv: 'väg', de: 'Weg' }, { sv: 'nu', de: 'jetzt' }], chunkIds: ['c-pavag'] },
   { id: 's-pavag2', level: 1, sv: 'Vänta lite, jag är på väg.', de: 'Warte kurz, ich bin unterwegs.', decoding: [{ sv: 'vänta', de: 'warte' }, { sv: 'lite', de: 'wenig' }, { sv: 'jag', de: 'ich' }, { sv: 'är', de: 'bin' }, { sv: 'på', de: 'auf' }, { sv: 'väg', de: 'Weg' }], chunkIds: ['c-pavag', 'c-vantalite'] },
-  { id: 's-lateskul1', level: 1, sv: 'Det låter kul!', de: 'Das klingt nach Spaß!', decoding: [{ sv: 'det', de: 'das' }, { sv: 'låter', de: 'klingt' }, { sv: 'kul', de: 'Spaß' }], chunkIds: ['c-lateskul'] },
-  { id: 's-lateskul2', level: 1, sv: 'Ja, det låter kul. Jag är med.', de: 'Ja, das klingt nach Spaß. Ich bin dabei.', decoding: [{ sv: 'ja', de: 'ja' }, { sv: 'det', de: 'das' }, { sv: 'låter', de: 'klingt' }, { sv: 'kul', de: 'Spaß' }, { sv: 'jag', de: 'ich' }, { sv: 'är', de: 'bin' }, { sv: 'med', de: 'mit' }], chunkIds: ['c-lateskul', 'c-jagarmed'] },
+  { id: 's-lateskul1', level: 1, sv: 'Det låter kul!', de: 'Das klingt nach Spaß!', decoding: [{ sv: 'det', de: 'das' }, { sv: 'låter', de: 'klingt' }, { sv: 'kul', de: 'schön' }], chunkIds: ['c-lateskul'] },
+  { id: 's-lateskul2', level: 1, sv: 'Ja, det låter kul. Jag är med.', de: 'Ja, das klingt nach Spaß. Ich bin dabei.', decoding: [{ sv: 'ja', de: 'ja' }, { sv: 'det', de: 'das' }, { sv: 'låter', de: 'klingt' }, { sv: 'kul', de: 'schön' }, { sv: 'jag', de: 'ich' }, { sv: 'är', de: 'bin' }, { sv: 'med', de: 'mit' }], chunkIds: ['c-lateskul', 'c-jagarmed'] },
   { id: 's-vadgordu1', level: 1, sv: 'Vad gör du i helgen?', de: 'Was machst du am Wochenende?', decoding: [{ sv: 'vad', de: 'was' }, { sv: 'gör', de: 'machst' }, { sv: 'du', de: 'du' }, { sv: 'i', de: 'in' }, { sv: 'helgen', de: 'dem Wochenende' }], chunkIds: ['c-vadgordu'] },
   { id: 's-vadgordu2', level: 1, sv: 'Hej! Vad gör du i helgen?', de: 'Hallo! Was machst du am Wochenende?', decoding: [{ sv: 'hej', de: 'hallo' }, { sv: 'vad', de: 'was' }, { sv: 'gör', de: 'machst' }, { sv: 'du', de: 'du' }, { sv: 'i', de: 'in' }, { sv: 'helgen', de: 'dem Wochenende' }], chunkIds: ['c-vadgordu'] },
   { id: 's-ringerdig1', level: 1, sv: 'Jag ringer dig sen.', de: 'Ich rufe dich später an.', decoding: [{ sv: 'jag', de: 'ich' }, { sv: 'ringer', de: 'rufe an' }, { sv: 'dig', de: 'dich' }, { sv: 'sen', de: 'später' }], chunkIds: ['c-ringerdig'] },
@@ -1180,8 +1224,8 @@ export const seedSegments: Segment[] = [
   { id: 's-startarinte2', level: 1, sv: 'Problemet är att bilen inte startar.', de: 'Das Problem ist, dass das Auto nicht anspringt.', decoding: [{ sv: 'problemet', de: 'das Problem' }, { sv: 'är', de: 'ist' }, { sv: 'att', de: 'dass' }, { sv: 'bilen', de: 'das Auto' }, { sv: 'inte', de: 'nicht' }, { sv: 'startar', de: 'startet' }], chunkIds: ['c-startarinte'] },
   { id: 's-hallden1', level: 1, sv: 'Kan du hålla den här?', de: 'Kannst du das hier halten?', decoding: [{ sv: 'kan', de: 'kannst' }, { sv: 'du', de: 'du' }, { sv: 'hålla', de: 'halten' }, { sv: 'den', de: 'das' }, { sv: 'här', de: 'hier' }], chunkIds: ['c-hallden'] },
   { id: 's-hallden2', level: 1, sv: 'Kan du hålla den här, tack?', de: 'Kannst du das hier halten, bitte?', decoding: [{ sv: 'kan', de: 'kannst' }, { sv: 'du', de: 'du' }, { sv: 'hålla', de: 'halten' }, { sv: 'den', de: 'das' }, { sv: 'här', de: 'hier' }, { sv: 'tack', de: 'bitte' }], chunkIds: ['c-hallden'] },
-  { id: 's-latarkonstigt1', level: 1, sv: 'Det låter konstigt.', de: 'Das hört sich komisch an.', decoding: [{ sv: 'det', de: 'das' }, { sv: 'låter', de: 'klingt' }, { sv: 'konstigt', de: 'komisch' }], chunkIds: ['c-latarkonstigt'] },
-  { id: 's-latarkonstigt2', level: 1, sv: 'Lyssna, det låter konstigt.', de: 'Hör mal, das hört sich komisch an.', decoding: [{ sv: 'lyssna', de: 'hör' }, { sv: 'det', de: 'das' }, { sv: 'låter', de: 'klingt' }, { sv: 'konstigt', de: 'komisch' }], chunkIds: ['c-latarkonstigt'] },
+  { id: 's-latarkonstigt1', level: 1, sv: 'Det låter konstigt.', de: 'Das hört sich komisch an.', decoding: [{ sv: 'det', de: 'das' }, { sv: 'låter', de: 'klingt' }, { sv: 'konstigt', de: 'seltsam' }], chunkIds: ['c-latarkonstigt'] },
+  { id: 's-latarkonstigt2', level: 1, sv: 'Lyssna, det låter konstigt.', de: 'Hör mal, das hört sich komisch an.', decoding: [{ sv: 'lyssna', de: 'hör' }, { sv: 'det', de: 'das' }, { sv: 'låter', de: 'klingt' }, { sv: 'konstigt', de: 'seltsam' }], chunkIds: ['c-latarkonstigt'] },
   { id: 's-motorn1', level: 1, sv: 'Jag tror det är motorn.', de: 'Ich glaube, es ist der Motor.', decoding: [{ sv: 'jag', de: 'ich' }, { sv: 'tror', de: 'glaube' }, { sv: 'det', de: 'es' }, { sv: 'är', de: 'ist' }, { sv: 'motorn', de: 'der Motor' }], chunkIds: ['c-motorn'] },
   { id: 's-motorn2', level: 1, sv: 'Nej, det är motorn.', de: 'Nein, es ist der Motor.', decoding: [{ sv: 'nej', de: 'nein' }, { sv: 'det', de: 'es' }, { sv: 'är', de: 'ist' }, { sv: 'motorn', de: 'der Motor' }], chunkIds: ['c-motorn'] },
   { id: 's-punkterat1', level: 1, sv: 'Däcket är punkterat.', de: 'Der Reifen ist platt.', decoding: [{ sv: 'däcket', de: 'der Reifen' }, { sv: 'är', de: 'ist' }, { sv: 'punkterat', de: 'durchstochen' }], chunkIds: ['c-punkterat'] },
@@ -1274,8 +1318,8 @@ export const seedSegments: Segment[] = [
   { id: 's-blirsoligt1', level: 1, sv: 'Imorgon blir det soligt igen.', de: 'Morgen wird es wieder sonnig.', decoding: [{ sv: 'imorgon', de: 'morgen' }, { sv: 'blir', de: 'wird' }, { sv: 'det', de: 'es' }, { sv: 'soligt', de: 'sonnig' }, { sv: 'igen', de: 'wieder' }], chunkIds: ['c-blirsoligt'] },
   { id: 's-blirsoligt2', level: 1, sv: 'Imorgon blir det soligt, säger de.', de: 'Morgen wird es sonnig, sagen sie.', decoding: [{ sv: 'imorgon', de: 'morgen' }, { sv: 'blir', de: 'wird' }, { sv: 'det', de: 'es' }, { sv: 'soligt', de: 'sonnig' }, { sv: 'säger', de: 'sagen' }, { sv: 'de', de: 'sie' }], chunkIds: ['c-blirsoligt'] },
   // c-tamedparaply
-  { id: 's-tamedparaply1', level: 1, sv: 'Ta med paraply, det regnar snart.', de: 'Nimm einen Schirm mit, es regnet bald.', decoding: [{ sv: 'ta', de: 'nimm' }, { sv: 'med', de: 'mit' }, { sv: 'paraply', de: 'Regenschirm' }, { sv: 'det', de: 'es' }, { sv: 'regnar', de: 'regnet' }, { sv: 'snart', de: 'bald' }], chunkIds: ['c-tamedparaply'] },
-  { id: 's-tamedparaply2', level: 1, sv: 'Ta med paraply idag.', de: 'Nimm heute einen Schirm mit.', decoding: [{ sv: 'ta', de: 'nimm' }, { sv: 'med', de: 'mit' }, { sv: 'paraply', de: 'Regenschirm' }, { sv: 'idag', de: 'heute' }], chunkIds: ['c-tamedparaply'] },
+  { id: 's-tamedparaply1', level: 1, sv: 'Ta med paraply, det regnar snart.', de: 'Nimm einen Schirm mit, es regnet bald.', decoding: [{ sv: 'ta', de: 'nimm' }, { sv: 'med', de: 'mit' }, { sv: 'paraply', de: 'Schirm' }, { sv: 'det', de: 'es' }, { sv: 'regnar', de: 'regnet' }, { sv: 'snart', de: 'bald' }], chunkIds: ['c-tamedparaply'] },
+  { id: 's-tamedparaply2', level: 1, sv: 'Ta med paraply idag.', de: 'Nimm heute einen Schirm mit.', decoding: [{ sv: 'ta', de: 'nimm' }, { sv: 'med', de: 'mit' }, { sv: 'paraply', de: 'Schirm' }, { sv: 'idag', de: 'heute' }], chunkIds: ['c-tamedparaply'] },
   // c-molnigt
   { id: 's-molnigt1', level: 1, sv: 'Det är molnigt idag, men varmt.', de: 'Es ist heute bewölkt, aber warm.', decoding: [{ sv: 'det', de: 'es' }, { sv: 'är', de: 'ist' }, { sv: 'molnigt', de: 'wolkig' }, { sv: 'idag', de: 'heute' }, { sv: 'men', de: 'aber' }, { sv: 'varmt', de: 'warm' }], chunkIds: ['c-molnigt'] },
   { id: 's-molnigt2', level: 1, sv: 'Det är molnigt idag igen.', de: 'Es ist heute schon wieder bewölkt.', decoding: [{ sv: 'det', de: 'es' }, { sv: 'är', de: 'ist' }, { sv: 'molnigt', de: 'wolkig' }, { sv: 'idag', de: 'heute' }, { sv: 'igen', de: 'wieder' }], chunkIds: ['c-molnigt'] },
@@ -1287,7 +1331,7 @@ export const seedSegments: Segment[] = [
   { id: 's-borilagenhet2', level: 1, sv: 'Jag bor i en lägenhet med två rum.', de: 'Ich wohne in einer Wohnung mit zwei Zimmern.', decoding: [{ sv: 'jag', de: 'ich' }, { sv: 'bor', de: 'wohne' }, { sv: 'i', de: 'in' }, { sv: 'en', de: 'einer' }, { sv: 'lägenhet', de: 'Wohnung' }, { sv: 'med', de: 'mit' }, { sv: 'två', de: 'zwei' }, { sv: 'rum', de: 'Zimmer' }], chunkIds: ['c-borilagenhet'] },
   // c-hurmangarum
   { id: 's-hurmangarum1', level: 1, sv: 'Fin lägenhet! Hur många rum har du?', de: 'Schöne Wohnung! Wie viele Zimmer hast du?', decoding: [{ sv: 'fin', de: 'schöne' }, { sv: 'lägenhet', de: 'Wohnung' }, { sv: 'hur', de: 'wie' }, { sv: 'många', de: 'viele' }, { sv: 'rum', de: 'Zimmer' }, { sv: 'har', de: 'hast' }, { sv: 'du', de: 'du' }], chunkIds: ['c-hurmangarum'] },
-  { id: 's-hurmangarum2', level: 1, sv: 'Hur många rum har du hemma?', de: 'Wie viele Zimmer hast du zu Hause?', decoding: [{ sv: 'hur', de: 'wie' }, { sv: 'många', de: 'viele' }, { sv: 'rum', de: 'Zimmer' }, { sv: 'har', de: 'hast' }, { sv: 'du', de: 'du' }, { sv: 'hemma', de: 'zu Hause' }], chunkIds: ['c-hurmangarum'] },
+  { id: 's-hurmangarum2', level: 1, sv: 'Hur många rum har du hemma?', de: 'Wie viele Zimmer hast du zu Hause?', decoding: [{ sv: 'hur', de: 'wie' }, { sv: 'många', de: 'viele' }, { sv: 'rum', de: 'Zimmer' }, { sv: 'har', de: 'hast' }, { sv: 'du', de: 'du' }, { sv: 'hemma', de: 'daheim' }], chunkIds: ['c-hurmangarum'] },
   // c-koketlitet
   { id: 's-koketlitet1', level: 1, sv: 'Köket är litet men fint.', de: 'Die Küche ist klein, aber schön.', decoding: [{ sv: 'köket', de: 'die Küche' }, { sv: 'är', de: 'ist' }, { sv: 'litet', de: 'klein' }, { sv: 'men', de: 'aber' }, { sv: 'fint', de: 'schön' }], chunkIds: ['c-koketlitet'] },
   { id: 's-koketlitet2', level: 1, sv: 'Köket är litet, men det räcker.', de: 'Die Küche ist klein, aber es reicht.', decoding: [{ sv: 'köket', de: 'die Küche' }, { sv: 'är', de: 'ist' }, { sv: 'litet', de: 'klein' }, { sv: 'men', de: 'aber' }, { sv: 'det', de: 'es' }, { sv: 'räcker', de: 'reicht' }], chunkIds: ['c-koketlitet'] },
@@ -1301,13 +1345,13 @@ export const seedSegments: Segment[] = [
   { id: 's-valkommenin1', level: 1, sv: 'Hej! Välkommen in.', de: 'Hallo! Komm herein.', decoding: [{ sv: 'hej', de: 'hallo' }, { sv: 'välkommen', de: 'willkommen' }, { sv: 'in', de: 'herein' }], chunkIds: ['c-valkommenin'] },
   { id: 's-valkommenin2', level: 1, sv: 'Välkommen in, ta av dig skorna.', de: 'Komm herein, zieh die Schuhe aus.', decoding: [{ sv: 'välkommen', de: 'willkommen' }, { sv: 'in', de: 'herein' }, { sv: 'ta', de: 'nimm' }, { sv: 'av', de: 'ab' }, { sv: 'dig', de: 'dich' }, { sv: 'skorna', de: 'die Schuhe' }], chunkIds: ['c-valkommenin'] },
   // c-vadjobbardu
-  { id: 's-vadjobbardu1', level: 1, sv: 'Jag har mycket att göra idag.', de: 'Ich habe heute viel zu tun.', decoding: [{ sv: 'jag', de: 'ich' }, { sv: 'har', de: 'habe' }, { sv: 'mycket', de: 'viel' }, { sv: 'att', de: 'zu' }, { sv: 'göra', de: 'tun' }, { sv: 'idag', de: 'heute' }], chunkIds: ['c-vadjobbardu'] },
-  { id: 's-vadjobbardu2', level: 1, sv: 'Förlåt, jag har mycket att göra.', de: 'Entschuldige, ich habe viel zu tun.', decoding: [{ sv: 'förlåt', de: 'verzeih' }, { sv: 'jag', de: 'ich' }, { sv: 'har', de: 'habe' }, { sv: 'mycket', de: 'viel' }, { sv: 'att', de: 'zu' }, { sv: 'göra', de: 'tun' }], chunkIds: ['c-vadjobbardu'] },
+  { id: 's-vadjobbardu1', level: 1, sv: 'Jag har mycket att göra idag.', de: 'Ich habe heute viel zu tun.', decoding: [{ sv: 'jag', de: 'ich' }, { sv: 'har', de: 'habe' }, { sv: 'mycket', de: 'viel' }, { sv: 'att', de: 'zu' }, { sv: 'göra', de: 'machen' }, { sv: 'idag', de: 'heute' }], chunkIds: ['c-vadjobbardu'] },
+  { id: 's-vadjobbardu2', level: 1, sv: 'Förlåt, jag har mycket att göra.', de: 'Entschuldige, ich habe viel zu tun.', decoding: [{ sv: 'förlåt', de: 'verzeih' }, { sv: 'jag', de: 'ich' }, { sv: 'har', de: 'habe' }, { sv: 'mycket', de: 'viel' }, { sv: 'att', de: 'zu' }, { sv: 'göra', de: 'machen' }], chunkIds: ['c-vadjobbardu'] },
   // c-jobbarpakontor
   { id: 's-jobbarpakontor1', level: 1, sv: 'Jag jobbar på ett kontor i stan.', de: 'Ich arbeite in einem Büro in der Stadt.', decoding: [{ sv: 'jag', de: 'ich' }, { sv: 'jobbar', de: 'arbeite' }, { sv: 'på', de: 'auf' }, { sv: 'ett', de: 'einem' }, { sv: 'kontor', de: 'Büro' }, { sv: 'i', de: 'in' }, { sv: 'stan', de: 'der Stadt' }], chunkIds: ['c-jobbarpakontor'] },
   { id: 's-jobbarpakontor2', level: 1, sv: 'Jag jobbar på ett kontor, det är lugnt.', de: 'Ich arbeite in einem Büro, es ist ruhig.', decoding: [{ sv: 'jag', de: 'ich' }, { sv: 'jobbar', de: 'arbeite' }, { sv: 'på', de: 'auf' }, { sv: 'ett', de: 'einem' }, { sv: 'kontor', de: 'Büro' }, { sv: 'det', de: 'es' }, { sv: 'är', de: 'ist' }, { sv: 'lugnt', de: 'ruhig' }], chunkIds: ['c-jobbarpakontor'] },
   // c-ledigidag
-  { id: 's-ledigidag1', level: 1, sv: 'Jag är ledig idag, vi kan ses.', de: 'Ich habe heute frei, wir können uns sehen.', decoding: [{ sv: 'jag', de: 'ich' }, { sv: 'är', de: 'bin' }, { sv: 'ledig', de: 'frei' }, { sv: 'idag', de: 'heute' }, { sv: 'vi', de: 'wir' }, { sv: 'kan', de: 'können' }, { sv: 'ses', de: 'sehen' }], chunkIds: ['c-ledigidag'] },
+  { id: 's-ledigidag1', level: 1, sv: 'Jag är ledig idag, vi kan ses.', de: 'Ich habe heute frei, wir können uns sehen.', decoding: [{ sv: 'jag', de: 'ich' }, { sv: 'är', de: 'bin' }, { sv: 'ledig', de: 'frei' }, { sv: 'idag', de: 'heute' }, { sv: 'vi', de: 'wir' }, { sv: 'kan', de: 'können' }, { sv: 'ses', de: 'sehen uns' }], chunkIds: ['c-ledigidag'] },
   { id: 's-ledigidag2', level: 1, sv: 'Jag är ledig idag och imorgon.', de: 'Ich habe heute und morgen frei.', decoding: [{ sv: 'jag', de: 'ich' }, { sv: 'är', de: 'bin' }, { sv: 'ledig', de: 'frei' }, { sv: 'idag', de: 'heute' }, { sv: 'och', de: 'und' }, { sv: 'imorgon', de: 'morgen' }], chunkIds: ['c-ledigidag'] },
   // c-motetborjar
   { id: 's-motetborjar1', level: 1, sv: 'Mötet börjar klockan nio imorgon.', de: 'Das Treffen beginnt morgen um neun.', decoding: [{ sv: 'mötet', de: 'das Treffen' }, { sv: 'börjar', de: 'beginnt' }, { sv: 'klockan', de: 'die Uhr' }, { sv: 'nio', de: 'neun' }, { sv: 'imorgon', de: 'morgen' }], chunkIds: ['c-motetborjar'] },
@@ -1322,7 +1366,7 @@ export const seedSegments: Segment[] = [
   { id: 's-ringersenare1', level: 1, sv: 'Jag ringer dig senare ikväll.', de: 'Ich rufe dich heute Abend später an.', decoding: [{ sv: 'jag', de: 'ich' }, { sv: 'ringer', de: 'rufe an' }, { sv: 'dig', de: 'dich' }, { sv: 'senare', de: 'später' }, { sv: 'ikväll', de: 'heute Abend' }], chunkIds: ['c-ringersenare'] },
   { id: 's-ringersenare2', level: 1, sv: 'Okej, jag ringer dig senare.', de: 'Okay, ich rufe dich später an.', decoding: [{ sv: 'okej', de: 'okay' }, { sv: 'jag', de: 'ich' }, { sv: 'ringer', de: 'rufe an' }, { sv: 'dig', de: 'dich' }, { sv: 'senare', de: 'später' }], chunkIds: ['c-ringersenare'] },
   // c-skickarmeddelande
-  { id: 's-skickarmeddelande1', level: 1, sv: 'Jag skickar ett meddelande när jag är hemma.', de: 'Ich schicke eine Nachricht, wenn ich zu Hause bin.', decoding: [{ sv: 'jag', de: 'ich' }, { sv: 'skickar', de: 'schicke' }, { sv: 'ett', de: 'eine' }, { sv: 'meddelande', de: 'Nachricht' }, { sv: 'när', de: 'wenn' }, { sv: 'jag', de: 'ich' }, { sv: 'är', de: 'bin' }, { sv: 'hemma', de: 'zu Hause' }], chunkIds: ['c-skickarmeddelande'] },
+  { id: 's-skickarmeddelande1', level: 1, sv: 'Jag skickar ett meddelande när jag är hemma.', de: 'Ich schicke eine Nachricht, wenn ich zu Hause bin.', decoding: [{ sv: 'jag', de: 'ich' }, { sv: 'skickar', de: 'schicke' }, { sv: 'ett', de: 'eine' }, { sv: 'meddelande', de: 'Nachricht' }, { sv: 'när', de: 'wenn' }, { sv: 'jag', de: 'ich' }, { sv: 'är', de: 'bin' }, { sv: 'hemma', de: 'daheim' }], chunkIds: ['c-skickarmeddelande'] },
   { id: 's-skickarmeddelande2', level: 1, sv: 'Jag skickar ett meddelande ikväll.', de: 'Ich schicke heute Abend eine Nachricht.', decoding: [{ sv: 'jag', de: 'ich' }, { sv: 'skickar', de: 'schicke' }, { sv: 'ett', de: 'eine' }, { sv: 'meddelande', de: 'Nachricht' }, { sv: 'ikväll', de: 'heute Abend' }], chunkIds: ['c-skickarmeddelande'] },
   // c-hordumig
   { id: 's-hordumig1', level: 1, sv: 'Hallå? Jag hör dig dåligt.', de: 'Hallo? Ich höre dich schlecht.', decoding: [{ sv: 'hallå', de: 'hallo' }, { sv: 'jag', de: 'ich' }, { sv: 'hör', de: 'höre' }, { sv: 'dig', de: 'dich' }, { sv: 'dåligt', de: 'schlecht' }], chunkIds: ['c-hordumig'] },
@@ -1332,9 +1376,9 @@ export const seedSegments: Segment[] = [
   { id: 's-daligtackning2', level: 1, sv: 'Vänta, jag har dålig täckning.', de: 'Warte, ich habe schlechten Empfang.', decoding: [{ sv: 'vänta', de: 'warte' }, { sv: 'jag', de: 'ich' }, { sv: 'har', de: 'habe' }, { sv: 'dålig', de: 'schlechte' }, { sv: 'täckning', de: 'Abdeckung' }], chunkIds: ['c-daligtackning'] },
   // c-vemardet
   { id: 's-vemardet1', level: 1, sv: 'Hej, vem är det?', de: 'Hallo, wer ist da?', decoding: [{ sv: 'hej', de: 'hallo' }, { sv: 'vem', de: 'wer' }, { sv: 'är', de: 'ist' }, { sv: 'det', de: 'das' }], chunkIds: ['c-vemardet'] },
-  { id: 's-vemardet2', level: 1, sv: 'Vem är det som ringer?', de: 'Wer ruft da an?', decoding: [{ sv: 'vem', de: 'wer' }, { sv: 'är', de: 'ist' }, { sv: 'det', de: 'das' }, { sv: 'som', de: 'der' }, { sv: 'ringer', de: 'anruft' }], chunkIds: ['c-vemardet'] },
+  { id: 's-vemardet2', level: 1, sv: 'Vem är det som ringer?', de: 'Wer ruft da an?', decoding: [{ sv: 'vem', de: 'wer' }, { sv: 'är', de: 'ist' }, { sv: 'det', de: 'das' }, { sv: 'som', de: 'der' }, { sv: 'ringer', de: 'ruft an' }], chunkIds: ['c-vemardet'] },
   // c-maste-lagga-pa
-  { id: 's-maste-lagga-pa1', level: 1, sv: 'Jag måste lägga på nu, hej då.', de: 'Ich muss jetzt auflegen, tschüss.', decoding: [{ sv: 'jag', de: 'ich' }, { sv: 'måste', de: 'muss' }, { sv: 'lägga', de: 'legen' }, { sv: 'på', de: 'auf' }, { sv: 'nu', de: 'jetzt' }, { sv: 'hej', de: 'tschüss' }, { sv: 'då', de: 'dann' }], chunkIds: ['c-maste-lagga-pa'] },
+  { id: 's-maste-lagga-pa1', level: 1, sv: 'Jag måste lägga på nu, hej då.', de: 'Ich muss jetzt auflegen, tschüss.', decoding: [{ sv: 'jag', de: 'ich' }, { sv: 'måste', de: 'muss' }, { sv: 'lägga', de: 'legen' }, { sv: 'på', de: 'auf' }, { sv: 'nu', de: 'jetzt' }, { sv: 'hej', de: 'hallo' }, { sv: 'då', de: 'dann' }], chunkIds: ['c-maste-lagga-pa'] },
   { id: 's-maste-lagga-pa2', level: 1, sv: 'Förlåt, jag måste lägga på.', de: 'Entschuldigung, ich muss auflegen.', decoding: [{ sv: 'förlåt', de: 'verzeih' }, { sv: 'jag', de: 'ich' }, { sv: 'måste', de: 'muss' }, { sv: 'lägga', de: 'legen' }, { sv: 'på', de: 'auf' }], chunkIds: ['c-maste-lagga-pa'] },
   // c-detsnoar
   { id: 's-detsnoar1', level: 1, sv: 'Titta, det snöar!', de: 'Schau, es schneit!', decoding: [{ sv: 'titta', de: 'schau' }, { sv: 'det', de: 'es' }, { sv: 'snöar', de: 'schneit' }], chunkIds: ['c-detsnoar'] },
@@ -1354,4 +1398,105 @@ export const seedSegments: Segment[] = [
   // c-morkttidigt
   { id: 's-morkttidigt1', level: 1, sv: 'På vintern blir det mörkt tidigt.', de: 'Im Winter wird es früh dunkel.', decoding: [{ sv: 'på', de: 'auf' }, { sv: 'vintern', de: 'dem Winter' }, { sv: 'blir', de: 'wird' }, { sv: 'det', de: 'es' }, { sv: 'mörkt', de: 'dunkel' }, { sv: 'tidigt', de: 'früh' }], chunkIds: ['c-morkttidigt'] },
   { id: 's-morkttidigt2', level: 1, sv: 'Det blir mörkt tidigt nu.', de: 'Es wird jetzt früh dunkel.', decoding: [{ sv: 'det', de: 'es' }, { sv: 'blir', de: 'wird' }, { sv: 'mörkt', de: 'dunkel' }, { sv: 'tidigt', de: 'früh' }, { sv: 'nu', de: 'jetzt' }], chunkIds: ['c-morkttidigt'] },
+  // ── Dritter Kontext für „Erste Schritte" (Kontextvariation, 2026-07-25) ──────
+  // Schritt 4 des Lern-Loops ist die Kontextvariation. Gemessen lagen wir bei
+  // 2,06 Kontexten je Wendung — über 90 Tage sieht man dieselbe Wendung fünf-
+  // bis siebenmal, ab dem dritten Mal also denselben Satz wieder.
+  //
+  // DIE REGEL BEIM SCHREIBEN: Jeder Satz besteht AUSSCHLIESSLICH aus Wörtern,
+  // die im Korpus schon belegt sind (435 Formen). Damit ist wirklich nur die
+  // Ziel-Wendung neu — das ist i+1, und es hält die Menge des ungeprüften
+  // Schwedischen klein: geprüft werden müssen weiterhin 179 Wendungen, nicht
+  // mehr. Wo es sich anbot, trägt ein Satz ZWEI Wendungen; das ist der
+  // natürlichere Kontext und nebenbei ein Kontext mehr für beide.
+  { id: 's-hej3', level: 1, sv: 'God kväll! Hur mår du?', de: 'Guten Abend! Wie geht es dir?', decoding: [{ sv: 'god', de: 'guten' }, { sv: 'kväll', de: 'Abend' }, { sv: 'hur', de: 'wie' }, { sv: 'mår', de: 'befindest' }, { sv: 'du', de: 'du' }], chunkIds: ['c-hej'] },
+  { id: 's-heter3', level: 1, sv: 'Välkommen! Jag heter Anna.', de: 'Willkommen! Ich heiße Anna.', decoding: [{ sv: 'välkommen', de: 'willkommen' }, { sv: 'jag', de: 'ich' }, { sv: 'heter', de: 'heiße' }, { sv: 'anna', de: 'Anna' }], chunkIds: ['c-heter'] },
+  { id: 's-marbra3', level: 1, sv: 'Jag mår bra, tack. Och du?', de: 'Mir geht es gut, danke. Und dir?', decoding: [{ sv: 'jag', de: 'ich' }, { sv: 'mår', de: 'befinde' }, { sv: 'bra', de: 'gut' }, { sv: 'tack', de: 'danke' }, { sv: 'och', de: 'und' }, { sv: 'du', de: 'du' }], chunkIds: ['c-marbra'] },
+  { id: 's-hejda3', level: 1, sv: 'Hej då, ha det bra!', de: 'Tschüss, alles Gute!', decoding: [{ sv: 'hej', de: 'hallo' }, { sv: 'då', de: 'dann' }, { sv: 'ha', de: 'hab' }, { sv: 'det', de: 'es' }, { sv: 'bra', de: 'gut' }], chunkIds: ['c-hejda', 'c-hadetbra'] },
+  { id: 's-varifran3', level: 1, sv: 'Vad heter du, och varifrån kommer du?', de: 'Wie heißt du, und woher kommst du?', decoding: [{ sv: 'vad', de: 'was' }, { sv: 'heter', de: 'heißt' }, { sv: 'du', de: 'du' }, { sv: 'och', de: 'und' }, { sv: 'varifrån', de: 'woher' }, { sv: 'kommer', de: 'kommst' }, { sv: 'du', de: 'du' }], chunkIds: ['c-varifran'] },
+  { id: 's-forstar3', level: 1, sv: 'Ursäkta, jag förstår inte. Kan du upprepa?', de: 'Entschuldigung, ich verstehe nicht. Kannst du wiederholen?', decoding: [{ sv: 'ursäkta', de: 'entschuldige' }, { sv: 'jag', de: 'ich' }, { sv: 'förstår', de: 'verstehe' }, { sv: 'inte', de: 'nicht' }, { sv: 'kan', de: 'kannst' }, { sv: 'du', de: 'du' }, { sv: 'upprepa', de: 'wiederholen' }], chunkIds: ['c-forstar', 'c-upprepa'] },
+  { id: 's-langsam3', level: 1, sv: 'Jag förstår inte. Kan du prata långsammare?', de: 'Ich verstehe nicht. Kannst du langsamer sprechen?', decoding: [{ sv: 'jag', de: 'ich' }, { sv: 'förstår', de: 'verstehe' }, { sv: 'inte', de: 'nicht' }, { sv: 'kan', de: 'kannst' }, { sv: 'du', de: 'du' }, { sv: 'prata', de: 'sprechen' }, { sv: 'långsammare', de: 'langsamer' }], chunkIds: ['c-langsam', 'c-forstar'] },
+  { id: 's-engelska3', level: 1, sv: 'Förlåt, jag förstår inte. Talar du engelska?', de: 'Entschuldigung, ich verstehe nicht. Sprichst du Englisch?', decoding: [{ sv: 'förlåt', de: 'verzeih' }, { sv: 'jag', de: 'ich' }, { sv: 'förstår', de: 'verstehe' }, { sv: 'inte', de: 'nicht' }, { sv: 'talar', de: 'sprichst' }, { sv: 'du', de: 'du' }, { sv: 'engelska', de: 'Englisch' }], chunkIds: ['c-engelska'] },
+  { id: 's-betyder3', level: 1, sv: 'Jag förstår inte. Vad betyder det?', de: 'Ich verstehe nicht. Was bedeutet das?', decoding: [{ sv: 'jag', de: 'ich' }, { sv: 'förstår', de: 'verstehe' }, { sv: 'inte', de: 'nicht' }, { sv: 'vad', de: 'was' }, { sv: 'betyder', de: 'bedeutet' }, { sv: 'det', de: 'das' }], chunkIds: ['c-betyder'] },
+  { id: 's-pasvenska3', level: 1, sv: 'Jag vet inte. Hur säger man det på svenska?', de: 'Ich weiß nicht. Wie sagt man das auf Schwedisch?', decoding: [{ sv: 'jag', de: 'ich' }, { sv: 'vet', de: 'weiß' }, { sv: 'inte', de: 'nicht' }, { sv: 'hur', de: 'wie' }, { sv: 'säger', de: 'sagt' }, { sv: 'man', de: 'man' }, { sv: 'det', de: 'das' }, { sv: 'på', de: 'auf' }, { sv: 'svenska', de: 'Schwedisch' }], chunkIds: ['c-pasvenska'] },
+  { id: 's-jatack3', level: 1, sv: 'Mer mjölk? Ja, tack.', de: 'Mehr Milch? Ja, bitte.', decoding: [{ sv: 'mer', de: 'mehr' }, { sv: 'mjölk', de: 'Milch' }, { sv: 'ja', de: 'ja' }, { sv: 'tack', de: 'bitte' }], chunkIds: ['c-jatack'] },
+  { id: 's-nejtack3', level: 1, sv: 'Vill du ha en påse? Nej, tack.', de: 'Möchtest du eine Tüte? Nein, danke.', decoding: [{ sv: 'vill', de: 'willst' }, { sv: 'du', de: 'du' }, { sv: 'ha', de: 'haben' }, { sv: 'en', de: 'eine' }, { sv: 'påse', de: 'Tüte' }, { sv: 'nej', de: 'nein' }, { sv: 'tack', de: 'danke' }], chunkIds: ['c-nejtack'] },
+  { id: 's-varsagod3', level: 1, sv: 'Varsågod, här är kvittot.', de: 'Bitte, hier ist der Beleg.', decoding: [{ sv: 'varsågod', de: 'bitte' }, { sv: 'här', de: 'hier' }, { sv: 'är', de: 'ist' }, { sv: 'kvittot', de: 'der Bon' }], chunkIds: ['c-varsagod'] },
+  { id: 's-ingenfara3', level: 1, sv: 'Ingen fara, vi har tid.', de: 'Kein Problem, wir haben Zeit.', decoding: [{ sv: 'ingen', de: 'keine' }, { sv: 'fara', de: 'Gefahr' }, { sv: 'vi', de: 'wir' }, { sv: 'har', de: 'haben' }, { sv: 'tid', de: 'Zeit' }], chunkIds: ['c-ingenfara'] },
+  { id: 's-ursaktamig3', level: 1, sv: 'Ursäkta mig, jag söker stationen.', de: 'Entschuldigung, ich suche den Bahnhof.', decoding: [{ sv: 'ursäkta', de: 'entschuldige' }, { sv: 'mig', de: 'mich' }, { sv: 'jag', de: 'ich' }, { sv: 'söker', de: 'suche' }, { sv: 'stationen', de: 'den Bahnhof' }], chunkIds: ['c-ursaktamig'] },
+  { id: 's-ringersenare3', level: 1, sv: 'Jag måste lägga på. Jag ringer dig senare.', de: 'Ich muss auflegen. Ich rufe dich später an.', decoding: [{ sv: 'jag', de: 'ich' }, { sv: 'måste', de: 'muss' }, { sv: 'lägga', de: 'legen' }, { sv: 'på', de: 'auf' }, { sv: 'jag', de: 'ich' }, { sv: 'ringer', de: 'rufe an' }, { sv: 'dig', de: 'dich' }, { sv: 'senare', de: 'später' }], chunkIds: ['c-ringersenare', 'c-maste-lagga-pa'] },
+  { id: 's-skickarmeddelande3', level: 1, sv: 'Vi ses imorgon. Jag skickar ett meddelande.', de: 'Wir sehen uns morgen. Ich schicke eine Nachricht.', decoding: [{ sv: 'vi', de: 'wir' }, { sv: 'ses', de: 'sehen uns' }, { sv: 'imorgon', de: 'morgen' }, { sv: 'jag', de: 'ich' }, { sv: 'skickar', de: 'schicke' }, { sv: 'ett', de: 'eine' }, { sv: 'meddelande', de: 'Nachricht' }], chunkIds: ['c-skickarmeddelande', 'c-vises'] },
+  { id: 's-hordumig3', level: 1, sv: 'Jag hör dig dåligt. Kan du upprepa?', de: 'Ich höre dich schlecht. Kannst du wiederholen?', decoding: [{ sv: 'jag', de: 'ich' }, { sv: 'hör', de: 'höre' }, { sv: 'dig', de: 'dich' }, { sv: 'dåligt', de: 'schlecht' }, { sv: 'kan', de: 'kannst' }, { sv: 'du', de: 'du' }, { sv: 'upprepa', de: 'wiederholen' }], chunkIds: ['c-hordumig', 'c-upprepa'] },
+  { id: 's-daligtackning3', level: 1, sv: 'Jag har dålig täckning. Jag ringer dig senare.', de: 'Ich habe schlechten Empfang. Ich rufe dich später an.', decoding: [{ sv: 'jag', de: 'ich' }, { sv: 'har', de: 'habe' }, { sv: 'dålig', de: 'schlechte' }, { sv: 'täckning', de: 'Abdeckung' }, { sv: 'jag', de: 'ich' }, { sv: 'ringer', de: 'rufe an' }, { sv: 'dig', de: 'dich' }, { sv: 'senare', de: 'später' }], chunkIds: ['c-daligtackning', 'c-ringersenare'] },
+  { id: 's-vemardet3', level: 1, sv: 'Hallå? Vem är det?', de: 'Hallo? Wer ist da?', decoding: [{ sv: 'hallå', de: 'hallo' }, { sv: 'vem', de: 'wer' }, { sv: 'är', de: 'ist' }, { sv: 'det', de: 'da' }], chunkIds: ['c-vemardet'] },
+  // ── Dritter Kontext: Einkaufen · Bezahlen · Supermarkt · Arzt · Notfall ──────
+  // Dieselbe Regel wie oben: nur belegte Wörter, keine neue Vokabel.
+  { id: 's-storlek3', level: 1, sv: 'Vilken storlek har ni?', de: 'Welche Größe habt ihr?', decoding: [{ sv: 'vilken', de: 'welche' }, { sv: 'storlek', de: 'Größe' }, { sv: 'har', de: 'habt' }, { sv: 'ni', de: 'ihr' }], chunkIds: ['c-storlek'] },
+  { id: 's-prova3', level: 1, sv: 'Kan jag prova den? Var är provrummet?', de: 'Kann ich das anprobieren? Wo ist die Umkleide?', decoding: [{ sv: 'kan', de: 'kann' }, { sv: 'jag', de: 'ich' }, { sv: 'prova', de: 'probieren' }, { sv: 'den', de: 'das' }, { sv: 'var', de: 'wo' }, { sv: 'är', de: 'ist' }, { sv: 'provrummet', de: 'die Umkleide' }], chunkIds: ['c-prova', 'c-provrum'] },
+  { id: 's-tarden3', level: 1, sv: 'Den är snygg. Jag tar den, tack.', de: 'Das ist schick. Ich nehme das, bitte.', decoding: [{ sv: 'den', de: 'das' }, { sv: 'är', de: 'ist' }, { sv: 'snygg', de: 'schick' }, { sv: 'jag', de: 'ich' }, { sv: 'tar', de: 'nehme' }, { sv: 'den', de: 'das' }, { sv: 'tack', de: 'bitte' }], chunkIds: ['c-tarden'] },
+  { id: 's-medkort3', level: 1, sv: 'Hur mycket blir det? Kan jag betala med kort?', de: 'Wie viel macht das? Kann ich mit Karte zahlen?', decoding: [{ sv: 'hur', de: 'wie' }, { sv: 'mycket', de: 'viel' }, { sv: 'blir', de: 'wird' }, { sv: 'det', de: 'das' }, { sv: 'kan', de: 'kann' }, { sv: 'jag', de: 'ich' }, { sv: 'betala', de: 'zahlen' }, { sv: 'med', de: 'mit' }, { sv: 'kort', de: 'Karte' }], chunkIds: ['c-medkort', 'c-blirdet'] },
+  { id: 's-kontant3', level: 1, sv: 'Jag betalar kontant. Kan jag få kvittot?', de: 'Ich zahle bar. Kann ich den Beleg haben?', decoding: [{ sv: 'jag', de: 'ich' }, { sv: 'betalar', de: 'zahle' }, { sv: 'kontant', de: 'bar' }, { sv: 'kan', de: 'kann' }, { sv: 'jag', de: 'ich' }, { sv: 'få', de: 'bekommen' }, { sv: 'kvittot', de: 'den Bon' }], chunkIds: ['c-kontant', 'c-kvitto'] },
+  { id: 's-fordyrt3', level: 1, sv: 'Det är för dyrt. Finns det något billigare?', de: 'Das ist zu teuer. Gibt es etwas Billigeres?', decoding: [{ sv: 'det', de: 'das' }, { sv: 'är', de: 'ist' }, { sv: 'för', de: 'zu' }, { sv: 'dyrt', de: 'teuer' }, { sv: 'finns', de: 'gibt' }, { sv: 'det', de: 'es' }, { sv: 'något', de: 'etwas' }, { sv: 'billigare', de: 'Billigeres' }], chunkIds: ['c-fordyrt'] },
+  { id: 's-finnsmjolk3', level: 1, sv: 'Var finns mjölk? Jag hittar inte kassan.', de: 'Wo gibt es Milch? Ich finde die Kasse nicht.', decoding: [{ sv: 'var', de: 'wo' }, { sv: 'finns', de: 'gibt' }, { sv: 'mjölk', de: 'Milch' }, { sv: 'jag', de: 'ich' }, { sv: 'hittar', de: 'finde' }, { sv: 'inte', de: 'nicht' }, { sv: 'kassan', de: 'die Kasse' }], chunkIds: ['c-finnsmjolk'] },
+  { id: 's-harbrod3', level: 1, sv: 'Har ni bröd och mjölk?', de: 'Habt ihr Brot und Milch?', decoding: [{ sv: 'har', de: 'habt' }, { sv: 'ni', de: 'ihr' }, { sv: 'bröd', de: 'Brot' }, { sv: 'och', de: 'und' }, { sv: 'mjölk', de: 'Milch' }], chunkIds: ['c-harbrod'] },
+  { id: 's-kiloapplen3', level: 1, sv: 'Ett kilo äpplen och en påse, tack.', de: 'Ein Kilo Äpfel und eine Tüte, bitte.', decoding: [{ sv: 'ett', de: 'ein' }, { sv: 'kilo', de: 'Kilo' }, { sv: 'äpplen', de: 'Äpfel' }, { sv: 'och', de: 'und' }, { sv: 'en', de: 'eine' }, { sv: 'påse', de: 'Tüte' }, { sv: 'tack', de: 'bitte' }], chunkIds: ['c-kiloapplen', 'c-pase'] },
+  { id: 's-kassan3', level: 1, sv: 'Ursäkta, var är kassan? Jag har bara kort.', de: 'Entschuldigung, wo ist die Kasse? Ich habe nur Karte.', decoding: [{ sv: 'ursäkta', de: 'entschuldige' }, { sv: 'var', de: 'wo' }, { sv: 'är', de: 'ist' }, { sv: 'kassan', de: 'die Kasse' }, { sv: 'jag', de: 'ich' }, { sv: 'har', de: 'habe' }, { sv: 'bara', de: 'nur' }, { sv: 'kort', de: 'Karte' }], chunkIds: ['c-kassan'] },
+  { id: 's-sjuk3', level: 1, sv: 'Jag är sjuk och jag har feber.', de: 'Ich bin krank und ich habe Fieber.', decoding: [{ sv: 'jag', de: 'ich' }, { sv: 'är', de: 'bin' }, { sv: 'sjuk', de: 'krank' }, { sv: 'och', de: 'und' }, { sv: 'jag', de: 'ich' }, { sv: 'har', de: 'habe' }, { sv: 'feber', de: 'Fieber' }], chunkIds: ['c-sjuk'] },
+  { id: 's-onthär3', level: 1, sv: 'Jag har ont här. Jag behöver en läkare.', de: 'Mir tut es hier weh. Ich brauche einen Arzt.', decoding: [{ sv: 'jag', de: 'ich' }, { sv: 'har', de: 'habe' }, { sv: 'ont', de: 'Schmerz' }, { sv: 'här', de: 'hier' }, { sv: 'jag', de: 'ich' }, { sv: 'behöver', de: 'brauche' }, { sv: 'en', de: 'einen' }, { sv: 'läkare', de: 'Arzt' }], chunkIds: ['c-onthär', 'c-lakare'] },
+  { id: 's-apoteket3', level: 1, sv: 'Var är apoteket? Jag behöver penicillin.', de: 'Wo ist die Apotheke? Ich brauche Penicillin.', decoding: [{ sv: 'var', de: 'wo' }, { sv: 'är', de: 'ist' }, { sv: 'apoteket', de: 'die Apotheke' }, { sv: 'jag', de: 'ich' }, { sv: 'behöver', de: 'brauche' }, { sv: 'penicillin', de: 'Penicillin' }], chunkIds: ['c-apoteket'] },
+  { id: 's-huvudvark3', level: 1, sv: 'Jag har huvudvärk och jag är trött.', de: 'Ich habe Kopfschmerzen und ich bin müde.', decoding: [{ sv: 'jag', de: 'ich' }, { sv: 'har', de: 'habe' }, { sv: 'huvudvärk', de: 'Kopfschmerzen' }, { sv: 'och', de: 'und' }, { sv: 'jag', de: 'ich' }, { sv: 'är', de: 'bin' }, { sv: 'trött', de: 'müde' }], chunkIds: ['c-huvudvark'] },
+  { id: 's-allergisk3', level: 1, sv: 'Försiktigt, jag är allergisk mot penicillin.', de: 'Vorsicht, ich bin allergisch gegen Penicillin.', decoding: [{ sv: 'försiktigt', de: 'vorsichtig' }, { sv: 'jag', de: 'ich' }, { sv: 'är', de: 'bin' }, { sv: 'allergisk', de: 'allergisch' }, { sv: 'mot', de: 'gegen' }, { sv: 'penicillin', de: 'Penicillin' }], chunkIds: ['c-allergisk'] },
+  { id: 's-hjalp3', level: 1, sv: 'Hjälp! Ring en ambulans!', de: 'Hilfe! Ruf einen Krankenwagen!', decoding: [{ sv: 'hjälp', de: 'Hilfe' }, { sv: 'ring', de: 'ruf' }, { sv: 'en', de: 'einen' }, { sv: 'ambulans', de: 'Krankenwagen' }], chunkIds: ['c-hjalp', 'c-ambulans'] },
+  { id: 's-vilse3', level: 1, sv: 'Jag har gått vilse. Var är stationen?', de: 'Ich habe mich verlaufen. Wo ist der Bahnhof?', decoding: [{ sv: 'jag', de: 'ich' }, { sv: 'har', de: 'habe' }, { sv: 'gått', de: 'gegangen' }, { sv: 'vilse', de: 'verirrt' }, { sv: 'var', de: 'wo' }, { sv: 'är', de: 'ist' }, { sv: 'stationen', de: 'der Bahnhof' }], chunkIds: ['c-vilse'] },
+  { id: 's-tappatvaska3', level: 1, sv: 'Jag hittar inte min väska. Ring polisen!', de: 'Ich finde meine Tasche nicht. Ruf die Polizei!', decoding: [{ sv: 'jag', de: 'ich' }, { sv: 'hittar', de: 'finde' }, { sv: 'inte', de: 'nicht' }, { sv: 'min', de: 'meine' }, { sv: 'väska', de: 'Tasche' }, { sv: 'ring', de: 'ruf' }, { sv: 'polisen', de: 'die Polizei' }], chunkIds: ['c-tappatvaska'] },
+  // ── Dritter Kontext: Weg · Café · Zeit · Familie · Verkehr · Hotel ──────────
+  { id: 's-hjalpa3', level: 1, sv: 'Ursäkta, kan du hjälpa mig? Jag har gått vilse.', de: 'Entschuldigung, kannst du mir helfen? Ich habe mich verlaufen.', decoding: [{ sv: 'ursäkta', de: 'entschuldige' }, { sv: 'kan', de: 'kannst' }, { sv: 'du', de: 'du' }, { sv: 'hjälpa', de: 'helfen' }, { sv: 'mig', de: 'mir' }, { sv: 'jag', de: 'ich' }, { sv: 'har', de: 'habe' }, { sv: 'gått', de: 'gegangen' }, { sv: 'vilse', de: 'verirrt' }], chunkIds: ['c-hjalpa', 'c-vilse'] },
+  { id: 's-vartoa3', level: 1, sv: 'Var är toaletten? Jag hittar den inte.', de: 'Wo ist die Toilette? Ich finde sie nicht.', decoding: [{ sv: 'var', de: 'wo' }, { sv: 'är', de: 'ist' }, { sv: 'toaletten', de: 'die Toilette' }, { sv: 'jag', de: 'ich' }, { sv: 'hittar', de: 'finde' }, { sv: 'den', de: 'sie' }, { sv: 'inte', de: 'nicht' }], chunkIds: ['c-var-toa'] },
+  { id: 's-stationen3', level: 1, sv: 'Var ligger stationen? Jag måste åka till Stockholm.', de: 'Wo liegt der Bahnhof? Ich muss nach Stockholm fahren.', decoding: [{ sv: 'var', de: 'wo' }, { sv: 'ligger', de: 'liegt' }, { sv: 'stationen', de: 'der Bahnhof' }, { sv: 'jag', de: 'ich' }, { sv: 'måste', de: 'muss' }, { sv: 'åka', de: 'fahren' }, { sv: 'till', de: 'nach' }, { sv: 'stockholm', de: 'Stockholm' }], chunkIds: ['c-stationen'] },
+  { id: 's-centrum3', level: 1, sv: 'Hur kommer jag till centrum? Går det en buss?', de: 'Wie komme ich ins Zentrum? Fährt ein Bus?', decoding: [{ sv: 'hur', de: 'wie' }, { sv: 'kommer', de: 'komme' }, { sv: 'jag', de: 'ich' }, { sv: 'till', de: 'zu' }, { sv: 'centrum', de: 'Zentrum' }, { sv: 'går', de: 'geht' }, { sv: 'det', de: 'es' }, { sv: 'en', de: 'ein' }, { sv: 'buss', de: 'Bus' }], chunkIds: ['c-centrum'] },
+  { id: 's-hoger3', level: 1, sv: 'Gå rakt fram och sväng till höger.', de: 'Geh geradeaus und bieg nach rechts ab.', decoding: [{ sv: 'gå', de: 'geh' }, { sv: 'rakt', de: 'gerade' }, { sv: 'fram', de: 'vorwärts' }, { sv: 'och', de: 'und' }, { sv: 'sväng', de: 'bieg' }, { sv: 'till', de: 'nach' }, { sv: 'höger', de: 'rechts' }], chunkIds: ['c-hoger', 'c-raktfram'] },
+  { id: 's-vanster3', level: 1, sv: 'Det är inte till höger, det är till vänster.', de: 'Es ist nicht nach rechts, es ist nach links.', decoding: [{ sv: 'det', de: 'es' }, { sv: 'är', de: 'ist' }, { sv: 'inte', de: 'nicht' }, { sv: 'till', de: 'nach' }, { sv: 'höger', de: 'rechts' }, { sv: 'det', de: 'es' }, { sv: 'är', de: 'ist' }, { sv: 'till', de: 'nach' }, { sv: 'vänster', de: 'links' }], chunkIds: ['c-vanster', 'c-hoger'] },
+  { id: 's-kostar3', level: 1, sv: 'Vad kostar det? Det är för dyrt.', de: 'Was kostet das? Das ist zu teuer.', decoding: [{ sv: 'vad', de: 'was' }, { sv: 'kostar', de: 'kostet' }, { sv: 'det', de: 'das' }, { sv: 'det', de: 'das' }, { sv: 'är', de: 'ist' }, { sv: 'för', de: 'zu' }, { sv: 'dyrt', de: 'teuer' }], chunkIds: ['c-kostar', 'c-fordyrt'] },
+  { id: 's-tack3', level: 1, sv: 'Tack så mycket, det var gott!', de: 'Danke vielmals, das war lecker!', decoding: [{ sv: 'tack', de: 'danke' }, { sv: 'så', de: 'so' }, { sv: 'mycket', de: 'viel' }, { sv: 'det', de: 'das' }, { sv: 'var', de: 'war' }, { sv: 'gott', de: 'lecker' }], chunkIds: ['c-tack', 'c-vargott'] },
+  { id: 's-notan3', level: 1, sv: 'Kan jag få notan? Jag betalar kontant.', de: 'Kann ich die Rechnung haben? Ich zahle bar.', decoding: [{ sv: 'kan', de: 'kann' }, { sv: 'jag', de: 'ich' }, { sv: 'få', de: 'bekommen' }, { sv: 'notan', de: 'die Rechnung' }, { sv: 'jag', de: 'ich' }, { sv: 'betalar', de: 'zahle' }, { sv: 'kontant', de: 'bar' }], chunkIds: ['c-notan', 'c-kontant'] },
+  { id: 's-entill3', level: 1, sv: 'En till, tack. Jag är törstig.', de: 'Noch eine, bitte. Ich bin durstig.', decoding: [{ sv: 'en', de: 'eine' }, { sv: 'till', de: 'noch' }, { sv: 'tack', de: 'bitte' }, { sv: 'jag', de: 'ich' }, { sv: 'är', de: 'bin' }, { sv: 'törstig', de: 'durstig' }], chunkIds: ['c-entill', 'c-torstig'] },
+  { id: 's-klockan3', level: 1, sv: 'Vad är klockan? Jag måste åka nu.', de: 'Wie spät ist es? Ich muss jetzt los.', decoding: [{ sv: 'vad', de: 'was' }, { sv: 'är', de: 'ist' }, { sv: 'klockan', de: 'die Uhr' }, { sv: 'jag', de: 'ich' }, { sv: 'måste', de: 'muss' }, { sv: 'åka', de: 'fahren' }, { sv: 'nu', de: 'jetzt' }], chunkIds: ['c-klockan'] },
+  { id: 's-vilkendag3', level: 1, sv: 'Vilken dag är det? Jag är ledig imorgon.', de: 'Welcher Tag ist es? Ich habe morgen frei.', decoding: [{ sv: 'vilken', de: 'welcher' }, { sv: 'dag', de: 'Tag' }, { sv: 'är', de: 'ist' }, { sv: 'det', de: 'es' }, { sv: 'jag', de: 'ich' }, { sv: 'är', de: 'bin' }, { sv: 'ledig', de: 'frei' }, { sv: 'imorgon', de: 'morgen' }], chunkIds: ['c-vilkendag'] },
+  { id: 's-entimme3', level: 1, sv: 'Jag kommer om en timme. Vi ses!', de: 'Ich komme in einer Stunde. Wir sehen uns!', decoding: [{ sv: 'jag', de: 'ich' }, { sv: 'kommer', de: 'komme' }, { sv: 'om', de: 'in' }, { sv: 'en', de: 'einer' }, { sv: 'timme', de: 'Stunde' }, { sv: 'vi', de: 'wir' }, { sv: 'ses', de: 'sehen uns' }], chunkIds: ['c-entimme', 'c-vises'] },
+  { id: 's-klockantre3', level: 1, sv: 'Klockan är tre. Vi ses om en timme.', de: 'Es ist drei Uhr. Wir sehen uns in einer Stunde.', decoding: [{ sv: 'klockan', de: 'die Uhr' }, { sv: 'är', de: 'ist' }, { sv: 'tre', de: 'drei' }, { sv: 'vi', de: 'wir' }, { sv: 'ses', de: 'sehen uns' }, { sv: 'om', de: 'in' }, { sv: 'en', de: 'einer' }, { sv: 'timme', de: 'Stunde' }], chunkIds: ['c-klockantre', 'c-entimme'] },
+  { id: 's-tiominuter3', level: 1, sv: 'Vänta lite, det tar tio minuter.', de: 'Warte kurz, das dauert zehn Minuten.', decoding: [{ sv: 'vänta', de: 'warte' }, { sv: 'lite', de: 'wenig' }, { sv: 'det', de: 'das' }, { sv: 'tar', de: 'nimmt' }, { sv: 'tio', de: 'zehn' }, { sv: 'minuter', de: 'Minuten' }], chunkIds: ['c-tiominuter'] },
+  { id: 's-vaddatum3', level: 1, sv: 'Vilket datum är det? Jag har bokat ett rum.', de: 'Welches Datum ist es? Ich habe ein Zimmer gebucht.', decoding: [{ sv: 'vilket', de: 'welches' }, { sv: 'datum', de: 'Datum' }, { sv: 'är', de: 'ist' }, { sv: 'det', de: 'es' }, { sv: 'jag', de: 'ich' }, { sv: 'har', de: 'habe' }, { sv: 'bokat', de: 'gebucht' }, { sv: 'ett', de: 'ein' }, { sv: 'rum', de: 'Zimmer' }], chunkIds: ['c-vaddatum', 'c-bokatrum'] },
+  { id: 's-hungrig3', level: 1, sv: 'Jag är hungrig. Kan jag få menyn?', de: 'Ich bin hungrig. Kann ich die Karte haben?', decoding: [{ sv: 'jag', de: 'ich' }, { sv: 'är', de: 'bin' }, { sv: 'hungrig', de: 'hungrig' }, { sv: 'kan', de: 'kann' }, { sv: 'jag', de: 'ich' }, { sv: 'få', de: 'bekommen' }, { sv: 'menyn', de: 'die Karte' }], chunkIds: ['c-hungrig', 'c-menyn'] },
+  { id: 's-torstig3', level: 1, sv: 'Jag är törstig. En kaffe, tack.', de: 'Ich bin durstig. Einen Kaffee, bitte.', decoding: [{ sv: 'jag', de: 'ich' }, { sv: 'är', de: 'bin' }, { sv: 'törstig', de: 'durstig' }, { sv: 'en', de: 'einen' }, { sv: 'kaffe', de: 'Kaffee' }, { sv: 'tack', de: 'bitte' }], chunkIds: ['c-torstig'] },
+  { id: 's-smaklig3', level: 1, sv: 'Varsågod! Smaklig måltid!', de: 'Bitte sehr! Guten Appetit!', decoding: [{ sv: 'varsågod', de: 'bitte' }, { sv: 'smaklig', de: 'schmackhafte' }, { sv: 'måltid', de: 'Mahlzeit' }], chunkIds: ['c-smaklig', 'c-varsagod'] },
+  { id: 's-gillar3', level: 1, sv: 'Jag gillar kaffe utan mjölk.', de: 'Ich mag Kaffee ohne Milch.', decoding: [{ sv: 'jag', de: 'ich' }, { sv: 'gillar', de: 'mag' }, { sv: 'kaffe', de: 'Kaffee' }, { sv: 'utan', de: 'ohne' }, { sv: 'mjölk', de: 'Milch' }], chunkIds: ['c-gillar', 'c-utanmjolk'] },
+  { id: 's-familj3', level: 1, sv: 'Min familj bor i Tyskland.', de: 'Meine Familie wohnt in Deutschland.', decoding: [{ sv: 'min', de: 'meine' }, { sv: 'familj', de: 'Familie' }, { sv: 'bor', de: 'wohnt' }, { sv: 'i', de: 'in' }, { sv: 'tyskland', de: 'Deutschland' }], chunkIds: ['c-familj'] },
+  { id: 's-harbarn3', level: 1, sv: 'Har du barn? Jag har en bror.', de: 'Hast du Kinder? Ich habe einen Bruder.', decoding: [{ sv: 'har', de: 'hast' }, { sv: 'du', de: 'du' }, { sv: 'barn', de: 'Kinder' }, { sv: 'jag', de: 'ich' }, { sv: 'har', de: 'habe' }, { sv: 'en', de: 'einen' }, { sv: 'bror', de: 'Bruder' }], chunkIds: ['c-harbarn', 'c-bror'] },
+  { id: 's-bordu3', level: 1, sv: 'Var bor du? Jag bor i centrum.', de: 'Wo wohnst du? Ich wohne im Zentrum.', decoding: [{ sv: 'var', de: 'wo' }, { sv: 'bor', de: 'wohnst' }, { sv: 'du', de: 'du' }, { sv: 'jag', de: 'ich' }, { sv: 'bor', de: 'wohne' }, { sv: 'i', de: 'in' }, { sv: 'centrum', de: 'Zentrum' }], chunkIds: ['c-bordu'] },
+  { id: 's-frantyskland3', level: 1, sv: 'Jag kommer från Tyskland och min familj bor där.', de: 'Ich komme aus Deutschland und meine Familie wohnt dort.', decoding: [{ sv: 'jag', de: 'ich' }, { sv: 'kommer', de: 'komme' }, { sv: 'från', de: 'aus' }, { sv: 'tyskland', de: 'Deutschland' }, { sv: 'och', de: 'und' }, { sv: 'min', de: 'meine' }, { sv: 'familj', de: 'Familie' }, { sv: 'bor', de: 'wohnt' }, { sv: 'där', de: 'dort' }], chunkIds: ['c-frantyskland', 'c-familj'] },
+  { id: 's-gammal3', level: 1, sv: 'Hur gammal är du? Och var bor du?', de: 'Wie alt bist du? Und wo wohnst du?', decoding: [{ sv: 'hur', de: 'wie' }, { sv: 'gammal', de: 'alt' }, { sv: 'är', de: 'bist' }, { sv: 'du', de: 'du' }, { sv: 'och', de: 'und' }, { sv: 'var', de: 'wo' }, { sv: 'bor', de: 'wohnst' }, { sv: 'du', de: 'du' }], chunkIds: ['c-gammal', 'c-bordu'] },
+  { id: 's-jobbar3', level: 1, sv: 'Vad jobbar du med? Jag jobbar på ett kontor.', de: 'Was machst du beruflich? Ich arbeite in einem Büro.', decoding: [{ sv: 'vad', de: 'was' }, { sv: 'jobbar', de: 'arbeitest' }, { sv: 'du', de: 'du' }, { sv: 'med', de: 'mit' }, { sv: 'jag', de: 'ich' }, { sv: 'jobbar', de: 'arbeite' }, { sv: 'på', de: 'auf' }, { sv: 'ett', de: 'einem' }, { sv: 'kontor', de: 'Büro' }], chunkIds: ['c-jobbar'] },
+  { id: 's-vader3', level: 1, sv: 'Vilket vackert väder! Solen skiner.', de: 'Was für schönes Wetter! Die Sonne scheint.', decoding: [{ sv: 'vilket', de: 'welch' }, { sv: 'vackert', de: 'schönes' }, { sv: 'väder', de: 'Wetter' }, { sv: 'solen', de: 'die Sonne' }, { sv: 'skiner', de: 'scheint' }], chunkIds: ['c-vader'] },
+  { id: 's-regnar3', level: 1, sv: 'Det regnar. Ta med paraply!', de: 'Es regnet. Nimm einen Schirm mit!', decoding: [{ sv: 'det', de: 'es' }, { sv: 'regnar', de: 'regnet' }, { sv: 'ta', de: 'nimm' }, { sv: 'med', de: 'mit' }, { sv: 'paraply', de: 'Schirm' }], chunkIds: ['c-regnar'] },
+  { id: 's-trevligt3', level: 1, sv: 'Jag heter Anna. Trevligt att träffas!', de: 'Ich heiße Anna. Schön, dich kennenzulernen!', decoding: [{ sv: 'jag', de: 'ich' }, { sv: 'heter', de: 'heiße' }, { sv: 'anna', de: 'Anna' }, { sv: 'trevligt', de: 'nett' }, { sv: 'att', de: 'zu' }, { sv: 'träffas', de: 'treffen' }], chunkIds: ['c-trevligt', 'c-heter'] },
+  { id: 's-biljett3', level: 1, sv: 'En biljett till Malmö, tack. Vilket spår?', de: 'Ein Ticket nach Malmö, bitte. Welches Gleis?', decoding: [{ sv: 'en', de: 'ein' }, { sv: 'biljett', de: 'Ticket' }, { sv: 'till', de: 'nach' }, { sv: 'malmö', de: 'Malmö' }, { sv: 'tack', de: 'bitte' }, { sv: 'vilket', de: 'welches' }, { sv: 'spår', de: 'Gleis' }], chunkIds: ['c-biljett', 'c-spar'] },
+  { id: 's-nartag3', level: 1, sv: 'När går tåget? Jag måste åka till Göteborg.', de: 'Wann fährt der Zug? Ich muss nach Göteborg fahren.', decoding: [{ sv: 'när', de: 'wann' }, { sv: 'går', de: 'geht' }, { sv: 'tåget', de: 'der Zug' }, { sv: 'jag', de: 'ich' }, { sv: 'måste', de: 'muss' }, { sv: 'åka', de: 'fahren' }, { sv: 'till', de: 'nach' }, { sv: 'göteborg', de: 'Göteborg' }], chunkIds: ['c-nartag'] },
+  { id: 's-narbuss3', level: 1, sv: 'När går bussen? Var är hållplatsen?', de: 'Wann fährt der Bus? Wo ist die Haltestelle?', decoding: [{ sv: 'när', de: 'wann' }, { sv: 'går', de: 'geht' }, { sv: 'bussen', de: 'der Bus' }, { sv: 'var', de: 'wo' }, { sv: 'är', de: 'ist' }, { sv: 'hållplatsen', de: 'die Haltestelle' }], chunkIds: ['c-narbuss', 'c-hallplats'] },
+  { id: 's-flygplatsen3', level: 1, sv: 'Till flygplatsen, tack. Kan jag betala med kort?', de: 'Zum Flughafen, bitte. Kann ich mit Karte zahlen?', decoding: [{ sv: 'till', de: 'zu' }, { sv: 'flygplatsen', de: 'dem Flughafen' }, { sv: 'tack', de: 'bitte' }, { sv: 'kan', de: 'kann' }, { sv: 'jag', de: 'ich' }, { sv: 'betala', de: 'zahlen' }, { sv: 'med', de: 'mit' }, { sv: 'kort', de: 'Karte' }], chunkIds: ['c-flygplatsen', 'c-medkort'] },
+  { id: 's-ledigtrum3', level: 1, sv: 'Har ni ett ledigt rum? Vad kostar en natt?', de: 'Habt ihr ein freies Zimmer? Was kostet eine Nacht?', decoding: [{ sv: 'har', de: 'habt' }, { sv: 'ni', de: 'ihr' }, { sv: 'ett', de: 'ein' }, { sv: 'ledigt', de: 'freies' }, { sv: 'rum', de: 'Zimmer' }, { sv: 'vad', de: 'was' }, { sv: 'kostar', de: 'kostet' }, { sv: 'en', de: 'eine' }, { sv: 'natt', de: 'Nacht' }], chunkIds: ['c-ledigtrum', 'c-vadnatt'] },
+  { id: 's-narfrukost3', level: 1, sv: 'När är frukost? Jag är hungrig.', de: 'Wann gibt es Frühstück? Ich bin hungrig.', decoding: [{ sv: 'när', de: 'wann' }, { sv: 'är', de: 'ist' }, { sv: 'frukost', de: 'Frühstück' }, { sv: 'jag', de: 'ich' }, { sv: 'är', de: 'bin' }, { sv: 'hungrig', de: 'hungrig' }], chunkIds: ['c-narfrukost', 'c-hungrig'] },
+  { id: 's-nyckeln3', level: 1, sv: 'Kan jag få nyckeln? Var är rummet?', de: 'Kann ich den Schlüssel haben? Wo ist das Zimmer?', decoding: [{ sv: 'kan', de: 'kann' }, { sv: 'jag', de: 'ich' }, { sv: 'få', de: 'bekommen' }, { sv: 'nyckeln', de: 'den Schlüssel' }, { sv: 'var', de: 'wo' }, { sv: 'är', de: 'ist' }, { sv: 'rummet', de: 'das Zimmer' }], chunkIds: ['c-nyckeln', 'c-varrummet'] },
+  { id: 's-bordtva3', level: 1, sv: 'Hej! Ett bord för två. Vad rekommenderar du?', de: 'Hallo! Einen Tisch für zwei. Was empfiehlst du?', decoding: [{ sv: 'hej', de: 'hallo' }, { sv: 'ett', de: 'einen' }, { sv: 'bord', de: 'Tisch' }, { sv: 'för', de: 'für' }, { sv: 'två', de: 'zwei' }, { sv: 'vad', de: 'was' }, { sv: 'rekommenderar', de: 'empfiehlst' }, { sv: 'du', de: 'du' }], chunkIds: ['c-bordtva', 'c-rekommenderar'] },
+  { id: 's-tardenhar3', level: 1, sv: 'Jag tar den här. Jag är hungrig!', de: 'Ich nehme das hier. Ich bin hungrig!', decoding: [{ sv: 'jag', de: 'ich' }, { sv: 'tar', de: 'nehme' }, { sv: 'den', de: 'das' }, { sv: 'här', de: 'hier' }, { sv: 'jag', de: 'ich' }, { sv: 'är', de: 'bin' }, { sv: 'hungrig', de: 'hungrig' }], chunkIds: ['c-tardenhar'] },
+  { id: 's-matt3', level: 1, sv: 'Det var gott, men jag är mätt.', de: 'Das war lecker, aber ich bin satt.', decoding: [{ sv: 'det', de: 'das' }, { sv: 'var', de: 'war' }, { sv: 'gott', de: 'lecker' }, { sv: 'men', de: 'aber' }, { sv: 'jag', de: 'ich' }, { sv: 'är', de: 'bin' }, { sv: 'mätt', de: 'satt' }], chunkIds: ['c-matt', 'c-vargott'] },
 ];
+
+// ── Zusammenbau ──────────────────────────────────────────────────────────────
+// Der Stoff je Meilenstein liegt in eigenen Dateien (`seedA1.ts` …), damit eine
+// Datei nicht auf zehntausend Zeilen wächst und ein Ausbau je Niveau lesbar
+// bleibt. Nach außen bleibt es EIN Baum: alles andere im Code kennt nur diese
+// drei Listen.
+export const seedAreas: Area[] = [...baseAreas, ...a2.areas, ...b1.areas, ...b2.areas, ...t2.areas];
+export const seedCategories: Category[] = [...fw.categories, ...baseCategories, ...a1.categories, ...a2.categories, ...b1.categories, ...b2.categories, ...t1.categories, ...t2.categories, ...t3.categories, ...t4.categories, ...t5.categories];
+export const seedChunks: Chunk[] = [...fw.chunks, ...baseChunks, ...a1.chunks, ...a2.chunks, ...b1.chunks, ...b2.chunks, ...t1.chunks, ...t2.chunks, ...t3.chunks, ...t4.chunks, ...t5.chunks];
+export const seedSegments: Segment[] = [...fw.segments, ...baseSegments, ...a1.segments, ...a2.segments, ...b1.segments, ...b2.segments, ...t1.segments, ...t2.segments, ...t3.segments, ...t4.segments, ...t5.segments];

@@ -8,13 +8,17 @@
  *     A  Glossen-Lücken   — ein schwedisches Wort ohne Wort-für-Wort-Entsprechung
  *     B  Kontext-Bruch    — ein Segment behauptet eine Wendung, enthält sie aber nicht
  *     C  Glossen-Konflikt — dasselbe schwedische Wort, verschiedene deutsche Glossen
- *     D  Bedeutungsdrift  — der wörtliche Rückbau liegt weit von der Bedeutung weg
+ *     E  Zahl/Verneinung  — die Zahl stimmt nicht, oder die Verneinung fehlt
+ *     D  Abstand          — wie weit der wörtliche Rückbau von der Bedeutung wegliegt
  *
  * WAS ES AUSDRÜCKLICH NICHT BEWEIST
  *   Ob die Übersetzung *richtig* ist. Ein Satz kann in sich vollständig
- *   widerspruchsfrei und trotzdem falsch übersetzt sein. A und B sind harte
- *   Fehler, C und D sind **Verdachtslisten für einen Menschen** — geordnet, nicht
- *   entschieden. Die menschliche Prüfung (Stufe 3) ersetzt das nicht.
+ *   widerspruchsfrei und trotzdem falsch übersetzt sein. A, B und E sind harte
+ *   Fehler; C ist eine geordnete Verdachtsliste für einen Menschen. D ist gar
+ *   keine Fehlerliste, sondern eine Messung des Birkenbihl-Abstands — sie stand
+ *   früher als Warnung hier und warnte damit vor dem Produkt (alle 125 Zeilen
+ *   waren beim Durchsehen korrekt). Die menschliche Prüfung (Stufe 3) ersetzt
+ *   das alles nicht.
  *
  * BENUTZUNG
  *   npm run check:backtranslation      # schreibt docs/content-rueckuebersetzung.md
@@ -28,6 +32,7 @@ import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 import { seedChunks, seedSegments } from '../src/modules/content/seedSegments';
 import { seedDialogs } from '../src/modules/content/seedDialogs';
+import { MEHRDEUTIGE_WOERTER } from '../src/modules/content/polysemy';
 
 export type Gloss = { sv: string; de: string };
 /** Alles, was eine schwedische Zeile mit Bedeutung und Glossen ist. */
@@ -163,7 +168,129 @@ export type Conflict = { sv: string; glosses: { de: string; where: string }[] };
  * Wörter, deren Glosse laut `content-review-schwedisch.md` bewusst vom Kontext
  * abhängt. Sie tauchen im Bericht auf, gelten aber nicht als Verdachtsfall.
  */
-const KNOWN_CONTEXT_DEPENDENT = new Set(['till', 'om', 'med', 'få', 'tack']);
+// Was die App dem Lerner selbst erklärt, muss kein Mensch mehr aufklären.
+// Die Liste steht in `src/modules/content/polysemy.ts` und wird dort durch
+// einen Test am Inhalt gehalten. Hier zieht der Bericht sie nur ab.
+const ERKLAERT = new Set(MEHRDEUTIGE_WOERTER.map((m) => m.sv));
+
+const KNOWN_CONTEXT_DEPENDENT = new Set([
+  // Ursprünglich aus `content-review-schwedisch.md`
+  'till', 'om', 'med', 'få', 'tack',
+  // Ergänzt 2026-07-25: Wörter, deren deutsche Entsprechung KEINE feste Größe
+  // ist, sondern vom Satz gebildet wird. `på` heißt auf/an/am/im/über/bei — das
+  // ist keine Uneinheitlichkeit, das ist der Unterschied zwischen zwei Sprachen.
+  // Genau deshalb steht das Dekodieren daneben: es zeigt die fremde Struktur.
+  // Präpositionen und Partikeln
+  'i', 'på', 'för', 'av', 'ut', 'in', 'upp', 'åt', 'vid', 'ur', 'efter', 'under',
+  'från', 'innan', 'än', 'ändå', 'först', 'mot', 'hos', 'genom', 'mellan', 'utan', 'ner',
+  // „kvar“ heißt übrig UND zurück — „stannade kvar“ ist zurückbleiben.
+  'kvar',
+  // Hilfsverben und echte Homographen (var = wo/war, går = geht/gestern)
+  'har', 'ska', 'får', 'var', 'går', 'gör', 'är',
+  // Pronomen und Artikelwörter — Genus und Kasus kommen aus dem DEUTSCHEN Satz
+  'det', 'den', 'de', 'dem', 'som', 'en', 'ett', 'ingen', 'inget',
+  'mig', 'dig', 'sig', 'oss', 'er', 'henne', 'honom',
+  // Satz-Adverbien: „sedan" heißt seit/dann/danach, „då" dann/denn — die Nuance
+  // steht im deutschen Satz, nicht im schwedischen Wort.
+  'sedan', 'sen', 'då', 'ju', 'nog', 'väl', 'bara', 'redan', 'nu',
+]);
+
+/**
+ * Deutsche BEUGUNGSFAMILIEN der Funktionswörter.
+ *
+ * WARUM ES SIE BRAUCHT (Befund 2026-07-25): Die Konfliktliste hatte 248 Zeilen,
+ * und fast jede war harmlos — `är` als „ist/bin/bist/sind/seid" ist keine
+ * Uneinheitlichkeit, sondern deutsche Grammatik. Eine Liste, in der ein echter
+ * Fehler zwischen 240 Nicht-Fehlern steht, wird nicht gelesen; damit erfüllt
+ * sie ihren einzigen Zweck nicht (die menschliche Prüfung klein genug machen).
+ *
+ * Bewusst NUR unregelmäßige Funktionswörter: bei allem anderen reicht der
+ * gemeinsame Wortstamm. Nichts wird hier verschwiegen — die Beugungsfälle
+ * stehen weiter im Bericht, nur in einer zweiten Tabelle.
+ */
+const BEUGUNG: string[][] = [
+  ['bin', 'bist', 'ist', 'sind', 'seid', 'war', 'warst', 'waren', 'sei', 'wäre', 'sein'],
+  ['ha', 'habe', 'hab', 'hast', 'hat', 'haben', 'habt', 'hatte', 'hattest', 'hatten'],
+  ['werde', 'wirst', 'wird', 'werden', 'werdet', 'wurde', 'wurden'],
+  ['kann', 'kannst', 'können', 'könnt', 'konnte', 'könnte'],
+  ['muss', 'musst', 'müssen', 'müsst', 'musste'],
+  ['soll', 'sollst', 'sollen', 'sollt', 'sollte', 'sollten'],
+  ['will', 'willst', 'wollen', 'wollt', 'wollte', 'wollten'],
+  ['darf', 'darfst', 'dürfen', 'dürft'],
+  ['mag', 'magst', 'mögen', 'mögt'],
+  ['der', 'die', 'das', 'den', 'dem', 'des'],
+  ['ein', 'eine', 'einen', 'einem', 'einer', 'eines', 'eins'],
+  ['mein', 'meine', 'meinen', 'meinem', 'meiner', 'meins'],
+  ['dein', 'deine', 'deinen', 'deinem', 'deiner', 'deins'],
+  ['gut', 'gute', 'guter', 'gutes', 'guten', 'gutem'],
+  ['sehe', 'siehst', 'sieht', 'sehen', 'seht', 'sieh', 'sah', 'sahen', 'gesehen'],
+  ['wer', 'wen', 'wem', 'wessen'],
+  ['helfe', 'hilfst', 'hilft', 'helfen', 'helft', 'hilf', 'half', 'geholfen'],
+  ['gebe', 'gibst', 'gibt', 'geben', 'gebt', 'gab', 'gib'],
+  ['nehme', 'nimmst', 'nimmt', 'nehmen', 'nehmt', 'nimm'],
+  ['esse', 'isst', 'essen', 'esst', 'iss', 'aß'],
+  ['spreche', 'sprichst', 'spricht', 'sprechen', 'sprecht', 'sprich'],
+  ['komme', 'kommst', 'kommt', 'kommen', 'komm', 'kam', 'kamst', 'kamt', 'kamen'],
+  ['weiss', 'weisst', 'wissen', 'wisst', 'wusste'],
+  ['fahre', 'fahrst', 'fahrt', 'fahren', 'fuhr', 'fuhren'],
+];
+
+// Nach Name statt nach Index: Eine neue Familie in der Liste darf nicht
+// stillschweigend aus Artikeln Fürwörter machen.
+const familie = (kopf: string) => BEUGUNG.find((f) => f[0] === kopf) ?? [];
+const ARTIKEL = new Set([...familie('der'), ...familie('ein')]);
+
+/** Nur Umlaute falten — dieselbe Regel wie in `kern`. */
+const falten = (w: string) =>
+  w.replace(/ä/g, 'a').replace(/ö/g, 'o').replace(/ü/g, 'u').replace(/ß/g, 'ss');
+
+/**
+ * BEFUND beim Gegenlesen 2026-07-25: `kern` faltet Umlaute, die Familienlisten
+ * standen ungefaltet da — „konnen" traf „können" also nie, und `kan`
+ * (kann/kannst/können/könnt) landete als angeblicher Bedeutungs-Konflikt in der
+ * Prüfliste. Beide Seiten durch dieselbe Faltung, sonst prüft man Luft.
+ */
+const BEUGUNG_GEFALTET = BEUGUNG.map((f) => new Set(f.map(falten)));
+
+/** Glosse auf ihren Kern: Artikel weg, klein, getrimmt. */
+function kern(de: string): string {
+  const w = de.toLowerCase().trim().split(/\s+/).filter((x) => !ARTIKEL.has(x));
+  return (w.length ? w : [de.toLowerCase().trim()])
+    .join(' ')
+    // Umlaut falten: „hältst"/„halte" ist eine Beugung, der Umlaut verdeckt sie.
+    .replace(/ä/g, 'a')
+    .replace(/ö/g, 'o')
+    .replace(/ü/g, 'u')
+    .replace(/ß/g, 'ss');
+}
+
+/** Sind zwei Glossen nur zwei Formen DESSELBEN deutschen Wortes? */
+export function nurBeugung(a: string, b: string): boolean {
+  const x = kern(a);
+  const y = kern(b);
+  if (x === y) return true;
+  if (BEUGUNG_GEFALTET.some((f) => f.has(x) && f.has(y))) return true;
+  // Gemeinsamer Stamm: „gehe/gehst/gehen", „meine/meinst".
+  const n = Math.min(x.length, y.length);
+  if (n < 3) return false;
+  let gleich = 0;
+  while (gleich < n && x[gleich] === y[gleich]) gleich++;
+  return gleich >= 3;
+}
+
+/**
+ * Unterscheiden sich die Glossen eines Wortes wirklich in der BEDEUTUNG?
+ * Wahr, sobald zwei von ihnen nicht als Beugung desselben Wortes durchgehen.
+ */
+export function istBedeutungsKonflikt(c: Conflict): boolean {
+  const de = c.glosses.map((g) => g.de);
+  for (let i = 0; i < de.length; i++) {
+    for (let j = i + 1; j < de.length; j++) {
+      if (!nurBeugung(de[i], de[j])) return true;
+    }
+  }
+  return false;
+}
 
 export function findConflicts(lines: Line[]): Conflict[] {
   // Nur Ein-Wort-Glossen: Mehrwort-Einträge sind feste Formeln („smaklig måltid"),
@@ -210,6 +337,178 @@ export function findDrift(lines: Line[]): Drift[] {
     .sort((a, b) => a.score - b.score || a.where.localeCompare(b.where));
 }
 
+
+// ── E: Zahlen und Verneinung ─────────────────────────────────────────────────
+//
+// WARUM ES DIESE PRÜFUNG GIBT: Abschnitt D misst die Wort-Deckung zwischen dem
+// wörtlichen Rückbau und der freien Übersetzung. Bei 125 Treffern war jeder
+// einzelne KORREKT — „smaklig måltid" heißt wörtlich „schmackhaft Mahlzeit" und
+// gemeint „Guten Appetit". Die Liste warnte also vor genau dem Effekt, den die
+// App bauen will. Eine Warnung, die nur das Produkt anzeigt, ist keine Prüfung.
+//
+// Zwei Dinge lassen sich dagegen HART prüfen, weil sie in beiden Sprachen
+// dasselbe sein MÜSSEN, egal wie idiomatisch übersetzt wird:
+//   1. Zahlen — „tre" darf nicht „vier" werden.
+//   2. Verneinung — wer `inte` sagt und im Deutschen kein „nicht" hat, hat
+//      die Aussage umgedreht. Das ist der teuerste Fehler, den es hier gibt.
+export type ZahlNeinBefund = { where: string; sv: string; de: string; was: string };
+
+const SV_ZAHL: Record<string, number> = {
+  noll: 0, en: 1, ett: 1, två: 2, tre: 3, fyra: 4, fem: 5, sex: 6, sju: 7, åtta: 8,
+  nio: 9, tio: 10, tusen: 1000, elva: 11, tolv: 12, tretton: 13, fjorton: 14, femton: 15,
+  sexton: 16, sjutton: 17, arton: 18, nitton: 19, tjugo: 20, trettio: 30,
+  fyrtio: 40, femtio: 50, sextio: 60, sjuttio: 70, åttio: 80, nittio: 90, hundra: 100,
+};
+const DE_ZAHL: Record<string, number> = {
+  null: 0, ein: 1, eine: 1, einen: 1, eins: 1, zwei: 2, drei: 3, vier: 4, fünf: 5,
+  sechs: 6, sieben: 7, acht: 8, neun: 9, zehn: 10, elf: 11, zwölf: 12, dreizehn: 13,
+  vierzehn: 14, fünfzehn: 15, sechzehn: 16, siebzehn: 17, achtzehn: 18, neunzehn: 19,
+  zwanzig: 20, dreißig: 30, vierzig: 40, fünfzig: 50, sechzig: 60, siebzig: 70,
+  achtzig: 80, neunzig: 90, hundert: 100, tausend: 1000,
+};
+// „en/ett" ist im Schwedischen zugleich der unbestimmte Artikel, „ein" im
+// Deutschen auch — als Zahl gezählt gäbe das nur Rauschen. Ebenso Ordnungszahlen.
+const ZAHL_IGNORIEREN = new Set(['en', 'ett', 'ein', 'eine', 'einen', 'eins']);
+
+/**
+ * Wortteile, die eine Zahl begleiten dürfen, ohne selbst eine zu sein:
+ * Fugen („fünfUNDdreißig"), Häufigkeit („dreiMAL") und Ordnungsendungen
+ * („tjugoNDE", „zwanzigSTE").
+ */
+// ORDNUNGSZAHLEN BEWUSST NICHT: „andra" heißt im Schwedischen zweite UND andere,
+// und wo Deutsch „der Zwölfte" sagt, sagt Schwedisch „den tolfte" — die beiden
+// Sprachen bilden Ordnungszahlen zu verschieden, um sie gegeneinander zu prüfen.
+// Ohne diese Endungen bleiben Ordnungszahlen auf BEIDEN Seiten unerkannt; das
+// ist ehrlicher als eine Prüfung, die nur die eine Seite sieht.
+const ZAHL_ANHANG = ['und', 'mal', 'o', 't'];
+
+/**
+ * Zerlegt EIN Wort vollständig in Zahlwörter und erlaubte Anhänge — oder gibt
+ * `null` zurück, wenn auch nur ein Rest übrig bleibt.
+ *
+ * WARUM VOLLSTÄNDIG: Der erste Versuch prüfte nur den Wortanfang. Schwedische
+ * Zahlwörter sind kurz, also galt „sjuk" (krank) als Sieben, „sjunger" (singt)
+ * als Sieben und „trevligt" (nett) als Drei — 44 Falschmeldungen. Ein Wort ist
+ * nur dann eine Zahl, wenn NICHTS übrig bleibt.
+ */
+function zahlWort(wort: string, karte: Record<string, number>): number | null {
+  const stichwoerter = Object.keys(karte).sort((a, b) => b.length - a.length);
+  const anhaenge = [...ZAHL_ANHANG].sort((a, b) => b.length - a.length);
+  let rest = wort;
+  let summe = 0;
+  let zahlGesehen = false;
+  while (rest.length > 0) {
+    const z = stichwoerter.find((k) => rest.startsWith(k));
+    if (z) {
+      // „en/ett" und „ein" sind zugleich unbestimmte Artikel. Sie zählen NICHT
+      // als Zahl — sonst wäre jedes „ich wohne in einer Wohnung" ein Befund.
+      if (!ZAHL_IGNORIEREN.has(z)) {
+        summe += karte[z];
+        zahlGesehen = true;
+      }
+      rest = rest.slice(z.length);
+      continue;
+    }
+    const a = anhaenge.find((k) => rest.startsWith(k));
+    if (a) {
+      rest = rest.slice(a.length);
+      continue;
+    }
+    return null;
+  }
+  return zahlGesehen ? summe : null;
+}
+
+/**
+ * Die Zahlenwerte eines Satzes. Aufeinanderfolgende Zahlwörter zählen als EINE
+ * Zahl, damit „tre hundra" (zwei Wörter) und „dreihundert" (eins) dasselbe
+ * ergeben. Es geht um Übereinstimmung zwischen den Sprachen, nicht um den
+ * absolut richtigen Wert — beide Seiten werden gleich gerechnet.
+ */
+function zahlen(text: string, karte: Record<string, number>): number[] {
+  const gefunden: number[] = [];
+  let offen: number | null = null;
+  for (const w of tokens(text)) {
+    const z = /^\d+$/.test(w) ? Number(w) : zahlWort(w, karte);
+    if (z === null) {
+      if (offen !== null) gefunden.push(offen);
+      offen = null;
+    } else {
+      offen = (offen ?? 0) + z;
+    }
+  }
+  if (offen !== null) gefunden.push(offen);
+  return gefunden.sort((a, b) => a - b);
+}
+
+const SV_NEIN = new Set([
+  'inte', 'aldrig', 'ingen', 'inget', 'inga', 'ingenting', 'utan', 'knappt', 'knappast',
+]);
+const DE_NEIN = new Set([
+  'nicht', 'nie', 'niemals', 'kein', 'keine', 'keinen', 'keinem', 'keiner', 'keins',
+  'nichts', 'ohne', 'niemand', 'nirgends', 'weder', 'kaum',
+]);
+
+/**
+ * Redewendungen, bei denen die Verneinung ABSICHTLICH nur auf einer Seite steht.
+ * „Här ligger en hund begraven" verneint nichts, heißt aber „da stimmt etwas
+ * NICHT" — das ist der Birkenbihl-Effekt und kein Übersetzungsfehler.
+ *
+ * Bewusst als geschlossene Liste von Wendungs-Kennungen statt als Wortregel:
+ * Eine Regel („`fehl` im Wort zählt als Verneinung") traf beim ersten Versuch
+ * auch „empfehlen" und „Fehler" — und `^un` sogar „Und". Wer die Ausnahme nicht
+ * benennen kann, hat sie nicht verstanden.
+ */
+// Erkannt am schwedischen Wortlaut, nicht an der Kennung: Dieselbe Wendung
+// steht als Wendung, in drei Segmenten und in Gesprächen — eine Liste von
+// Kennungen wäre schon beim ersten neuen Segment wieder unvollständig.
+/**
+ * Zeilen, in denen die Zahl auf beiden Seiten anders GEBAUT wird, ohne dass
+ * sich der Wert ändert. Auch hier am Wortlaut erkannt, mit Begründung.
+ */
+const ZAHL_ASYMMETRIE_OK = [
+  'var tjugonde', // „jede zwanzigste Minute" heißt auf Deutsch „alle zwanzig Minuten"
+];
+
+const NEIN_ASYMMETRIE_OK = [
+  'en hund begraven', // „hier liegt ein Hund begraben" = da stimmt etwas nicht
+];
+
+export function findZahlNein(lines: Line[]): ZahlNeinBefund[] {
+  const befunde: ZahlNeinBefund[] = [];
+  for (const line of lines) {
+    const sv = stripPlaceholder(line.sv);
+    const de = stripPlaceholder(line.de);
+
+    const zsv = zahlen(sv, SV_ZAHL);
+    const zde = zahlen(de, DE_ZAHL);
+    const zahlOk = ZAHL_ASYMMETRIE_OK.some((w) => sv.toLowerCase().includes(w));
+    if (zsv.join(',') !== zde.join(',') && !zahlOk) {
+      befunde.push({
+        where: line.where,
+        sv,
+        de,
+        was: `Zahlen: schwedisch [${zsv.join(', ')}] · deutsch [${zde.join(', ')}]`,
+      });
+    }
+
+    const nsv = tokens(sv).some((w) => SV_NEIN.has(w));
+    const nde = tokens(de).some((w) => DE_NEIN.has(w));
+    const ausgenommen = NEIN_ASYMMETRIE_OK.some((w) => sv.toLowerCase().includes(w));
+    if (nsv !== nde && !ausgenommen) {
+      befunde.push({
+        where: line.where,
+        sv,
+        de,
+        was: nsv
+          ? 'verneint auf Schwedisch, nicht auf Deutsch'
+          : 'verneint auf Deutsch, nicht auf Schwedisch',
+      });
+    }
+  }
+  return befunde;
+}
+
 // ── Bericht ──────────────────────────────────────────────────────────────────
 
 function report(lines: Line[]): { text: string; hardFindings: number } {
@@ -218,8 +517,19 @@ function report(lines: Line[]): { text: string; hardFindings: number } {
   const breaks = coverage.filter((c) => c.score < CONTEXT_FLOOR);
   const varied = coverage.filter((c) => c.score >= CONTEXT_FLOOR && c.score < 1);
   const conflicts = findConflicts(lines);
+  const beugung = conflicts.filter((c) => !istBedeutungsKonflikt(c));
+  const kontext = conflicts.filter(
+    (c) => istBedeutungsKonflikt(c) && KNOWN_CONTEXT_DEPENDENT.has(c.sv),
+  );
+  const erklaert = conflicts.filter(
+    (c) => istBedeutungsKonflikt(c) && !KNOWN_CONTEXT_DEPENDENT.has(c.sv) && ERKLAERT.has(c.sv),
+  );
+  const bedeutung = conflicts.filter(
+    (c) =>
+      istBedeutungsKonflikt(c) && !KNOWN_CONTEXT_DEPENDENT.has(c.sv) && !ERKLAERT.has(c.sv),
+  );
   const drift = findDrift(lines);
-  const suspicious = conflicts.filter((c) => !KNOWN_CONTEXT_DEPENDENT.has(c.sv));
+  const zahlNein = findZahlNein(lines);
 
   const out: string[] = [];
   const p = (s = '') => out.push(s);
@@ -252,8 +562,13 @@ function report(lines: Line[]): { text: string; hardFindings: number } {
   p(`- ❌ **A** Glossen-Lücken (hart): **${gaps.length}**`);
   p(`- ❌ **B** Kontext-Brüche (hart, Deckung < ${CONTEXT_FLOOR}): **${breaks.length}**`);
   p(`- ℹ️ **B2** starke Kontextvariation (erwünscht): **${varied.length}**`);
-  p(`- ⚠️ **C** Glossen-Konflikte: **${conflicts.length}** (davon bekannt kontextabhängig: ${conflicts.length - suspicious.length})`);
-  p(`- ⚠️ **D** mögliche Bedeutungsdrift: **${drift.length}** (Deckung < ${DRIFT_THRESHOLD})`);
+  p(
+    `- ⚠️ **C** Glossen-Konflikte: **${conflicts.length}** — davon **${bedeutung.length} zu prüfen**, ` +
+      `${erklaert.length} der App bekannt und dem Lerner erklärt, ` +
+      `${kontext.length} kontextabhängige Funktionswörter, ${beugung.length} nur deutsche Beugung`,
+  );
+  p(`- ❌ **E** Zahl- oder Verneinungsfehler (hart): **${zahlNein.length}**`);
+  p(`- ℹ️ **D** Abstand wörtlich ↔ gemeint: **${drift.length}** (Deckung < ${DRIFT_THRESHOLD})`);
   p();
 
   p('## ❌ A — Glossen-Lücken');
@@ -307,39 +622,100 @@ function report(lines: Line[]): { text: string; hardFindings: number } {
   }
   p();
 
-  p('## ⚠️ C — Glossen-Konflikte');
-  p();
-  p(
-    'Dasselbe schwedische Wort mit verschiedenen deutschen Glossen. **Vieles davon ist richtig** ' +
-      '— deutsche Beugung („bist"/„bin") und kontextabhängige Partikeln. Verdächtig ist, wo sich ' +
-      'die Bedeutungen wirklich unterscheiden.',
-  );
-  p();
-  if (!conflicts.length) {
-    p('Keine. ✅');
-  } else {
+  const tabelle = (rows: Conflict[]) => {
     p('| Schwedisch | Glossen | bekannt kontextabhängig |');
     p('|---|---|---|');
-    for (const c of conflicts) {
+    for (const c of rows) {
       const g = c.glosses.map((x) => `„${x.de}" (${x.where})`).join(' · ');
       p(`| **${c.sv}** | ${g} | ${KNOWN_CONTEXT_DEPENDENT.has(c.sv) ? 'ja' : '—'} |`);
     }
+  };
+
+  p('## ⚠️ C1 — zu prüfen');
+  p();
+  p(
+    'Dasselbe schwedische Wort, verschiedene deutsche Bedeutungen — und es ist **kein** ' +
+      'Funktionswort, bei dem das normal wäre. Hier erlebt ein Lerner den Unterschied als ' +
+      'Widerspruch. Das ist die Liste, die ein Mensch wirklich durchgehen sollte.',
+  );
+  p();
+  if (!bedeutung.length) p('Keine. ✅');
+  else tabelle(bedeutung);
+  p();
+
+  p('## ✅ C1b — der App bekannt, dem Lerner erklärt');
+  p();
+  p(
+    'Auch hier trägt dasselbe Wort zwei Bedeutungen — aber die App sagt es. In der ' +
+      'Dekodierung steht ein Satz wie „kort heißt hier »Karte« — es heißt auch »kurz«". ' +
+      'Der Lerner erlebt den Unterschied damit als Stoff und nicht als Widerspruch. ' +
+      'Gepflegt in `src/modules/content/polysemy.ts`, am Inhalt festgehalten durch ' +
+      '`polysemy.test.ts`.',
+  );
+  p();
+  if (!erklaert.length) p('Keine.');
+  else tabelle(erklaert);
+  p();
+
+  p('## ℹ️ C3 — Funktionswörter (Bedeutung kommt aus dem Satz)');
+  p();
+  p(
+    '`på` heißt auf/an/am/im/über/bei, `var` heißt wo/war/jede. Das ist keine Uneinheitlichkeit, ' +
+      'sondern der Unterschied zwischen zwei Sprachen — und genau der Grund, warum überhaupt ' +
+      'dekodiert wird. Vollständig aufgeführt, damit nichts stillschweigend verschwindet.',
+  );
+  p();
+  if (!kontext.length) p('Keine.');
+  else tabelle(kontext);
+  p();
+
+  p('## ℹ️ C2 — nur deutsche Beugung (erwartet)');
+  p();
+  p(
+    'Vollständigkeit statt Schönfärberei: Diese Fälle stehen hier, damit nichts verschwiegen ' +
+      'wird — aber „är" als „ist/bin/bist/sind" ist deutsche Grammatik, kein Befund. Die Trennung ' +
+      'gibt es, weil eine Liste aus 248 Zeilen nicht gelesen wird und damit ihren Zweck verfehlt.',
+  );
+  p();
+  if (!beugung.length) p('Keine.');
+  else tabelle(beugung);
+  p();
+
+  p('## ❌ E — Zahlen und Verneinung');
+  p();
+  p(
+    'Zwei Dinge müssen in beiden Sprachen dasselbe sein, egal wie frei übersetzt wird: ' +
+      '**die Zahl** und **ob der Satz verneint ist**. Wer `tre` mit „vier" übersetzt oder ' +
+      '`inte` unterschlägt, dreht die Aussage um — der teuerste Fehler, den es hier geben kann, ' +
+      'und einer der wenigen, die eine Maschine sicher sehen kann. Deshalb **hart**: ' +
+      'Ein Befund lässt den Prüflauf scheitern.',
+  );
+  p();
+  if (!zahlNein.length) {
+    p('Keine. ✅');
+  } else {
+    p('| Was | Schwedisch | behauptete Bedeutung | Wo |');
+    p('|---|---|---|---|');
+    for (const z of zahlNein) p(`| ${z.was} | ${z.sv} | ${z.de} | ${z.where} |`);
   }
   p();
 
-  p('## ⚠️ D — mögliche Bedeutungsdrift');
+  p('## ℹ️ D — Abstand zwischen wörtlich und gemeint');
   p();
   p(
-    'Der wörtliche Rückbau aus den Glossen deckt die behauptete Bedeutung kaum. **Oft völlig in ' +
-      'Ordnung** — genau das ist ja der Birkenbihl-Effekt („jag vill ha" = wörtlich „ich will ' +
-      'haben", gemeint „ich möchte"). Aber hier würde sich ein echter Übersetzungsfehler ' +
-      'verstecken, deshalb steht die Liste vollständig hier, schwächste Deckung zuerst.',
+    'Wie weit der Wort-für-Wort-Rückbau von der freien Übersetzung wegliegt. **Das ist keine ' +
+      'Fehlerliste** — es ist der Birkenbihl-Effekt, gemessen: „smaklig måltid" heißt wörtlich ' +
+      '„schmackhaft Mahlzeit" und gemeint „Guten Appetit", und genau diesen Abstand sichtbar zu ' +
+      'machen ist der Zweck des Dekodierens. Beim Durchsehen aller Zeilen war keine einzige ' +
+      'falsch. Die Liste stand vorher als ⚠️ „mögliche Bedeutungsdrift" hier und warnte damit ' +
+      'vor dem Produkt; was sich maschinell wirklich prüfen lässt, steht jetzt oben unter E. ' +
+      'Größter Abstand zuerst — hier stehen die Wendungen, die am meisten Sprache enthalten.',
   );
   p();
   if (!drift.length) {
     p('Keine. ✅');
   } else {
-    p('| Deckung | Schwedisch | wörtlich zurück | behauptete Bedeutung | Wo |');
+  p('| Deckung | Schwedisch | wörtlich zurück | gemeint | Wo |');
     p('|---|---|---|---|---|');
     for (const d of drift) {
       p(`| ${(d.score * 100).toFixed(0)} % | ${d.sv} | ${d.literal} | ${d.de} | ${d.where} |`);
@@ -347,7 +723,10 @@ function report(lines: Line[]): { text: string; hardFindings: number } {
   }
   p();
 
-  return { text: out.join('\n') + '\n', hardFindings: gaps.length + breaks.length };
+  return {
+    text: out.join('\n') + '\n',
+    hardFindings: gaps.length + breaks.length + zahlNein.length,
+  };
 }
 
 export function main(): number {
@@ -355,10 +734,17 @@ export function main(): number {
   const { text, hardFindings } = report(lines);
   writeFileSync(REPORT, text, 'utf-8');
   const drift = findDrift(lines).length;
-  const conflicts = findConflicts(lines).length;
+  // Dieselbe Zahl wie C1 im Bericht — sonst meldet die Konsole etwas anderes
+  // als das Dokument, und man weiß nicht mehr, welcher Zahl man glaubt.
+  const conflicts = findConflicts(lines).filter(
+    (c) =>
+      istBedeutungsKonflikt(c) && !KNOWN_CONTEXT_DEPENDENT.has(c.sv) && !ERKLAERT.has(c.sv),
+  ).length;
   console.log('Bericht geschrieben: docs/content-rueckuebersetzung.md');
   console.log(`  ${lines.length} Zeilen geprüft`);
-  console.log(`  hart: ${hardFindings} · Konflikte: ${conflicts} · Drift-Verdacht: ${drift}`);
+  console.log(
+    `  hart: ${hardFindings} · Bedeutungs-Konflikte: ${conflicts} · Abstand wörtlich↔gemeint: ${drift}`,
+  );
   return hardFindings ? 1 : 0;
 }
 

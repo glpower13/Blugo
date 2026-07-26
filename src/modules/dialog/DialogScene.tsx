@@ -15,6 +15,7 @@ import { fillName } from '../../session/profile';
 import { IconBack, IconChat, IconPlay, IconSlow, IconSparkle } from '../../ui/icons';
 import { AreaWash } from '../../ui/areaTheme';
 import { SceneArt } from '../../ui/SceneArt';
+import { VoiceMissingHint } from '../../ui/VoiceHint';
 
 // Farbstimmung der Szene (liegt UNTER dem Szenenbild, gibt ihm Tiefe).
 const SCENE_GLOW: Record<Dialog['scene'], string> = {
@@ -28,6 +29,10 @@ const SCENE_GLOW: Record<Dialog['scene'], string> = {
   track: 'radial-gradient(70% 42% at 50% 0%, rgba(120,190,225,.14), transparent 60%)',
   lake: 'radial-gradient(70% 42% at 50% 0%, rgba(120,190,180,.15), transparent 60%)',
   stadium: 'radial-gradient(70% 42% at 50% 0%, rgba(130,200,140,.15), transparent 60%)',
+  office: 'radial-gradient(70% 42% at 50% 0%, rgba(159,182,201,.14), transparent 60%)',
+  home: 'radial-gradient(70% 42% at 50% 0%, rgba(231,168,90,.15), transparent 60%)',
+  street: 'radial-gradient(70% 42% at 50% 0%, rgba(155,140,150,.15), transparent 60%)',
+  school: 'radial-gradient(70% 42% at 50% 0%, rgba(201,183,127,.13), transparent 60%)',
   generic: 'radial-gradient(70% 42% at 50% 0%, rgba(231,192,138,.12), transparent 60%)',
 };
 
@@ -41,6 +46,7 @@ interface Props {
     result: ReviewResult,
     helpUsed: boolean,
     spoken: boolean,
+    exact?: boolean,
   ) => void;
   onExit: () => void;
 }
@@ -142,8 +148,8 @@ export function DialogScene({ dialog, backLabel, areaHue, learnerName, onProduce
                 <YouTurn
                   turn={current}
                   ttsOn={ttsOn}
-                  onGrade={(result, helpUsed, spoken) => {
-                    onProduce(current, result, helpUsed, spoken);
+                  onGrade={(result, helpUsed, spoken, exact) => {
+                    onProduce(current, result, helpUsed, spoken, exact);
                     setGraded((g) => ({
                       good: g.good + (result === 'good' ? 1 : 0),
                       total: g.total + 1,
@@ -261,6 +267,7 @@ function PartnerTurn({
               Aufdecken
             </button>
           </div>
+          {ttsOn && <VoiceMissingHint className="mt-2" />}
           <p className="text-xs text-faint">Erst hören — verstehst du es?</p>
         </div>
       ) : (
@@ -347,11 +354,12 @@ function YouTurn({
 }: {
   turn: DialogTurn;
   ttsOn: boolean;
-  onGrade: (result: ReviewResult, helpUsed: boolean, spoken: boolean) => void;
+  onGrade: (result: ReviewResult, helpUsed: boolean, spoken: boolean, exact?: boolean) => void;
 }) {
   const [typed, setTyped] = useState('');
   const [heard, setHeard] = useState(''); // was die Spracheingabe verstanden hat
   const [spokenOk, setSpokenOk] = useState(false); // gesprochen UND exakt erkannt
+  const [exactHit, setExactHit] = useState(false); // objektiver Volltreffer der Prüfung
   const [helpUsed, setHelpUsed] = useState(false);
   const [phase, setPhase] = useState<'input' | 'feedback' | 'revealed'>('input');
   const [feedback, setFeedback] = useState<AnswerAnalysis | null>(null);
@@ -367,6 +375,8 @@ function YouTurn({
   function check(value: string = typed, fromSpeech = false) {
     const fb = analyzeAnswer(value, turn.sv);
     setSpokenOk(fromSpeech && fb.correct);
+    // Der objektive Treffer, getrennt vom Selbsteinschätzungs-Knopf.
+    setExactHit(fb.correct);
     if (fb.correct) {
       setFeedback(null);
       setPhase('revealed');
@@ -574,17 +584,17 @@ function YouTurn({
             <GradeButton
               label="Nochmal"
               tone="bg-danger"
-              onClick={() => onGrade('again', helpUsed, spokenOk)}
+              onClick={() => onGrade('again', helpUsed, spokenOk, exactHit)}
             />
             <GradeButton
               label="Fast"
               tone="bg-warn"
-              onClick={() => onGrade('hard', helpUsed, spokenOk)}
+              onClick={() => onGrade('hard', helpUsed, spokenOk, exactHit)}
             />
             <GradeButton
               label="Sitzt"
               tone="bg-success"
-              onClick={() => onGrade('good', helpUsed, spokenOk)}
+              onClick={() => onGrade('good', helpUsed, spokenOk, exactHit)}
             />
           </div>
         </>

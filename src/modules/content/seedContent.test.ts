@@ -65,14 +65,19 @@ describe('seed content — Integrität', () => {
     // Ein exaktes Duplikat („det regnar" in zwei Themen) wäre schlimmer als ein
     // ID-Konflikt: dieselbe Kenntnis bekäme zwei Gedächtnis-Zustände, und die
     // ehrliche Messung würde denselben Beweis doppelt zählen bzw. nie erreichen.
+    // ALLE Fälle auf einmal melden statt beim ersten abzubrechen: Beim Ausbau
+    // um mehrere Themen kostete jede einzeln gemeldete Dopplung einen kompletten
+    // Durchlauf (2026-07-26).
     const norm = (t: string) => t.trim().toLowerCase().replace(/[.!?,;:]+$/g, '');
-    const seen = new Map<string, string>();
+    const nachSatz = new Map<string, string[]>();
     for (const c of seedChunks) {
       const key = norm(c.sv);
-      const first = seen.get(key);
-      expect(first, `„${c.sv}" steht doppelt: ${first} und ${c.id}`).toBeUndefined();
-      seen.set(key, c.id);
+      nachSatz.set(key, [...(nachSatz.get(key) ?? []), c.id]);
     }
+    const doppelt = [...nachSatz.entries()]
+      .filter(([, ids]) => ids.length > 1)
+      .map(([sv, ids]) => `„${sv}" → ${ids.join(', ')}`);
+    expect(doppelt).toEqual([]);
   });
 
   it('jede Kategorie enthält mindestens einen Chunk', () => {
@@ -182,9 +187,13 @@ describe('Prüf-Stand (verification.generated.ts)', () => {
     }
   });
 
-  it('behauptet NIRGENDS eine muttersprachliche Prüfung — es gab noch keine', () => {
-    expect(VERIFICATION_META.native).toBe(0);
-    expect(Object.values(VERIFICATION)).not.toContain('native');
+  it('kennt nur die zwei Stufen, die eine Maschine wirklich vergeben kann', () => {
+    // Eine Stufe „muttersprachlich geprüft" gibt es bewusst nicht mehr
+    // (Entscheidung 2026-07-25): Es liest niemand gegen, und eine Skala, auf der
+    // man nie vorankommt, ist keine Auskunft. Der SATZ über die Grenze steht
+    // weiterhin in der App — nur eben nicht als Zähler.
+    expect(new Set(Object.values(VERIFICATION))).toEqual(new Set(['machine', 'unchecked']));
+    expect(Object.keys(VERIFICATION_META)).not.toContain('native');
   });
 
   it('begründet jede ungeprüfte Wendung', () => {
@@ -197,5 +206,105 @@ describe('Prüf-Stand (verification.generated.ts)', () => {
     const levels = Object.values(VERIFICATION);
     expect(levels.filter((l) => l === 'machine')).toHaveLength(VERIFICATION_META.machine);
     expect(levels.filter((l) => l === 'unchecked')).toHaveLength(VERIFICATION_META.unchecked);
+  });
+});
+
+// Kontextvariation ist Schritt 4 des Lern-Loops (docs/03-method.md). Über 90
+// Tage trifft der Lerner eine Wendung fünf- bis siebenmal; bei zwei Kontexten
+// liest er ab dem dritten Mal denselben Satz wieder. Gemessen lagen wir am
+// 2026-07-25 bei 2,06 — dieser Wächter hält den erreichten Stand.
+describe('Kontextvariation je Wendung', () => {
+  const kontexteVon = new Map<string, number>();
+  for (const s of seedSegments) {
+    for (const id of s.chunkIds) kontexteVon.set(id, (kontexteVon.get(id) ?? 0) + 1);
+  }
+
+  it('jede Wendung steht in mindestens zwei verschiedenen Sätzen', () => {
+    const zuDuenn = seedChunks.filter((c) => (kontexteVon.get(c.id) ?? 0) < 2);
+    expect(zuDuenn.map((c) => c.id)).toEqual([]);
+  });
+
+  it('die Kontexte einer Wendung sind wirklich verschieden', () => {
+    // Zwei identische Sätze wären zwei Einträge und ein Kontext.
+    const saetzeVon = new Map<string, string[]>();
+    for (const s of seedSegments) {
+      for (const id of s.chunkIds) saetzeVon.set(id, [...(saetzeVon.get(id) ?? []), s.sv]);
+    }
+    for (const [id, saetze] of saetzeVon) {
+      expect(new Set(saetze).size, `Wendung ${id} hat doppelte Kontexte`).toBe(saetze.length);
+    }
+  });
+
+  it('der Schnitt bleibt bei mindestens 2,5 Kontexten je Wendung', () => {
+    const summe = seedChunks.reduce((n, c) => n + (kontexteVon.get(c.id) ?? 0), 0);
+    const schnitt = summe / seedChunks.length;
+    // Kein Zielwert, sondern eine Sperrklinke: erreicht ist erreicht.
+    expect(schnitt).toBeGreaterThanOrEqual(2.5);
+  });
+});
+
+// Der Lern-Loop übt eine Wendung ALLEIN. Ein Gespräch verlangt sie an der
+// richtigen Stelle, mit einer Antwort davor und danach — das ist ein anderer,
+// härterer Abruf. Am 2026-07-25 kam zum ersten Mal JEDE Wendung in mindestens
+// einem Gespräch vor (379 von 379). Dieser Wächter hält den Stand.
+describe('Gesprächs-Abdeckung', () => {
+  const imGespraech = new Set<string>();
+  for (const d of seedDialogs) {
+    for (const t of d.turns) if (t.chunkId) imGespraech.add(t.chunkId);
+  }
+
+  it('jedes Thema hat mindestens ein Gespräch', () => {
+    const mitSzene = new Set(seedDialogs.map((d) => d.categoryId));
+    const ohne = seedCategories.filter((k) => !mitSzene.has(k.id));
+    expect(ohne.map((k) => k.id)).toEqual([]);
+  });
+
+  it('mindestens 90 % der Wendungen kommen in einem Gespräch vor', () => {
+    // Sperrklinke mit etwas Luft: Neuer Stoff darf zuerst im Loop landen und
+    // sein Gespräch kurz danach bekommen — aber nie so viel, dass der
+    // Gesprächs-Modus wieder zur halben Fläche wird.
+    const anteil = seedChunks.filter((c) => imGespraech.has(c.id)).length / seedChunks.length;
+    expect(anteil).toBeGreaterThanOrEqual(0.9);
+  });
+});
+
+// Der Baum muss sich BENENNEN lassen, sonst navigiert niemand darin.
+//
+// BEFUND beim Ansehen 2026-07-26: „Menschen & Alltag" enthielt gleichzeitig ein
+// Thema „Alltag & Small Talk" und ein Thema „Small Talk" — nebeneinander in
+// derselben Liste und nicht auseinanderzuhalten. Und der Bereich war auf
+// dreizehn Themen gewachsen: eine Liste, die alles enthält, ordnet nichts.
+describe('Lesbarkeit des Baums', () => {
+  it('kein Bereich trägt zwei Themen mit demselben Namen', () => {
+    for (const a of seedAreas) {
+      const titel = seedCategories.filter((c) => c.areaId === a.id).map((c) => c.title);
+      expect(new Set(titel).size, `doppelter Themenname in ${a.title}`).toBe(titel.length);
+    }
+  });
+
+  it('kein Themenname steckt vollständig in einem anderen desselben Bereichs', () => {
+    // „Small Talk" in „Alltag & Small Talk" — technisch verschieden, im Blick
+    // dasselbe. Genau daran ist die Navigation gescheitert.
+    for (const a of seedAreas) {
+      const titel = seedCategories.filter((c) => c.areaId === a.id).map((c) => c.title);
+      for (const t of titel) {
+        const drin = titel.filter((x) => x !== t && x.includes(t));
+        expect(drin, `„${t}" steckt in „${drin[0]}" (${a.title})`).toEqual([]);
+      }
+    }
+  });
+
+  it('kein Bereich wird zur Endlosliste', () => {
+    // Sperrklinke, kein Zielwert: Wächst ein Bereich über zehn Themen, gehört
+    // er geteilt — sonst ist die Ebene „Bereich" keine Ordnung mehr.
+    for (const a of seedAreas) {
+      const n = seedCategories.filter((c) => c.areaId === a.id).length;
+      expect(n, `${a.title} hat ${n} Themen — teilen`).toBeLessThanOrEqual(10);
+    }
+  });
+
+  it('jeder Bereich hat eine eindeutige Sortierzahl', () => {
+    const orders = seedAreas.map((a) => a.order);
+    expect(new Set(orders).size, 'zwei Bereiche mit gleicher Reihenfolge').toBe(orders.length);
   });
 });

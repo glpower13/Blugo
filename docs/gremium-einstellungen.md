@@ -156,3 +156,45 @@ Einstellungs-Normalisierung), 17 e2e (2 neu — die Fläche selbst und der ganze
 *sichern → löschen → einlesen*).
 
 > **Anschluss:** Messung/Ehrlichkeit `07-measurement.md` · Architektur `05-architecture.md` · Inhalts-Prüfkette `gremium-content-pruefung.md` · Sprechen `gremium-sprachpartner.md` · offene Punkte `10-open-questions.md`.
+
+---
+
+## Nachtrag (2026-07-26): Die Aufklärung stand an der falschen Stelle
+
+Der Abschnitt „Deine Daten" sagt ehrlich, dass der Lernstand nur auf diesem
+Gerät liegt. Er steht in den Einstellungen — und dort sieht niemand hinein,
+bevor es zu spät ist. Wer nach neunzig Tagen den Browser aufräumt, löscht damit
+genau das, was diese App als ihr Produkt bezeichnet: **bewiesene Zeit.**
+
+Der Hinweis steht deshalb jetzt zusätzlich auf **Fortschritt**, direkt unter der
+gemessenen Zahl — und **hinter** ihr, nicht davor: Die Fläche heißt „Was du
+wirklich behalten hast", also führt die Messung.
+
+**Er nörgelt nicht, er misst.** Angezeigt wird die Menge bewiesener Wendungen,
+die in keiner Sicherung stehen (`ungesicherteBeweise` = bewiesen − Stand der
+letzten Sicherung). Ist sie null, erscheint **gar nichts**. Wer nichts zu
+verlieren hat, sieht nichts; wer sichert, sieht es sofort nicht mehr. Damit
+bleibt der Hinweis, was jede Zahl in dieser App sein muss: eine wahre Aussage
+über einen gemessenen Zustand — nicht ein Mittel, jemanden zu etwas zu bewegen.
+
+Zwei Fälle sind ausdrücklich abgesichert (Tests in `preferences.test.ts`):
+
+- **Nie negativ.** Fällt jemand nach der Sicherung zurück, kennt die Datei mehr
+  Beweise als die Gegenwart. Der Hinweis behauptet dann keinen Verlust.
+- **Kein Zeitpunkt, kein Anspruch.** Steht in einer alten oder verbogenen Datei
+  ein Sicherungs-Stand ohne Zeitpunkt, zählt er nicht — sonst verschwiege der
+  Hinweis einen echten Verlust.
+
+### Und ein Versprechen, das jetzt gemessen wird
+
+„Kein Backend, offline nutzbar" stand bisher nur in der Architektur. Ein
+einziger Laufzeit-Abruf ins Netz hätte es still kassiert, ohne dass an der
+Oberfläche etwas zu sehen gewesen wäre — solange der Entwickler online ist.
+
+Gemessen (2026-07-26, Fassung mit `BASE_PATH=/Blugo/`, also der, die live geht):
+Neu laden ohne Netz, die **nachgeladenen** Gespräche öffnen (eigenes Bündel) und
+eine Lern-Session starten — alles läuft. Zusätzlich beantwortet der Service
+Worker eine Adresse, die es nie gab (`/?nie-zuvor=1`), also greift auch die
+Offline-Navigation für Links und Neuladen mit Anhängsel. Als e2e-Test
+festgehalten; er prüft vorher ausdrücklich, dass ein Service Worker die
+Kontrolle hat, sonst prüfte er nur den Browser-Cache.

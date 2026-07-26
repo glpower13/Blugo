@@ -39,6 +39,11 @@ const SKIES: Record<string, [string, string][]> = {
     ['76%', '#C79A62'],
     ['100%', '#E8B565'],
   ],
+  'area-home': [
+    ['0%', '#141A2A'],
+    ['52%', '#22293C'],
+    ['100%', '#3A3324'],
+  ],
   'area-shopping': [
     ['0%', '#242A33'],
     ['62%', '#2C333E'],
@@ -61,6 +66,24 @@ const SKIES: Record<string, [string, string][]> = {
     ['40%', '#456276'],
     ['72%', '#93A69A'],
     ['100%', '#C9C08A'],
+  ],
+  // Schalterhalle am Vormittag — nüchternes Tageslicht, kein Abendgold
+  'area-services': [
+    ['0%', '#2B3742'],
+    ['58%', '#38454F'],
+    ['100%', '#4A5661'],
+  ],
+  // Küchentisch am späten Abend — geredet wird, wenn der Tag vorbei ist
+  'area-society': [
+    ['0%', '#1A1826'],
+    ['56%', '#262238'],
+    ['100%', '#332B3E'],
+  ],
+  // Leselampe in der Nacht — nur der Tisch ist hell
+  'area-language': [
+    ['0%', '#12131C'],
+    ['62%', '#1B1B24'],
+    ['100%', '#2A2620'],
   ],
   default: [
     ['0%', '#1B2440'],
@@ -333,6 +356,61 @@ function Scene({ areaId, id, hue }: { areaId: string; id: string; hue: string })
         </>
       );
 
+    // ── Wohnen: Hauszeile am Abend, Licht in den Fenstern ──────────────────
+    case 'area-home':
+      return (
+        <>
+          <circle cx="66" cy="30" r="12" fill="#F3E3B8" opacity="0.5" filter={glow} />
+          <circle cx="66" cy="30" r="6" fill="#FBF3D8" />
+          <g filter={far} opacity="0.45">
+            {[6, 30, 366, 390].map((x, i) => (
+              <Spruce key={x} x={x} y={104} h={24 + (i % 2) * 9} dim={0.45} />
+            ))}
+          </g>
+          {[
+            { x: 96, w: 74, h: 76, tone: '#2B3242' },
+            { x: 176, w: 58, h: 94, tone: '#333A4B' },
+            { x: 240, w: 68, h: 66, tone: '#262C3A' },
+          ].map((b) => (
+            <g key={b.x}>
+              <rect x={b.x} y={104 - b.h} width={b.w} height={b.h} fill={b.tone} />
+              <path
+                d={`M${b.x - 5} ${104 - b.h} L${b.x + b.w / 2} ${104 - b.h - 13} L${b.x + b.w + 5} ${104 - b.h} Z`}
+                fill="#1D2230"
+              />
+              {Array.from({ length: Math.floor(b.h / 22) }).flatMap((_, r) =>
+                [0, 1, 2].map((c) => {
+                  const wx = b.x + 10 + c * ((b.w - 22) / 2);
+                  const wy = 104 - b.h + 14 + r * 22;
+                  const an = (r + c + b.x) % 3 !== 0;
+                  return (
+                    <rect
+                      key={`${r}-${c}`}
+                      x={wx}
+                      y={wy}
+                      width="9"
+                      height="11"
+                      fill={an ? '#F0C97E' : '#141821'}
+                      opacity={an ? 0.9 : 1}
+                    />
+                  );
+                }),
+              )}
+            </g>
+          ))}
+          <rect y="104" width={W} height="46" fill="#1A1E28" />
+          <rect y="104" width={W} height="46" fill={`url(#${id}-yard)`} />
+          <defs>
+            <linearGradient id={`${id}-yard`} x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor={hue} stopOpacity="0.22" />
+              <stop offset="100%" stopColor="#0B0E14" stopOpacity="0.8" />
+            </linearGradient>
+          </defs>
+          <Figure x={330} y={128} h={42} coat={2} lightFrom="left" />
+          <Figure x={356} y={132} h={36} coat={4} flip lightFrom="left" />
+        </>
+      );
+
     // ── Einkaufen: Laden mit Regal, Kleiderstange, Dalahäst ────────────────
     case 'area-shopping':
       return (
@@ -550,6 +628,158 @@ function Scene({ areaId, id, hue }: { areaId: string; id: string; hue: string })
           <ellipse cx="214" cy="119" rx="20" ry="4.4" fill="none" stroke="#FFE9B4" strokeOpacity="0.22" strokeWidth="1" />
           {/* Eimer neben ihm */}
           <path d="M108 112 L122 112 L120 124 L110 124 Z" fill="#3A4A54" />
+        </>
+      );
+
+    // ── Ämter & Dienste: Schalterhalle mit Nummernanzeige ─────────────────
+    case 'area-services':
+      return (
+        <>
+          {/* Rückwand mit hohen Fenstern — Tageslicht, kein Glühlicht */}
+          <rect x="0" y="12" width={W} height="92" fill="#3A4650" />
+          <rect x="0" y="12" width={W} height="5" fill="#4C5A64" />
+          {[24, 96, 168, 240, 312].map((x) => (
+            <g key={x}>
+              <rect x={x} y="22" width="52" height="42" fill="#0E141A" />
+              <rect x={x} y="22" width="52" height="42" fill={C.glass} opacity="0.22" />
+              <rect x={x} y="22" width="52" height="9" fill="#CFE6EC" opacity="0.16" />
+              <line x1={x + 26} y1="22" x2={x + 26} y2="64" stroke="#0E141A" strokeWidth="2" />
+            </g>
+          ))}
+          {/* Nummernanzeige über dem Schalter */}
+          <g transform="translate(200 78)">
+            <rect x="-30" y="-10" width="60" height="20" rx="3" fill="#12161C" />
+            <rect x="-30" y="-10" width="60" height="6" rx="3" fill="#fff" opacity="0.08" />
+            <g fill={C.apotek} opacity="0.95">
+              <rect x="-19" y="-4.5" width="4" height="9" />
+              <rect x="-11" y="-4.5" width="4" height="9" />
+              <rect x="-1" y="-4.5" width="4" height="9" />
+              <rect x="9" y="-4.5" width="4" height="9" />
+            </g>
+            <circle r="20" fill={C.apotek} opacity="0.2" filter={glow} />
+          </g>
+          {/* Der Tresen quer durchs Bild — die Grenze zwischen davor und dahinter */}
+          <rect x="0" y="98" width={W} height="12" fill={C.wood} />
+          <rect x="0" y="98" width={W} height="4" fill={C.woodLit} opacity="0.7" />
+          <rect x="0" y="110" width={W} height="40" fill="#2A323A" />
+          {/* Glastrennwand auf dem Tresen */}
+          <rect x="112" y="70" width="176" height="28" fill={C.glass} opacity="0.14" />
+          <rect x="112" y="70" width="176" height="2" fill={C.glass} opacity="0.4" />
+          {/* Sachbearbeiterin dahinter, Antragsteller davor, Warteschlange dim */}
+          <Figure x={248} y={98} h={40} coat={4} flip lightFrom="left" />
+          <Figure x={150} y={140} h={50} coat={0} lightFrom="right" />
+          <Figure x={68} y={136} h={42} coat={2} dim={0.45} lightFrom="right" />
+          <Figure x={34} y={138} h={40} coat={5} dim={0.6} lightFrom="right" />
+          {/* Das Formular auf dem Tresen — worum es hier geht */}
+          <g transform="translate(178 92)">
+            <rect width="26" height="8" fill="#E4E0D6" />
+            <g stroke="#8A8F96" strokeWidth="0.7">
+              <path d="M3 3 H21 M3 5.4 H16" />
+            </g>
+          </g>
+        </>
+      );
+
+    // ── Meinung & Gesellschaft: Küchentisch am späten Abend ───────────────
+    case 'area-society':
+      return (
+        <>
+          {/* Fenster mit Stadt dahinter — es ist Nacht draußen */}
+          <g filter={far} opacity="0.7">
+            <rect x="28" y="18" width="96" height="62" fill="#0B0F1A" />
+            <g fill={C.lamp} opacity="0.5">
+              <rect x="40" y="34" width="6" height="8" />
+              <rect x="58" y="48" width="6" height="8" />
+              <rect x="86" y="28" width="6" height="8" />
+              <rect x="104" y="56" width="6" height="8" />
+            </g>
+          </g>
+          <rect x="24" y="14" width="104" height="70" fill="none" stroke={C.trim} strokeWidth="3" />
+          <line x1="76" y1="14" x2="76" y2="84" stroke={C.trim} strokeWidth="2.4" />
+          {/* Hängelampe über dem Tisch — der Lichtkegel ist die ganze Szene */}
+          <line x1="248" y1="0" x2="248" y2="26" stroke="#241C28" strokeWidth="1.6" />
+          <path d="M235 38 L261 38 L255 26 L241 26 Z" fill={C.brass} />
+          <path d="M248 38 L261 38 L255 26 L248 26 Z" fill="#000" opacity="0.3" />
+          <ellipse cx="248" cy="39" rx="11" ry="3" fill={C.lampCore} />
+          <circle cx="248" cy="42" r="19" fill={C.lamp} opacity="0.45" filter={glow} />
+          <path d="M235 39 L261 39 L306 106 L190 106 Z" fill={C.lamp} opacity="0.11" />
+          {/* Tisch mit zwei Bechern — zwei Meinungen, ein Tisch */}
+          <rect x="168" y="96" width="164" height="9" rx="2" fill={C.wood} />
+          <rect x="168" y="96" width="164" height="3" fill={C.woodLit} opacity="0.8" />
+          <rect x="186" y="105" width="7" height="34" fill="#2C1F14" />
+          <rect x="308" y="105" width="7" height="34" fill="#2C1F14" />
+          <g transform="translate(216 96)">
+            <path d="M-6 0 q0 -11 6 -11 q6 0 6 11 Z" fill="#E4E0D6" />
+            <path d="M0 -11 q6 0 6 11 q-3 0 -6 -11 Z" fill="#000" opacity="0.16" />
+          </g>
+          <g transform="translate(286 96)">
+            <path d="M-6 0 q0 -11 6 -11 q6 0 6 11 Z" fill="#D8CFC0" />
+            <path d="M0 -11 q6 0 6 11 q-3 0 -6 -11 Z" fill="#000" opacity="0.18" />
+          </g>
+          {/* Boden */}
+          <rect y="106" width={W} height="44" fill="#241E2A" />
+          <g stroke="#000" strokeOpacity="0.26" strokeWidth="0.8">
+            <path d="M0 120 H400 M0 134 H400" />
+          </g>
+          {/* Zwei, die sich uneinig sind und trotzdem sitzen bleiben */}
+          <Figure x={196} y={140} h={52} coat={3} lightFrom="right" />
+          <Figure x={302} y={140} h={50} coat={1} flip lightFrom="left" />
+          <Figure x={92} y={132} h={40} coat={5} dim={0.55} lightFrom="right" />
+        </>
+      );
+
+    // ── Sprache & Feinheiten: Schreibtisch mit Leselampe ──────────────────
+    case 'area-language':
+      return (
+        <>
+          {/* Regal im Dunkeln — Bücher, die man nur ahnt */}
+          <g filter={far} opacity="0.6">
+            <rect x="14" y="26" width="120" height="4" fill={C.wood} />
+            <rect x="14" y="62" width="120" height="4" fill={C.wood} />
+            {['#5E4A38', '#4A5A50', '#6A4A46', '#44506A', '#5A5062', '#6E6250', '#3E4A5A'].map((c, i) => (
+              <rect key={i} x={20 + i * 16} y={10 + (i % 3) * 2} width="11" height={16 - (i % 3) * 2} fill={c} />
+            ))}
+            {['#4A5A68', '#6A5A44', '#43584A', '#5A5062', '#6E5040'].map((c, i) => (
+              <rect key={i} x={24 + i * 22} y="46" width="14" height="16" fill={c} />
+            ))}
+          </g>
+          {/* Schreibtischlampe — der einzige Lichtkegel im Bild */}
+          <g>
+            <rect x="300" y="96" width="26" height="4" rx="2" fill="#2A2A30" />
+            <line x1="313" y1="96" x2="296" y2="62" stroke="#3A3A42" strokeWidth="3" />
+            <path d="M270 56 L304 56 L296 44 L278 44 Z" fill={C.brass} />
+            <path d="M287 56 L304 56 L296 44 L287 44 Z" fill="#000" opacity="0.3" />
+            <ellipse cx="287" cy="57" rx="15" ry="3.6" fill={C.lampCore} />
+            <circle cx="287" cy="60" r="22" fill={C.lamp} opacity="0.5" filter={glow} />
+            <path d="M270 57 L304 57 L340 108 L206 108 Z" fill={C.lamp} opacity="0.13" />
+          </g>
+          {/* Tischplatte */}
+          <rect y="100" width={W} height="50" fill={C.wood} />
+          <rect y="100" width={W} height="4" fill={C.woodLit} opacity="0.65" />
+          <rect y="104" width={W} height="46" fill="#000" opacity="0.38" />
+          {/* Aufgeschlagenes Buch im Licht — mit zwei Zeilenspalten (Interlinear) */}
+          <g transform="translate(246 100)">
+            <path d="M-56 0 L-2 -7 L-2 0 Z" fill="#EFE9DC" />
+            <path d="M52 0 L2 -7 L2 0 Z" fill="#E7E0D2" />
+            <path d="M-2 -7 L2 -7 L2 0 L-2 0 Z" fill="#C9C0AE" />
+            <g stroke="#8A8272" strokeWidth="0.8" opacity="0.75">
+              <path d="M-48 -3.4 H-8 M-48 -1.4 H-14" />
+              <path d="M8 -3.4 H46 M8 -1.4 H40" />
+            </g>
+            <g stroke={C.brass} strokeWidth="0.8" opacity="0.6">
+              <path d="M-48 -5.2 H-16 M8 -5.2 H42" />
+            </g>
+          </g>
+          {/* Stapel daneben und ein Stift */}
+          <g>
+            <rect x="86" y="92" width="60" height="8" rx="1" fill="#5E4A38" />
+            <rect x="90" y="84" width="56" height="8" rx="1" fill="#44506A" />
+            <rect x="94" y="76" width="50" height="8" rx="1" fill="#6A4A46" />
+            <rect x="86" y="92" width="60" height="2.4" fill="#fff" opacity="0.12" />
+          </g>
+          <line x1="176" y1="106" x2="204" y2="99" stroke="#C9A05B" strokeWidth="2.2" strokeLinecap="round" />
+          {/* Jemand, der über dem Buch sitzt */}
+          <Figure x={330} y={148} h={54} coat={2} flip lightFrom="left" />
         </>
       );
 

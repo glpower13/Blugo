@@ -11,9 +11,48 @@
 
 import type { ChunkState } from '../../domain/chunk';
 import { MemoryRing } from './MemoryRing';
+import { Milestones } from './Milestones';
+import type { MilestoneProgress } from './milestones';
 import { MemoryField } from './MemoryField';
 import { bandStatus } from '../memory/difficulty';
 import { VERIFICATION_META } from '../content/verification.generated';
+
+/**
+ * Der einzige Satz, der zum Speicherort wahr ist — und nur, wenn er zutrifft.
+ *
+ * BEFUND (Prüfkaskade 2026-07-26): Dass der gesamte Lernstand in einem Browser
+ * liegt und mit ihm verschwindet, steht ehrlich in den Einstellungen. Wer dort
+ * nie hinsieht, erfährt es nie — und verliert im Zweifel 90 Tage bewiesene
+ * Stabilität, also genau das Produkt dieser App.
+ *
+ * Deshalb steht es hier, wo die bewiesene Zahl steht. NICHT als Dauer-Mahnung:
+ * Der Hinweis zeigt eine gemessene Menge („so viele bewiesene Wendungen stehen
+ * in keiner Sicherung") und verschwindet vollständig, sobald sie null ist. Wer
+ * nichts zu verlieren hat, sieht nichts.
+ */
+function SicherungsHinweis({ offen, onSichern }: { offen: number; onSichern: () => void }) {
+  if (offen <= 0) return null;
+  return (
+    <section className="glass rounded-2xl border border-warn/30 p-4">
+      <p className="text-sm leading-relaxed text-paper">
+        <span className="font-semibold text-warn">{offen}</span>{' '}
+        {offen === 1 ? 'bewiesene Wendung steht' : 'bewiesene Wendungen stehen'} in keiner
+        Sicherung.
+      </p>
+      <p className="mt-1 text-xs leading-relaxed text-muted">
+        Dein Lernstand liegt nur in diesem Browser. Wird er gelöscht — vom Gerät, vom
+        Aufräumen, vom Wechsel —, ist die bewiesene Zeit weg. Eine Sicherung ist eine
+        Datei und dauert einen Augenblick.
+      </p>
+      <button
+        onClick={onSichern}
+        className="mt-3 min-h-11 w-full rounded-xl border border-line px-4 text-sm text-paper"
+      >
+        Zu „Deine Daten"
+      </button>
+    </section>
+  );
+}
 
 interface Props {
   states: ChunkState[];
@@ -26,6 +65,10 @@ interface Props {
   totalChunks: number;
   successRate: number | null;
   spoken: number; // Wendungen, die laut gesagt und richtig erkannt wurden (P3)
+  milestones: MilestoneProgress[];
+  /** Bewiesene Wendungen, die in keiner Sicherung stehen (0 = kein Hinweis). */
+  ungesichert: number;
+  onSichern: () => void;
 }
 
 export function ProgressView({
@@ -39,6 +82,9 @@ export function ProgressView({
   totalChunks,
   successRate,
   spoken,
+  milestones,
+  ungesichert,
+  onSichern,
 }: Props) {
   return (
     <div className="mx-auto flex w-full max-w-md flex-col gap-4 md:max-w-xl">
@@ -48,6 +94,7 @@ export function ProgressView({
         </h1>
         <p className="mt-1 text-xs text-faint">Was du wirklich behalten hast — nichts anderes.</p>
       </header>
+
 
       <section className="glass rounded-2xl p-5">
         {/* Umbruchfähig: Bei 320 px und großer Systemschrift standen „reift" und
@@ -93,6 +140,12 @@ export function ProgressView({
           <MemoryField states={states} />
         </div>
       </section>
+
+
+      {/* NACH der Messung, nicht davor: Diese Fläche heißt „Was du wirklich
+          behalten hast“ — die Zahl führt, der Schutz folgt unmittelbar. */}
+      <SicherungsHinweis offen={ungesichert} onSichern={onSichern} />
+      <Milestones progress={milestones} />
 
       <section className="glass-soft rounded-2xl p-4">
         <h2 className="text-[0.7rem] font-semibold uppercase tracking-[0.14em] text-muted">
@@ -171,12 +224,20 @@ export function ProgressView({
               </dd>
             </div>
           )}
+          {/* KEINE Zahl für „muttersprachlich geprüft" (Entscheidung 2026-07-25).
+              Es gibt niemanden, der gegenliest — eine Skala, auf der man nie
+              vorankommt, ist keine Auskunft, sondern sieht nur so aus.
+              Der SATZ über die Grenze bleibt: Ohne ihn wirkte der Inhalt
+              geprüfter, als er ist. Kein Zähler, keine 0, kein Balken — eine
+              nüchterne Feststellung. */}
           <div>
-            <dt className="font-semibold text-danger">0 muttersprachlich geprüft</dt>
+            <dt className="font-semibold text-warn">Was hier niemand geprüft hat</dt>
             <dd className="text-faint">
-              Keine einzige Wendung hat bisher eine schwedischsprachige Person gegengelesen.
-              Wortstellung, Idiomatik und Ton kann keine Maschine bestätigen — deshalb steht
-              hier eine 0 und keine Beschönigung.
+              Wortstellung, Idiomatik und Ton. Dafür bräuchte es eine
+              schwedischsprachige Person, und die gibt es in diesem Projekt nicht.
+              Die Maschine sagt dir, dass jedes Wort echtes Schwedisch ist — ob der
+              Satz auch so gesagt wird, sagt sie nicht. Nimm den Inhalt als guten
+              Ausgangspunkt, nicht als letzte Instanz.
             </dd>
           </div>
         </dl>

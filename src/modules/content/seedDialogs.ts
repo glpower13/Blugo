@@ -9,8 +9,20 @@
 // solange die Wort-für-Wort-Dekodierung (Birkenbihl) sie sofort verständlich macht.
 
 import type { Dialog } from '../../domain/dialog';
+import { dialogs as fw } from './seedDialogsFirstWords';
+import { dialogs as t1 } from './seedDialogsThemes1';
+import { dialogs as t2 } from './seedDialogsThemes2';
+import { dialogs as t3 } from './seedDialogsThemes3';
+import { dialogs as t4 } from './seedDialogsThemes4';
+import { dialogs as t5 } from './seedDialogsThemes5';
+import { dialogs as a1 } from './seedDialogsA1';
+import { dialogs as a2 } from './seedDialogsA2';
+import { dialogs as b1 } from './seedDialogsB1';
+import { dialogs as b2 } from './seedDialogsB2';
+import { dialogs as rest } from './seedDialogsRest';
+import { dialogs as mix } from './seedDialogsMix';
 
-export const seedDialogs: Dialog[] = [
+const baseDialogs: Dialog[] = [
   // ── Im Restaurant (cat-restaurant) ───────────────────────────────────────────
   {
     id: 'dlg-restaurant',
@@ -61,7 +73,7 @@ export const seedDialogs: Dialog[] = [
           { sv: 'varsågod', de: 'bitte' },
           { sv: 'här', de: 'hier' },
           { sv: 'är', de: 'ist' },
-          { sv: 'menyn', de: 'die Speisekarte' },
+          { sv: 'menyn', de: 'die Karte' },
         ],
       },
       {
@@ -278,7 +290,7 @@ export const seedDialogs: Dialog[] = [
         decoding: [
           { sv: 'gå', de: 'geh' },
           { sv: 'rakt', de: 'gerade' },
-          { sv: 'fram', de: 'voraus' },
+          { sv: 'fram', de: 'vorwärts' },
           { sv: 'sen', de: 'dann' },
           { sv: 'till', de: 'nach' },
           { sv: 'höger', de: 'rechts' },
@@ -481,7 +493,7 @@ export const seedDialogs: Dialog[] = [
           { sv: 'visst', de: 'klar' },
           { sv: 'provrummet', de: 'die Umkleidekabine' },
           { sv: 'är', de: 'ist' },
-          { sv: 'där', de: 'da' },
+          { sv: 'där', de: 'dort' },
           { sv: 'borta', de: 'drüben' },
         ],
       },
@@ -524,7 +536,7 @@ export const seedDialogs: Dialog[] = [
           { sv: 'absolut', de: 'absolut' },
           { sv: 'här', de: 'hier' },
           { sv: 'är', de: 'ist' },
-          { sv: 'kvittot', de: 'der Beleg' },
+          { sv: 'kvittot', de: 'der Bon' },
         ],
       },
     ],
@@ -567,7 +579,7 @@ export const seedDialogs: Dialog[] = [
         sv: 'Där borta, till höger.',
         de: 'Da drüben, nach rechts.',
         decoding: [
-          { sv: 'där', de: 'da' },
+          { sv: 'där', de: 'dort' },
           { sv: 'borta', de: 'drüben' },
           { sv: 'till', de: 'nach' },
           { sv: 'höger', de: 'rechts' },
@@ -626,7 +638,7 @@ export const seedDialogs: Dialog[] = [
         de: 'Geradeaus. Mach es gut!',
         decoding: [
           { sv: 'rakt', de: 'gerade' },
-          { sv: 'fram', de: 'voraus' },
+          { sv: 'fram', de: 'vorwärts' },
           { sv: 'ha', de: 'hab' },
           { sv: 'det', de: 'es' },
           { sv: 'bra', de: 'gut' },
@@ -848,7 +860,7 @@ export const seedDialogs: Dialog[] = [
         decoding: [
           { sv: 'spår', de: 'Gleis' },
           { sv: 'tre', de: 'drei' },
-          { sv: 'trevlig', de: 'angenehme' },
+          { sv: 'trevlig', de: 'schöne' },
           { sv: 'resa', de: 'Reise' },
         ],
       },
@@ -994,7 +1006,7 @@ export const seedDialogs: Dialog[] = [
         speaker: 'partner',
         sv: 'Samma som igår. Kolla chatten.',
         de: 'Dasselbe wie gestern. Schau in den Chat.',
-        decoding: [{ sv: 'samma', de: 'dasselbe' }, { sv: 'som', de: 'wie' }, { sv: 'igår', de: 'gestern' }, { sv: 'kolla', de: 'schau' }, { sv: 'chatten', de: 'den Chat' }],
+        decoding: [{ sv: 'samma', de: 'gleiche' }, { sv: 'som', de: 'wie' }, { sv: 'igår', de: 'gestern' }, { sv: 'kolla', de: 'schau' }, { sv: 'chatten', de: 'den Chat' }],
       },
       {
         id: 'z6',
@@ -1160,7 +1172,7 @@ export const seedDialogs: Dialog[] = [
         speaker: 'partner',
         sv: 'Lite. Två små i morse.',
         de: 'Ein wenig. Zwei kleine heute Morgen.',
-        decoding: [{ sv: 'lite', de: 'wenig' }, { sv: 'två', de: 'zwei' }, { sv: 'små', de: 'kleine' }, { sv: 'i', de: 'in' }, { sv: 'morse', de: 'Frühe' }],
+        decoding: [{ sv: 'lite', de: 'wenig' }, { sv: 'två', de: 'zwei' }, { sv: 'små', de: 'kleine' }, { sv: 'i', de: 'in' }, { sv: 'morse', de: 'Morgen' }],
       },
       {
         id: 'f4',
@@ -1261,7 +1273,7 @@ export const seedDialogs: Dialog[] = [
         speaker: 'partner',
         sv: 'Där! Han sköt!',
         de: 'Da! Er hat geschossen!',
-        decoding: [{ sv: 'där', de: 'da' }, { sv: 'han', de: 'er' }, { sv: 'sköt', de: 'schoss' }],
+        decoding: [{ sv: 'där', de: 'dort' }, { sv: 'han', de: 'er' }, { sv: 'sköt', de: 'schoss' }],
       },
       {
         id: 'm5',
@@ -1316,7 +1328,7 @@ export const seedDialogs: Dialog[] = [
     categoryId: 'cat-phone',
     title: 'Am Telefon: schlechte Verbindung',
     blurb: 'Anrufen, nichts verstehen, kurz abstimmen, auflegen.',
-    scene: 'generic',
+    scene: 'home',
     partnerName: 'Elin',
     turns: [
       {
@@ -1407,7 +1419,7 @@ export const seedDialogs: Dialog[] = [
         sv: 'Hej då {name}!',
         de: 'Tschüss {name}!',
         decoding: [
-          { sv: 'hej', de: 'tschüss' },
+          { sv: 'hej', de: 'hallo' },
           { sv: 'då', de: 'dann' },
         ],
       },
@@ -1419,7 +1431,7 @@ export const seedDialogs: Dialog[] = [
     categoryId: 'cat-work',
     title: 'Im Büro: einen Termin finden',
     blurb: 'Keine Zeit, trotzdem einen Termin ausmachen.',
-    scene: 'generic',
+    scene: 'office',
     partnerName: 'Karin',
     turns: [
       {
@@ -1519,7 +1531,7 @@ export const seedDialogs: Dialog[] = [
         decoding: [
           { sv: 'tack', de: 'danke' },
           { sv: 'vi', de: 'wir' },
-          { sv: 'ses', de: 'sehen' },
+          { sv: 'ses', de: 'sehen uns' },
           { sv: 'på', de: 'auf' },
           { sv: 'fredag', de: 'Freitag' },
         ],
@@ -1527,3 +1539,8 @@ export const seedDialogs: Dialog[] = [
     ],
   },
 ];
+
+// ── Zusammenbau ──────────────────────────────────────────────────────────────
+// Die Szenen zu den neuen Themen liegen je Meilenstein in eigenen Dateien
+// (`seedDialogsA1.ts` …). Nach außen bleibt es EINE Liste.
+export const seedDialogs: Dialog[] = [...fw, ...baseDialogs, ...a1, ...a2, ...b1, ...b2, ...rest, ...mix, ...t1, ...t2, ...t3, ...t4, ...t5];

@@ -5,6 +5,8 @@
 
 import { describe, expect, it } from 'vitest';
 import {
+  nurBeugung,
+  istBedeutungsKonflikt,
   CONTEXT_FLOOR,
   collectLines,
   findConflicts,
@@ -15,6 +17,7 @@ import {
   looseMatch,
   tokens,
   type Line,
+  findZahlNein,
 } from './backtranslation';
 
 const line = (o: Partial<Line>): Line => ({
@@ -139,5 +142,85 @@ describe('D — Bedeutungsdrift', () => {
       line({ sv: 'hjälp mig', de: 'helfe mir', decoding: [{ sv: 'hjälp', de: 'helfen' }, { sv: 'mig', de: 'mir' }] }),
     ]);
     expect(d).toHaveLength(0);
+  });
+});
+
+
+// Die Trennung „nur Beugung" / „andere Bedeutung" ist der Grund, warum die
+// Konfliktliste überhaupt lesbar ist (248 Zeilen → 84). Wenn sie zu großzügig
+// wird, verschwinden echte Fehler still — deshalb diese Tests.
+describe('Beugung von Bedeutung trennen', () => {
+  it('erkennt deutsche Beugung als dieselbe Bedeutung', () => {
+    expect(nurBeugung('ist', 'bin')).toBe(true); // unregelmäßig, per Familie
+    expect(nurBeugung('hältst', 'halte')).toBe(true); // Umlaut gefaltet
+    expect(nurBeugung('der Bon', 'den Bon')).toBe(true); // Artikel ignoriert
+    expect(nurBeugung('gehe', 'gehen')).toBe(true); // gemeinsamer Stamm
+    // Der Fehler im Klassifikator selbst: die Familienlisten standen
+    // ungefaltet da, „konnen" traf „können" nie — und `kan` landete
+    // fälschlich in der Prüfliste.
+    expect(nurBeugung('kann', 'können')).toBe(true);
+    expect(nurBeugung('muss', 'müssen')).toBe(true);
+    expect(nurBeugung('ha', 'haben')).toBe(true);
+  });
+
+  it('lässt wirklich verschiedene Bedeutungen stehen', () => {
+    expect(nurBeugung('Karte', 'kurz')).toBe(false);
+    expect(nurBeugung('wo', 'war')).toBe(false);
+    expect(nurBeugung('Tor', 'Ziel')).toBe(false);
+    // Der Fall, der den Anstoß gab: „hallo" ist nicht „tschüss".
+    expect(nurBeugung('hallo', 'tschüss')).toBe(false);
+  });
+
+  it('meldet ein Wort erst, wenn sich ZWEI Glossen wirklich unterscheiden', () => {
+    const beugung = { sv: 'är', glosses: [{ de: 'ist', where: 'a' }, { de: 'bin', where: 'b' }] };
+    const bedeutung = { sv: 'kort', glosses: [{ de: 'Karte', where: 'a' }, { de: 'kurz', where: 'b' }] };
+    expect(istBedeutungsKonflikt(beugung)).toBe(false);
+    expect(istBedeutungsKonflikt(bedeutung)).toBe(true);
+  });
+});
+
+// Ein Prüfer, der nichts findet, muss beweisen, dass er etwas finden WÜRDE.
+// Diese Tests füttern absichtlich kaputte Zeilen ein — schlägt einer davon
+// nicht an, ist die grüne Null in Abschnitt E wertlos.
+describe('Zahlen und Verneinung', () => {
+  const zeile = (sv: string, de: string): Line => ({ where: 'Test t1', sv, de, decoding: [] });
+
+  it('findet eine verdrehte Zahl', () => {
+    const b = findZahlNein([zeile('klockan är tre', 'es ist vier')]);
+    expect(b).toHaveLength(1);
+    expect(b[0].was).toContain('Zahlen');
+  });
+
+  it('findet eine verschluckte Verneinung', () => {
+    const b = findZahlNein([zeile('jag förstår inte', 'ich verstehe')]);
+    expect(b).toHaveLength(1);
+    expect(b[0].was).toContain('verneint auf Schwedisch');
+  });
+
+  it('findet eine erfundene Verneinung', () => {
+    const b = findZahlNein([zeile('jag förstår', 'ich verstehe nicht')]);
+    expect(b).toHaveLength(1);
+    expect(b[0].was).toContain('verneint auf Deutsch');
+  });
+
+  it('hält „en/ett" für den Artikel, nicht für die Eins', () => {
+    expect(findZahlNein([zeile('jag bor i en lägenhet', 'ich wohne in einer Wohnung')])).toEqual([]);
+  });
+
+  it('liest die Zahl auch aus zusammengesetzten Wörtern', () => {
+    expect(findZahlNein([zeile('två gånger om dagen', 'zweimal am Tag')])).toEqual([]);
+    expect(findZahlNein([zeile('trettiofem kronor', 'fünfunddreißig Kronen')])).toEqual([]);
+  });
+
+  it('hält kurze Zahlwörter nicht für den Anfang anderer Wörter', () => {
+    // „sjuk" beginnt mit „sju" (sieben), „trevligt" mit „tre" (drei).
+    expect(findZahlNein([zeile('jag är sjuk', 'ich bin krank')])).toEqual([]);
+    expect(findZahlNein([zeile('trevligt att träffas', 'schön, dich kennenzulernen')])).toEqual([]);
+  });
+
+  it('lässt die Redewendung durch, die nur auf Deutsch verneint', () => {
+    expect(
+      findZahlNein([zeile('här ligger en hund begraven', 'da stimmt etwas nicht')]),
+    ).toEqual([]);
   });
 });

@@ -169,7 +169,7 @@ Danach läuft der Ablauf automatisch und die App erscheint unter
 unter **Settings → Pages** und in der **Actions**-Übersicht. Diesen Link im Handy-Browser öffnen
 → „Zum Startbildschirm hinzufügen", fertig.
 
-> Hinweis: Stand 2026-07-25 liegen **8 Bereiche, 30 Themen, 179 Wendungen und 15 Gespräche** bei. Davon sind **176 maschinell vorgeprüft** (jedes Wort gegen ein Wörterbuch mit 152.719 Einträgen und gegen Korpus-Häufigkeiten), **3 sind auffällig markiert** — und **0 sind muttersprachlich geprüft**. Wortstellung, Idiomatik und Ton kann keine Maschine bestätigen; die Prüfkette macht die menschliche Prüfung nur klein genug, um machbar zu sein (`docs/gremium-content-pruefung.md`, Prüfstand: `docs/content-review-schwedisch.md`). Der dauerhafte Ausbau läuft über die KI-Content-Fabrik (`docs/08-content-pipeline.md`).
+> Hinweis: Stand 2026-07-26 liegen **12 Bereiche, 76 Themen, 534 Wendungen, 1287 Kontext-Sätze und 90 Gespräche** (jedes Thema hat eine Szene, und jede Wendung kommt in mindestens einer vor) bei, verteilt über die sprachlichen Meilensteine **A1 (138) · A2 (195) · B1 (153) · B2 (48)**. Ganz vorn steht das Thema **„Die ersten Wörter“** — sechzehn Ein-Wort-Äußerungen, durch die der **Startpilot** führt. Davon sind **520 maschinell vorgeprüft** (jedes Wort gegen ein Wörterbuch mit 152.719 Einträgen und gegen Korpus-Häufigkeiten), **14 enthalten eine seltene Wortform und sind als ungeprüft markiert**. **Wortstellung, Idiomatik und Ton hat niemand gegengelesen** — dafür bräuchte es eine schwedischsprachige Person, und die gibt es in diesem Projekt nicht. Deshalb gibt es dafür auch keinen Zähler, sondern nur diesen Satz (`docs/content-review-schwedisch.md`, Prüfkette: `docs/gremium-content-pruefung.md`). Der dauerhafte Ausbau läuft über die KI-Content-Fabrik (`docs/08-content-pipeline.md`).
 
 ### Gebaut vs. konzipiert (Ehrlichkeit, kein Überzeichnen)
 
@@ -180,11 +180,15 @@ Damit Doku und Realität nicht auseinanderdriften — was *heute Code* ist und w
 | Comprehension-Loop (Begegnung → Hilfen → Abruf → Logging) | ✅ gebaut |
 | Memory-Engine — Spacing per **FSRS** (DSR-Modell), Stufen, Wartung, Demotion | ✅ gebaut |
 | Ehrliche Messung (aktiv · reift · **bewiesen** stabil · Abdeckung) | ✅ gebaut |
+| Sprachliche Meilensteine A1 … B2 — „wo stehe ich?", erreicht erst bei ≥ 90 % **bewiesenen** Wendungen des Niveaus, kein Zertifikat | ✅ gebaut (`07-measurement.md`, Nachtrag 2) |
 | Kontextvariation, Tages-Dosierung neuer Chunks | ✅ gebaut |
 | Thematische Struktur — Chunks in Kategorien, ehrliche Themen-Abdeckung („X von Y bewiesen stabil"), Fokus-Wahl für neuen Stoff | ✅ gebaut (`gremium-struktur.md`) |
 | Navigation — Übersicht → Thema-Detail (Drill-down mit den einzelnen Wendungen) → fokussierte Lern-Session (mit Fortschritt & Zurück) | ✅ gebaut (client-seitig, kein Router) |
-| Installierbare PWA, offline, lokale Daten | ✅ gebaut |
+| Installierbare PWA, offline, lokale Daten | ✅ gebaut · offline **gemessen** (Neuladen, nachgeladene Gespräche, Session — alles ohne Netz) |
 | Adaptives Erfolgsband ~80–85 % (Neuzufuhr passt sich an) | ✅ gebaut (Session-Ebene; Intervall-Feintuning später) |
+| Anti-Klippe an der einzelnen Wendung — nach „Nochmal“: leichtere Abrufform, **derselbe** Satz, Hilfe steht von selbst offen | ✅ gebaut (`03-method.md`, Ebene 2) |
+| Mehrdeutige Wörter werden benannt — „kort heißt hier »Karte« — es heißt auch »kurz«“ | ✅ gebaut (29 Wörter, am Inhalt festgehalten) |
+| Sicherungs-Hinweis — nennt, wie viele **bewiesene** Wendungen in keiner Sicherung stehen; bei null unsichtbar | ✅ gebaut (`gremium-einstellungen.md`, Nachtrag) |
 | Echte Produktionserfassung (Tippen statt Selbstnote) | ✅ Tippen gebaut · Sprechen/ASR später |
 | Satz-Darstellung fürs beste Lernen — Zielsprache oben; Bedeutung bei NEUEM Chunk sofort offen, bei bekanntem eingeklappt (Abruf); Produktion als Lückentext ohne Spoiler | ✅ gebaut (`gremium-darstellung.md`) |
 | Formatives Feedback bei Tipp-Produktion (Abweichung zeigen + Hinweis + „Nochmal versuchen") | ✅ gebaut |

@@ -84,3 +84,13 @@
 
 ## Wirksamkeitsnachweis
 - Wie messen wir Erhalt sauber (kleine Selbsttests, A/B gegen Nicht-Spacing)?
+
+- ~~**„Fast" führt nie zum Beweis.**~~ **Geklärt 2026-07-25.** Die Frage löste
+  sich an einer Tatsache auf, die im Code stand: `gradeTyped` schlägt „Fast"
+  vor, wenn die Antwort bis zu zwei Zeichen daneben lag — in der Produktion
+  heißt der Knopf also „war nicht ganz richtig", nicht „ich habe gezögert". Kein
+  Beweis daraus ist richtig. Der schmale Restfall (exakt getippt, trotzdem
+  „Fast" gedrückt) ist behoben, indem Messung und Terminplanung getrennt wurden:
+  Der Beweis kommt aus der Prüfung der Eingabe, der Termin aus der
+  Selbsteinschätzung. Einzelheiten im Nachtrag von
+  `docs/ISTQB-Testbericht-Messung.md`.

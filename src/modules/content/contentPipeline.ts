@@ -7,7 +7,6 @@
 import type { Area, Category, Chunk, Segment } from '../../domain/chunk';
 import type { Dialog } from '../../domain/dialog';
 import { seedAreas, seedCategories, seedChunks, seedSegments } from './seedSegments';
-import { seedDialogs } from './seedDialogs';
 
 export interface ContentSource {
   getAreas(): Promise<Area[]>;
@@ -32,7 +31,12 @@ export const seedContentSource: ContentSource = {
   async getSegments() {
     return seedSegments;
   },
+  // NACHGELADEN, nicht mitgeliefert: Die 68 Szenen sind rund ein Drittel des
+  // gesamten Inhalts, werden aber erst gebraucht, wenn jemand den Reiter
+  // „Gespräche" öffnet. Vorher blockierten sie den ersten Bildaufbau — auf einem
+  // langsamen Handy ist das der Unterschied zwischen „ist schon da" und „lädt".
+  // Der Port war von Anfang an async; deshalb kostet das keine Zeile in der App.
   async getDialogs() {
-    return seedDialogs;
+    return (await import('./seedDialogs')).seedDialogs;
   },
 };

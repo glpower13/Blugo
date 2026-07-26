@@ -13,7 +13,7 @@
 //   · „Erhalt-Ziel" — der Regler, der den Aufwand steuert, ohne den Maßstab
 //     anzufassen (der Beweis bleibt derselbe empirische Beweis).
 //   · „Prüfstand" statt „Über" — was die App über sich selbst weiß, inklusive
-//     der unbequemen 0.
+//     dessen, was hier niemand geprüft hat.
 //
 // KEINE EINSTELLUNG DARF DIE EHRLICHKEIT ABSCHALTEN. Es gibt hier kein
 // „Fortschritt großzügiger anzeigen" und keinen Motivationsmodus. Wer so etwas
@@ -34,6 +34,7 @@ import {
 import { installOnDevice, onDeviceStatus, speechInputAvailable } from '../comprehension/speech';
 import { speakSwedish, swedishVoiceIsLocal } from '../comprehension/tts';
 import { VERIFICATION_META } from '../content/verification.generated';
+import { isStable } from '../progress/metrics';
 import { backupFilename, buildBackup, mergeStates, parseBackup } from '../../storage/transfer';
 import { IconBack, IconMic, IconSparkle, IconWave } from '../../ui/icons';
 import { Overlay } from '../../ui/Overlay';
@@ -43,6 +44,8 @@ interface Props {
   onName: (name: string) => void;
   prefs: Preferences;
   onPrefs: (p: Preferences) => void;
+  /** Den Startpiloten noch einmal öffnen (die ersten sechzehn Wörter). */
+  onStartpilot: () => void;
   states: ChunkState[];
   totalChunks: number;
   /** Eingelesene Stände übernehmen (schreiben + in den Zustand spiegeln). */
@@ -57,6 +60,7 @@ export function SettingsScreen({
   onName,
   prefs,
   onPrefs,
+  onStartpilot,
   states,
   totalChunks,
   onImport,
@@ -94,13 +98,14 @@ export function SettingsScreen({
 
         <div className="mt-4 flex flex-col gap-3">
           <YouSection name={name} onName={onName} />
-          <LearningSection prefs={prefs} onPrefs={onPrefs} />
+          <LearningSection prefs={prefs} onPrefs={onPrefs} onStartpilot={onStartpilot} />
           <VoiceSection prefs={prefs} onPrefs={onPrefs} />
           <SpeechSection prefs={prefs} onPrefs={onPrefs} />
           <Section label="KI & Sparringspartner" title="Wer denkt für die App mit?">
             <AiSettingsSection />
           </Section>
           <DataSection
+            onPrefs={onPrefs}
             name={name}
             prefs={prefs}
             states={states}
@@ -232,9 +237,11 @@ function YouSection({ name, onName }: { name: string; onName: (n: string) => voi
 function LearningSection({
   prefs,
   onPrefs,
+  onStartpilot,
 }: {
   prefs: Preferences;
   onPrefs: (p: Preferences) => void;
+  onStartpilot: () => void;
 }) {
   const [advanced, setAdvanced] = useState(false);
   const factor = workloadFactor(prefs.retention);
@@ -242,6 +249,23 @@ function LearningSection({
 
   return (
     <Section label="Lernen" title="Wie viel kommt neu dazu?">
+      {/* Der Startpilot verschwindet nach dem ersten Durchlauf von „Heute" —
+          hier bleibt er erreichbar. Er misst nichts neu: Die sechzehn Wörter
+          laufen danach ganz normal im Loop weiter. */}
+      <div className="mb-4 rounded-xl border border-line p-3">
+        <p className="text-sm text-paper">Startpilot — die ersten sechzehn Wörter</p>
+        <p className="mt-1 text-xs leading-relaxed text-faint">
+          {prefs.startpilotDoneAt
+            ? 'Schon einmal gelaufen. Noch einmal ansehen ändert nichts an deinem Stand — die Antworten zählen wie jeder andere Abruf.'
+            : 'Noch nicht gelaufen. Der sanfteste Einstieg: ein Wort nach dem anderen, mit Ton.'}
+        </p>
+        <button
+          onClick={onStartpilot}
+          className="mt-3 min-h-11 w-full rounded-xl border border-line px-4 text-sm text-paper"
+        >
+          {prefs.startpilotDoneAt ? 'Noch einmal durchgehen' : 'Startpilot öffnen'}
+        </button>
+      </div>
       <div className="flex flex-wrap gap-2">
         {NEW_PER_SESSION_OPTIONS.map((n) => (
           <Chip
@@ -472,12 +496,14 @@ function DataSection({
   name,
   prefs,
   states,
+  onPrefs,
   onImport,
   onWipe,
 }: {
   name: string;
   prefs: Preferences;
   states: ChunkState[];
+  onPrefs: (p: Preferences) => void;
   onImport: (states: ChunkState[], name: string, prefs: Preferences) => Promise<void>;
   onWipe: () => Promise<void>;
 }) {
@@ -495,6 +521,9 @@ function DataSection({
     a.download = backupFilename(now);
     a.click();
     URL.revokeObjectURL(url);
+    // Festhalten, WAS gesichert wurde — daraus bildet „Fortschritt" den einzigen
+    // Satz, der dazu wahr ist: wie viele bewiesene Wendungen ungesichert sind.
+    onPrefs({ ...prefs, lastBackupAt: now.getTime(), lastBackupProven: states.filter(isStable).length });
     setMsg({ kind: 'ok', text: `Gesichert: ${states.length} Wendungen.` });
   }
 
@@ -610,13 +639,13 @@ function AboutSection({ totalChunks }: { totalChunks: number }) {
             {VERIFICATION_META.unchecked} auffällig markiert
           </dd>
         </div>
+        {/* Keine Zahl, ein Satz — siehe ProgressView. */}
         <div>
-          <dt className="font-semibold text-danger">0 muttersprachlich geprüft</dt>
+          <dt className="font-semibold text-warn">Was hier niemand geprüft hat</dt>
           <dd className="text-faint">
-            Keine Wendung hat bisher eine schwedischsprachige Person gegengelesen. Wir prüfen
-            jedes Wort gegen ein Wörterbuch mit{' '}
-            {VERIFICATION_META.dictionaryEntries.toLocaleString('de-DE')} Einträgen — Satzbau,
-            Idiomatik und Ton kann das nicht ersetzen.
+            Wortstellung, Idiomatik und Ton. Wir prüfen jedes Wort gegen ein Wörterbuch mit{' '}
+            {VERIFICATION_META.dictionaryEntries.toLocaleString('de-DE')} Einträgen — ob der Satz
+            auch so gesagt wird, kann das nicht ersetzen.
           </dd>
         </div>
         <div>

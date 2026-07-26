@@ -14,12 +14,45 @@ import { slowSpeechRate } from './tts';
 import { explainSchedule, whyNowSentence } from '../memory/explain';
 import { SpeakButton } from '../../ui/SpeakButton';
 import { IconPlay, IconSlow, IconWave, IconSparkle } from '../../ui/icons';
+import { VoiceMissingHint } from '../../ui/VoiceHint';
+import { andereBedeutungen, mehrdeutigeInDekodierung } from '../content/polysemy';
 
 const GRADE_LABEL: Record<ReviewResult, string> = {
   again: 'Nochmal',
   hard: 'Fast',
   good: 'Sitzt',
 };
+
+/**
+ * Sagt es, wenn ein Wort im Satz mehr als eine Bedeutung hat.
+ *
+ * WARUM: Ohne diesen Hinweis lernt jemand `kort` als „Karte", trifft es später
+ * als „kurz" und hält die App für widersprüchlich — oder schlimmer: sich selbst
+ * für vergesslich. Die zweite Bedeutung ist kein Fehler, sie ist der Stoff.
+ *
+ * Höchstens zwei auf einmal: Drei Erklärkästen unter einem Satz erschlagen die
+ * Begegnung, die hier eigentlich stattfinden soll.
+ */
+function MehrdeutigHinweis({ decoding }: { decoding: DecodingToken[] }) {
+  const treffer = mehrdeutigeInDekodierung(decoding)
+    .map(({ eintrag, hier }) => ({ eintrag, hier, andere: andereBedeutungen(eintrag, hier) }))
+    .filter((t) => t.andere.length > 0)
+    .slice(0, 2);
+  if (treffer.length === 0) return null;
+  return (
+    <div className="mt-3 flex flex-col gap-1.5">
+      {treffer.map(({ eintrag, hier, andere }) => (
+        <p key={eintrag.sv} className="text-[0.7rem] leading-relaxed text-muted">
+          <span lang="sv" className="font-medium text-paper">
+            {eintrag.sv}
+          </span>{' '}
+          heißt hier „{hier}" — es heißt auch {andere.map((b) => `„${b}"`).join(' oder ')}.{' '}
+          <span className="text-faint">{eintrag.hinweis}</span>
+        </p>
+      ))}
+    </div>
+  );
+}
 
 /**
  * Blendet den Ziel-Chunk im schwedischen Satz aus (Lückentext für die Produktion,
@@ -44,7 +77,10 @@ interface Props {
   retention?: number;
   // `spoken` = die Antwort kam GESPROCHEN und wurde exakt als der geprüfte Chunk
   // erkannt (P3). Nur dieser enge Fall wird vermerkt — siehe ReviewEvent.spoken.
-  onResult: (result: ReviewResult, helpUsed: boolean, spoken: boolean) => void;
+  // `exact` = die Prüfung hat einen normalisierten Volltreffer festgestellt.
+  // Getrennt von `result`, weil die Messung nicht am Selbsteinschätzungs-Knopf
+  // hängen darf (siehe ReviewMeta.exact in der Memory-Engine).
+  onResult: (result: ReviewResult, helpUsed: boolean, spoken: boolean, exact?: boolean) => void;
   known?: KnownPhrase[]; // Wendungen, die der Lerner schon kann (für echtes i+1)
   // Neuer Chunk? Dann Bedeutung/Dekodierung SOFORT zeigen (verständlicher Input,
   // docs/gremium-darstellung.md). Bei bekanntem Chunk bleibt die Stütze zu (Abruf).
@@ -72,6 +108,10 @@ export function ComprehensionLoop({
   const [heard, setHeard] = useState(''); // was die Spracheingabe verstanden hat
   const [spokenOk, setSpokenOk] = useState(false); // gesprochen UND exakt erkannt
   const [autoGrade, setAutoGrade] = useState<ReviewResult | null>(null);
+  // Hat die Prüfung einen exakten Treffer gesehen? Nur in der Produktion gibt es
+  // überhaupt etwas objektiv zu prüfen; beim Wiedererkennen deckt der Lerner auf
+  // und bewertet sich selbst — dort bleibt es beim Knopf.
+  const [exactHit, setExactHit] = useState(false);
   // Formatives Feedback bei Produktion (Abweichung + Hinweis, docs/gremium-feedback.md).
   const [feedback, setFeedback] = useState<AnswerAnalysis | null>(null);
   // Optionale KI-Erklärung „Warum?" (nur bei aktiver Cloud-KI; Feedback-Schritt 2).
@@ -101,6 +141,7 @@ export function ComprehensionLoop({
     setHeard('');
     setSpokenOk(false);
     setAutoGrade(null);
+    setExactHit(false);
     setFeedback(null);
     setWhy({ state: 'idle', text: '' });
     setAiTokens(null);
@@ -164,6 +205,7 @@ export function ComprehensionLoop({
     // löscht ihn wieder — sonst stünde am Ende „gesprochen" an einer Wendung,
     // die getippt wurde.
     setSpokenOk(fromSpeech && fb.correct);
+    setExactHit(fb.correct);
     setAutoGrade(fb.grade);
     setWhy({ state: 'idle', text: '' });
     if (fb.correct) {
@@ -281,6 +323,10 @@ export function ComprehensionLoop({
             </button>
           </div>
         )}
+        {/* Ohne schwedische Stimme bleiben die Knöpfe oben stumm — dann muss
+            hier stehen, warum. Ein stummer Knopf lässt den Lerner den Fehler
+            bei sich suchen. */}
+        {showFull && aiRegistry.synthesizer.isAvailable() && <VoiceMissingHint className="mt-2" />}
       </div>
 
       {/* 2. Verständnishilfen — nur wenn der Volltext ohnehin sichtbar ist (sonst
@@ -347,14 +393,17 @@ export function ComprehensionLoop({
       )}
 
       {showDecoding && (
-        <div className="mt-3 flex flex-wrap gap-x-4 gap-y-2">
-          {segment.decoding.map((t, i) => (
-            <span key={i} className="inline-flex flex-col items-center">
-              <span lang="sv" className="text-paper">{t.sv}</span>
-              <span className="text-xs text-muted">{t.de}</span>
-            </span>
-          ))}
-        </div>
+        <>
+          <div className="mt-3 flex flex-wrap gap-x-4 gap-y-2">
+            {segment.decoding.map((t, i) => (
+              <span key={i} className="inline-flex flex-col items-center">
+                <span lang="sv" className="text-paper">{t.sv}</span>
+                <span className="text-xs text-muted">{t.de}</span>
+              </span>
+            ))}
+          </div>
+          <MehrdeutigHinweis decoding={segment.decoding} />
+        </>
       )}
 
       {showIdiomatic && <p className="mt-3 italic text-muted">{segment.de}</p>}
@@ -423,14 +472,17 @@ export function ComprehensionLoop({
           </div>
           <p className="mt-1 italic text-muted">{genSegment.de}</p>
           {genSegment.decoding.length > 0 && (
-            <div className="mt-3 flex flex-wrap gap-x-4 gap-y-2">
-              {genSegment.decoding.map((t, i) => (
-                <span key={i} className="inline-flex flex-col items-center">
-                  <span lang="sv" className="text-paper">{t.sv}</span>
-                  <span className="text-xs text-muted">{t.de}</span>
-                </span>
-              ))}
-            </div>
+            <>
+              <div className="mt-3 flex flex-wrap gap-x-4 gap-y-2">
+                {genSegment.decoding.map((t, i) => (
+                  <span key={i} className="inline-flex flex-col items-center">
+                    <span lang="sv" className="text-paper">{t.sv}</span>
+                    <span className="text-xs text-muted">{t.de}</span>
+                  </span>
+                ))}
+              </div>
+              <MehrdeutigHinweis decoding={genSegment.decoding} />
+            </>
           )}
         </div>
       )}
@@ -621,17 +673,17 @@ export function ComprehensionLoop({
               <GradeButton
                 label="Nochmal"
                 tone="bg-danger"
-                onClick={() => onResult('again', helpUsed, spokenOk)}
+                onClick={() => onResult('again', helpUsed, spokenOk, exactHit)}
               />
               <GradeButton
                 label="Fast"
                 tone="bg-warn"
-                onClick={() => onResult('hard', helpUsed, spokenOk)}
+                onClick={() => onResult('hard', helpUsed, spokenOk, exactHit)}
               />
               <GradeButton
                 label="Sitzt"
                 tone="bg-success"
-                onClick={() => onResult('good', helpUsed, spokenOk)}
+                onClick={() => onResult('good', helpUsed, spokenOk, exactHit)}
               />
             </div>
           </>

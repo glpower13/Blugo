@@ -9,8 +9,8 @@ import type { Area, Category, Chunk, ChunkState } from '../../domain/chunk';
 const NOW = 1_700_000_000_000;
 
 const categories: Category[] = [
-  { id: 'b', areaId: 'area-2', title: 'B', blurb: '', order: 2 },
-  { id: 'a', areaId: 'area-1', title: 'A', blurb: '', order: 1 },
+  { id: 'b', areaId: 'area-2', title: 'B', blurb: '', order: 2, cefr: 'A1' },
+  { id: 'a', areaId: 'area-1', title: 'A', blurb: '', order: 1, cefr: 'A1' },
 ];
 
 const chunks: Chunk[] = [

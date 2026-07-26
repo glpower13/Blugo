@@ -69,6 +69,31 @@ export function swedishVoiceAvailable(): boolean {
   return ttsAvailable() && selectSwedishVoice(currentVoices()) !== undefined;
 }
 
+/**
+ * Weiß das Gerät NACHWEISLICH, dass es keine schwedische Stimme hat?
+ *
+ * WARUM DIESE FRAGE UND NICHT `!swedishVoiceAvailable()`: Eine leere
+ * Stimmenliste heißt „noch nicht geladen", nicht „keine da" — manche
+ * Android-Umgebungen liefern erst nach der ersten Nutzergeste etwas. Wer die
+ * beiden Fälle verwechselt, schaltet die Sprachausgabe auf Geräten ab, auf
+ * denen sie funktioniert.
+ *
+ * NACHWEISLICH heißt hier: Das Gerät meldet Stimmen — und keine davon ist
+ * schwedisch. Nur dann wird geschwiegen (siehe `speakSwedish`).
+ */
+export function swedishVoiceMissing(): boolean {
+  if (!ttsAvailable()) return false;
+  const all = currentVoices();
+  return all.length > 0 && selectSwedishVoice(all) === undefined;
+}
+
+/** Meldet, sobald das Gerät seine Stimmenliste nachgereicht hat. */
+export function onVoicesChanged(fn: () => void): () => void {
+  if (!ttsAvailable()) return () => {};
+  window.speechSynthesis.addEventListener('voiceschanged', fn);
+  return () => window.speechSynthesis.removeEventListener('voiceschanged', fn);
+}
+
 // Sprechtempo aus den Einstellungen (docs/gremium-einstellungen.md). Eine
 // veränderliche Voreinstellung statt eines durchgereichten Werts: Vorlesen wird
 // an einem Dutzend Stellen ausgelöst, und keine davon soll die Einstellung
@@ -94,6 +119,13 @@ export const slowSpeechRate = (): number => Math.max(0.4, defaultRate - 0.3);
  */
 export function speakSwedish(text: string, rate = defaultRate): Promise<void> {
   if (!ttsAvailable()) return Promise.resolve();
+  // BEFUND 2026-07-25: Die Einstellungen versprachen „dann liest die App lieber
+  // gar nicht vor, als Schwedisch mit falscher Stimme zu lesen" — gesprochen
+  // wurde trotzdem. Ohne schwedische Stimme liest die Engine den schwedischen
+  // Satz mit der Standardstimme, also mit deutscher Aussprache. In einer
+  // Sprachlern-App ist das nicht bloß unschön: Der Lerner übt eine Aussprache
+  // ein, die es nicht gibt. Jetzt hält die App ihr Versprechen.
+  if (swedishVoiceMissing()) return Promise.resolve();
   const u = new SpeechSynthesisUtterance(text);
   u.lang = 'sv-SE'; // auch ohne gelistete Stimme wählen viele Engines darüber sv
   u.rate = rate;

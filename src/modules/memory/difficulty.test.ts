@@ -8,6 +8,7 @@ import {
   recentSuccessRate,
   newCountFor,
   recommendedNewCount,
+  scaffoldShouldOpen,
 } from './difficulty';
 import { initialState } from './memoryEngine';
 import type { ChunkState, ReviewResult } from '../../domain/chunk';
@@ -89,5 +90,44 @@ describe('newCountFor — Empfehlung mit Deckel', () => {
 
   it('kommt mit einem unsinnigen Deckel klar', () => {
     expect(newCountFor(0.9, -3)).toBe(0);
+  });
+});
+
+// Die Anti-Klippe an der einzelnen Wendung: Wer gerade gescheitert ist, bekommt
+// die Wendung nicht nackt zurück.
+const ev = (result: 'good' | 'hard' | 'again'): ChunkState['history'][number] => ({
+  at: 1,
+  result,
+  segmentId: 's-1',
+});
+
+describe('scaffoldShouldOpen', () => {
+  const s = (history: ChunkState['history']): ChunkState =>
+    ({ chunkId: 'c', history }) as ChunkState;
+
+  it('öffnet für eine Wendung, die es noch gar nicht gibt', () => {
+    expect(scaffoldShouldOpen(undefined)).toBe(true);
+  });
+
+  it('öffnet, solange nie ein Abruf gelungen ist', () => {
+    expect(scaffoldShouldOpen(s([]))).toBe(true);
+    expect(scaffoldShouldOpen(s([ev('again'), ev('hard')]))).toBe(true);
+  });
+
+  it('schließt, sobald ein Abruf gelungen ist', () => {
+    expect(scaffoldShouldOpen(s([ev('good')]))).toBe(false);
+  });
+
+  it('öffnet WIEDER, wenn der letzte Abruf gescheitert ist', () => {
+    expect(scaffoldShouldOpen(s([ev('good'), ev('again')]))).toBe(true);
+  });
+
+  it('schließt sich nach dem nächsten Erfolg von selbst', () => {
+    expect(scaffoldShouldOpen(s([ev('good'), ev('again'), ev('good')]))).toBe(false);
+  });
+
+  it('lässt „Fast" nicht als Scheitern gelten', () => {
+    // „hard" heißt: es kam, aber mühsam. Die Stütze aufzureißen wäre bevormundend.
+    expect(scaffoldShouldOpen(s([ev('good'), ev('hard')]))).toBe(false);
   });
 });

@@ -4,9 +4,7 @@
 // bisher fehlte: dass die App dem Lerner sagen kann, wie geprüft die Wendung
 // ist, die gerade vor ihm steht. Genau das erzeugt diese Datei.
 //
-// DREI STUFEN, KEINE VIERTE:
-//   'native'    — von einer schwedischsprachigen Person gegengelesen.
-//                 Vergibt dieses Werkzeug NIE. Es gibt heute keine einzige.
+// ZWEI STUFEN:
 //   'machine'   — jedes Wort ist echtes Schwedisch (Wörterbuch + Korpus-
 //                 häufigkeit).
 //   'unchecked' — mindestens ein Wort ist selten oder unbelegt.
@@ -46,10 +44,12 @@ function readFlagged(): FlaggedFile {
 }
 
 export interface BuildResult {
-  levels: Record<string, 'machine' | 'unchecked'>;
+  levels: Record<string, VerificationLevel>;
   reasons: Record<string, string>;
   meta: { machine: number; unchecked: number; dictionaryEntries: number };
 }
+
+export type VerificationLevel = 'machine' | 'unchecked';
 
 /** Rechnet den Prüf-Stand je Chunk aus (rein, testbar). */
 export function buildLevels(flagged: FlaggedFile): BuildResult {
@@ -61,7 +61,7 @@ export function buildLevels(flagged: FlaggedFile): BuildResult {
   // hat je nach Satz eine andere wörtliche Entsprechung; genau das ist
   // Kontextvariation, kein Fehler. Ein Prüfwerkzeug, das bei gesundem Inhalt
   // Alarm schlägt, wird abgeschaltet — und dann prüft gar nichts mehr.
-  const levels: Record<string, 'machine' | 'unchecked'> = {};
+  const levels: Record<string, VerificationLevel> = {};
   const reasons: Record<string, string> = {};
   for (const c of seedChunks) {
     const bad = tokens(c.sv).filter((w) => flaggedWords.has(w));
@@ -72,12 +72,13 @@ export function buildLevels(flagged: FlaggedFile): BuildResult {
       levels[c.id] = 'machine';
     }
   }
-  const unchecked = Object.values(levels).filter((v) => v === 'unchecked').length;
+  const werte = Object.values(levels);
+  const unchecked = werte.filter((v) => v === 'unchecked').length;
   return {
     levels,
     reasons,
     meta: {
-      machine: Object.keys(levels).length - unchecked,
+      machine: werte.length - unchecked,
       unchecked,
       dictionaryEntries: flagged.dictionaryEntries,
     },
@@ -102,16 +103,18 @@ function render(r: BuildResult): string {
 //               Korpushäufigkeit). NICHT geprüft: Wortstellung, Idiomatik,
 //               Register — dafür braucht es einen Menschen.
 // 'unchecked' = mindestens ein Wort ist selten oder unbelegt.
-// 'native'    = kommt hier nie vor. Es gibt bislang keine muttersprachliche
-//               Gegenlesung — das zu behaupten wäre die Lüge, gegen die dieses
-//               Projekt gebaut ist.
+//
+// EINE STUFE GIBT ES BEWUSST NICHT: „muttersprachlich geprüft". Es gibt niemanden,
+// der gegenliest, und eine Skala, auf der man nie vorankommt, ist keine Auskunft —
+// sie sieht nur so aus. Was bleibt, ist der SATZ über die Grenze dieses Inhalts;
+// den zeigt die App unverändert an. Weglassen würde die Grenze verschweigen,
+// eine Dauer-Null würde einen Fortschritt vortäuschen, den es nicht gibt.
 
-export type VerificationLevel = 'native' | 'machine' | 'unchecked';
+export type VerificationLevel = 'machine' | 'unchecked';
 
 export const VERIFICATION_META = {
   machine: ${r.meta.machine},
   unchecked: ${r.meta.unchecked},
-  native: 0,
   dictionaryEntries: ${r.meta.dictionaryEntries},
 } as const;
 
@@ -126,9 +129,27 @@ ${reasons}
 `;
 }
 
-const result = buildLevels(readFlagged());
-writeFileSync(OUT, render(result), 'utf8');
-console.log(`Prüf-Stand geschrieben: src/modules/content/verification.generated.ts`);
-console.log(
-  `  maschinell vorgeprüft ${result.meta.machine} · ungeprüft ${result.meta.unchecked} · muttersprachlich 0`,
-);
+/**
+ * NUR ausführen, wenn diese Datei WIRKLICH das aufgerufene Skript ist.
+ *
+ * Vorher standen die drei Zeilen unten frei im Modul. Ein Test, der nur
+ * `buildLevels` importieren wollte, hat damit den Erzeuger mitlaufen lassen und
+ * eine QUELLDATEI überschrieben — sichtbar am „Prüf-Stand geschrieben" mitten
+ * im Testlauf. §0.4 des Prüf-Standards ist da eindeutig: Ein Test darf nichts
+ * vom Betrieb anfassen. (Und mit dem Wächter `check:generated` hätte ein
+ * Testlauf ab jetzt sogar den nächsten Build rot machen können.)
+ */
+function main(): void {
+  const result = buildLevels(readFlagged());
+  writeFileSync(OUT, render(result), 'utf8');
+  console.log(`Prüf-Stand geschrieben: src/modules/content/verification.generated.ts`);
+  console.log(
+    `  maschinell vorgeprüft ${result.meta.machine} · auffällig ${result.meta.unchecked}`,
+  );
+}
+
+// `process.argv[1]` taugt hier NICHT: unter vite-node steht dort die Binärdatei
+// (`node_modules/.bin/vite-node`), nie das Skript — ein erster Versuch damit
+// hat den Erzeuger schlicht stillgelegt. `VITEST` beschreibt genau den Fall,
+// um den es geht: Läuft gerade der Test-Runner, wird nichts geschrieben.
+if (!process.env.VITEST) main();

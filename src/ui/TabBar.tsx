@@ -33,6 +33,15 @@ const TABS: { id: Tab; label: string; Icon: (p: { className?: string }) => React
 export const TAB_IDS: Tab[] = TABS.map((t) => t.id);
 
 /**
+ * Beschriftung eines Reiters — EINE Quelle (§3.3 des Prüf-Standards).
+ * Wird von der Ansage des Ansichtswechsels in `App.tsx` mitbenutzt; ohne diesen
+ * Export hätte dort eine zweite, leicht abweichende Liste gestanden.
+ */
+export function tabLabel(id: Tab): string {
+  return TABS.find((t) => t.id === id)?.label ?? '';
+}
+
+/**
  * Die Markierung FOLGT dem Finger.
  *
  * Üblich ist, dass eine Reiterleiste erst am Ende der Wischgeste umspringt —

@@ -315,3 +315,33 @@ irreführenden Zerlegung „in Tag". Beide Schreibungen sind korrektes Schwedisc
 4. **Interne Kennungen passen nicht zum Inhalt** (`c-vadjobbardu` enthält „jag har
    mycket att göra", `c-vihalleross` enthält „vi ligger under", `c-tappatvaska`
    enthält „jag hittar inte min väska"). Kein Nutzerproblem, aber ein Wartungsrisiko.
+
+---
+
+## Muttersprachliche Gegenlesung — gestrichen *(Entscheidung 2026-07-25)*
+
+Am selben Tag gebaut und am selben Tag wieder entfernt. Der Weg war fertig:
+Prüfbogen, Register, Wächter gegen erfundene Einträge. Was fehlte, war das
+Entscheidende — **eine Person, die gegenliest.** Die gibt es in diesem Projekt
+nicht, und danach sieht es auch nicht aus.
+
+Damit war „0 von 179 muttersprachlich geprüft" keine Messung mehr, sondern eine
+Skala, auf der man nie vorankommt. Eine solche Zahl sieht aus wie Fortschritt,
+den es geben könnte, und ist deshalb selbst irreführend — nach derselben Logik,
+mit der wir „aktiv" aus dem Fortschrittsbalken herausgehalten haben.
+
+**Gestrichen:** die Stufe `'native'`, das Register, `check:native`,
+`review:sheet` und der Prüfbogen.
+
+**Geblieben — bewusst:** der SATZ über die Grenze. In der App steht jetzt
+„**Was hier niemand geprüft hat**: Wortstellung, Idiomatik und Ton." Ohne ihn
+wirkte der Inhalt geprüfter, als er ist; als Zähler täuschte er einen Weg vor,
+den niemand geht. Ein Satz ist beides nicht.
+
+**Was bleibt, ist die Richtung:** Jedes Wort gegen ein Wörterbuch mit 152.719
+Einträgen und gegen Korpushäufigkeiten · vollständige Dekodierung (`check:decoding`)
+· Rückübersetzungs-Abgleich (`check:backtranslation`). Das ist kein Ersatz für
+einen Menschen und wird auch nirgends als einer ausgegeben.
+
+Die offenen Sprachfragen weiter oben („Offen für die muttersprachliche
+Prüfung") bleiben stehen — falls doch einmal jemand gegenliest, ist die Liste da.

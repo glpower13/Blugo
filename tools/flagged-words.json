@@ -1,8 +1,128 @@
 {
   "dictionaryEntries": 152719,
-  "wordsChecked": 434,
-  "stringsChecked": 3423,
+  "wordsChecked": 1537,
+  "stringsChecked": 17794,
   "flagged": {
+    "automaten": {
+      "verdict": "selten",
+      "zipf": 2.93,
+      "inDict": false
+    },
+    "badrumsdörren": {
+      "verdict": "selten",
+      "zipf": 2.03,
+      "inDict": false
+    },
+    "bakad": {
+      "verdict": "selten",
+      "zipf": 2.85,
+      "inDict": true
+    },
+    "bakbenet": {
+      "verdict": "selten",
+      "zipf": 1.65,
+      "inDict": false
+    },
+    "bifoga": {
+      "verdict": "selten",
+      "zipf": 2.94,
+      "inDict": true
+    },
+    "borrmaskin": {
+      "verdict": "selten",
+      "zipf": 2.62,
+      "inDict": true
+    },
+    "brådskar": {
+      "verdict": "selten",
+      "zipf": 2.07,
+      "inDict": false
+    },
+    "framhjulet": {
+      "verdict": "selten",
+      "zipf": 2.25,
+      "inDict": false
+    },
+    "fyrtiotvå": {
+      "verdict": "selten",
+      "zipf": 1.98,
+      "inDict": true
+    },
+    "föräldramöte": {
+      "verdict": "selten",
+      "zipf": 2.98,
+      "inDict": true
+    },
+    "glutenfritt": {
+      "verdict": "selten",
+      "zipf": 2.65,
+      "inDict": false
+    },
+    "glödlampan": {
+      "verdict": "selten",
+      "zipf": 2.83,
+      "inDict": false
+    },
+    "grannhuset": {
+      "verdict": "selten",
+      "zipf": 2.55,
+      "inDict": false
+    },
+    "handbagage": {
+      "verdict": "selten",
+      "zipf": 2.99,
+      "inDict": true
+    },
+    "handske": {
+      "verdict": "selten",
+      "zipf": 2.88,
+      "inDict": true
+    },
+    "havremjölk": {
+      "verdict": "selten",
+      "zipf": 2.82,
+      "inDict": false
+    },
+    "incheckningen": {
+      "verdict": "selten",
+      "zipf": 2.64,
+      "inDict": false
+    },
+    "jackorna": {
+      "verdict": "selten",
+      "zipf": 2.53,
+      "inDict": false
+    },
+    "laktosen": {
+      "verdict": "selten",
+      "zipf": 1.85,
+      "inDict": false
+    },
+    "medlemsavgiften": {
+      "verdict": "selten",
+      "zipf": 2.44,
+      "inDict": false
+    },
+    "offert": {
+      "verdict": "selten",
+      "zipf": 2.7,
+      "inDict": true
+    },
+    "offerten": {
+      "verdict": "selten",
+      "zipf": 2.06,
+      "inDict": false
+    },
+    "papperen": {
+      "verdict": "selten",
+      "zipf": 2.47,
+      "inDict": false
+    },
+    "pelaren": {
+      "verdict": "selten",
+      "zipf": 2.8,
+      "inDict": false
+    },
     "provrummet": {
       "verdict": "selten",
       "zipf": 2.22,
@@ -13,9 +133,29 @@
       "zipf": 1.78,
       "inDict": false
     },
+    "rabarber": {
+      "verdict": "selten",
+      "zipf": 2.87,
+      "inDict": true
+    },
+    "rätterna": {
+      "verdict": "selten",
+      "zipf": 2.69,
+      "inDict": false
+    },
     "skruven": {
       "verdict": "selten",
       "zipf": 2.8,
+      "inDict": false
+    },
+    "skruvmejsel": {
+      "verdict": "selten",
+      "zipf": 2.92,
+      "inDict": true
+    },
+    "släckas": {
+      "verdict": "selten",
+      "zipf": 2.78,
       "inDict": false
     },
     "smaklig": {
@@ -23,9 +163,54 @@
       "zipf": 2.82,
       "inDict": true
     },
+    "sophämtningen": {
+      "verdict": "selten",
+      "zipf": 1.88,
+      "inDict": false
+    },
+    "städdag": {
+      "verdict": "selten",
+      "zipf": 2.48,
+      "inDict": true
+    },
+    "tandtråd": {
+      "verdict": "selten",
+      "zipf": 2.74,
+      "inDict": true
+    },
+    "tandvärk": {
+      "verdict": "selten",
+      "zipf": 2.97,
+      "inDict": true
+    },
+    "textad": {
+      "verdict": "selten",
+      "zipf": 2.34,
+      "inDict": false
+    },
+    "tjugonde": {
+      "verdict": "selten",
+      "zipf": 2.95,
+      "inDict": true
+    },
+    "tomaterna": {
+      "verdict": "selten",
+      "zipf": 2.97,
+      "inDict": false
+    },
+    "trehundra": {
+      "verdict": "selten",
+      "zipf": 2.98,
+      "inDict": true
+    },
     "trettiofem": {
       "verdict": "selten",
       "zipf": 2.68,
+      "inDict": true
+    },
+    "åttio": {
+      "verdict": "selten",
+      "zipf": 2.97,
       "inDict": true
     }
   }

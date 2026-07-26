@@ -129,3 +129,75 @@ Sprachpaar-Overlay als eigene, gedämpfte Zone sichtbar.
 **Leitplanke:** Sechs neue Tests sichern die vier Regeln (`metrics.test.ts`,
 `memoryEngine.test.ts`) — darunter der Fall „Beweis, dann Fehlschlag" und
 „nur geplantes Intervall zählt nicht".
+
+
+---
+
+## Nachtrag 2026-07-25 — Messung und Selbsteinschätzung sind zweierlei
+
+Der Beweis hing bis hierher am **Knopf**: nur `result === 'good'` konnte ihn
+setzen. Das sah sauber aus und hatte ein Loch.
+
+In der Produktions-Stufe prüft die App die Eingabe wirklich (`answerCheck.ts`).
+Wer nach 90 Tagen exakt richtig tippt, aber aus Gewissenhaftigkeit „Fast"
+drückt, bekam **keinen** Beweis — wer aufrundete, schon. Ein Indikator, der
+Aufrunden belohnt, erzeugt genau das Verhalten, gegen das dieses Projekt
+gebaut ist.
+
+**Die Trennung, die das auflöst:**
+
+| Frage | Antwort kommt aus | Steuert |
+|---|---|---|
+| Ist der Abruf gelungen? | der **Prüfung der Eingabe** (`ReviewMeta.exact`) | den Beweis |
+| Wie sicher fühlte es sich an? | dem **Knopf** des Lerners | den nächsten Termin |
+
+Der Beweis wird dadurch nicht weicher — er verlangt weiterhin einen exakten
+Produktions-Abruf nach einer tatsächlich überstandenen Pause von ≥ 90 Tagen.
+Geändert hat sich nur, **woher** die App weiß, dass er exakt war.
+
+Was ausdrücklich gleich bleibt: Ein „Nochmal" beweist nie etwas, auch nicht mit
+`exact` daneben. Und im Wiedererkennen gibt es keine geprüfte Eingabe — dort
+bleibt es beim Knopf, und dort kann ohnehin nichts bewiesen werden.
+
+---
+
+## Nachtrag 2026-07-25 (2) — sprachliche Meilensteine (A1 … B2)
+
+Die App misst, wie viel du **behältst**. Was sie nie beantwortet hat, ist die
+Frage, die jeder Lernende zuerst stellt: **„Wo stehe ich?"** Ohne Antwort darauf
+ist der Fortschritt eine Zahl ohne Landkarte.
+
+**Was ein Meilenstein hier ist.** Jedes Thema (`Category`) trägt eine Einstufung
+`cefr: 'A1' | 'A2' | 'B1' | 'B2'`. „A1 erreicht" heißt: **≥ 90 % der A1-Wendungen
+sind BEWIESEN** — `isStable`, dieselbe harte Messlatte wie die große Zahl auf der
+Startseite (selbst gesagt, nach über 90 Tagen Pause, und es saß).
+
+**Warum die Einstufung am Thema hängt und nicht an der Wendung.** Ein Thema liegt
+als Ganzes auf einem Niveau — „Im Café" ist A1, „Verhandeln" ist B2. Eine
+Einstufung je Wendung wäre feiner, aber 379-mal von Hand gepflegt und damit
+sicher bald falsch. Liegt eine Wendung nachweislich falsch, ist die Antwort ein
+eigenes Thema, kein Sonderfall im Datenmodell.
+
+**Warum 90 % und nicht 100 %.** Eine einzige zähe Wendung würde den Meilenstein
+sonst dauerhaft blockieren, obwohl der Rest längst sitzt — das wäre keine
+ehrlichere Messung, nur eine frustrierendere. Bei 70 % dagegen könnte man
+„A1 erreicht" lesen und jede dritte Grundwendung nicht können.
+
+**Wo die eine Design-Regel greift:**
+
+| Regel | Grund |
+|---|---|
+| Nur `isStable` zählt für „erreicht" | Angefasste und reifende Wendungen sind Arbeit, kein Können. |
+| Ein Fehlschlag nimmt den Meilenstein wieder weg | `lapsedAt` widerruft den Beweis — die Anzeige behauptet Gegenwart. |
+| Ein Meilenstein ohne Stoff gilt **nie** als erreicht | Sonst stünde „B2 erreicht" da, weil es keinen B2-Inhalt gibt (dieselbe Null-durch-Null-Behauptung wie einst bei der Trefferquote). |
+| Genau **ein** Meilenstein ist „hier bist du" | Der erste nicht erreichte. Zwei gleichzeitige Standorte wären keine Auskunft. |
+| „Was fehlt" ist eine **Bedingung**, keine Prozentzahl | „Noch 14 bewiesene Wendungen bis hierher" — ein Beweis ist eine Prüfung, kein Fortschrittsbalken. |
+
+**Die Grenze steht in der App, nicht nur hier.** Unter der Leiste steht:
+*Das ist kein Zertifikat. Der Europäische Referenzrahmen beschreibt Niveaus über
+das, was man **kann** — nicht über Wendungslisten.* Wer alle A1-Wendungen DIESER
+App bewiesen hat, hat genau das getan.
+
+Code: `src/modules/progress/milestones.ts` (rein, 9 Tests), Anzeige
+`Milestones.tsx`. Bestand am 2026-07-25: A1 108 · A2 119 · B1 104 · B2 48
+Wendungen.

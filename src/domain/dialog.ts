@@ -24,6 +24,14 @@ export type DialogScene =
   | 'track'
   | 'lake'
   | 'stadium'
+  // Vier Kulissen für die Gespräche der neuen Themen. Vorher liefen über zwanzig
+  // Szenen auf `generic` — eine leere Fläche mit einer Figur darauf. Eine Szene
+  // ist keine Deko: sie sagt in einem Blick, WO man gerade steht, und genau das
+  // fehlte diesen Gesprächen (Befund beim Ansehen 2026-07-25).
+  | 'office' // Beratung über den Schreibtisch: Bank, Termin, Bewerbung, Verhandlung
+  | 'home' // Küchentisch daheim: Kinder, Einladung, Gefühle, Gesellschaft
+  | 'street' // Draußen zwischen Häusern: Small Talk, Wetter, Winter, Nachbarn
+  | 'school' // Kursraum mit Tafel: Sprache, Meinung, Medien, Nuancen
   | 'generic';
 
 export interface DialogTurn {

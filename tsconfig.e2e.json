@@ -1,0 +1,27 @@
+{
+  // Die E2E-Spezifikationen waren in KEINEM tsconfig-`include` — `npm run
+  // typecheck` hat sie schlicht nicht angefasst (Befund A-1 der Prüfkaskade
+  // 2026-07-25). Ein Typfehler dort fiel erst beim Playwright-Lauf auf, also
+  // Minuten später statt Sekunden. Stufe A des Standards verlangt aber „alle
+  // vom Projekt getragenen Quelldateien".
+  //
+  // Eigene Datei statt `include` in tsconfig.app.json, weil die Specs im
+  // Node-Kontext laufen und `@playwright/test` importieren — sie gehören nicht
+  // in den Browser-Build.
+  "compilerOptions": {
+    "target": "ES2022",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "module": "ESNext",
+    "skipLibCheck": true,
+    "moduleResolution": "bundler",
+    "allowImportingTsExtensions": true,
+    "isolatedModules": true,
+    "moduleDetection": "force",
+    "noEmit": true,
+    "composite": true,
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true
+  },
+  "include": ["e2e/**/*.ts", "playwright.config.ts"]
+}

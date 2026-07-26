@@ -55,7 +55,20 @@ export function buildQueue(
   return [...reviewed, ...fresh.slice(0, maxNew)].map((s) => s.chunkId);
 }
 
-/** Choose a context segment for a chunk, favouring an unseen one. */
+/**
+ * Der Kontext, in dem die Wendung diesmal begegnet — normalerweise ein NEUER.
+ *
+ * AUSNAHME NACH EINEM „NOCHMAL" (Befund 2026-07-26): Kontextvariation ist
+ * Schritt 4 des Loops und gehört hinter den Erfolg. Wer gerade gescheitert ist,
+ * bekam bisher trotzdem sofort einen neuen Satz vorgelegt — die Wendung wurde
+ * beim Wiedersehen also SCHWERER statt leichter. `CLAUDE.md` verlangt an dieser
+ * Stelle das Gegenteil: „erst mehr verständlichen Input + leichtere Variante
+ * nachschieben, dann neu annähern."
+ *
+ * Beim Nachlernen kommt deshalb derselbe Satz zurück — zusammen mit der offenen
+ * Dekodierung (`scaffoldShouldOpen`). Erst nach dem nächsten Erfolg variiert der
+ * Kontext wieder.
+ */
 export function pickSegmentForChunk(
   chunk: Chunk,
   state: ChunkState,
@@ -63,6 +76,11 @@ export function pickSegmentForChunk(
 ): Segment | undefined {
   const containing = segments.filter((s) => s.chunkIds.includes(chunk.id));
   if (containing.length === 0) return undefined;
+  const letzte = state.history[state.history.length - 1];
+  if (letzte?.result === 'again') {
+    const gleicher = containing.find((s) => s.id === letzte.segmentId);
+    if (gleicher) return gleicher;
+  }
   const unseen = containing.find((s) => !state.seenSegmentIds.includes(s.id));
   return unseen ?? containing[0];
 }

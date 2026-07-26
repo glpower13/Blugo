@@ -239,10 +239,10 @@ gezielten Angriffs-Testfall** mit Sonderzeichen (`' " < > & \ ;` / `');...//`):
 
 | Punkt | Für dieses Projekt |
 |---|---|
-| **Syntax-Check (A)** | `npm run typecheck` (`tsc -b`, strikt, alle `src/`-Dateien) |
+| **Syntax-Check (A)** | `npm run typecheck` (`tsc -b`, strikt). Deckt **`src/`, `tools/` UND `e2e/`** ab — Letzteres erst seit `tsconfig.e2e.json` (Befund A-1: die E2E-Dateien standen in keinem `include` und wurden nie typgeprüft) |
 | **Funktionaler Runner (B)** | Logik: `npm test` (Vitest ruft die echten Funktionen, kein Nachbau). UI headless: Playwright/Chromium (vorinstalliert unter `/opt/pw-browsers/chromium`) gegen die Vite-Preview — Konsolenfehler = 0, Screenshots **hell + dunkel** |
-| **Zentraler Lauf (C)** | `npm test` (Vitest erfasst alle `src/**/*.test.ts` automatisch — kein manuelles Eintragen nötig) |
-| **Stabilitätslauf (G)** | Entfällt in M1 (client-only, kein Server/Auth/Geld). Sobald Content-Pipeline/Backend kommt, hier ein `npm run test:all` mit Last/Chaos/Security/DR/Soak eintragen |
+| **Zentraler Lauf (C)** | **`npm run verify`** — EIN Befehl: typecheck · lint · vitest · `check:content` · `check:decoding` · `check:backtranslation` · `check:native` · `verify:build` · `check:generated` · build. Mit E2E: `npm run verify:all`. Vorher standen hier nur die Unit-Tests, und die Inhalts-Wächter liefen in CI gar nicht (Befund D-1 der Kaskade 2026-07-25) |
+| **Stabilitätslauf (G)** | **`src/modules/memory/stability.test.ts`** (läuft in `npm run verify` mit): Property-Fuzzing über die Mess-Invarianten mit 10 000 Fällen je Gesetz · Fault-Injection auf die Sicherungsdatei (11 Beschädigungsarten) · Idempotenz und Verlustfreiheit des Zusammenführens · Zeit-/Kalender-Grenzfälle (Sommerzeit, Jahreswechsel, Schalttag). **Weiterhin offen, weil es sie hier nicht gibt:** Last, Nebenläufigkeit über Prozesse, Security-Probe, DR, Soak — die kommen mit einem Backend |
 | **Bundle/Embed-Rebuild** | `npm run build` (Vite). Kein stringifiziertes Embed — nach Quelländerung Preview/Build neu, **bevor** ein B-Test lädt |
 | **Artefakt für B-Tests** | Vite-Preview: `npm run preview -- --port 4173` → `http://localhost:4173/` (bzw. `npm run dev`). Nach dem Lauf Prozess beenden |
 | **Rollen/Rechte-Modell** | Entfällt (kein Auth, keine Rollen, client-only). Fällt an, sobald Konten/Backend kommen → dann fail-closed serverseitig prüfen |
@@ -251,7 +251,7 @@ gezielten Angriffs-Testfall** mit Sonderzeichen (`' " < > & \ ;` / `');...//`):
 | **Isolierte Serverinstanz** | Entfällt (kein Backend). Vite-Preview auf eigenem Port hochziehen, danach Prozess beenden (vor Wiederholung ggf. Port freimachen) |
 | **ISTQB-Bericht-Ablage** | `docs/ISTQB-Testbericht-<Modul>.md` |
 | **Leak-Scan** | `git diff` gegen echte Daten/Geheimnisse: E-Mails (`@…\.`), `passwo`/`api[_-]?key`/`secret`/`token`, `€`/Preise, echte Pfade. `.gitignore` deckt `.env*`, `*.key`. Insb. **nicht** die echte Nutzer-E-Mail in Repo/Tests |
-| **Branch/Commit** | Zielbranch `claude/neurolang-concept-docs-czsfnk`; englische Commits, Trailer wie in `CLAUDE.md`; kein PR ohne ausdrückliche Bitte |
+| **Branch/Commit** | Zielbranch steht in der Aufgabenstellung, nicht hier — ein fest eingetragener Zweig veraltet mit dem ersten Wechsel (er tat es: hier stand monatelang ein Zweig, auf dem längst nicht mehr gearbeitet wurde). Englische Commits, Trailer wie in `CLAUDE.md`; kein PR ohne ausdrückliche Bitte |
 
 ---
 

@@ -1,8 +1,18 @@
 name: CI
 
-# Full quality gate on every push/PR: typecheck, lint, unit tests, and the
-# Playwright E2E (Stufe B of docs/TEST-UND-PRUEF-STANDARD.md). Kept separate
-# from the Pages deploy so quality runs on all branches, deploy only on main.
+# Vollständiges Qualitätstor bei jedem Push/PR — Stufe A bis C der Prüfkaskade
+# aus docs/TEST-UND-PRUEF-STANDARD.md.
+#
+# BEFUND D-1 (Prüfkaskade 2026-07-25): Hier standen nur typecheck, lint, test
+# und e2e. Die INHALTS-Wächter liefen gar nicht — `check:decoding`,
+# `check:content`, `check:backtranslation` und `verify:build`. Ein Wächter, der
+# nicht im zentralen Lauf steht, ist Dekoration (§2 C: „Neuen Test sofort in den
+# zentralen Lauf eintragen, sonst verrottet er"). Eine kaputte Dekodierung oder
+# ein veralteter Prüf-Stand wäre unbemerkt nach `main` gekommen.
+#
+# Jetzt läuft EIN Befehl, der immer komplett durchgeht: `npm run verify`.
+# Vom Pages-Deploy getrennt, damit Qualität auf allen Zweigen läuft und nur
+# `main` ausgeliefert wird.
 on:
   push:
     branches: ['**']
@@ -20,9 +30,16 @@ jobs:
         with:
           node-version: 20
           cache: npm
+      # `check:content` ist ein Python-Werkzeug (Korpus-Häufigkeiten via wordfreq).
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
       - run: npm ci
-      - run: npm run typecheck
-      - run: npm run lint
-      - run: npm test
+      - run: pip install -r tools/requirements.txt
+      # Stufe A + C in einem Befehl: Typecheck, Lint, Unit-Tests, alle
+      # Inhalts-Wächter, der Veralterungs-Wächter und der Build.
+      - run: npm run verify
       - run: npx playwright install --with-deps chromium
+      # Stufe B/C: der echte Klickweg im Browser.
       - run: npm run test:e2e

@@ -22,6 +22,22 @@ export interface Area {
 }
 
 /**
+ * Sprachliche Meilensteine, an den GER angelehnt (A1 … B2).
+ *
+ * WAS DIESE EINSTUFUNG IST: eine Zuordnung der WENDUNG zu dem Niveau, auf dem
+ * man sie üblicherweise braucht. Sie beschreibt den Stoff, nicht den Menschen.
+ *
+ * WAS SIE NICHT IST — und das steht auch so in der App: eine Prüfung. Der GER
+ * ist über Kann-Beschreibungen definiert („kann sich und andere vorstellen"),
+ * nicht über Vokabellisten. Wer alle A1-Wendungen dieser App bewiesen hat, hat
+ * damit KEIN A1-Zertifikat, sondern genau das: alle A1-Wendungen dieser App
+ * bewiesen. Jede Anzeige muss innerhalb dieser Grenze bleiben.
+ */
+export type CefrLevel = 'A1' | 'A2' | 'B1' | 'B2';
+
+export const CEFR_LEVELS: CefrLevel[] = ['A1', 'A2', 'B1', 'B2'];
+
+/**
  * A thematic grouping of chunks (Begrüßen, Im Café, …) — the SECOND level of the
  * content tree, a subcategory of an Area (docs/gremium-struktur.md,
  * docs/08-content-pipeline.md).
@@ -37,7 +53,18 @@ export interface Category {
   title: string; // German, learner-facing, e.g. "Im Café"
   blurb: string; // one short German line describing the theme
   order: number; // display order WITHIN its area (ascending)
+  /**
+   * Auf welchem sprachlichen Meilenstein dieses Thema liegt (siehe `CefrLevel`).
+   *
+   * WARUM AM THEMA UND NICHT AN DER WENDUNG: Ein Thema liegt als Ganzes auf
+   * einem Niveau — „Im Café" ist A1, „Arbeit & Beruf" ist B1. Eine Einstufung je
+   * Wendung wäre feiner, aber 179-mal von Hand gepflegt und damit sicher bald
+   * falsch. Wird eine Wendung eines Tages nachweislich falsch einsortiert, ist
+   * die Antwort ein eigenes Thema, kein Sonderfall im Datenmodell.
+   */
+  cefr: CefrLevel;
 }
+
 
 /** A learnable chunk: a phrase, its idiomatic translation and its decoding. */
 export interface Chunk {
@@ -119,8 +146,12 @@ export interface ChunkState {
    */
   lapsedAt?: number | null;
   /**
-   * Wann die Wendung erstmals eine ÜBERSTANDENE Pause von ≥ 21 Tagen in der
+   * Wann die Wendung ZULETZT eine überstandene Pause von ≥ 21 Tagen in der
    * Produktions-Stufe hinter sich hatte. Null, bis das gemessen wurde.
+   *
+   * Bewusst der JÜNGSTE Nachweis, nicht der erste: Stand hier der erste, lag er
+   * nach einem Fehlschlag für immer vor `lapsedAt` — „reift" wäre nie wieder
+   * erreichbar gewesen (Befund E-4 der Prüfkaskade 2026-07-25).
    *
    * Vorher hing „reift" am gerade neu GEPLANTEN Intervall — also an einer
    * Prognose, während die Oberfläche „überstanden" behauptete. Dieser Vermerk

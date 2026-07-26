@@ -5,11 +5,11 @@ import type { Dialog, DialogTurn } from './domain/dialog';
 import { seedContentSource } from './modules/content/contentPipeline';
 import { getAllChunkStates, logEvent, putChunkState } from './storage/db';
 import { initialState, schedule } from './modules/memory/memoryEngine';
-import { newCountFor, recentSuccessRate } from './modules/memory/difficulty';
+import { newCountFor, recentSuccessRate, scaffoldShouldOpen } from './modules/memory/difficulty';
 import { buildQueue, pickSegmentForChunk, type NewFocus } from './session/buildQueue';
 import { loadFocus, saveFocus } from './session/focus';
 import { loadName, saveName } from './session/profile';
-import { loadPreferences, savePreferences, type Preferences } from './session/preferences';
+import { loadPreferences, savePreferences, type Preferences, ungesicherteBeweise } from './session/preferences';
 import { setSpeechRate } from './modules/comprehension/tts';
 import { setOnDeviceReady, setSpeechLocalOnly } from './modules/comprehension/speech';
 import { clearAll, putChunkStates } from './storage/db';
@@ -28,12 +28,13 @@ const DialogScene = lazy(() =>
 );
 import { computeMetrics, directionSplit, spokenAloud } from './modules/progress/metrics';
 import { areaProgress, categoryProgress } from './modules/progress/categories';
+import { milestoneProgress } from './modules/progress/milestones';
 import { InstallButton } from './ui/InstallButton';
 import { Backdrop } from './ui/Backdrop';
 import { NameEditor } from './ui/NameEditor';
 import { IconBack, IconTarget } from './ui/icons';
 import { areaVisual } from './ui/areaTheme';
-import { TabBar, TAB_IDS, type Tab } from './ui/TabBar';
+import { TabBar, TAB_IDS, tabLabel, type Tab } from './ui/TabBar';
 import { useSwipeTabs } from './ui/useSwipeTabs';
 const SettingsScreen = lazy(() =>
   import('./modules/settings/SettingsScreen').then((m) => ({ default: m.SettingsScreen })),
@@ -43,6 +44,10 @@ import { aiRegistry } from './modules/content/aiRegistry';
 import { pickTargets } from './modules/sparring/targets';
 const SparringScene = lazy(() =>
   import('./modules/sparring/SparringScene').then((m) => ({ default: m.SparringScene })),
+);
+// Der Startpilot läuft genau einmal — er gehört nicht ins Startbündel.
+const StartpilotScene = lazy(() =>
+  import('./modules/onboarding/StartpilotScene').then((m) => ({ default: m.StartpilotScene })),
 );
 
 // Ein Scope grenzt eine Session ein: ein ganzer Bereich oder ein einzelnes Thema.
@@ -60,6 +65,7 @@ type View =
   | { name: 'category'; id: string }
   | { name: 'dialog'; id: string }
   | { name: 'sparring' } // freies Gespräch mit dem KI-Partner (P4)
+  | { name: 'startpilot' } // die ersten sechzehn Wörter, geführt
   | { name: 'session' };
 
 /**
@@ -135,10 +141,9 @@ export default function App() {
     initAiSettings(); // gespeicherte KI-Auswahl laden und auf die Registry anwenden
     (async () => {
       try {
-        const [ars, cats, dlgs, cs, segs, persisted] = await Promise.all([
+        const [ars, cats, cs, segs, persisted] = await Promise.all([
           seedContentSource.getAreas(),
           seedContentSource.getCategories(),
-          seedContentSource.getDialogs(),
           seedContentSource.getChunks(),
           seedContentSource.getSegments(),
           getAllChunkStates(),
@@ -151,11 +156,22 @@ export default function App() {
         // NEW chunks a session admits — docs/04-product.md, anti-cliff).
         setAreas(ars);
         setCategories(cats);
-        setDialogs(dlgs);
         setChunks(cs);
         setSegments(segs);
         setStates(byId);
         setFocusId(loadFocus());
+        // Die Gespräche kommen NACH dem ersten Bild. Gemessen auf einer
+        // gedrosselten Verbindung (400 kbit/s): erste Fläche nutzbar nach 4,6 s
+        // statt 5,7 s, weil ein Drittel des Inhalts nicht mehr davorsteht. Die
+        // Gesprächsliste ist dafür beim allerersten Besuch ~1,2 s später da —
+        // ein bewusster Tausch: die erste Fläche sieht jeder, den Reiter nicht.
+        // Ab dem zweiten Start liegt beides ohnehin im Cache der PWA.
+        // (Parallel statt danach gestartet: messgleich, aber danach ist die
+        // sauberere Reihenfolge — nichts konkurriert um dieselbe Leitung.)
+        seedContentSource
+          .getDialogs()
+          .then(setDialogs)
+          .catch((e) => console.error('Gespräche konnten nicht geladen werden', e));
         // Kein Vorab-Queue mehr: die Session baut ihre Warteschlange beim Start.
       } catch (e) {
         // Never fail silently (docs/TEST-UND-PRUEF-STANDARD.md §3.1): surface it.
@@ -186,6 +202,8 @@ export default function App() {
   // gedrückt wurde — und die Anti-Klippen-Logik, die daran hängt, reagierte erst
   // beim nächsten App-Start (Ehrlichkeits-Audit 2026-07-25).
   const successRate = useMemo(() => recentSuccessRate(stateList), [stateList]);
+  // Sprachliche Meilensteine (A1 … B2) — bewegen sich nur an BEWIESENEN Wendungen.
+  const milestones = useMemo(() => milestoneProgress(chunks, categories, states), [chunks, categories, states]);
   const metrics = useMemo(() => computeMetrics(stateList), [stateList]);
   // Laut Gesagtes (P3): eine Eigenschaft der Abrufe, keine zweite Währung.
   const spokenCount = useMemo(() => spokenAloud(stateList), [stateList]);
@@ -323,13 +341,17 @@ export default function App() {
     () => (currentChunkId ? knownPhrases(chunks, states, currentChunkId) : []),
     [chunks, states, currentChunkId],
   );
-  // Neuer Chunk (noch kein erfolgreicher Abruf)? Dann die Bedeutung/Dekodierung
-  // sofort offen zeigen (verständlicher Input, docs/gremium-darstellung.md).
-  const scaffoldOpen = currentState
-    ? !currentState.history.some((h) => h.result === 'good')
-    : true;
+  // Wann die Bedeutung/Dekodierung sofort offen steht: bei neuem Stoff — und
+  // nach einem „Nochmal". Die Regel steht in `difficulty.ts`, weil sie zur
+  // Anti-Klippe gehört und dort geprüft wird, nicht hier im Beiwerk.
+  const scaffoldOpen = scaffoldShouldOpen(currentState);
 
-  async function handleResult(result: ReviewResult, helpUsed: boolean, spoken = false) {
+  async function handleResult(
+    result: ReviewResult,
+    helpUsed: boolean,
+    spoken = false,
+    exact = false,
+  ) {
     if (submitting.current) return; // ignore rapid double-taps on the same item
     if (!currentChunk || !currentState || !currentSegment) return;
     submitting.current = true;
@@ -337,6 +359,7 @@ export default function App() {
       const now = Date.now();
       const next = schedule(currentState, result, currentSegment.id, now, {
         spoken,
+        exact,
         retention: prefs.retention,
       });
       // Persist first; only advance the UI once the write succeeded, so a
@@ -370,6 +393,7 @@ export default function App() {
       result: ReviewResult,
       helpUsed: boolean,
       spoken = false,
+      exact = false,
     ) => {
       const chunkId = turn.chunkId;
       if (!chunkId) return;
@@ -377,7 +401,7 @@ export default function App() {
       if (!state) return;
       const now = Date.now();
       const segId = `dialog:${dialogId}:${turn.id}`;
-      const next = schedule(state, result, segId, now, { spoken, retention: prefs.retention });
+      const next = schedule(state, result, segId, now, { spoken, exact, retention: prefs.retention });
       void (async () => {
         try {
           await putChunkState(next);
@@ -392,6 +416,57 @@ export default function App() {
         } catch (e) {
           console.error('Persist failed', e);
           setError('Die Bewertung konnte nicht gespeichert werden. Bitte die App neu laden.');
+        }
+      })();
+    },
+    [states, prefs.retention],
+  );
+
+  /**
+   * Wem der Startpilot angeboten wird.
+   *
+   * NICHT nur „noch nicht gelaufen": Wer einen Lernstand von einem anderen
+   * Gerät einliest, hat vielleicht schon hundert Wendungen hinter sich — dem
+   * „Fang hier an" anzubieten wäre schlicht falsch. Angeboten wird er nur,
+   * solange noch KEIN einziger Abruf gelungen ist (Befund 2026-07-26).
+   */
+  const startpilotOffen = useMemo(
+    () =>
+      prefs.startpilotDoneAt === null &&
+      chunks.some((c) => c.categoryId === 'cat-first-words') &&
+      !Object.values(states).some((s) => s.history.some((h) => h.result === 'good')),
+    [prefs.startpilotDoneAt, chunks, states],
+  );
+
+  // Die sechzehn Wörter des Startpiloten, in ihrer festgelegten Reihenfolge.
+  const ersteWoerter = useMemo(
+    () => chunks.filter((c) => c.categoryId === 'cat-first-words'),
+    [chunks],
+  );
+
+  /**
+   * Eine Antwort im Startpiloten — DIESELBE Memory-Engine wie überall sonst.
+   *
+   * Kein zweiter Zähler, kein Startpiloten-Punktestand: Was hier gelingt, ist
+   * ein Wiedererkennen und wird als solches verbucht. „Bewiesen stabil" kann
+   * daraus per Konstruktion nichts werden — das verlangt die Produktions-Stufe
+   * nach über neunzig Tagen (`memoryEngine.ts`).
+   */
+  const handleStartpilot = useCallback(
+    (chunkId: string, result: ReviewResult) => {
+      const state = states[chunkId];
+      if (!state) return;
+      const now = Date.now();
+      const segId = `startpilot:${chunkId}`;
+      const next = schedule(state, result, segId, now, { retention: prefs.retention });
+      void (async () => {
+        try {
+          await putChunkState(next);
+          await logEvent(chunkId, { at: now, result, segmentId: segId });
+          setStates((prev) => ({ ...prev, [chunkId]: next }));
+        } catch (e) {
+          console.error('Persist failed', e);
+          setError('Die Antwort konnte nicht gespeichert werden. Bitte die App neu laden.');
         }
       })();
     },
@@ -431,7 +506,11 @@ export default function App() {
   const done = !loading && pos >= queue.length;
   // Ebene 4 (Lernen/Gespräch): die globale Navigation verschwindet — nichts lenkt
   // ab (docs/gremium-navigation.md §4, „Formsprache je Ebene").
-  const showTabs = view.name !== 'session' && view.name !== 'dialog' && view.name !== 'sparring';
+  const showTabs =
+    view.name !== 'session' &&
+    view.name !== 'dialog' &&
+    view.name !== 'sparring' &&
+    view.name !== 'startpilot';
   const activeArea = view.name === 'area' ? areaProg.find((a) => a.area.id === view.id) : undefined;
   const activeCategory =
     view.name === 'category' ? categories.find((c) => c.id === view.id) : undefined;
@@ -479,6 +558,8 @@ export default function App() {
               onGoSparring={() => navigate('push', () => setView({ name: 'sparring' }))}
               sparringReady={aiRegistry.partner !== null}
               sparringTargets={sparringTargets.length}
+            startpilotOffen={startpilotOffen}
+            onStartpilot={() => navigate('push', () => setView({ name: 'startpilot' }))}
             />
             <div className="mx-auto mt-auto flex w-full max-w-md flex-col gap-3 pt-4 md:max-w-xl">
               <InstallButton />
@@ -548,6 +629,9 @@ export default function App() {
             totalChunks={chunks.length}
             successRate={successRate}
             spoken={spokenCount}
+            milestones={milestones}
+            ungesichert={ungesicherteBeweise(metrics.stable, prefs)}
+            onSichern={() => setShowSettings(true)}
           />
         )}
 
@@ -573,6 +657,18 @@ export default function App() {
           onSelect={(tab) => setView({ name: 'tab', tab })}
         />
       )}
+
+      {/* Ansage des Ansichtswechsels.
+          BEFUND D-3 (Prüfkaskade 2026-07-25): Ein Reiterwechsel läuft bewusst
+          NICHT über `navigate()` (sofort, ohne Überblendung) — damit lief auch
+          `focusNewView()` dort nicht, und ein Vorlese-Programm meldete den
+          Wechsel gar nicht. Dasselbe gilt fürs Wischen. Statt den Fokus zu
+          stehlen (der gehört bei Reitern auf den Reiter) sagt eine höfliche
+          Ansage, wo man gelandet ist. Steht außerhalb von <main>, damit sie das
+          Stilllegen durch eine offene Überlagerung nicht mitmacht. */}
+      <p aria-live="polite" className="sr-only">
+        {view.name === 'tab' ? tabLabel(view.tab) : ''}
+      </p>
 
       <main
         /* Der Abstand nach unten kommt aus der GEMESSENEN Höhe der Reiterleiste
@@ -715,6 +811,26 @@ export default function App() {
           </Suspense>
         )}
 
+        {/* ───────── STARTPILOT (die ersten sechzehn Wörter) ───────── */}
+        {view.name === 'startpilot' && (
+          <Suspense
+            fallback={
+              <div className="glass mx-auto w-full max-w-xl rounded-2xl p-6 text-center text-muted">
+                Startpilot lädt …
+              </div>
+            }
+          >
+            <StartpilotScene
+              woerter={ersteWoerter}
+              onErgebnis={handleStartpilot}
+              onFertig={(durchgelaufen) => {
+                if (durchgelaufen) updatePrefs({ ...prefs, startpilotDoneAt: Date.now() });
+                navigate('pop', () => setView({ name: 'tab', tab: 'today' }));
+              }}
+            />
+          </Suspense>
+        )}
+
         {/* ───────── LERN-SESSION (fokussiert) ───────── */}
         {view.name === 'session' && (
           <div className="mx-auto flex w-full max-w-xl flex-col gap-4">
@@ -802,6 +918,10 @@ export default function App() {
             onPrefs={updatePrefs}
             states={stateList}
             totalChunks={chunks.length}
+            onStartpilot={() => {
+              setShowSettings(false);
+              navigate('push', () => setView({ name: 'startpilot' }));
+            }}
             onImport={async (next, importedName, importedPrefs) => {
               await putChunkStates(next);
               setStates(Object.fromEntries(next.map((s) => [s.chunkId, s])));
