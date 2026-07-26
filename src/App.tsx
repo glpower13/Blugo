@@ -9,7 +9,7 @@ import { newCountFor, recentSuccessRate } from './modules/memory/difficulty';
 import { buildQueue, pickSegmentForChunk, type NewFocus } from './session/buildQueue';
 import { loadFocus, saveFocus } from './session/focus';
 import { loadName, saveName } from './session/profile';
-import { loadPreferences, savePreferences, type Preferences } from './session/preferences';
+import { loadPreferences, savePreferences, type Preferences, ungesicherteBeweise } from './session/preferences';
 import { setSpeechRate } from './modules/comprehension/tts';
 import { setOnDeviceReady, setSpeechLocalOnly } from './modules/comprehension/speech';
 import { clearAll, putChunkStates } from './storage/db';
@@ -569,6 +569,8 @@ export default function App() {
             successRate={successRate}
             spoken={spokenCount}
             milestones={milestones}
+            ungesichert={ungesicherteBeweise(metrics.stable, prefs)}
+            onSichern={() => setShowSettings(true)}
           />
         )}
 

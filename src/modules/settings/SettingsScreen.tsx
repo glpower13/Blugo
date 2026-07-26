@@ -34,6 +34,7 @@ import {
 import { installOnDevice, onDeviceStatus, speechInputAvailable } from '../comprehension/speech';
 import { speakSwedish, swedishVoiceIsLocal } from '../comprehension/tts';
 import { VERIFICATION_META } from '../content/verification.generated';
+import { isStable } from '../progress/metrics';
 import { backupFilename, buildBackup, mergeStates, parseBackup } from '../../storage/transfer';
 import { IconBack, IconMic, IconSparkle, IconWave } from '../../ui/icons';
 import { Overlay } from '../../ui/Overlay';
@@ -101,6 +102,7 @@ export function SettingsScreen({
             <AiSettingsSection />
           </Section>
           <DataSection
+            onPrefs={onPrefs}
             name={name}
             prefs={prefs}
             states={states}
@@ -472,12 +474,14 @@ function DataSection({
   name,
   prefs,
   states,
+  onPrefs,
   onImport,
   onWipe,
 }: {
   name: string;
   prefs: Preferences;
   states: ChunkState[];
+  onPrefs: (p: Preferences) => void;
   onImport: (states: ChunkState[], name: string, prefs: Preferences) => Promise<void>;
   onWipe: () => Promise<void>;
 }) {
@@ -495,6 +499,9 @@ function DataSection({
     a.download = backupFilename(now);
     a.click();
     URL.revokeObjectURL(url);
+    // Festhalten, WAS gesichert wurde — daraus bildet „Fortschritt" den einzigen
+    // Satz, der dazu wahr ist: wie viele bewiesene Wendungen ungesichert sind.
+    onPrefs({ ...prefs, lastBackupAt: now.getTime(), lastBackupProven: states.filter(isStable).length });
     setMsg({ kind: 'ok', text: `Gesichert: ${states.length} Wendungen.` });
   }
 

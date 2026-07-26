@@ -1,4 +1,5 @@
 import { test, expect, type Page, type ConsoleMessage } from '@playwright/test';
+import { writeFile } from 'node:fs/promises';
 
 // Vom Verteiler „Heute" in eine Lern-Session wechseln.
 async function startSession(page: Page) {
@@ -827,4 +828,125 @@ test('ein mehrdeutiges Wort wird im Lern-Loop als mehrdeutig erklärt', async ({
   expect(gefunden, 'kein Mehrdeutigkeits-Hinweis in den ersten Karten').not.toBe('');
   // Der Hinweis sagt BEIDE Bedeutungen und ordnet die aktuelle ein.
   expect(gefunden).toMatch(/heißt hier „[^"]+" — es heißt auch „[^"]+"/);
+});
+
+// Stufe G (Stabilität): Die App verspricht „kein Backend, offline nutzbar".
+//
+// Das ist kein Nebensatz, sondern die Bedingung dafür, dass jemand im Zug oder
+// im Ausland weiterlernt — und genau dort bricht Erhalt sonst ab. Eine einzige
+// Laufzeit-Abfrage ins Netz würde das Versprechen still kassieren; nichts an
+// der Oberfläche würde es zeigen, solange der Entwickler online ist.
+//
+// Gemessen wird deshalb der ganze Weg ohne Netz: neu laden, die NACHGELADENEN
+// Gespräche öffnen (sie kommen aus einem eigenen Bündel) und eine Session
+// starten.
+test('ohne Netz bleibt die App vollständig benutzbar', async ({ page, context }) => {
+  await page.goto('/');
+  await expect(page.getByText('bewiesen stabil')).toBeVisible();
+
+  // Der Service Worker muss die Auslieferung übernommen haben, sonst prüft der
+  // Test nur den Browser-Cache und nicht das Versprechen.
+  await page.evaluate(() => navigator.serviceWorker.ready);
+  await page.reload();
+  await expect(page.getByText('bewiesen stabil')).toBeVisible();
+
+  // Beweis, dass hier der Service Worker ausliefert und nicht der Browser-Cache:
+  // Ohne einen kontrollierenden Worker prüfte dieser Test gar nichts.
+  expect(
+    await page.evaluate(() => !!navigator.serviceWorker.controller),
+    'kein Service Worker in Kontrolle — der Test würde nur den Browser-Cache prüfen',
+  ).toBe(true);
+
+  await context.setOffline(true);
+  try {
+    await page.reload();
+    await expect(page.getByText('bewiesen stabil')).toBeVisible();
+
+    // Eine Adresse, die es so noch nie gab — jemand öffnet einen Link oder lädt
+    // mit einem Anhängsel neu. Nur `navigateFallback` des Service Workers kann
+    // das ohne Netz beantworten. (Ein `fetch` darauf scheitert korrekt: Der
+    // Fallback gilt für Seitenaufrufe, nicht für einzelne Abfragen.)
+    await page.goto('/?nie-zuvor=1');
+    await expect(page.getByText('bewiesen stabil')).toBeVisible();
+
+    // Gespräche liegen in einem eigenen Bündel und werden erst bei Bedarf geholt.
+    await openTab(page, 'Gespräche');
+    await expect(page.getByRole('button', { name: /Im Restaurant/ })).toBeVisible();
+
+    // Und der Lern-Loop selbst.
+    await openTab(page, 'Heute');
+    await startSession(page);
+    await expect(page.getByRole('button', { name: 'Auflösen' })).toBeVisible();
+  } finally {
+    await context.setOffline(false);
+  }
+});
+
+// Stufe B: Der Hinweis auf die fehlende Sicherung — und seine Bedingung.
+//
+// Der gesamte Lernstand liegt in EINEM Browser. Dass er mit ihm verschwindet,
+// stand ehrlich in den Einstellungen — nur sieht dort niemand hinein, bevor es
+// zu spät ist. Der Hinweis steht deshalb neben der bewiesenen Zahl, ist aber
+// keine Dauer-Mahnung: Er nennt eine gemessene Menge und verschwindet, sobald
+// sie null ist. Geprüft wird beides — dass er bei nichts zu verlieren SCHWEIGT
+// und nach dem Sichern wieder verschwindet.
+test('der Sicherungs-Hinweis erscheint nur, wenn es etwas zu verlieren gibt', async ({
+  page,
+}, info) => {
+  await page.goto('/');
+  await expect(page.getByText('bewiesen stabil')).toBeVisible();
+
+  // Frischer Stand: nichts bewiesen, also kein Hinweis.
+  await openTab(page, 'Fortschritt');
+  await expect(page.getByText(/in keiner Sicherung/)).toHaveCount(0);
+
+  // Einen Stand einspielen, in dem etwas bewiesen ist.
+  const bewiesen = Date.now() - 5 * 24 * 3600 * 1000;
+  const backup = {
+    app: 'neurolang',
+    version: 1,
+    exportedAt: Date.now(),
+    name: '',
+    preferences: {},
+    states: ['c-hej', 'c-tack', 'c-hejda'].map((chunkId) => ({
+      chunkId,
+      status: 'review',
+      stage: 'production',
+      intervalDays: 120,
+      stability: 120,
+      difficulty: 5,
+      dueAt: Date.now() + 60 * 24 * 3600 * 1000,
+      lastReviewedAt: bewiesen,
+      successStreak: 6,
+      provenStableAt: bewiesen,
+      maturedAt: bewiesen,
+      lapsedAt: null,
+      history: [{ at: bewiesen, result: 'good', stage: 'production', intervalDays: 120 }],
+    })),
+  };
+  const datei = info.outputPath('bewiesen.json');
+  await writeFile(datei, JSON.stringify(backup));
+
+  await openTab(page, 'Heute');
+  await page.getByRole('button', { name: 'Einstellungen' }).click();
+  await page.getByRole('button', { name: 'Sicherung einlesen' }).click();
+  await page.setInputFiles('input[type=file]', datei);
+  await expect(page.getByText(/Eingelesen:/)).toBeVisible();
+  await page.getByRole('button', { name: /Einstellungen schließen/ }).click();
+
+  // Jetzt gibt es etwas zu verlieren — und der Hinweis sagt WIE VIEL.
+  await openTab(page, 'Fortschritt');
+  await expect(page.getByText(/bewiesene Wendungen stehen in keiner Sicherung/)).toBeVisible();
+
+  // Sichern — danach ist die Menge null und der Hinweis weg.
+  await page.getByRole('button', { name: 'Zu „Deine Daten"' }).click();
+  const [download] = await Promise.all([
+    page.waitForEvent('download'),
+    page.getByRole('button', { name: /^Sichern/ }).click(),
+  ]);
+  await download.saveAs(info.outputPath('nachher.json'));
+  await page.getByRole('button', { name: /Einstellungen schließen/ }).click();
+
+  await openTab(page, 'Fortschritt');
+  await expect(page.getByText(/in keiner Sicherung/)).toHaveCount(0);
 });

@@ -37,6 +37,19 @@ export interface Preferences {
    * auf Knopfdruck (siehe `speech.ts`).
    */
   speechOnDeviceReady: boolean;
+  /**
+   * Wann zuletzt eine Sicherung geschrieben wurde — und wie viele Wendungen
+   * damals bewiesen stabil waren.
+   *
+   * WOZU: Der ganze Lernstand liegt in einem Browser. Wer ihn löscht, löscht
+   * auch 90 Tage bewiesene Stabilität. Das steht ehrlich in den Einstellungen —
+   * aber wer dort nie hinsieht, erfährt es nie. Aus diesen beiden Zahlen lässt
+   * sich die einzige Aussage bilden, die WAHR ist und nicht nörgelt: „So viele
+   * bewiesene Wendungen stehen in keiner Sicherung." Ist die Zahl null,
+   * erscheint gar nichts.
+   */
+  lastBackupAt: number | null;
+  lastBackupProven: number;
 }
 
 export const RETENTION_MIN = 0.8;
@@ -59,6 +72,8 @@ export function defaultPreferences(): Preferences {
     speechRate: SPEECH_RATE_DEFAULT,
     speechLocalOnly: false,
     speechOnDeviceReady: false,
+    lastBackupAt: null,
+    lastBackupProven: 0,
   };
 }
 
@@ -88,7 +103,26 @@ export function normalizePreferences(raw: unknown): Preferences {
         : d.speechRate,
     speechLocalOnly: r.speechLocalOnly === true,
     speechOnDeviceReady: r.speechOnDeviceReady === true,
+    lastBackupAt:
+      typeof r.lastBackupAt === 'number' && Number.isFinite(r.lastBackupAt) && r.lastBackupAt > 0
+        ? r.lastBackupAt
+        : null,
+    lastBackupProven:
+      typeof r.lastBackupProven === 'number' && Number.isFinite(r.lastBackupProven)
+        ? Math.max(0, Math.round(r.lastBackupProven))
+        : 0,
   };
+}
+
+/**
+ * Wie viele bewiesen stabile Wendungen in keiner Sicherung stehen.
+ *
+ * Rein und bewusst schlicht: Die Zahl darf nie größer sein als das, was
+ * tatsächlich bewiesen ist, und nie negativ — sonst behauptet der Hinweis
+ * einen Verlust, den es nicht gibt. Genau null heißt: nichts anzeigen.
+ */
+export function ungesicherteBeweise(proven: number, p: Preferences): number {
+  return Math.max(0, proven - (p.lastBackupAt ? p.lastBackupProven : 0));
 }
 
 /**

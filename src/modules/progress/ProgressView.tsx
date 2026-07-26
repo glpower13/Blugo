@@ -17,6 +17,43 @@ import { MemoryField } from './MemoryField';
 import { bandStatus } from '../memory/difficulty';
 import { VERIFICATION_META } from '../content/verification.generated';
 
+/**
+ * Der einzige Satz, der zum Speicherort wahr ist — und nur, wenn er zutrifft.
+ *
+ * BEFUND (Prüfkaskade 2026-07-26): Dass der gesamte Lernstand in einem Browser
+ * liegt und mit ihm verschwindet, steht ehrlich in den Einstellungen. Wer dort
+ * nie hinsieht, erfährt es nie — und verliert im Zweifel 90 Tage bewiesene
+ * Stabilität, also genau das Produkt dieser App.
+ *
+ * Deshalb steht es hier, wo die bewiesene Zahl steht. NICHT als Dauer-Mahnung:
+ * Der Hinweis zeigt eine gemessene Menge („so viele bewiesene Wendungen stehen
+ * in keiner Sicherung") und verschwindet vollständig, sobald sie null ist. Wer
+ * nichts zu verlieren hat, sieht nichts.
+ */
+function SicherungsHinweis({ offen, onSichern }: { offen: number; onSichern: () => void }) {
+  if (offen <= 0) return null;
+  return (
+    <section className="glass rounded-2xl border border-warn/30 p-4">
+      <p className="text-sm leading-relaxed text-paper">
+        <span className="font-semibold text-warn">{offen}</span>{' '}
+        {offen === 1 ? 'bewiesene Wendung steht' : 'bewiesene Wendungen stehen'} in keiner
+        Sicherung.
+      </p>
+      <p className="mt-1 text-xs leading-relaxed text-muted">
+        Dein Lernstand liegt nur in diesem Browser. Wird er gelöscht — vom Gerät, vom
+        Aufräumen, vom Wechsel —, ist die bewiesene Zeit weg. Eine Sicherung ist eine
+        Datei und dauert einen Augenblick.
+      </p>
+      <button
+        onClick={onSichern}
+        className="mt-3 min-h-11 w-full rounded-xl border border-line px-4 text-sm text-paper"
+      >
+        Zu „Deine Daten"
+      </button>
+    </section>
+  );
+}
+
 interface Props {
   states: ChunkState[];
   stable: number;
@@ -29,6 +66,9 @@ interface Props {
   successRate: number | null;
   spoken: number; // Wendungen, die laut gesagt und richtig erkannt wurden (P3)
   milestones: MilestoneProgress[];
+  /** Bewiesene Wendungen, die in keiner Sicherung stehen (0 = kein Hinweis). */
+  ungesichert: number;
+  onSichern: () => void;
 }
 
 export function ProgressView({
@@ -43,6 +83,8 @@ export function ProgressView({
   successRate,
   spoken,
   milestones,
+  ungesichert,
+  onSichern,
 }: Props) {
   return (
     <div className="mx-auto flex w-full max-w-md flex-col gap-4 md:max-w-xl">
@@ -52,6 +94,7 @@ export function ProgressView({
         </h1>
         <p className="mt-1 text-xs text-faint">Was du wirklich behalten hast — nichts anderes.</p>
       </header>
+
 
       <section className="glass rounded-2xl p-5">
         {/* Umbruchfähig: Bei 320 px und großer Systemschrift standen „reift" und
@@ -98,6 +141,10 @@ export function ProgressView({
         </div>
       </section>
 
+
+      {/* NACH der Messung, nicht davor: Diese Fläche heißt „Was du wirklich
+          behalten hast“ — die Zahl führt, der Schutz folgt unmittelbar. */}
+      <SicherungsHinweis offen={ungesichert} onSichern={onSichern} />
       <Milestones progress={milestones} />
 
       <section className="glass-soft rounded-2xl p-4">
