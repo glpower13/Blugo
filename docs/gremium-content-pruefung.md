@@ -299,3 +299,50 @@ Ein Fehler im Anzeige-Filter kam noch heraus, gefunden vom eigenen Test: Die
 Prüfung „ist das nur die gebeugte Form?" verglich Zeichenketten, und „also"
 enthält „so" — bei `så` blieb an der Bedeutung „so" also nichts mehr zu sagen
 übrig. Jetzt werden ganze Wörter verglichen.
+
+---
+
+## Nachtrag 3 (2026-07-25): eine Warnung, die vor dem Produkt warnte
+
+Abschnitt **D** hieß „⚠️ mögliche Bedeutungsdrift" und führte 125 Zeilen. Beim
+Durchsehen war **keine einzige davon falsch.** Was die Liste maß, war der
+Abstand zwischen wörtlichem Rückbau und freier Übersetzung:
+
+| Schwedisch | wörtlich | gemeint |
+|---|---|---|
+| smaklig måltid | schmackhaft Mahlzeit | Guten Appetit |
+| jag är med | ich bin mit | ich bin dabei |
+| det är ingen ko på isen | es ist keine Kuh auf dem Eis | es eilt nicht |
+
+Genau diesen Abstand sichtbar zu machen **ist** das Dekodieren (`03-method.md`).
+Die Liste warnte also vor dem, was die App absichtlich tut. Sie ist jetzt als
+`ℹ️ Abstand zwischen wörtlich und gemeint` beschriftet — vollständig, größter
+Abstand zuerst, ohne Warnzeichen.
+
+### Was stattdessen wirklich prüfbar ist
+
+Zwei Dinge müssen in beiden Sprachen gleich sein, egal wie frei übersetzt wird:
+**die Zahl** und **ob der Satz verneint ist.** Wer `tre` als „vier" überträgt
+oder `inte` unterschlägt, dreht die Aussage um — der teuerste Fehler hier, und
+einer der wenigen, die eine Maschine sicher sieht. Das ist der neue Abschnitt
+**E**, und er ist **hart**: Ein Befund lässt den Prüflauf scheitern.
+
+### Drei eigene Fehlversuche, bis er stimmte
+
+1. **Regel auf Wortteilen** („`fehl` im Wort heißt Verneinung") traf auch
+   *empfehlen* und *Fehler*, und `^un` traf sogar **„Und"**. 51 Falschmeldungen.
+2. **Zahlwort am Wortanfang** ließ *sjuk* (krank) als Sieben durchgehen, *sjunger*
+   (singt) ebenfalls und *trevligt* (nett) als Drei. 44 Falschmeldungen. Ein Wort
+   zählt jetzt nur als Zahl, wenn es sich **vollständig** zerlegen lässt.
+3. **„en/ett" als Eins gezählt** — es ist zugleich der unbestimmte Artikel, also
+   war jedes „ich wohne in einer Wohnung" ein Befund. 116 Falschmeldungen.
+
+Danach: **0**. Und weil eine grüne Null wertlos ist, wenn der Prüfer blind ist,
+füttern sieben Tests absichtlich kaputte Zeilen ein — verdrehte Zahl,
+verschluckte Verneinung, erfundene Verneinung. Schlägt einer nicht an, fällt der
+Lauf.
+
+**Ordnungszahlen bleiben bewusst außen vor.** Deutsch und Schwedisch bilden sie
+zu verschieden (*den tolfte* / *der Zwölfte*), und `andra` heißt „zweite" **und**
+„andere". Eine Prüfung, die nur eine Seite erkennt, meldet Unterschiede, die
+keine sind. Lieber eine Lücke, die benannt ist, als eine Zahl, die lügt.

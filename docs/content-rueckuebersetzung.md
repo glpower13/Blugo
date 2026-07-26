@@ -15,7 +15,8 @@
 - ❌ **B** Kontext-Brüche (hart, Deckung < 0.5): **0**
 - ℹ️ **B2** starke Kontextvariation (erwünscht): **12**
 - ⚠️ **C** Glossen-Konflikte: **224** — davon **0 zu prüfen**, 29 der App bekannt und dem Lerner erklärt, 35 kontextabhängige Funktionswörter, 160 nur deutsche Beugung
-- ⚠️ **D** mögliche Bedeutungsdrift: **125** (Deckung < 0.34)
+- ❌ **E** Zahl- oder Verneinungsfehler (hart): **0**
+- ℹ️ **D** Abstand wörtlich ↔ gemeint: **125** (Deckung < 0.34)
 
 ## ❌ A — Glossen-Lücken
 
@@ -295,11 +296,17 @@ Vollständigkeit statt Schönfärberei: Diese Fälle stehen hier, damit nichts v
 | **ville** | „wollten" (Segment s-a1p-synd2) · „wollte" (Gespräch dlg-siffror/sf3) | — |
 | **vintern** | „dem winter" (Segment s-morkttidigt1) · „den winter" (Segment s-a2k-skor1) | — |
 
-## ⚠️ D — mögliche Bedeutungsdrift
+## ❌ E — Zahlen und Verneinung
 
-Der wörtliche Rückbau aus den Glossen deckt die behauptete Bedeutung kaum. **Oft völlig in Ordnung** — genau das ist ja der Birkenbihl-Effekt („jag vill ha" = wörtlich „ich will haben", gemeint „ich möchte"). Aber hier würde sich ein echter Übersetzungsfehler verstecken, deshalb steht die Liste vollständig hier, schwächste Deckung zuerst.
+Zwei Dinge müssen in beiden Sprachen dasselbe sein, egal wie frei übersetzt wird: **die Zahl** und **ob der Satz verneint ist**. Wer `tre` mit „vier" übersetzt oder `inte` unterschlägt, dreht die Aussage um — der teuerste Fehler, den es hier geben kann, und einer der wenigen, die eine Maschine sicher sehen kann. Deshalb **hart**: Ein Befund lässt den Prüflauf scheitern.
 
-| Deckung | Schwedisch | wörtlich zurück | behauptete Bedeutung | Wo |
+Keine. ✅
+
+## ℹ️ D — Abstand zwischen wörtlich und gemeint
+
+Wie weit der Wort-für-Wort-Rückbau von der freien Übersetzung wegliegt. **Das ist keine Fehlerliste** — es ist der Birkenbihl-Effekt, gemessen: „smaklig måltid" heißt wörtlich „schmackhaft Mahlzeit" und gemeint „Guten Appetit", und genau diesen Abstand sichtbar zu machen ist der Zweck des Dekodierens. Beim Durchsehen aller Zeilen war keine einzige falsch. Die Liste stand vorher als ⚠️ „mögliche Bedeutungsdrift" hier und warnte damit vor dem Produkt; was sich maschinell wirklich prüfen lässt, steht jetzt oben unter E. Größter Abstand zuerst — hier stehen die Wendungen, die am meisten Sprache enthalten.
+
+| Deckung | Schwedisch | wörtlich zurück | gemeint | Wo |
 |---|---|---|---|---|
 | 0 % | Hej då ! | hallo dann | Tschüss ! | Gespräch dlg-phone/t9 |
 | 0 % | Där! Han sköt! | dort er schoss | Da! Er hat geschossen! | Gespräch dlg-stadium/m4 |
