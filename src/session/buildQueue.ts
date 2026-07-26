@@ -4,6 +4,7 @@
 
 import type { Chunk, ChunkState, Segment } from '../domain/chunk';
 import { getDue } from '../modules/memory/memoryEngine';
+import { nachRettbarkeit, PORTION } from './rueckkehr';
 
 export interface QueueItem {
   chunk: Chunk;
@@ -25,8 +26,18 @@ export interface NewFocus {
 
 /**
  * Ordered chunkIds for a session: due maintenance/learning first ("Wartung
- * zuerst"), then at most `maxNew` brand-new chunks. Maintenance is never
- * capped — forgetting waits for no one; only the intake of new material is.
+ * zuerst"), then at most `maxNew` brand-new chunks.
+ *
+ * WARTUNG IST SEIT 2026-07-26 PORTIONIERT (`rueckkehr.ts`). Vorher stand hier
+ * „Maintenance is never capped — forgetting waits for no one", und für den
+ * täglichen Nutzer stimmt das auch: Er hat nie mehr als eine Handvoll fällig.
+ * Für den RÜCKKEHRER war es die Klippe, gegen die diese App gebaut ist — nach
+ * 30 Tagen Pause stand „Weiterlernen · 120 Wendungen" auf dem Schirm, und die
+ * Reihenfolge legte ihm die schwächsten zuerst vor.
+ *
+ * Verschoben wird nichts heimlich: Was nicht in die Portion passt, wird auf
+ * „Heute" gezählt und benannt, und eine zweite Sitzung ist einen Knopfdruck
+ * entfernt. Die Portion begrenzt EINE Sitzung, nicht den Tag.
  *
  * When `focus` names a category, fresh chunks of that theme are preferred for the
  * `maxNew` slots (stable-sorted, so order within a theme is otherwise preserved).
@@ -36,11 +47,15 @@ export function buildQueue(
   now: number = Date.now(),
   maxNew: number = MAX_NEW_PER_SESSION,
   focus?: NewFocus,
+  maxWartung: number = PORTION,
 ): string[] {
   const due = getDue(states, now);
-  const reviewed = due
-    .filter((s) => s.lastReviewedAt !== null)
-    .sort((a, b) => a.dueAt - b.dueAt);
+  // Reihenfolge nach Rettbarkeit: zuerst, was noch abrufbar ist und gerade
+  // wegrutscht — nicht das, was ohnehin schon weg ist (`rueckkehr.ts`).
+  const reviewed = nachRettbarkeit(
+    due.filter((s) => s.lastReviewedAt !== null),
+    now,
+  ).slice(0, maxWartung);
   let fresh = due.filter((s) => s.lastReviewedAt === null);
   const focusId = focus?.categoryId;
   if (focusId) {

@@ -7,6 +7,7 @@ import { getAllChunkStates, logEvent, putChunkState } from './storage/db';
 import { initialState, schedule } from './modules/memory/memoryEngine';
 import { newCountFor, recentSuccessRate, scaffoldShouldOpen } from './modules/memory/difficulty';
 import { buildQueue, buildPracticeQueue, pickSegmentForChunk } from './session/buildQueue';
+import { rueckkehrLage } from './session/rueckkehr';
 import { loadFocus, saveFocus } from './session/focus';
 import { loadName, saveName } from './session/profile';
 import { loadPreferences, savePreferences, type Preferences, ungesicherteBeweise } from './session/preferences';
@@ -238,14 +239,18 @@ export default function App() {
   // Zugehen-Signal — und sie ist WAHR, weil es exakt die Warteschlange ist, die
   // gleich läuft. `buildQueue` ist deterministisch, also kann hier nichts driften:
   // dieselbe Liste wird angezeigt und dann abgearbeitet.
-  const plannedSession = useMemo(
-    () =>
-      buildQueue(Object.values(states), Date.now(), newCountFor(successRate, prefs.newPerSession), {
-        categoryByChunkId,
-        categoryId: focusId,
-      }),
-    [states, successRate, prefs.newPerSession, categoryByChunkId, focusId],
-  );
+  //
+  // BEI EINER RÜCKKEHR wird der Zustrom auf EINE Wendung gedrosselt. Wer mit 60
+  // fälligen Wendungen zurückkommt, hatte sonst 5 neue obendrauf — und damit
+  // morgen einen noch größeren Berg. Solange ein Rückstand da ist, geht Retten
+  // vor Nachlegen. Nicht auf NULL, denn eine Rückkehr, die nur aus Reparatur
+  // besteht, ist keine Einladung: Ein Schritt nach vorn bleibt drin.
+  const plannedSession = useMemo(() => {
+    const alle = Object.values(states);
+    const rueck = rueckkehrLage(alle);
+    const neu = rueck ? 1 : newCountFor(successRate, prefs.newPerSession);
+    return buildQueue(alle, Date.now(), neu, { categoryByChunkId, categoryId: focusId });
+  }, [states, successRate, prefs.newPerSession, categoryByChunkId, focusId]);
 
   // Dialoge je Thema (für den „Gespräch"-Einstieg im Thema-Detail).
   const dialogsByCategory = useMemo(() => {
@@ -340,6 +345,9 @@ export default function App() {
     },
     [plannedSession, states, successRate, prefs.newPerSession, categoryByChunkId, areaByChunkId],
   );
+
+  // Die Lage nach einer Pause — `null` an einem normalen Tag (`rueckkehr.ts`).
+  const rueckkehr = useMemo(() => rueckkehrLage(Object.values(states)), [states]);
 
   const currentChunkId = queue[pos];
   const currentChunk = currentChunkId ? chunkById[currentChunkId] : undefined;
@@ -621,6 +629,7 @@ export default function App() {
               sparringReady={aiRegistry.partner !== null}
               sparringTargets={sparringTargets.length}
             startpilotOffen={startpilotOffen}
+            rueckkehr={rueckkehr}
             onStartpilot={() => navigate('push', () => setView({ name: 'startpilot' }))}
             />
             <div className="mx-auto mt-auto flex w-full max-w-md flex-col gap-3 pt-4 md:max-w-xl">
