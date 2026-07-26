@@ -79,8 +79,9 @@ Ehrlichkeit:
 
 Hart sind: kein Satz/keine Bedeutung · die Ziel-Wendung ist nicht wiederzuerkennen
 (Deckung < 0,5) · die Wort-für-Wort-Dekodierung ist unvollständig oder nennt Wörter,
-die im Satz fehlen · Zahl oder Verneinung stimmen zwischen den Sprachen nicht · eine
-Glosse widerspricht dem geprüften Inhalt. Offen ist genau eines: ein Wort, das im
+die im Satz fehlen · Zahl oder Verneinung stimmen zwischen den Sprachen nicht · **die
+schwedische Wortstellung ist die deutsche** (siehe unten) · eine Glosse widerspricht
+dem geprüften Inhalt. Offen ist genau eines: ein Wort, das im
 geprüften Bestand nie vorkam. Das ist **kein Fehler** — neue Wörter sind der Sinn
 von neuem Stoff —, aber es ist die Grenze dessen, was die App bestätigen kann, und
 sie wird beim Namen genannt.
@@ -115,6 +116,95 @@ Siegel, das diese Prüfung nicht deckt.
 nicht durch sein eigenes Tor, ist das Tor falsch — nicht der Inhalt. Eine zu hohe
 Latte ist kein „sicherheitshalber streng": sie wirft gute Sätze weg und lässt die
 KI-Funktion kaputt aussehen, obwohl das Modell geliefert hat.
+
+### Wortstellung: die zwei Fehler, die ein deutsches Modell wirklich macht *(2026-07-26)*
+
+Schwedisch ist eine **V2-Sprache**: Im Hauptsatz steht das gebeugte Verb an zweiter
+Stelle, und die Verneinung steht **dahinter**. Deutsch tut an beiden Stellen etwas
+anderes. Ein Modell, das aus dem Deutschen heraus formuliert, schreibt deshalb
+`jag inte förstår` statt `jag förstår inte` und `imorgon jag kommer` statt
+`imorgon kommer jag`. Das ist echtes Falsch-Lernen: Wer es liest, merkt es sich und
+sagt es nachher.
+
+Geprüft werden **genau zwei Muster**, jeweils nur am Satzanfang:
+
+1. Subjekt + Satzadverb (`jag inte …`, `han aldrig …`)
+2. Vorfeld ohne Umstellung (`imorgon jag …`, `idag vi …`)
+
+**Nur am Satzanfang**, weil im Nebensatz genau diese Stellung richtig ist:
+„att jag **inte** förstår" ist korrekt, „jag **inte** förstår" nicht. Eine Regel, die
+nach Wortpaaren irgendwo im Satz suchte, würde jeden zweiten Nebensatz anmeckern.
+
+**Wie die Listen entstanden sind.** Kandidaten gegen alle **17.794** schwedischen
+Zeichenketten des geprüften Inhalts laufen lassen, bis **null** Fehltreffer blieben.
+Was dabei herausfiel, steht als benannte Ausnahme im Code:
+
+| Herausgenommen | Grund |
+|---|---|
+| `kanske` | Die Ausnahme des Schwedischen — „kanske jag kan" ist zulässig. |
+| `sedan`, `då`, `där` | Leiten auch Nebensätze ein („sedan jag kom hit"). |
+| `nog`, `väl`, `bara` | Modalpartikeln; „det bara händer" ist gesprochenes Schwedisch. |
+| Einschub mit Komma | „Tyvärr, jag kan inte" ist richtig — fünfmal im eigenen Inhalt. |
+
+Geeicht bleibt es durch `tools/dump-swedish.test.ts`: Die Regel läuft dort über den
+**gesamten** Inhalt, auch über den, den jemand später hinzufügt. Meldet sie dort
+etwas, ist die Regel verdächtig — nicht der Inhalt.
+
+**Was die Beschriftung deshalb sagt:** „die zwei häufigsten Wortstellungs-Fehler
+kommen nicht vor" — nicht „die Wortstellung stimmt". Das wäre ein Siegel für eine
+Grammatikprüfung, die es hier nicht gibt.
+
+## Der Vorrat: schreiben, bevor jemand wartet *(gebaut 2026-07-26)*
+
+Das Tor hat einen Preis: Ein verworfener Satz kostet einen zweiten Aufruf, und der
+Lerner steht vor einem drehenden Rad in genau dem Moment, in dem er lernen wollte.
+Der Vorrat (`src/modules/content/vorrat.ts`) verlegt beides nach hinten — erzeugt
+wird, **während** er ohnehin arbeitet; abgerufen wird sofort.
+
+### Die Ehrlichkeitsfrage, die dieses Stück entscheidet
+
+Bisher galt ein einfacher Vertrag: **ein Klick, ein Aufruf, ein paar Cent** auf dem
+eigenen Zugang des Lerners. Der Vorrat bricht ihn — er gibt Geld aus, ohne dass
+jemand geklickt hat. Das ist kein Detail, das ist eine andere Abmachung. Sie ist nur
+zulässig, wenn alles drei gilt, nicht eines davon:
+
+1. **Aus, bis der Lerner ihn einschaltet** (`Preferences.vorratAn`, Voreinstellung
+   `false`; `normalizePreferences` akzeptiert nur ein ausdrückliches `true` — eine
+   alte oder kaputte Datei darf die App nie zum Geldausgeben bringen).
+2. **Hart gedeckelt und sichtbar:** höchstens `VORRAT_MAX` = 12 Sätze insgesamt,
+   höchstens `NACHSCHUB_PRO_SITZUNG` = 4 neue je Sitzung. Beide Zahlen stehen im
+   Klartext an dem Schalter, der sie auslöst.
+3. **Nachsehbar und wegwerfbar:** Die Einstellungen zeigen die echte Zahl aus der
+   Ablage und haben einen Knopf, der sie auf null setzt.
+
+### Wann gefüllt wird
+
+Beim **Sitzungsstart**, für die Wendungen, die in dieser Warteschlange noch kommen
+(`queue.slice(1)` — für die laufende käme der Nachschub zu spät). Beim App-Start zu
+füllen hieße, für das bloße Öffnen Geld auszugeben.
+
+Nacheinander, nicht gleichzeitig: Vier parallele Aufrufe treffen eher ein
+Anbieter-Limit und verbrennen im Fehlerfall vier Beträge statt einem. **Beim ersten
+Fehler ist Schluss** — wer bei Aufruf eins ein 429 bekommt, bekommt es bei Aufruf
+zwei auch. Ein misslungener Nachschub wirft nie: Er ist Komfort-Verlust, kein
+Fehler, den der Lerner mitten im Lernen vorgehalten bekommt.
+
+### Warum das Urteil nicht mitgespeichert wird
+
+Naheliegend wäre, die Beschriftung beim Erzeugen festzuhalten. Sie wäre aber ein
+**Urteil von gestern**: Kommt neuer geprüfter Inhalt dazu, ändert sich, was „nicht
+im geprüften Bestand" heißt; werden die Regeln strenger, wäre ein damals
+angenommener Satz heute vielleicht keiner mehr. Gespeichert wird deshalb nur der
+**Satz**. Geprüft wird beim Herausnehmen, mit den Regeln von jetzt. Ein Satz, der
+die heutige Prüfung nicht besteht, wird verworfen — nicht mit einem alten Freispruch
+angezeigt.
+
+### Was der Vorrat NICHT ist
+
+Kein Lernstand. Er liegt in einem eigenen IndexedDB-Speicher (`vorrat`, DB-Fassung 2),
+wandert **nicht** in die Sicherung (`transfer.ts` nimmt nur Lernstände und
+Einstellungen) und fließt in keine Messung ein. Wer ihn löscht, verliert nichts als
+Wartezeit — und genau das sagt die Fläche auch.
 
 ### Echtes i+1: aus Bekanntem bauen *(gebaut 2026-07-23)*
 
@@ -171,5 +261,7 @@ behauptet es auch nicht.
 ## Risiken / offene Punkte
 - Faktentreue & Natürlichkeit generierter Sätze → menschliche Stichprobe.
 - Qualität schwedischer Dekodierung/Idiomatik → Prüfheuristiken; Wortexistenz ist seit
-  2026-07-25 maschinell abgedeckt (Stufe 1), Wortfolgen noch nicht.
+  2026-07-25 maschinell abgedeckt (Stufe 1). Von den Wortfolgen sind seit 2026-07-26
+  **zwei Muster** abgedeckt (siehe §Wortstellung) — der Rest der Satzgrammatik nicht,
+  und die App behauptet es auch nicht.
 - Konkrete Modellwahl (LLM/TTS) → Anbieter-Entscheidung offen (`10-open-questions.md`); die Port-Schicht hält alle Wege offen.

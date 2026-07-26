@@ -58,6 +58,15 @@ export interface Preferences {
    * weiter herumsteht, ist kein Angebot mehr, sondern Möbel.
    */
   startpilotDoneAt: number | null;
+  /**
+   * Darf die App im Hintergrund Sätze auf Vorrat erzeugen? (`false` = aus.)
+   *
+   * WARUM AUSDRÜCKLICH UND AUS: Jeder andere KI-Aufruf dieser App passiert auf
+   * einen Klick — der Lerner weiß in dem Moment, dass er ein paar Cent auf
+   * seinem EIGENEN Zugang ausgibt. Der Vorrat gibt Geld aus, ohne dass jemand
+   * geklickt hat. Das darf man anbieten, aber nicht unterstellen.
+   */
+  vorratAn: boolean;
 }
 
 export const RETENTION_MIN = 0.8;
@@ -83,6 +92,7 @@ export function defaultPreferences(): Preferences {
     lastBackupAt: null,
     lastBackupProven: 0,
     startpilotDoneAt: null,
+    vorratAn: false,
   };
 }
 
@@ -126,6 +136,9 @@ export function normalizePreferences(raw: unknown): Preferences {
       r.startpilotDoneAt > 0
         ? r.startpilotDoneAt
         : null,
+    // Nur ein ausdrückliches `true` schaltet ein. Eine kaputte oder alte Datei
+    // darf nie dazu führen, dass die App von selbst Geld ausgibt.
+    vorratAn: r.vorratAn === true,
   };
 }
 

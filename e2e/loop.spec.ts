@@ -1337,3 +1337,107 @@ test('ein bestandener KI-Satz sagt, was geprüft ist — und was nicht', async (
   // … und die Grenze der Maschine steht im selben Absatz.
   await expect(page.getByText(/dafür bräuchte es einen Muttersprachler/)).toBeVisible();
 });
+
+// ── Der Vorrat (docs/08-content-pipeline.md §Der Vorrat) ──────────────────────
+//
+// Der Vorrat ist die einzige Stelle der App, die Geld ausgibt, ohne dass jemand
+// klickt. Beide Tests hier prüfen die Zusage, unter der das erlaubt ist: OHNE
+// Einwilligung passiert nichts, MIT Einwilligung liegt der Satz sofort bereit.
+
+/** Wie `stubGenerator`, zählt aber die Aufrufe — darum geht es hier. */
+async function stubMitZaehler(page: Page): Promise<{ rufe: number }> {
+  const zaehler = { rufe: 0 };
+  await page.route('**/api.anthropic.com/**', async (route) => {
+    const kopf = {
+      'content-type': 'application/json',
+      'access-control-allow-origin': '*',
+      'access-control-allow-headers': '*',
+      'access-control-allow-methods': '*',
+    };
+    if (route.request().method() === 'OPTIONS') {
+      await route.fulfill({ status: 204, headers: kopf, body: '' });
+      return;
+    }
+    zaehler.rufe++;
+    const body = route.request().postData() ?? '';
+    const t = /Ziel-Wendung[^„]*„([^\\"]+)\\?" \(Bedeutung: „([^\\"]+)\\?"\)/.exec(body);
+    const sv = t?.[1] ?? 'hej';
+    const de = t?.[2] ?? 'hallo';
+    await route.fulfill({
+      status: 200,
+      headers: kopf,
+      body: JSON.stringify({
+        content: [
+          {
+            type: 'text',
+            text: JSON.stringify({
+              sv: `${sv} zzz`,
+              de: `${de} zzz`,
+              decoding: [{ sv, de }, { sv: 'zzz', de: 'zzz' }],
+            }),
+          },
+        ],
+      }),
+    });
+  });
+  return zaehler;
+}
+
+async function schalteVorratEin(page: Page) {
+  await page.getByRole('button', { name: 'Einstellungen' }).click();
+  await page.getByRole('checkbox', { name: 'Sätze auf Vorrat schreiben' }).check();
+  await page.getByRole('button', { name: /Einstellungen schließen/ }).click();
+}
+
+test('ohne Einwilligung schreibt die App nichts vor', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.getByText('bewiesen stabil')).toBeVisible();
+  await configureCloud(page); // Cloud AN, Vorrat aber NICHT eingeschaltet
+  const zaehler = await stubMitZaehler(page);
+  await startSession(page);
+
+  // Lange genug, dass ein Nachschub sichtbar geworden wäre.
+  await page.waitForTimeout(1500);
+  expect(zaehler.rufe, 'Die App darf ohne Einwilligung keinen Aufruf auslösen').toBe(0);
+});
+
+test('mit Vorrat liegt der nächste Kontext sofort bereit', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.getByText('bewiesen stabil')).toBeVisible();
+  await configureCloud(page);
+  await schalteVorratEin(page);
+  const zaehler = await stubMitZaehler(page);
+  await startSession(page);
+
+  // Der Nachschub läuft im Hintergrund an, ohne dass jemand etwas gedrückt hat.
+  await expect.poll(() => zaehler.rufe, { timeout: 10_000 }).toBeGreaterThan(0);
+
+  // Erste Wendung beantworten, damit die zweite dran ist — für DIE wurde
+  // vorgesorgt (die laufende wird bewusst übersprungen).
+  await page.getByRole('button', { name: 'Auflösen' }).first().click();
+  await page.getByRole('button', { name: 'Selbsteinschätzung: Sitzt' }).first().click();
+  await expect(page.getByText('2 /')).toBeVisible();
+
+  const vorher = zaehler.rufe;
+  await page.getByRole('button', { name: /Neuer Kontext/ }).click();
+  await expect(page.getByText(/Lag im Vorrat bereit/)).toBeVisible();
+  // Und zwar OHNE neuen Aufruf — genau das ist der Gewinn.
+  expect(zaehler.rufe).toBe(vorher);
+});
+
+test('der Vorrat ist sichtbar und lässt sich wegwerfen', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.getByText('bewiesen stabil')).toBeVisible();
+  await configureCloud(page);
+  await schalteVorratEin(page);
+  const zaehler = await stubMitZaehler(page);
+  await startSession(page);
+  await expect.poll(() => zaehler.rufe, { timeout: 10_000 }).toBeGreaterThan(0);
+
+  await page.getByRole('button', { name: /Übersicht/ }).first().click();
+  await page.getByRole('button', { name: 'Einstellungen' }).click();
+  await expect(page.getByText(/Vorrat: \d+ (Satz|Sätze) bereit/)).toBeVisible();
+
+  await page.getByRole('button', { name: 'Vorrat leeren' }).click();
+  await expect(page.getByText('Vorrat: leer')).toBeVisible();
+});

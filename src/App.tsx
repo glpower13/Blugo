@@ -358,6 +358,56 @@ export default function App() {
   // Anti-Klippe gehört und dort geprüft wird, nicht hier im Beiwerk.
   const scaffoldOpen = scaffoldShouldOpen(currentState);
 
+  // ── Vorrat: vorsorgen, WÄHREND der Lerner ohnehin arbeitet ────────────────
+  //
+  // Der Zeitpunkt ist die halbe Sache. Beim App-Start zu füllen hieße, für das
+  // bloße Öffnen Geld auszugeben. Hier läuft es an, wenn eine Sitzung wirklich
+  // beginnt, und sorgt für die Wendungen vor, die in DIESER Warteschlange noch
+  // kommen — bis der Lerner bei Nummer drei ist, liegt deren Kontext bereit.
+  //
+  // Drei Bedingungen, alle nötig: ausdrücklich eingeschaltet, echte Cloud-KI
+  // eingerichtet, und die erste Wendung wird übersprungen (für die kommt der
+  // Nachschub zu spät — sie ist schon auf dem Schirm).
+  const vorratLaeuft = useRef(false);
+  useEffect(() => {
+    if (view.name !== 'session' || !prefs.vorratAn) return;
+    if (aiRegistry.generator.id === 'seed') return;
+    if (vorratLaeuft.current) return;
+    const kommend = queue.slice(1).map((id) => chunkById[id]).filter(Boolean);
+    if (kommend.length === 0) return;
+
+    vorratLaeuft.current = true;
+    let abgebrochen = false;
+    void (async () => {
+      try {
+        const [{ fuelleVorrat }, { vorratSpeicher }, { ladeWissen }] = await Promise.all([
+          import('./modules/content/vorrat'),
+          import('./modules/content/vorratSpeicher'),
+          import('./modules/content/quality/wissen'),
+        ]);
+        await fuelleVorrat(vorratSpeicher, {
+          chunks: kommend,
+          bekanntFuer: (c) => knownPhrases(chunks, states, c.id),
+          generator: aiRegistry.generator,
+          wissen: await ladeWissen(),
+          modell: aiRegistry.generator.id,
+          abbruch: () => abgebrochen,
+        });
+      } catch {
+        // Vorsorge, die scheitert, ist Komfort-Verlust — kein Fehler, den der
+        // Lerner mitten im Lernen vorgehalten bekommen darf.
+      } finally {
+        vorratLaeuft.current = false;
+      }
+    })();
+    return () => {
+      abgebrochen = true;
+    };
+    // Bewusst NICHT an `states` gehängt: Jede Bewertung ändert `states`, und der
+    // Nachschub würde bei jeder Antwort neu anlaufen.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [view.name, queue, prefs.vorratAn]);
+
   async function handleResult(
     result: ReviewResult,
     helpUsed: boolean,

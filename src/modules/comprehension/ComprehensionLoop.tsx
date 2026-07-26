@@ -129,6 +129,9 @@ export function ComprehensionLoop({
   const [genError, setGenError] = useState('');
   // Was das Tor zu diesem Satz sagen kann — und was ausdrücklich nicht.
   const [genLabel, setGenLabel] = useState('');
+  // Kam er aus dem Vorrat? Steht bewusst getrennt: Am Ende des ohnehin langen
+  // Prüf-Absatzes gelesen es niemand mehr (beim Selbst-Ansehen aufgefallen).
+  const [genAusVorrat, setGenAusVorrat] = useState(false);
 
   // Reset helpers whenever a new item appears. Bei NEUEM Chunk ist die Stütze
   // (Dekodierung + Übersetzung) sofort offen — damit der Input verständlich ist.
@@ -153,6 +156,7 @@ export function ComprehensionLoop({
     setGenState('idle');
     setGenError('');
     setGenLabel('');
+    setGenAusVorrat(false);
   }, [segment.id, chunk.id, scaffoldOpen]);
 
   // Hat der Nutzer eine echte Cloud-KI eingerichtet? (Standard-Dekoder = 'seed'.)
@@ -187,12 +191,29 @@ export function ComprehensionLoop({
     setGenState('loading');
     setGenError('');
     setGenLabel('');
+    setGenAusVorrat(false);
     try {
       const [{ erzeugeGeprueft }, { ladeWissen }, { beschriftung }] = await Promise.all([
         import('../content/quality/gepruefteErzeugung'),
         import('../content/quality/wissen'),
         import('../content/quality/gate'),
       ]);
+      const wissen = await ladeWissen();
+
+      // Liegt schon einer bereit? Dann ohne Netz, ohne Warten, ohne neue Kosten.
+      // Geprüft wird er trotzdem — mit den Regeln von JETZT, nicht mit dem
+      // Freispruch von damals (`vorrat.ts`).
+      const { nimmAusVorrat } = await import('../content/vorrat');
+      const { vorratSpeicher } = await import('../content/vorratSpeicher');
+      const bereit = await nimmAusVorrat(vorratSpeicher, chunk, wissen).catch(() => null);
+      if (bereit) {
+        setGenSegment(bereit.segment);
+        setGenLabel(beschriftung(bereit.ergebnis));
+        setGenAusVorrat(true);
+        setGenState('idle');
+        return;
+      }
+
       const { segment: seg, ergebnis } = await erzeugeGeprueft(
         aiRegistry.generator,
         {
@@ -204,7 +225,7 @@ export function ComprehensionLoop({
           known, // aus schon bekannten Wörtern bauen → nur die Ziel-Wendung ist neu
         },
         chunk,
-        await ladeWissen(),
+        wissen,
       );
       setGenSegment(seg);
       setGenLabel(beschriftung(ergebnis));
@@ -506,6 +527,11 @@ export function ComprehensionLoop({
               </div>
               <MehrdeutigHinweis decoding={genSegment.decoding} />
             </>
+          )}
+          {genAusVorrat && (
+            <p className="mt-3 text-[0.68rem] text-muted">
+              Lag im Vorrat bereit — deshalb war er sofort da und hat gerade nichts gekostet.
+            </p>
           )}
           {genLabel && (
             <p className="mt-3 border-t border-brand/20 pt-2 text-[0.68rem] leading-relaxed text-faint">
