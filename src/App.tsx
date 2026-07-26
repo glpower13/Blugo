@@ -422,6 +422,22 @@ export default function App() {
     [states, prefs.retention],
   );
 
+  /**
+   * Wem der Startpilot angeboten wird.
+   *
+   * NICHT nur „noch nicht gelaufen": Wer einen Lernstand von einem anderen
+   * Gerät einliest, hat vielleicht schon hundert Wendungen hinter sich — dem
+   * „Fang hier an" anzubieten wäre schlicht falsch. Angeboten wird er nur,
+   * solange noch KEIN einziger Abruf gelungen ist (Befund 2026-07-26).
+   */
+  const startpilotOffen = useMemo(
+    () =>
+      prefs.startpilotDoneAt === null &&
+      chunks.some((c) => c.categoryId === 'cat-first-words') &&
+      !Object.values(states).some((s) => s.history.some((h) => h.result === 'good')),
+    [prefs.startpilotDoneAt, chunks, states],
+  );
+
   // Die sechzehn Wörter des Startpiloten, in ihrer festgelegten Reihenfolge.
   const ersteWoerter = useMemo(
     () => chunks.filter((c) => c.categoryId === 'cat-first-words'),
@@ -542,7 +558,7 @@ export default function App() {
               onGoSparring={() => navigate('push', () => setView({ name: 'sparring' }))}
               sparringReady={aiRegistry.partner !== null}
               sparringTargets={sparringTargets.length}
-            startpilotOffen={prefs.startpilotDoneAt === null && ersteWoerter.length > 0}
+            startpilotOffen={startpilotOffen}
             onStartpilot={() => navigate('push', () => setView({ name: 'startpilot' }))}
             />
             <div className="mx-auto mt-auto flex w-full max-w-md flex-col gap-3 pt-4 md:max-w-xl">

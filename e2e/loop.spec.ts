@@ -1123,3 +1123,58 @@ test('der Startpilot führt durch die ersten Wörter und wird danach unsichtbar'
 
   expect(seitenFehler, seitenFehler.join('\n')).toHaveLength(0);
 });
+
+// Stufe B: Der Startpilot wird NUR Anfängern angeboten.
+//
+// BEFUND 2026-07-26: Die Einladung hing allein an „noch nicht gelaufen". Wer
+// seinen Lernstand von einem anderen Gerät einliest, hat vielleicht hundert
+// Wendungen hinter sich — „Fang hier an, die ersten sechzehn Wörter" wäre für
+// den schlicht falsch. Angeboten wird er nur, solange kein einziger Abruf
+// gelungen ist.
+test('wer schon etwas kann, bekommt den Startpiloten nicht mehr angeboten', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.getByRole('button', { name: /Startpilot starten/ })).toBeVisible();
+
+  const frueher = Date.now() - 40 * 24 * 3600 * 1000;
+  const backup = {
+    app: 'neurolang',
+    version: 1,
+    exportedAt: Date.now(),
+    name: '',
+    preferences: {},
+    states: [
+      {
+        chunkId: 'c-hej',
+        status: 'review',
+        stage: 'production',
+        intervalDays: 20,
+        stability: 20,
+        difficulty: 5,
+        dueAt: Date.now() + 10 * 24 * 3600 * 1000,
+        lastReviewedAt: frueher,
+        successStreak: 3,
+        provenStableAt: null,
+        maturedAt: frueher,
+        lapsedAt: null,
+        seenSegmentIds: [],
+        history: [{ at: frueher, result: 'good', segmentId: 's-hej1' }],
+      },
+    ],
+  };
+
+  await page.getByRole('button', { name: 'Einstellungen' }).click();
+  await page.getByRole('button', { name: 'Sicherung einlesen' }).click();
+  await page.setInputFiles('input[type=file]', {
+    name: 'stand.json',
+    mimeType: 'application/json',
+    buffer: Buffer.from(JSON.stringify(backup)),
+  });
+  await expect(page.getByText(/Eingelesen:/)).toBeVisible();
+  await page.getByRole('button', { name: /Einstellungen schließen/ }).click();
+
+  // Ein einziger gelungener Abruf reicht: Dieser Mensch ist kein Anfänger mehr.
+  await expect(page.getByRole('button', { name: /Startpilot starten/ })).toHaveCount(0);
+  // Erreichbar bleibt er trotzdem.
+  await page.getByRole('button', { name: 'Einstellungen' }).click();
+  await expect(page.getByRole('button', { name: 'Startpilot öffnen' })).toBeVisible();
+});
