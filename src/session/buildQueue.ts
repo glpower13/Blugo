@@ -84,3 +84,37 @@ export function pickSegmentForChunk(
   const unseen = containing.find((s) => !state.seenSegmentIds.includes(s.id));
   return unseen ?? containing[0];
 }
+
+/**
+ * Eine Sitzung, die IMMER etwas zu tun hat — „dieses Thema noch einmal".
+ *
+ * DAS PROBLEM (gemeldet 2026-07-26): „Dieses Thema üben" baute dieselbe
+ * Warteschlange wie der Tagesplan — fälliges Material plus ein paar neue
+ * Wendungen. Ist im Thema gerade nichts fällig und nichts neu, kam eine LEERE
+ * Sitzung heraus. Ein Knopf, der nichts tut, ist schlimmer als keiner: Der
+ * Lerner darf jederzeit zurückgehen können, auch mitten in einer langen Pause.
+ *
+ * Die Reihenfolge bleibt trotzdem ehrlich:
+ *   1. Fälliges zuerst — Wartung geht immer vor (docs/04-product.md).
+ *   2. Dann neuer Stoff, gedeckelt wie sonst auch.
+ *   3. Erst dann freiwillige Wiederholung, am längsten Unangefasstes zuerst.
+ *
+ * `faellig` sagt, wo Punkt 3 beginnt. Die Oberfläche braucht die Zahl, um an
+ * genau dieser Stelle zu sagen, was eine frühe Wiederholung wirklich bewirkt —
+ * nämlich WENIG, und für den Beweis sogar weniger als nichts (siehe
+ * `07-measurement.md`: der Beweis braucht die Pause, nicht die Menge).
+ */
+export function buildPracticeQueue(
+  states: ChunkState[],
+  now: number = Date.now(),
+  maxNew: number = MAX_NEW_PER_SESSION,
+): { queue: string[]; faellig: number } {
+  const pflicht = buildQueue(states, now, maxNew);
+  const drin = new Set(pflicht);
+  const freiwillig = states
+    .filter((s) => !drin.has(s.chunkId) && s.lastReviewedAt !== null)
+    // Am längsten nicht angefasst zuerst: Das ist das, was am ehesten wackelt.
+    .sort((a, b) => (a.lastReviewedAt ?? 0) - (b.lastReviewedAt ?? 0))
+    .map((s) => s.chunkId);
+  return { queue: [...pflicht, ...freiwillig], faellig: pflicht.length };
+}

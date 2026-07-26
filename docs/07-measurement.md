@@ -201,3 +201,43 @@ App bewiesen hat, hat genau das getan.
 Code: `src/modules/progress/milestones.ts` (rein, 9 Tests), Anzeige
 `Milestones.tsx`. Bestand am 2026-07-25: A1 108 · A2 119 · B1 104 · B2 48
 Wendungen.
+
+---
+
+## Nachtrag (2026-07-26): Freiwillige Wiederholung — erlaubt, aber sie beschleunigt nichts
+
+Gemeldet: *„Es muss jederzeit die Möglichkeit geben, jeden Themenbereich noch
+mal zu machen."* Das war ein echter Mangel. „Dieses Thema üben" baute dieselbe
+Warteschlange wie der Tagesplan — Fälliges plus etwas Neues. Ist im Thema gerade
+nichts fällig und nichts neu, kam eine **leere Sitzung** heraus. Ein Knopf, der
+nichts tut, nimmt dem Lerner die Möglichkeit zurückzugehen.
+
+Jetzt folgt nach dem Fälligen die **freiwillige Wiederholung**, am längsten
+Unangefasstes zuerst (`buildPracticeQueue`). Die Reihenfolge bleibt: Wartung
+zuerst, dann neuer Stoff im üblichen Deckel, dann freiwillig.
+
+### Warum das die Messung nicht beschädigt
+
+Ein früher Abruf ist ein **echter** Abruf und läuft durch dieselbe Engine — kein
+zweiter Zähler. Er kann den Beweis aber aus zwei Gründen nicht fälschen:
+
+1. **FSRS rechnet mit der verstrichenen Zeit, nicht mit der Anzahl.** Wer eine
+   Wendung einen Tag nach dem letzten Mal abruft, hat eine hohe Erinnerungs-
+   Wahrscheinlichkeit — der Stabilitätsgewinn ist entsprechend klein.
+2. **`provenStableAt` verlangt ein überstandenes langes Intervall**, nicht viele
+   Abrufe: gelungene Produktion, nachdem das *geplante* Intervall den Horizont
+   erreicht hatte.
+
+Der unbequeme Teil steht in der App an genau der Stelle, an der die freiwillige
+Wiederholung beginnt: **Jede frühe Wiederholung setzt die Uhr neu.** `dueAt`
+wird ab *jetzt* gerechnet — wer täglich übt, verlängert damit den Weg zu
+„bewiesen", statt ihn abzukürzen. Der Beweis misst die Pause, nicht die Menge.
+
+Das ist Anti-Goodhart in seiner klarsten Form: Die App verbietet das Üben nicht
+(Autonomie), aber sie belohnt es auch nicht — und sie sagt beides.
+
+### Der Startpilot steht jetzt dauerhaft im Reiter „Lernen"
+
+Auf „Heute" lädt er weiterhin nur ein, solange kein einziger Abruf gelungen ist —
+dort ist er ein *Vorschlag für den ersten Schritt*. Als **Zugang** gehört er
+dorthin, wo aller Stoff wohnt, und zwar immer.
