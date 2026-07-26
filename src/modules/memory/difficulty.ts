@@ -64,3 +64,30 @@ export function bandStatus(rate: number | null): BandStatus {
   if (rate < SUCCESS_BAND.min) return 'zu fordernd';
   return 'genau richtig';
 }
+
+/**
+ * Soll die Verständnis-Hilfe (Dekodierung + Bedeutung) OFFEN starten?
+ *
+ * DIE KLIPPE, DIE HIER GESCHLOSSEN WIRD (Befund 2026-07-26): Wer „Nochmal"
+ * drückt, sagt damit „ich kann das gerade nicht". Die Engine reagiert richtig —
+ * sie stuft von Produktion auf Wiedererkennen zurück und hängt die Wendung
+ * hinten an die Sitzung. Nur wurde sie dann mit ZUGEKLAPPTER Hilfe wieder
+ * vorgelegt: dieselbe Wendung, dieselbe Blöße, ein paar Minuten später.
+ *
+ * `CLAUDE.md` verlangt an genau dieser Stelle das Gegenteil: „Wird etwas zu
+ * hart, nicht durchdrücken: erst mehr verständlichen Input + leichtere Variante
+ * nachschieben, dann neu annähern."
+ *
+ * Offen also in zwei Fällen:
+ *   1. Die Wendung war noch nie erfolgreich — sie ist neu, Input muss
+ *      verständlich sein, bevor überhaupt etwas abzurufen ist.
+ *   2. Der letzte Abruf ist gescheitert — der Lerner ist im Nachlernen.
+ *
+ * Sobald wieder ein „Sitzt" gelingt, schließt sich die Stütze von selbst: Die
+ * Hilfe ist eine Krücke, kein Zustand.
+ */
+export function scaffoldShouldOpen(state: ChunkState | undefined): boolean {
+  if (!state) return true;
+  if (!state.history.some((h) => h.result === 'good')) return true;
+  return state.history[state.history.length - 1]?.result === 'again';
+}

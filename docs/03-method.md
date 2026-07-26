@@ -20,5 +20,17 @@ Um Input auf i+1 verständlich zu machen, ohne Vokabelpauken, nutzen wir **Dekod
 ## Adaptive Schwierigkeit (der Anti-Cliff)
 Das System hält den Nutzer im **Erfolgsband ~80–85 %**. Wird etwas zu hart, wird nicht durchgedrückt: erst mehr verständlicher Input + leichtere Variante, dann neue Annäherung. Konstruktionsbedingt keine Klippe.
 
+Das gilt auf **zwei Ebenen** — die zweite fehlte bis 2026-07-26 und ist nachgetragen:
+
+**Ebene 1 — die Sitzung.** Liegt die Erfolgsquote unter dem Band, kommt weniger neuer Stoff herein (`difficulty.ts`: 5 → 3 → 1 neue Wendungen). Die Einstellung des Lerners kann nur bremsen, nie über das Band hinaus beschleunigen.
+
+**Ebene 2 — die einzelne Wendung.** Ein „Nochmal" heißt: *ich kann das gerade nicht.* Drei Dinge passieren daraufhin, und alle drei zusammen sind die Anti-Klippe:
+
+1. **Leichtere Abrufform.** Die Wendung wird von Produktion auf Wiedererkennen zurückgestuft (`memoryEngine.ts`).
+2. **Derselbe Kontext.** Sie kommt im **gleichen** Satz zurück, nicht in einem neuen. Kontextvariation ist Schritt 4 des Loops und gehört *hinter* den Erfolg — direkt nach dem Scheitern macht eine neue Verpackung die Sache schwerer, nicht leichter (`pickSegmentForChunk`).
+3. **Offene Stütze.** Dekodierung und Bedeutung stehen von selbst offen, ohne dass jemand sie aufziehen muss (`scaffoldShouldOpen`). Nach dem nächsten „Sitzt" schließen sie sich wieder — die Hilfe ist eine Krücke, kein Zustand.
+
+Punkt 2 und 3 fehlten: Wer scheiterte, bekam die Wendung wenige Minuten später in einem **neuen** Satz und mit **zugeklappter** Hilfe zurück. Beim Wiedersehen war sie damit schwerer als beim Scheitern — genau die Klippe, gegen die dieses Projekt gebaut ist. Als e2e-Test festgehalten, der ohne jede der beiden Korrekturen nachweislich scheitert.
+
 ## Produktion vs. Rezeption
 Rezeptives Verstehen zuerst (der Keil), Produktion als Verstärker (nicht Konkurrenz). Produktive Abrufe kommen gestuft dazu, sobald Rezeption stabil ist — weil produktives Wissen schneller verfällt und mehr Pflege braucht.

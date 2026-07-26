@@ -950,3 +950,113 @@ test('der Sicherungs-Hinweis erscheint nur, wenn es etwas zu verlieren gibt', as
   await openTab(page, 'Fortschritt');
   await expect(page.getByText(/in keiner Sicherung/)).toHaveCount(0);
 });
+
+// Stufe B: Die Anti-Klippe an der einzelnen Wendung (CLAUDE.md, nicht verhandelbar).
+//
+// „Wird etwas zu hart, nicht durchdrücken: erst mehr verständlichen Input +
+// leichtere Variante nachschieben, dann neu annähern."
+//
+// Gemessen 2026-07-26: Wer „Nochmal" drückte, bekam die Wendung in der Sitzung
+// zurück — mit ZUGEKLAPPTER Dekodierung und in einem NEUEN Satz. Beim
+// Wiedersehen war sie also schwerer als beim Scheitern. Dieser Test hält die
+// Gegenrichtung fest: derselbe Satz, offene Hilfe.
+test('nach einem „Nochmal" kommt derselbe Satz zurück, mit offener Hilfe', async ({
+  page,
+}) => {
+  // Ein Stand, in dem die Wendung schon einmal saß — sonst steht die Hilfe
+  // ohnehin offen (neuer Stoff) und der Test bewiese nichts.
+  const frueher = Date.now() - 30 * 24 * 3600 * 1000;
+  const backup = {
+    app: 'neurolang',
+    version: 1,
+    exportedAt: Date.now(),
+    name: '',
+    preferences: {},
+    states: [
+      {
+        chunkId: 'c-hej',
+        status: 'review',
+        stage: 'production',
+        intervalDays: 10,
+        stability: 10,
+        difficulty: 5,
+        dueAt: Date.now() - 3600 * 1000, // jetzt fällig
+        lastReviewedAt: frueher,
+        successStreak: 2,
+        provenStableAt: null,
+        maturedAt: null,
+        lapsedAt: null,
+        seenSegmentIds: [],
+        history: [{ at: frueher, result: 'good', segmentId: 's-hej1' }],
+      },
+    ],
+  };
+  await page.goto('/');
+  await expect(page.getByText('bewiesen stabil')).toBeVisible();
+  await page.getByRole('button', { name: 'Einstellungen' }).click();
+  await page.getByRole('button', { name: 'Sicherung einlesen' }).click();
+  await page.setInputFiles('input[type=file]', {
+    name: 'faellig.json',
+    mimeType: 'application/json',
+    buffer: Buffer.from(JSON.stringify(backup)),
+  });
+  await expect(page.getByText(/Eingelesen:/)).toBeVisible();
+  await page.getByRole('button', { name: /Einstellungen schließen/ }).click();
+
+  await startSession(page);
+
+  // Karte 1 ist die eingespielte, fällige Wendung — sie steht in der Produktion.
+  // Dort sind die Hilfen bis zum Auflösen ausgeblendet (man soll die Lösung
+  // nicht sehen, während man sie bilden soll). Also erst falsch antworten.
+  await page.getByLabel('Antwort auf Schwedisch').fill('fel svar');
+  await page.getByRole('button', { name: 'Prüfen' }).click();
+  // Nach der Prüfung kommt erst das formative Feedback, dann die Lösung.
+  await page.getByRole('button', { name: 'Auflösen' }).click();
+
+  // Jetzt liegt alles offen — den KONTEXT ablesen, um ihn später zu vergleichen.
+  await page.getByRole('button', { name: 'Übersetzung', exact: true }).click();
+  const kontextVorher = (await page.locator('main p.italic').first().innerText()).trim();
+  expect(kontextVorher.length, 'kein Kontext ablesbar').toBeGreaterThan(3);
+
+  const nochmal = page.getByRole('button', { name: 'Selbsteinschätzung: Nochmal' }).first();
+  await nochmal.click();
+  await nochmal.waitFor({ state: 'detached', timeout: 3000 }).catch(() => {});
+
+  // Die restlichen Karten abräumen, bis die gescheiterte Wendung wiederkommt.
+  // Erkannt am KONTEXT, nicht an der offenen Hilfe: Bei neuem Stoff steht die
+  // ohnehin offen — daran hätte der Test die falsche Karte gepackt.
+  const kontextJetzt = () =>
+    page
+      .locator('main p.italic')
+      .first()
+      .innerText()
+      .then((t) => t.trim())
+      .catch(() => '');
+
+  let wieder = (await kontextJetzt()) === kontextVorher;
+  for (let i = 0; i < 12 && !wieder; i++) {
+    const feld = page.getByLabel('Antwort auf Schwedisch');
+    if (await feld.count()) {
+      await feld.fill('fel');
+      await page.getByRole('button', { name: 'Prüfen' }).click();
+    }
+    const aufloesen = page.getByRole('button', { name: 'Auflösen' }).first();
+    if (!(await aufloesen.count())) break;
+    await aufloesen.click();
+    const g = page.getByRole('button', { name: 'Selbsteinschätzung: Sitzt' }).first();
+    if (!(await g.count())) break;
+    await g.click();
+    await g.waitFor({ state: 'detached', timeout: 3000 }).catch(() => {});
+    wieder = (await kontextJetzt()) === kontextVorher;
+  }
+
+  // 1. Sie kommt im SELBEN Satz zurück — eine neue Verpackung wäre nach dem
+  //    Scheitern schwerer statt leichter (Kontextvariation ist Schritt 4).
+  expect(wieder, 'die gescheiterte Wendung kam nicht im selben Satz zurück').toBe(true);
+
+  // 2. Und die Hilfe steht von selbst offen — ohne dass jemand sie aufziehen muss.
+  await expect(
+    page.getByRole('button', { name: 'Dekodierung ausblenden' }),
+    'die Hilfe war beim Nachlernen wieder zugeklappt',
+  ).toBeVisible();
+});

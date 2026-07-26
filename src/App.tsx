@@ -5,7 +5,7 @@ import type { Dialog, DialogTurn } from './domain/dialog';
 import { seedContentSource } from './modules/content/contentPipeline';
 import { getAllChunkStates, logEvent, putChunkState } from './storage/db';
 import { initialState, schedule } from './modules/memory/memoryEngine';
-import { newCountFor, recentSuccessRate } from './modules/memory/difficulty';
+import { newCountFor, recentSuccessRate, scaffoldShouldOpen } from './modules/memory/difficulty';
 import { buildQueue, pickSegmentForChunk, type NewFocus } from './session/buildQueue';
 import { loadFocus, saveFocus } from './session/focus';
 import { loadName, saveName } from './session/profile';
@@ -336,11 +336,10 @@ export default function App() {
     () => (currentChunkId ? knownPhrases(chunks, states, currentChunkId) : []),
     [chunks, states, currentChunkId],
   );
-  // Neuer Chunk (noch kein erfolgreicher Abruf)? Dann die Bedeutung/Dekodierung
-  // sofort offen zeigen (verständlicher Input, docs/gremium-darstellung.md).
-  const scaffoldOpen = currentState
-    ? !currentState.history.some((h) => h.result === 'good')
-    : true;
+  // Wann die Bedeutung/Dekodierung sofort offen steht: bei neuem Stoff — und
+  // nach einem „Nochmal". Die Regel steht in `difficulty.ts`, weil sie zur
+  // Anti-Klippe gehört und dort geprüft wird, nicht hier im Beiwerk.
+  const scaffoldOpen = scaffoldShouldOpen(currentState);
 
   async function handleResult(
     result: ReviewResult,
