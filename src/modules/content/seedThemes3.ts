@@ -5,7 +5,7 @@ import type { Category, Chunk, Segment } from '../../domain/chunk';
 export const categories: Category[] = [
   { id: 'cat-dentist', areaId: 'area-emergency', title: 'Beim Zahnarzt', blurb: 'Zahnschmerzen erklären, Betäubung bekommen, Termin ausmachen.', order: 4, cefr: 'B1' },
   { id: 'cat-studies', areaId: 'area-society', title: 'Studium & Kurse', blurb: 'Vorlesung, Prüfung, Abgabe — der Sprachgebrauch im Kursraum.', order: 5, cefr: 'B1' },
-  { id: 'cat-moving', areaId: 'area-people', title: 'Umzug & Wohnungssuche', blurb: 'Wohnung finden, Kisten packen, Vertrag unterschreiben.', order: 13, cefr: 'B1' },
+  { id: 'cat-moving', areaId: 'area-home', title: 'Umzug & Wohnungssuche', blurb: 'Wohnung finden, Kisten packen, Vertrag unterschreiben.', order: 13, cefr: 'B1' },
   { id: 'cat-swim', areaId: 'area-outdoors', title: 'Schwimmhalle & Sauna', blurb: 'Duschen, Bahnen ziehen, saubastu — sehr schwedisch.', order: 7, cefr: 'A2' },
 ];
 

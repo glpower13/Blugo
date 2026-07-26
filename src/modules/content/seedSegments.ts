@@ -52,7 +52,7 @@ const baseAreas: Area[] = [
   {
     id: 'area-people',
     title: 'Menschen & Alltag',
-    blurb: 'Kennenlernen, Small Talk, Wetter, Wohnen, Arbeit.',
+    blurb: 'Kennenlernen, erzählen, Wetter, Arbeit, Gefühle.',
     order: 4,
   },
   {
@@ -136,8 +136,11 @@ const baseCategories: Category[] = [
   {
     id: 'cat-daily',
     areaId: 'area-people',
-    title: 'Alltag & Small Talk',
-    blurb: 'Wetter, Beruf, Alter, sich verabschieden.',
+    // Hieß „Alltag & Small Talk" und stand damit im selben Bereich wie ein
+    // zweites Thema namens „Small Talk" — beim Ansehen des Baums 2026-07-26
+    // nicht auseinanderzuhalten. Jetzt heißen beide nach dem, was sie sind.
+    title: 'Über sich erzählen',
+    blurb: 'Alter, Beruf, Wetter — womit ein Gespräch anfängt.',
     order: 2,
     cefr: 'A2',
   },
@@ -297,7 +300,7 @@ const baseCategories: Category[] = [
   },
   {
     id: 'cat-home',
-    areaId: 'area-people',
+    areaId: 'area-home',
     title: 'Wohnen & Zuhause',
     blurb: 'Wohnung, Zimmer, Miete — und jemanden hereinbitten.',
     order: 5,
@@ -1491,7 +1494,7 @@ const baseSegments: Segment[] = [
 // Datei nicht auf zehntausend Zeilen wächst und ein Ausbau je Niveau lesbar
 // bleibt. Nach außen bleibt es EIN Baum: alles andere im Code kennt nur diese
 // drei Listen.
-export const seedAreas: Area[] = [...baseAreas, ...a2.areas, ...b1.areas, ...b2.areas];
+export const seedAreas: Area[] = [...baseAreas, ...a2.areas, ...b1.areas, ...b2.areas, ...t2.areas];
 export const seedCategories: Category[] = [...fw.categories, ...baseCategories, ...a1.categories, ...a2.categories, ...b1.categories, ...b2.categories, ...t1.categories, ...t2.categories, ...t3.categories];
 export const seedChunks: Chunk[] = [...fw.chunks, ...baseChunks, ...a1.chunks, ...a2.chunks, ...b1.chunks, ...b2.chunks, ...t1.chunks, ...t2.chunks, ...t3.chunks];
 export const seedSegments: Segment[] = [...fw.segments, ...baseSegments, ...a1.segments, ...a2.segments, ...b1.segments, ...b2.segments, ...t1.segments, ...t2.segments, ...t3.segments];

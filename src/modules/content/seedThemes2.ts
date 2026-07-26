@@ -4,12 +4,33 @@
 // stolpert über dieses Wort am ersten Tag — und es hat im Deutschen kein
 // Gegenstück, das man einfach einsetzen könnte.
 
-import type { Category, Chunk, Segment } from '../../domain/chunk';
+import type { Area, Category, Chunk, Segment } from '../../domain/chunk';
+
+/**
+ * Ein eigener Bereich fürs Wohnen.
+ *
+ * BEFUND beim Ansehen des Baums (2026-07-26): „Menschen & Alltag" war auf
+ * DREIZEHN Themen gewachsen und mischte Kennenlernen, Gefühle, Arbeit,
+ * Haustiere, Nachbarn und Umzug in eine Liste. Ein Bereich, der alles enthält,
+ * ordnet nichts. Die vier Themen rund ums Wohnen bilden eine eigene, in sich
+ * geschlossene Lebenslage — sie stehen jetzt zusammen.
+ */
+export const areas: Area[] = [
+  {
+    id: 'area-home',
+    title: 'Wohnen & Nachbarschaft',
+    blurb: 'Die eigene Wohnung, das Haus drumherum und wer darin sonst noch lebt.',
+    // Zwischen „Menschen & Alltag" (4) und „Einkaufen" (5): Die Zahl ist ein
+    // reiner Sortierschlüssel, kein Rang — eine Bruchzahl vermeidet, alle
+    // folgenden Bereiche durchnummerieren zu müssen.
+    order: 4.5,
+  },
+];
 
 export const categories: Category[] = [
   {
     id: 'cat-pets',
-    areaId: 'area-people',
+    areaId: 'area-home',
     title: 'Haustiere',
     blurb: 'Hund, Katze, und die Fragen, die im Treppenhaus dazu fallen.',
     order: 11,
@@ -33,7 +54,7 @@ export const categories: Category[] = [
   },
   {
     id: 'cat-neighbours',
-    areaId: 'area-people',
+    areaId: 'area-home',
     title: 'Nachbarn & Hausordnung',
     blurb: 'Waschküche, Müll, Lautstärke: das Zusammenleben im Haus.',
     order: 12,

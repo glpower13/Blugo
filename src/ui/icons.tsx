@@ -234,6 +234,23 @@ export function IconPeak({ className }: P) {
 }
 
 /** Ämter & Dienste — Formular mit Stempel (Bank, Post, Bewerbung). */
+/** Wohnen & Nachbarschaft: ein Haus mit einem hellen Fenster. */
+export function IconHouse({ className }: P) {
+  return (
+    <svg {...box(className)} fill="none">
+      <path
+        d="M3.4 10.6 L12 3.6 L20.6 10.6 V20.2 H3.4 Z"
+        stroke="currentColor"
+        strokeWidth="1.7"
+        strokeLinejoin="round"
+      />
+      <rect x="9.6" y="13.4" width="4.8" height="6.8" stroke="currentColor" strokeWidth="1.5" />
+      <rect x="6" y="12" width="2.4" height="2.4" fill="currentColor" opacity="0.75" />
+      <rect x="15.6" y="12" width="2.4" height="2.4" fill="currentColor" opacity="0.75" />
+    </svg>
+  );
+}
+
 export function IconForm({ className }: P) {
   return (
     <svg {...box(className)} fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round">

@@ -39,6 +39,11 @@ const SKIES: Record<string, [string, string][]> = {
     ['76%', '#C79A62'],
     ['100%', '#E8B565'],
   ],
+  'area-home': [
+    ['0%', '#141A2A'],
+    ['52%', '#22293C'],
+    ['100%', '#3A3324'],
+  ],
   'area-shopping': [
     ['0%', '#242A33'],
     ['62%', '#2C333E'],
@@ -348,6 +353,61 @@ function Scene({ areaId, id, hue }: { areaId: string; id: string; hue: string })
           <Figure x={252} y={126} h={41} coat={1} lightFrom="left" />
           <Figure x={278} y={121} h={34} coat={2} flip dim={0.3} lightFrom="left" />
           <Figure x={330} y={134} h={46} coat={5} lightFrom="left" />
+        </>
+      );
+
+    // ── Wohnen: Hauszeile am Abend, Licht in den Fenstern ──────────────────
+    case 'area-home':
+      return (
+        <>
+          <circle cx="66" cy="30" r="12" fill="#F3E3B8" opacity="0.5" filter={glow} />
+          <circle cx="66" cy="30" r="6" fill="#FBF3D8" />
+          <g filter={far} opacity="0.45">
+            {[6, 30, 366, 390].map((x, i) => (
+              <Spruce key={x} x={x} y={104} h={24 + (i % 2) * 9} dim={0.45} />
+            ))}
+          </g>
+          {[
+            { x: 96, w: 74, h: 76, tone: '#2B3242' },
+            { x: 176, w: 58, h: 94, tone: '#333A4B' },
+            { x: 240, w: 68, h: 66, tone: '#262C3A' },
+          ].map((b) => (
+            <g key={b.x}>
+              <rect x={b.x} y={104 - b.h} width={b.w} height={b.h} fill={b.tone} />
+              <path
+                d={`M${b.x - 5} ${104 - b.h} L${b.x + b.w / 2} ${104 - b.h - 13} L${b.x + b.w + 5} ${104 - b.h} Z`}
+                fill="#1D2230"
+              />
+              {Array.from({ length: Math.floor(b.h / 22) }).flatMap((_, r) =>
+                [0, 1, 2].map((c) => {
+                  const wx = b.x + 10 + c * ((b.w - 22) / 2);
+                  const wy = 104 - b.h + 14 + r * 22;
+                  const an = (r + c + b.x) % 3 !== 0;
+                  return (
+                    <rect
+                      key={`${r}-${c}`}
+                      x={wx}
+                      y={wy}
+                      width="9"
+                      height="11"
+                      fill={an ? '#F0C97E' : '#141821'}
+                      opacity={an ? 0.9 : 1}
+                    />
+                  );
+                }),
+              )}
+            </g>
+          ))}
+          <rect y="104" width={W} height="46" fill="#1A1E28" />
+          <rect y="104" width={W} height="46" fill={`url(#${id}-yard)`} />
+          <defs>
+            <linearGradient id={`${id}-yard`} x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor={hue} stopOpacity="0.22" />
+              <stop offset="100%" stopColor="#0B0E14" stopOpacity="0.8" />
+            </linearGradient>
+          </defs>
+          <Figure x={330} y={128} h={42} coat={2} lightFrom="left" />
+          <Figure x={356} y={132} h={36} coat={4} flip lightFrom="left" />
         </>
       );
 

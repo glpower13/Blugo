@@ -16,6 +16,7 @@ import {
   IconForm,
   IconScales,
   IconQuote,
+  IconHouse,
 } from './icons';
 
 export interface AreaVisual {
@@ -31,6 +32,7 @@ const MAP: Record<string, AreaVisual> = {
   'area-travel': { hue: '#7FB2E6', Icon: IconPlane }, // Himmelblau
   'area-food': { hue: '#E0936F', Icon: IconCup }, // Terrakotta
   'area-people': { hue: '#AEA2E6', Icon: IconPeople }, // Lavendel
+  'area-home': { hue: '#E0B98A', Icon: IconHouse }, // Warmes Licht im Fenster
   'area-shopping': { hue: '#83C98C', Icon: IconBag }, // Grün
   'area-emergency': { hue: '#E68983', Icon: IconCross }, // Rot
   'area-friends': { hue: '#D9A05B', Icon: IconWheel }, // Bernstein

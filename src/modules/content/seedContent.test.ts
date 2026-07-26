@@ -262,3 +262,44 @@ describe('Gesprächs-Abdeckung', () => {
     expect(anteil).toBeGreaterThanOrEqual(0.9);
   });
 });
+
+// Der Baum muss sich BENENNEN lassen, sonst navigiert niemand darin.
+//
+// BEFUND beim Ansehen 2026-07-26: „Menschen & Alltag" enthielt gleichzeitig ein
+// Thema „Alltag & Small Talk" und ein Thema „Small Talk" — nebeneinander in
+// derselben Liste und nicht auseinanderzuhalten. Und der Bereich war auf
+// dreizehn Themen gewachsen: eine Liste, die alles enthält, ordnet nichts.
+describe('Lesbarkeit des Baums', () => {
+  it('kein Bereich trägt zwei Themen mit demselben Namen', () => {
+    for (const a of seedAreas) {
+      const titel = seedCategories.filter((c) => c.areaId === a.id).map((c) => c.title);
+      expect(new Set(titel).size, `doppelter Themenname in ${a.title}`).toBe(titel.length);
+    }
+  });
+
+  it('kein Themenname steckt vollständig in einem anderen desselben Bereichs', () => {
+    // „Small Talk" in „Alltag & Small Talk" — technisch verschieden, im Blick
+    // dasselbe. Genau daran ist die Navigation gescheitert.
+    for (const a of seedAreas) {
+      const titel = seedCategories.filter((c) => c.areaId === a.id).map((c) => c.title);
+      for (const t of titel) {
+        const drin = titel.filter((x) => x !== t && x.includes(t));
+        expect(drin, `„${t}" steckt in „${drin[0]}" (${a.title})`).toEqual([]);
+      }
+    }
+  });
+
+  it('kein Bereich wird zur Endlosliste', () => {
+    // Sperrklinke, kein Zielwert: Wächst ein Bereich über zehn Themen, gehört
+    // er geteilt — sonst ist die Ebene „Bereich" keine Ordnung mehr.
+    for (const a of seedAreas) {
+      const n = seedCategories.filter((c) => c.areaId === a.id).length;
+      expect(n, `${a.title} hat ${n} Themen — teilen`).toBeLessThanOrEqual(10);
+    }
+  });
+
+  it('jeder Bereich hat eine eindeutige Sortierzahl', () => {
+    const orders = seedAreas.map((a) => a.order);
+    expect(new Set(orders).size, 'zwei Bereiche mit gleicher Reihenfolge').toBe(orders.length);
+  });
+});

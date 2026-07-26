@@ -15,7 +15,7 @@ export const categories: Category[] = [
   { id: 'cat-week', areaId: 'area-basics', title: 'Tage & Jahreszeiten', blurb: 'Wochentage, Wochenende, Monate, Sommer und Winter.', order: 6, cefr: 'A1' },
   { id: 'cat-fika', areaId: 'area-food', title: 'Fika & Süßes', blurb: 'Die schwedische Kaffeepause — Kaffee, Kuchen, sitzen bleiben.', order: 4, cefr: 'A1' },
   { id: 'cat-language', areaId: 'area-basics', title: 'Sprache & Lernen', blurb: 'Nach Wörtern fragen, buchstabieren, üben.', order: 7, cefr: 'A1' },
-  { id: 'cat-smalltalk', areaId: 'area-people', title: 'Small Talk', blurb: 'Kurz plaudern, Anteil nehmen, sich verabschieden.', order: 7, cefr: 'A1' },
+  { id: 'cat-smalltalk', areaId: 'area-people', title: 'Reagieren & verabschieden', blurb: 'Anteil nehmen, sich freuen, bedauern — und gut auseinandergehen.', order: 7, cefr: 'A1' },
 ];
 
 export const chunks: Chunk[] = [
