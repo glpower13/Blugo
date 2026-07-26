@@ -10,10 +10,10 @@
 
 ## Ergebnis
 
-- Geprüfte schwedische Zeichenketten: **15349**
-- Verschiedene Wörter: **1386**
-- ✅ alltagshäufig belegt (Zipf ≥ 3.0): **1358**
-- ⚠️ selten belegt: **28**
+- Geprüfte schwedische Zeichenketten: **16185**
+- Verschiedene Wörter: **1445**
+- ✅ alltagshäufig belegt (Zipf ≥ 3.0): **1414**
+- ⚠️ selten belegt: **31**
 - ❌ nicht belegt (Tippfehler-Verdacht): **0**
 
 ## ❌ Nicht belegt — zuerst anschauen
@@ -41,6 +41,7 @@ Existiert, ist aber ungewöhnlich. Für Anfänger-Inhalt oft ein Zeichen, dass e
 | **trettiofem** | 2.68 | ja | „Trettiofem kronor, tack." · „trettiofem" |
 | **rätterna** | 2.69 | — | „Precis. Och mellan rätterna sjunger alla, högt och falskt." · „rätterna" |
 | **offert** | 2.70 | ja | „Här är vår offert. Priset gäller i två veckor." · „offert" |
+| **tandtråd** | 2.74 | ja | „Bra. Använd tandtråd också." · „tandtråd" |
 | **släckas** | 2.78 | — | „Elden måste släckas innan vi sover." · „Elden måste släckas — det är torrt i skogen." |
 | **skruven** | 2.80 | — | „Tack! Nu drar jag åt den sista skruven." · „skruven" |
 | **pelaren** | 2.80 | — | „Precis. Och vid pelaren svänger du." · „pelaren" |
@@ -51,6 +52,8 @@ Existiert, ist aber ungewöhnlich. Für Anfänger-Inhalt oft ein Zeichen, dass e
 | **automaten** | 2.93 | — | „Tyvärr, kortet fungerar inte i automaten." · „automaten" |
 | **bifoga** | 2.94 | ja | „Gärna. Och du måste bifoga ett intyg också." · „bifoga" |
 | **tjugonde** | 2.95 | ja | „Var tjugonde minut. Men taxi går fortare." · „tjugonde" |
+| **tandvärk** | 2.97 | ja | „Jag har tandvärk och kan inte sova." · „Jag har tandvärk sedan i går." |
+| **åttio** | 2.97 | ja | „Den är på åttio grader nu." · „åttio" |
 | **trehundra** | 2.98 | ja | „Trehundra kronor jämnt." · „trehundra" |
 | **föräldramöte** | 2.98 | ja | „Vi ska förresten på föräldramöte på tisdag." · „föräldramöte" |
 | **handbagage** | 2.99 | ja | „Ingen väska, jag har bara handbagage." · „Jag har bara handbagage, går det snabbare då?" |
@@ -59,8 +62,10 @@ Existiert, ist aber ungewöhnlich. Für Anfänger-Inhalt oft ein Zeichen, dass e
 
 | Schwedisch | auffällige Wörter |
 |---|---|
+| Bra. Använd tandtråd också. | tandtråd |
 | Bra. Ta med papperen — och passet, alltid. | papperen |
 | De levererar snabbt, står det i offerten. | offerten |
+| Den är på åttio grader nu. | åttio |
 | Du tappade förresten din handske där borta. | handske |
 | Däcket är punkterat. | punkterat |
 | Elden måste släckas innan vi sover. | släckas |
@@ -78,6 +83,9 @@ Existiert, ist aber ungewöhnlich. Für Anfänger-Inhalt oft ein Zeichen, dass e
 | Ingen väska, jag har bara handbagage. | handbagage |
 | Jag har bara handbagage, går det snabbare då? | handbagage |
 | Jag har bara handbagage. | handbagage |
+| Jag har tandvärk och kan inte sova. | tandvärk |
+| Jag har tandvärk sedan i går. | tandvärk |
+| Jag har tandvärk. | tandvärk |
 | Jaså? Jackorna sitter ofta lite löst. | jackorna |
 | Kan jag prova den? Var är provrummet? | provrummet |
 | Precis. Och mellan rätterna sjunger alla, högt och falskt. | rätterna |
@@ -120,6 +128,7 @@ Existiert, ist aber ungewöhnlich. Für Anfänger-Inhalt oft ein Zeichen, dass e
 | incheckningen | incheckningen |
 | jackorna | jackorna |
 | jag har bara handbagage | handbagage |
+| jag har tandvärk | tandvärk |
 | offert | offert |
 | offerten | offerten |
 | papperen | papperen |
@@ -134,10 +143,13 @@ Existiert, ist aber ungewöhnlich. Für Anfänger-Inhalt oft ein Zeichen, dass e
 | smaklig måltid | smaklig |
 | sophämtningen | sophämtningen |
 | städdag | städdag |
+| tandtråd | tandtråd |
+| tandvärk | tandvärk |
 | tjugonde | tjugonde |
 | trehundra | trehundra |
 | trettiofem | trettiofem |
 | var är incheckningen? | incheckningen |
 | var är provrummet? | provrummet |
 | vi har städdag på lördag | städdag |
+| åttio | åttio |
 

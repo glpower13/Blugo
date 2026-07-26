@@ -355,7 +355,7 @@ export type ZahlNeinBefund = { where: string; sv: string; de: string; was: strin
 
 const SV_ZAHL: Record<string, number> = {
   noll: 0, en: 1, ett: 1, två: 2, tre: 3, fyra: 4, fem: 5, sex: 6, sju: 7, åtta: 8,
-  nio: 9, tio: 10, elva: 11, tolv: 12, tretton: 13, fjorton: 14, femton: 15,
+  nio: 9, tio: 10, tusen: 1000, elva: 11, tolv: 12, tretton: 13, fjorton: 14, femton: 15,
   sexton: 16, sjutton: 17, arton: 18, nitton: 19, tjugo: 20, trettio: 30,
   fyrtio: 40, femtio: 50, sextio: 60, sjuttio: 70, åttio: 80, nittio: 90, hundra: 100,
 };
@@ -364,7 +364,7 @@ const DE_ZAHL: Record<string, number> = {
   sechs: 6, sieben: 7, acht: 8, neun: 9, zehn: 10, elf: 11, zwölf: 12, dreizehn: 13,
   vierzehn: 14, fünfzehn: 15, sechzehn: 16, siebzehn: 17, achtzehn: 18, neunzehn: 19,
   zwanzig: 20, dreißig: 30, vierzig: 40, fünfzig: 50, sechzig: 60, siebzig: 70,
-  achtzig: 80, neunzig: 90, hundert: 100,
+  achtzig: 80, neunzig: 90, hundert: 100, tausend: 1000,
 };
 // „en/ett" ist im Schwedischen zugleich der unbestimmte Artikel, „ein" im
 // Deutschen auch — als Zahl gezählt gäbe das nur Rauschen. Ebenso Ordnungszahlen.

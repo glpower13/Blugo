@@ -123,7 +123,7 @@ export const segments: Segment[] = [
   s('s-ca-kall1', 'Det blir kallt i natt.', 'Es wird heute Nacht kalt.', [['det', 'es'], ['blir', 'wird'], ['kallt', 'kalt'], ['i', 'in'], ['natt', 'Nacht']], ['c-ca-kallt']),
   s('s-ca-kall2', 'Det blir kallt i natt, ta en till tröja.', 'Es wird heute Nacht kalt, nimm noch einen Pullover.', [['det', 'es'], ['blir', 'wird'], ['kallt', 'kalt'], ['i', 'in'], ['natt', 'Nacht'], ['ta', 'nimm'], ['en', 'einen'], ['till', 'noch'], ['tröja', 'Pullover']], ['c-ca-kallt']),
   s('s-ca-skr1', 'Vi tar med skräpet hem.', 'Wir nehmen den Müll mit nach Hause.', [['vi', 'wir'], ['tar', 'nehmen'], ['med', 'mit'], ['skräpet', 'den Abfall'], ['hem', 'heim']], ['c-ca-skrap']),
-  s('s-ca-skr2', 'Vi tar med skräpet hem, inget lämnas kvar.', 'Wir nehmen den Müll mit nach Hause, nichts bleibt zurück.', [['vi', 'wir'], ['tar', 'nehmen'], ['med', 'mit'], ['skräpet', 'den Abfall'], ['hem', 'heim'], ['inget', 'nichts'], ['lämnas', 'wird gelassen'], ['kvar', 'zurück']], ['c-ca-skrap']),
+  s('s-ca-skr2', 'Vi tar med skräpet hem, inget lämnas kvar.', 'Wir nehmen den Müll mit nach Hause, nichts bleibt zurück.', [['vi', 'wir'], ['tar', 'nehmen'], ['med', 'mit'], ['skräpet', 'den Abfall'], ['hem', 'heim'], ['inget', 'nichts'], ['lämnas', 'gelassen'], ['kvar', 'zurück']], ['c-ca-skrap']),
 
   // Musik
   s('s-mu-gil1', 'Vilken musik gillar du?', 'Welche Musik magst du?', [['vilken', 'welche'], ['musik', 'Musik'], ['gillar', 'magst'], ['du', 'du']], ['c-mu-gillar']),

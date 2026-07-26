@@ -1,7 +1,7 @@
 {
   "dictionaryEntries": 152719,
-  "wordsChecked": 1386,
-  "stringsChecked": 15349,
+  "wordsChecked": 1445,
+  "stringsChecked": 16185,
   "flagged": {
     "automaten": {
       "verdict": "selten",
@@ -128,6 +128,16 @@
       "zipf": 2.48,
       "inDict": true
     },
+    "tandtråd": {
+      "verdict": "selten",
+      "zipf": 2.74,
+      "inDict": true
+    },
+    "tandvärk": {
+      "verdict": "selten",
+      "zipf": 2.97,
+      "inDict": true
+    },
     "tjugonde": {
       "verdict": "selten",
       "zipf": 2.95,
@@ -141,6 +151,11 @@
     "trettiofem": {
       "verdict": "selten",
       "zipf": 2.68,
+      "inDict": true
+    },
+    "åttio": {
+      "verdict": "selten",
+      "zipf": 2.97,
       "inDict": true
     }
   }
