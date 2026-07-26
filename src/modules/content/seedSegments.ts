@@ -21,6 +21,7 @@
 import type { Area, Category, Chunk, Segment } from '../../domain/chunk';
 import * as fw from './seedFirstWords';
 import * as t1 from './seedThemes1';
+import * as t2 from './seedThemes2';
 import * as a1 from './seedA1';
 import * as a2 from './seedA2';
 import * as b1 from './seedB1';
@@ -1490,6 +1491,6 @@ const baseSegments: Segment[] = [
 // bleibt. Nach außen bleibt es EIN Baum: alles andere im Code kennt nur diese
 // drei Listen.
 export const seedAreas: Area[] = [...baseAreas, ...a2.areas, ...b1.areas, ...b2.areas];
-export const seedCategories: Category[] = [...fw.categories, ...baseCategories, ...a1.categories, ...a2.categories, ...b1.categories, ...b2.categories, ...t1.categories];
-export const seedChunks: Chunk[] = [...fw.chunks, ...baseChunks, ...a1.chunks, ...a2.chunks, ...b1.chunks, ...b2.chunks, ...t1.chunks];
-export const seedSegments: Segment[] = [...fw.segments, ...baseSegments, ...a1.segments, ...a2.segments, ...b1.segments, ...b2.segments, ...t1.segments];
+export const seedCategories: Category[] = [...fw.categories, ...baseCategories, ...a1.categories, ...a2.categories, ...b1.categories, ...b2.categories, ...t1.categories, ...t2.categories];
+export const seedChunks: Chunk[] = [...fw.chunks, ...baseChunks, ...a1.chunks, ...a2.chunks, ...b1.chunks, ...b2.chunks, ...t1.chunks, ...t2.chunks];
+export const seedSegments: Segment[] = [...fw.segments, ...baseSegments, ...a1.segments, ...a2.segments, ...b1.segments, ...b2.segments, ...t1.segments, ...t2.segments];

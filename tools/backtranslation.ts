@@ -225,6 +225,7 @@ const BEUGUNG: string[][] = [
   ['gut', 'gute', 'guter', 'gutes', 'guten', 'gutem'],
   ['sehe', 'siehst', 'sieht', 'sehen', 'seht', 'sieh', 'sah', 'sahen', 'gesehen'],
   ['wer', 'wen', 'wem', 'wessen'],
+  ['helfe', 'hilfst', 'hilft', 'helfen', 'helft', 'hilf', 'half', 'geholfen'],
   ['gebe', 'gibst', 'gibt', 'geben', 'gebt', 'gab', 'gib'],
   ['nehme', 'nimmst', 'nimmt', 'nehmen', 'nehmt', 'nimm'],
   ['esse', 'isst', 'essen', 'esst', 'iss', 'aß'],

@@ -32,3 +32,8 @@ Thumbs.db
 /a11y-*.mjs
 /_*.png
 /shots/
+
+# Zwischenstand der Wortprüfung: wird bei jedem `npm run check:content` neu
+# erzeugt und im selben Lauf verbraucht. Fehlt sie, bricht die Prüfung laut ab
+# (fail-closed) — sie im Repo zu halten brächte nur 800 kB Rauschen je Änderung.
+tools/swedish-strings.json

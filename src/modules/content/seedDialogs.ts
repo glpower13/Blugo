@@ -11,6 +11,7 @@
 import type { Dialog } from '../../domain/dialog';
 import { dialogs as fw } from './seedDialogsFirstWords';
 import { dialogs as t1 } from './seedDialogsThemes1';
+import { dialogs as t2 } from './seedDialogsThemes2';
 import { dialogs as a1 } from './seedDialogsA1';
 import { dialogs as a2 } from './seedDialogsA2';
 import { dialogs as b1 } from './seedDialogsB1';
@@ -1539,4 +1540,4 @@ const baseDialogs: Dialog[] = [
 // ── Zusammenbau ──────────────────────────────────────────────────────────────
 // Die Szenen zu den neuen Themen liegen je Meilenstein in eigenen Dateien
 // (`seedDialogsA1.ts` …). Nach außen bleibt es EINE Liste.
-export const seedDialogs: Dialog[] = [...fw, ...baseDialogs, ...a1, ...a2, ...b1, ...b2, ...rest, ...mix, ...t1];
+export const seedDialogs: Dialog[] = [...fw, ...baseDialogs, ...a1, ...a2, ...b1, ...b2, ...rest, ...mix, ...t1, ...t2];

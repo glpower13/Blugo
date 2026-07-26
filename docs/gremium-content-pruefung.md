@@ -346,3 +346,42 @@ Lauf.
 zu verschieden (*den tolfte* / *der Zwölfte*), und `andra` heißt „zweite" **und**
 „andere". Eine Prüfung, die nur eine Seite erkennt, meldet Unterschiede, die
 keine sind. Lieber eine Lücke, die benannt ist, als eine Zahl, die lügt.
+
+---
+
+## Nachtrag 4 (2026-07-26): Die Wortprüfung hat 1300 Sätze nie gesehen
+
+Beim Ausbau um acht neue Themen fiel eine Zahl auf, die sich nicht bewegte: Der
+Bericht meldete nach 28 neuen Wendungen und 65 neuen Sätzen **exakt dieselben
+13 723 geprüften Zeichenketten** wie vorher.
+
+**Die Ursache.** `check-swedish.py` las den **Quelltext** mit dem Suchmuster
+`sv: '…'`. Die neuen Inhaltsdateien bauen ihre Wendungen über eine
+Hilfsfunktion:
+
+```ts
+c('c-ap-gate', 'cat-airport', 'vilken gate är det?', 'welches Gate ist es?', […])
+```
+
+Darin steht nirgends `sv:`. Der ganze neue Stoff lief also **ungeprüft** durch —
+und der Bericht meldete trotzdem zufrieden „unbelegt 0". Eine Prüfung, deren
+Ergebnis von der **Schreibweise einer Datei** abhängt, ist keine Prüfung.
+
+Aufgefallen ist es nur, weil die Kennzahl im Bericht steht. Stünde sie nicht da,
+wäre es niemandem aufgefallen — das ist das Argument dafür, dass jedes Werkzeug
+seinen Umfang mitzählt und nicht nur sein Ergebnis.
+
+**Die Behebung.** Der Text kommt jetzt aus den **geladenen Daten**, nicht aus dem
+Quelltext: `tools/dump-swedish.ts` schreibt jede schwedische Zeichenkette der
+App — Wendungen, Sätze, Gesprächszeilen, jedes einzelne Glossen-Wort, jeden
+Vorschlag — nach `tools/swedish-strings.json`, und die Python-Prüfung liest das.
+Was die App anzeigt, wird geprüft, egal wie es notiert ist.
+
+Fehlt die Datei oder ist sie auffällig klein, bricht die Prüfung **laut** ab
+(dieselbe Fail-closed-Regel wie beim Wörterbuch, §3.2). Fünf Tests halten den
+Umfang fest: jede Wendung, jeder Satz, jede Gesprächszeile, jedes Glossen-Wort —
+und eine Sperrklinke auf die Gesamtzahl.
+
+**Der Effekt in Zahlen:** von 13 723 auf **15 348** geprüfte Zeichenketten, von
+1322 auf **1386** geprüfte Wörter. Ergebnis unverändert **0 unbelegt** — der neue
+Stoff hält also stand. Aber das weiß man jetzt, statt es zu glauben.

@@ -1,7 +1,7 @@
 {
   "dictionaryEntries": 152719,
-  "wordsChecked": 1322,
-  "stringsChecked": 13723,
+  "wordsChecked": 1386,
+  "stringsChecked": 15349,
   "flagged": {
     "automaten": {
       "verdict": "selten",
@@ -16,6 +16,11 @@
     "bifoga": {
       "verdict": "selten",
       "zipf": 2.94,
+      "inDict": true
+    },
+    "borrmaskin": {
+      "verdict": "selten",
+      "zipf": 2.62,
       "inDict": true
     },
     "framhjulet": {
@@ -103,9 +108,24 @@
       "zipf": 2.92,
       "inDict": true
     },
+    "släckas": {
+      "verdict": "selten",
+      "zipf": 2.78,
+      "inDict": false
+    },
     "smaklig": {
       "verdict": "selten",
       "zipf": 2.82,
+      "inDict": true
+    },
+    "sophämtningen": {
+      "verdict": "selten",
+      "zipf": 1.88,
+      "inDict": false
+    },
+    "städdag": {
+      "verdict": "selten",
+      "zipf": 2.48,
       "inDict": true
     },
     "tjugonde": {

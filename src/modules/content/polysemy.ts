@@ -172,6 +172,11 @@ export const MEHRDEUTIGE_WOERTER: Mehrdeutig[] = [
     hinweis: 'In der Frage heißt es was, im Ausruf „vad roligt!" heißt es wie schön!',
   },
   {
+    sv: 'volymen',
+    bedeutungen: ['Lautstärke', 'Menge'],
+    hinweis: 'Am Regler ist es die Lautstärke, im Geschäftsgespräch die Menge.',
+  },
+  {
     sv: 'vägen',
     bedeutungen: ['Weg', 'Straße'],
     hinweis: '„på vägen" kann beides sein — der Weg dorthin oder die Straße selbst.',
