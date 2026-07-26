@@ -302,3 +302,58 @@ behauptet es auch nicht.
   **zwei Muster** abgedeckt (siehe §Wortstellung) — der Rest der Satzgrammatik nicht,
   und die App behauptet es auch nicht.
 - Konkrete Modellwahl (LLM/TTS) → Anbieter-Entscheidung offen (`10-open-questions.md`); die Port-Schicht hält alle Wege offen.
+
+## Der Grund-Partner: Sparring ohne eigenen Zugang *(Nutzerwunsch 2026-07-26)*
+
+**Der Befund.** In der Registry stand `partner: null`. Wer keinen eigenen
+Cloud-Zugang eingerichtet hatte, bekam beim Sparring einen **Erklärtext statt
+eines Gesprächs**. Damit war ausgerechnet der Modus, in dem man das Gelernte
+tatsächlich *sagt*, für die meisten Nutzer gar nicht vorhanden.
+
+**Woraus er besteht.** Aus den 90 kuratierten Gesprächen. Jede „du"-Zeile trägt
+die Wendung, die dort produziert wird — die Partner-Zeile **davor** ist also
+bereits genau das, was ein Sparringspartner können muss: eine Äußerung, auf die
+die Ziel-Wendung die natürliche Antwort ist. Nur von Hand geschrieben und
+geprüft statt erzeugt.
+
+### Was er kann und was nicht
+
+| | Grund-Partner | Cloud-Partner |
+|---|---|---|
+| Kosten | keine | ein paar Cent je Antwort |
+| Netz | nicht nötig | nötig |
+| Schwedisch | **geprüft** (dieselbe Prüfkette wie aller Inhalt) | erzeugt, nicht muttersprachlich geprüft |
+| Steuert auf fällige Wendungen zu | ja | ja |
+| Geht auf die **tatsächliche** Antwort ein | **nein** | ja |
+
+Beide sind echt, sie können nur Verschiedenes — und die Fläche sagt es, bevor
+sich jemand wundert, warum der Partner nicht auf seine Antwort eingeht. Ein
+Erklärtext statt eines Modus war die schlechtere Antwort darauf.
+
+### Die eine Regel steht hier im Code statt im Prompt
+
+Der Partner darf die Ziel-Wendung **niemals selbst aussprechen** — sonst kann
+der Lerner sie nur nachplappern, und eine nachgeplapperte Wendung ist kein
+Abruf. Beim Cloud-Partner steht das (zweimal) im Prompt und bleibt eine *Bitte*.
+Beim Grund-Partner ist es eine **Bedingung**: Eine Zeile, die die Wendung
+enthält, wird nicht ausgewählt. Ein Test prüft das über **alle** kuratierten
+Wendungen, nicht an einem Beispiel.
+
+Dabei fiel auf, dass die Regel wirklich beißt: Das erste Partner→Du-Paar im
+Inhalt ist ein Gruß-Wechsel („God morgon!" / „God morgon!"). Genau solche Zeilen
+wirft der Grund-Partner weg.
+
+### Auswahl in drei Stufen
+
+1. Eine Zeile, die **genau** eine der offenen Ziel-Wendungen hervorlockt.
+2. Sonst eine Zeile aus demselben **Thema**.
+3. Sonst irgendeine noch ungesagte Zeile, damit das Gespräch nicht mitten im
+   Satz endet.
+
+Am **Anfang** eines Gesprächs zählt zusätzlich, dass es eine Eröffnungszeile ist
+und zur gewählten Kulisse passt (`SparringRequest.sceneId`). Beim Selbst-Ansehen
+sagte die Bedienung im Café als Erstes „Kaffe?" — ein Satz aus der Mitte eines
+fremden Gesprächs. Jetzt: „Hej, välkommen!"
+
+Die Kulisse ist dabei nachrangig: Gibt es die kuratierte Frage zur fälligen
+Wendung nur woanders, gilt die Wendung. Der Ort ist Rahmen, nicht Zweck.

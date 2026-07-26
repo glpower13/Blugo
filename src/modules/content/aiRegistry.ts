@@ -12,6 +12,7 @@ import type {
   SpeechSynthesizer,
 } from './ports';
 import { seedDecoder, seedGenerator } from './adapters/seed';
+import { seedPartner } from './adapters/seedPartner';
 import { webSpeechSynthesizer } from './adapters/webSpeech';
 import { webSpeechRecognizer } from './adapters/webSpeechRecognizer';
 
@@ -21,7 +22,10 @@ export interface AiPorts {
   synthesizer: SpeechSynthesizer;
   recognizer: SpeechRecognizer | null; // seit P1 belegt (Web Speech); null = kein Adapter
   explainer: Explainer | null; // erst mit Cloud-KI (Feedback-Schritt 2)
-  partner: SparringPartner | null; // erst mit Cloud-KI (P4, Sparringspartner)
+  // Seit 2026-07-26 IMMER belegt: Der Grund-Partner spielt kuratierte Gespräche,
+  // eine Cloud-KI antwortet frei (`adapters/seedPartner.ts`). `null` gibt es nur
+  // noch, wenn jemand ihn ausdrücklich abschaltet.
+  partner: SparringPartner | null;
 }
 
 /** Die Standard-Belegung: alles, was heute ohne externen Anbieter funktioniert. */
@@ -31,7 +35,9 @@ const defaults: AiPorts = {
   synthesizer: webSpeechSynthesizer,
   recognizer: webSpeechRecognizer,
   explainer: null,
-  partner: null,
+  // Der Sparringspartner war der einzige Modus, den es ohne eigenen Zugang gar
+  // nicht gab. Jetzt gibt es ihn — nur eben gescriptet statt frei.
+  partner: seedPartner,
 };
 
 /** Aktuelle Belegung. Aufrufer lesen z. B. `aiRegistry.synthesizer.speak(...)`. */

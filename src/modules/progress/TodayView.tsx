@@ -311,7 +311,7 @@ export function TodayView({
             </span>
             <span className="block text-[0.72rem] leading-relaxed text-muted">
               {!sparringReady
-                ? 'Braucht deinen eigenen KI-Zugang — hier steht, wie das geht'
+                ? 'Gerade ist kein Gesprächspartner eingerichtet'
                 : sparringTargets > 0
                   ? `${sparringTargets} fällige ${
                       sparringTargets === 1 ? 'Wendung' : 'Wendungen'

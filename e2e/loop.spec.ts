@@ -478,7 +478,7 @@ test('speaking is offered next to typing in a dialogue, fully on screen', async 
 // Einstieg SICHTBAR und erklärt, was fehlt — versteckt fand ihn niemand;
 // (2) wenn nichts fällig ist, sagt die Fläche ausdrücklich, dass nichts
 // gemessen wird.
-test('sparring says what it needs when no key is set, and works when one is', async ({
+test('Sparring läuft OHNE eigenen Zugang — und sagt, welcher Partner spricht', async ({
   page,
 }) => {
   const consoleErrors: string[] = [];
@@ -492,29 +492,31 @@ test('sparring says what it needs when no key is set, and works when one is', as
   await openTab(page, 'Gespräche');
   await expect(page.getByRole('heading', { name: 'Gespräche' })).toBeVisible();
 
-  // Ohne Schlüssel ist der Einstieg SICHTBAR und sagt selbst, was ihm fehlt.
-  // (Zuerst war er versteckt — gefunden hat ihn dann niemand, 2026-07-25.)
-  const entryWithoutKey = page.getByRole('button', { name: /Rede mit jemandem/ });
-  await expect(entryWithoutKey).toBeVisible();
-  await expect(entryWithoutKey).toContainText(/eigenen KI-Zugang/);
-  await entryWithoutKey.click();
-  await expect(page.getByText(/Dafür brauchst du deinen eigenen KI-Zugang/)).toBeVisible();
-  await expect(page.getByRole('button', { name: 'Einstellungen öffnen' })).toBeVisible();
+  // OHNE Schlüssel: Der Modus existiert jetzt. Bis 2026-07-26 stand hier ein
+  // Erklärtext statt eines Gesprächs — der Modus, in dem man das Gelernte
+  // tatsächlich SAGT, war für alle ohne Cloud-Zugang gar nicht vorhanden.
+  const entry = page.getByRole('button', { name: /Rede mit jemandem/ });
+  await expect(entry).toBeVisible();
+  await expect(entry).not.toContainText(/eigenen KI-Zugang/);
+  await entry.click();
+
+  await expect(page.getByRole('heading', { name: 'Wo soll geredet werden?' })).toBeVisible();
+  // Und er sagt ehrlich, WELCHER Partner spricht und was der nicht kann.
+  // `.first()`: „Grund-Partner" steht zweimal auf der Seite — oben die
+  // Einordnung, unten der Kosten-Satz. Beides ist gewollt.
+  await expect(page.getByText(/Grund-Partner/).first()).toBeVisible();
+  await expect(page.getByText(/nicht.*auf das ein, was du wirklich antwortest/)).toBeVisible();
+  await expect(page.getByText(/kostet nichts und braucht kein Netz/)).toBeVisible();
+  await expect(page.getByRole('button', { name: /Im Café/ })).toBeVisible();
   await page.getByRole('button', { name: 'Sparring verlassen' }).click();
 
-  // Mit eigenem Schlüssel führt derselbe Einstieg ins Gespräch.
+  // MIT eigenem Zugang wechselt die Einordnung — derselbe Modus, anderer Partner.
   await openTab(page, 'Heute');
   await configureCloud(page);
   await openTab(page, 'Gespräche');
-
-  const entry = page.getByRole('button', { name: /Rede mit jemandem/ });
-  await expect(entry).toBeVisible();
-  await entry.click();
-
-  // Kulissenwahl mit ehrlichem Hinweis (frisches Gerät: nichts fällig).
-  await expect(page.getByRole('heading', { name: 'Wo soll geredet werden?' })).toBeVisible();
-  await expect(page.getByText(/nichts gemessen/)).toBeVisible();
-  await expect(page.getByRole('button', { name: /Im Café/ })).toBeVisible();
+  await page.getByRole('button', { name: /Rede mit jemandem/ }).click();
+  await expect(page.getByText(/Cloud-Partner/)).toBeVisible();
+  await expect(page.getByText(/kostet dich dort ein paar Cent/)).toBeVisible();
 
   expect(consoleErrors, consoleErrors.join('\n')).toHaveLength(0);
   expect(pageErrors, pageErrors.join('\n')).toHaveLength(0);

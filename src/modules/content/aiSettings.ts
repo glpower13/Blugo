@@ -6,6 +6,7 @@
 
 import { setAiPorts } from './aiRegistry';
 import { seedDecoder, seedGenerator } from './adapters/seed';
+import { seedPartner } from './adapters/seedPartner';
 import {
   createAnthropicDecoder,
   createAnthropicExplainer,
@@ -98,7 +99,14 @@ export function applySettings(s: AiSettings): void {
     });
   } else {
     // Zurück zu den kostenlosen Standard-Adaptern (Seed); keine KI-Erklärung.
-    setAiPorts({ decoder: seedDecoder, explainer: null, generator: seedGenerator, partner: null });
+    // Zurück auf die Standard-Adapter — der Sparringspartner bleibt dabei
+    // erhalten, nur eben als Grund-Partner aus kuratiertem Inhalt.
+    setAiPorts({
+      decoder: seedDecoder,
+      explainer: null,
+      generator: seedGenerator,
+      partner: seedPartner,
+    });
   }
 }
 
