@@ -106,6 +106,7 @@ export function SparringScene({
       try {
         const reply = await partner.reply({
           scene: s.brief,
+          sceneId: s.id,
           partner: s.partner,
           learnerName,
           targets: remaining.map((t) => ({ sv: t.sv, de: t.de })),
@@ -184,45 +185,25 @@ export function SparringScene({
   // Ein beendetes Gespräch hört nicht weiter zu — auch nicht freihändig.
   finishedRef.current = ended;
 
-  // Ohne eingerichtete Cloud-KI gibt es diesen Modus nicht — und er behauptet
-  // auch nicht, es gäbe ihn (kein toter Knopf).
+  // Seit 2026-07-26 gibt es diesen Modus IMMER (`adapters/seedPartner.ts`).
+  // Vorher stand hier ein Erklärtext statt eines Gesprächs: Wer keinen eigenen
+  // Cloud-Zugang hatte, für den existierte der Modus, in dem man das Gelernte
+  // tatsächlich SAGT, schlicht nicht. `partner` kann nur noch `null` sein, wenn
+  // jemand ihn ausdrücklich abschaltet.
   if (!partner) {
     return (
       <div className="mx-auto w-full max-w-xl">
         <BackBar onExit={onExit} />
         <section className="glass mt-4 rounded-2xl p-6">
           <p className="font-display text-lg font-semibold text-paper">
-            Dafür brauchst du deinen eigenen KI-Zugang.
+            Gerade ist kein Gesprächspartner eingerichtet.
           </p>
-          <p className="mt-2 text-sm leading-relaxed text-muted">
-            Der Sparringspartner denkt sich seine Antworten aus — das kann keine Rechenregel,
-            das macht eine Cloud-KI. Sie läuft über einen Zugang, der dir gehört und den
-            du selbst bezahlst; wir speichern nichts davon auf einem Server, weil es
-            keinen gibt.
-          </p>
-          <ol className="mt-4 space-y-2 text-sm leading-relaxed text-muted">
-            <li>
-              <span className="text-paper">1.</span> Unten auf „Einstellungen öffnen" antippen.
-            </li>
-            <li>
-              <span className="text-paper">2.</span> Bei „Anbieter" <em>Claude (Cloud)</em>{' '}
-              wählen.
-            </li>
-            <li>
-              <span className="text-paper">3.</span> Deinen KI-Zugang eintragen (beginnt mit
-              „sk-ant-…") und speichern.
-            </li>
-          </ol>
           <button
             onClick={onOpenSettings}
             className="btn-gold mt-5 w-full rounded-xl px-5 py-3 font-medium text-ink"
           >
             Einstellungen öffnen
           </button>
-          <p className="mt-3 text-[0.7rem] leading-relaxed text-faint">
-            Alles andere in dieser App läuft ohne Zugang weiter — Lernen, Gespräche,
-            Sprechen statt Tippen. Nur der Sparringspartner braucht ihn.
-          </p>
         </section>
       </div>
     );
@@ -259,6 +240,25 @@ export function SparringScene({
               <>
                 Gerade ist nichts fällig. Reden darfst du trotzdem — es wird dann aber
                 nichts gemessen, und das sagen wir dir lieber, als eine Zahl zu erfinden.
+              </>
+            )}
+          </p>
+          {/* WELCHER Partner gerade spricht. Beide sind echt, sie können nur
+              Verschiedenes — und das gehört gesagt, bevor jemand sich wundert,
+              warum der Partner nicht auf seine Antwort eingeht. */}
+          <p className="mt-2 text-[0.7rem] leading-relaxed text-faint">
+            {partner.id === 'seed' ? (
+              <>
+                Grund-Partner: Er spielt <b>geprüfte</b> Gesprächszeilen aus den kuratierten
+                Szenen — kostenlos, offline, und jedes Wort ist durch dieselbe Prüfung
+                gegangen wie der übrige Inhalt. Er folgt dabei einem Faden und geht{' '}
+                <b>nicht</b> auf das ein, was du wirklich antwortest. Mit einem eigenen
+                KI-Zugang tut er genau das.
+              </>
+            ) : (
+              <>
+                Cloud-Partner: Er denkt sich seine Antworten aus und geht auf das ein, was
+                du sagst. Läuft über deinen eigenen Zugang und kostet dort ein paar Cent.
               </>
             )}
           </p>
@@ -304,10 +304,21 @@ export function SparringScene({
           ))}
         </ul>
 
+        {/* Der Kosten-Satz gilt nur für den Cloud-Partner. Ihn beim Grund-Partner
+            stehen zu lassen wäre schlicht falsch — der kostet nichts. */}
         <p className="px-1 text-[0.7rem] leading-relaxed text-faint">
-          Jede Antwort des Sparringspartners läuft über deinen eigenen KI-Zugang und kostet
-          dich dort ein paar Cent. Die Stimme kommt vom Gerät. Schwedisch aus einer KI ist
-          nicht muttersprachlich geprüft.
+          {partner.id === 'seed' ? (
+            <>
+              Der Grund-Partner kostet nichts und braucht kein Netz — seine Zeilen stehen
+              schon in der App. Die Stimme kommt vom Gerät.
+            </>
+          ) : (
+            <>
+              Jede Antwort des Sparringspartners läuft über deinen eigenen KI-Zugang und
+              kostet dich dort ein paar Cent. Die Stimme kommt vom Gerät. Schwedisch aus
+              einer KI ist nicht muttersprachlich geprüft.
+            </>
+          )}
         </p>
       </div>
     );

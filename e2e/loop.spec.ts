@@ -478,7 +478,7 @@ test('speaking is offered next to typing in a dialogue, fully on screen', async 
 // Einstieg SICHTBAR und erklärt, was fehlt — versteckt fand ihn niemand;
 // (2) wenn nichts fällig ist, sagt die Fläche ausdrücklich, dass nichts
 // gemessen wird.
-test('sparring says what it needs when no key is set, and works when one is', async ({
+test('Sparring läuft OHNE eigenen Zugang — und sagt, welcher Partner spricht', async ({
   page,
 }) => {
   const consoleErrors: string[] = [];
@@ -492,29 +492,31 @@ test('sparring says what it needs when no key is set, and works when one is', as
   await openTab(page, 'Gespräche');
   await expect(page.getByRole('heading', { name: 'Gespräche' })).toBeVisible();
 
-  // Ohne Schlüssel ist der Einstieg SICHTBAR und sagt selbst, was ihm fehlt.
-  // (Zuerst war er versteckt — gefunden hat ihn dann niemand, 2026-07-25.)
-  const entryWithoutKey = page.getByRole('button', { name: /Rede mit jemandem/ });
-  await expect(entryWithoutKey).toBeVisible();
-  await expect(entryWithoutKey).toContainText(/eigenen KI-Zugang/);
-  await entryWithoutKey.click();
-  await expect(page.getByText(/Dafür brauchst du deinen eigenen KI-Zugang/)).toBeVisible();
-  await expect(page.getByRole('button', { name: 'Einstellungen öffnen' })).toBeVisible();
+  // OHNE Schlüssel: Der Modus existiert jetzt. Bis 2026-07-26 stand hier ein
+  // Erklärtext statt eines Gesprächs — der Modus, in dem man das Gelernte
+  // tatsächlich SAGT, war für alle ohne Cloud-Zugang gar nicht vorhanden.
+  const entry = page.getByRole('button', { name: /Rede mit jemandem/ });
+  await expect(entry).toBeVisible();
+  await expect(entry).not.toContainText(/eigenen KI-Zugang/);
+  await entry.click();
+
+  await expect(page.getByRole('heading', { name: 'Wo soll geredet werden?' })).toBeVisible();
+  // Und er sagt ehrlich, WELCHER Partner spricht und was der nicht kann.
+  // `.first()`: „Grund-Partner" steht zweimal auf der Seite — oben die
+  // Einordnung, unten der Kosten-Satz. Beides ist gewollt.
+  await expect(page.getByText(/Grund-Partner/).first()).toBeVisible();
+  await expect(page.getByText(/nicht.*auf das ein, was du wirklich antwortest/)).toBeVisible();
+  await expect(page.getByText(/kostet nichts und braucht kein Netz/)).toBeVisible();
+  await expect(page.getByRole('button', { name: /Im Café/ })).toBeVisible();
   await page.getByRole('button', { name: 'Sparring verlassen' }).click();
 
-  // Mit eigenem Schlüssel führt derselbe Einstieg ins Gespräch.
+  // MIT eigenem Zugang wechselt die Einordnung — derselbe Modus, anderer Partner.
   await openTab(page, 'Heute');
   await configureCloud(page);
   await openTab(page, 'Gespräche');
-
-  const entry = page.getByRole('button', { name: /Rede mit jemandem/ });
-  await expect(entry).toBeVisible();
-  await entry.click();
-
-  // Kulissenwahl mit ehrlichem Hinweis (frisches Gerät: nichts fällig).
-  await expect(page.getByRole('heading', { name: 'Wo soll geredet werden?' })).toBeVisible();
-  await expect(page.getByText(/nichts gemessen/)).toBeVisible();
-  await expect(page.getByRole('button', { name: /Im Café/ })).toBeVisible();
+  await page.getByRole('button', { name: /Rede mit jemandem/ }).click();
+  await expect(page.getByText(/Cloud-Partner/)).toBeVisible();
+  await expect(page.getByText(/kostet dich dort ein paar Cent/)).toBeVisible();
 
   expect(consoleErrors, consoleErrors.join('\n')).toHaveLength(0);
   expect(pageErrors, pageErrors.join('\n')).toHaveLength(0);
@@ -1589,4 +1591,151 @@ test('nach der ersten Woche steht dort etwas Wahres statt einer Leere', async ({
   await expect(page.getByText(/23 Wendungen halten schon eine Pause von drei Tagen/)).toBeVisible();
   // Und der Satz nennt seine eigene Grenze im selben Atemzug.
   await expect(page.getByText(/ein Anfang, kein Beweis/)).toBeVisible();
+});
+
+// ── Die zähe Wendung (docs/03-method.md §Die zähe Wendung) ───────────────────
+//
+// Der Befund war aus dem Code beweisbar: Bei jedem „Nochmal" wuchsen
+// Warteschlange UND Position um eins — der Abstand blieb konstant, „Sitzung
+// erledigt." konnte nie erscheinen. Wer eine Wendung heute nicht hinbekam, saß
+// fest, bis er aufgab. Dieser Test spielt genau das im Browser durch.
+test('wer eine Wendung nie hinbekommt, kommt trotzdem ans Ende der Sitzung', async ({ page }) => {
+  const pageErrors: string[] = [];
+  page.on('pageerror', (e) => pageErrors.push(String(e)));
+
+  await page.goto('/');
+  await expect(page.getByText('bewiesen stabil')).toBeVisible();
+  await startSession(page);
+
+  // Immer „Nochmal" — der Lerner bekommt heute gar nichts hin. Ohne den Deckel
+  // liefe diese Schleife bis zum Zeitlimit.
+  let schritte = 0;
+  while (schritte < 40) {
+    if (await page.getByText('Sitzung erledigt.').isVisible()) break;
+    const reveal = page.getByRole('button', { name: 'Auflösen' });
+    await reveal.first().waitFor({ state: 'visible', timeout: 3000 }).catch(() => {});
+    if (!(await reveal.count())) break;
+    await reveal.first().click();
+    const nochmal = page.getByRole('button', { name: 'Selbsteinschätzung: Nochmal' }).first();
+    await nochmal.click();
+    await nochmal.waitFor({ state: 'detached', timeout: 3000 }).catch(() => {});
+    schritte++;
+  }
+
+  // Sie endet. Das ist der ganze Punkt.
+  await expect(page.getByText('Sitzung erledigt.')).toBeVisible();
+  // Und was heute nicht saß, wird benannt statt verschwiegen.
+  await expect(page.getByText(/heute\s+nicht sitzen/)).toBeVisible();
+  await expect(page.getByText(/hätte nichts gebracht/)).toBeVisible();
+
+  expect(pageErrors, pageErrors.join('\n')).toHaveLength(0);
+});
+
+// ── Stufe: erzeugte Sätze müssen für DIESEN Lerner i+1 sein ──────────────────
+//
+// Offener Punkt aus `09-roadmap.md` (Pipeline-Schritt 2): Der Prompt BAT das
+// Modell, aus Bekanntem zu bauen — geprüft wurde es nie. Die App behauptete i+1
+// und maß es nicht.
+test('ein KI-Satz voller unbekannter Wörter wird verworfen', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.getByText('bewiesen stabil')).toBeVisible();
+  await configureCloud(page);
+
+  await page.route('**/api.anthropic.com/**', async (route) => {
+    const kopf = {
+      'content-type': 'application/json',
+      'access-control-allow-origin': '*',
+      'access-control-allow-headers': '*',
+      'access-control-allow-methods': '*',
+    };
+    if (route.request().method() === 'OPTIONS') {
+      await route.fulfill({ status: 204, headers: kopf, body: '' });
+      return;
+    }
+    const body = route.request().postData() ?? '';
+    const m = /Ziel-Wendung[^„]*„([^\\"]+)\\?" \(Bedeutung: „([^\\"]+)\\?"\)/.exec(body);
+    const sv = m?.[1] ?? 'hej';
+    const de = m?.[2] ?? 'hallo';
+    // Korrektes Schwedisch, vollständig dekodiert — aber sieben Wörter, die der
+    // Lerner am ersten Tag unmöglich kennen kann. Das ist keine Begegnung, das
+    // ist eine Wand.
+    const extra = ['cykeln', 'trasiga', 'hjälpen', 'grannen', 'verkstaden', 'lagade', 'igår'];
+    await route.fulfill({
+      status: 200,
+      headers: kopf,
+      body: JSON.stringify({
+        content: [
+          {
+            type: 'text',
+            text: JSON.stringify({
+              sv: `${sv} ${extra.join(' ')}`,
+              de: `${de} …`,
+              decoding: [{ sv, de }, ...extra.map((w) => ({ sv: w, de: w }))],
+            }),
+          },
+        ],
+      }),
+    });
+  });
+
+  await startSession(page);
+  await page.getByRole('button', { name: /Neuer Kontext/ }).click();
+
+  // Der Satz erscheint NICHT — und die App sagt, woran es lag.
+  await expect(page.getByText(/Zu viel auf einmal/)).toBeVisible();
+  await expect(page.getByText(/Neuer Kontext · KI-erzeugt/)).toHaveCount(0);
+});
+
+// ── Anbieter sind austauschbar (docs/08-content-pipeline.md §Anbieter) ───────
+//
+// Die Port-Schicht behauptet seit Monaten, die KI sei austauschbar — es gab nur
+// nie einen zweiten Adapter, der das beweist. Dieser Test fährt die App gegen
+// einen ERFUNDENEN Anbieter, der nur die OpenAI-Schnittstelle spricht.
+test('ein beliebiger Anbieter treibt Dekodierung UND Sparringspartner', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.getByText('bewiesen stabil')).toBeVisible();
+
+  // Ein Anbieter, den es nicht gibt — nur die Schnittstelle zählt.
+  await page.route('**/eigener-anbieter.test/**', async (route) => {
+    const kopf = {
+      'content-type': 'application/json',
+      'access-control-allow-origin': '*',
+      'access-control-allow-headers': '*',
+      'access-control-allow-methods': '*',
+    };
+    if (route.request().method() === 'OPTIONS') {
+      await route.fulfill({ status: 204, headers: kopf, body: '' });
+      return;
+    }
+    const body = route.request().postData() ?? '';
+    // Am Systemtext erkennen, WELCHE der vier Aufgaben gerade gestellt wurde.
+    const istSparring = body.includes('Du spielst eine Person');
+    const antwort = istSparring
+      ? { sv: 'Vad vill du ha?', de: 'Was möchtest du?' }
+      : { tokens: [{ sv: 'hur', de: 'wie' }, { sv: 'mår', de: 'geht' }, { sv: 'du', de: 'du' }] };
+    await route.fulfill({
+      status: 200,
+      headers: kopf,
+      body: JSON.stringify({ choices: [{ message: { content: JSON.stringify(antwort) } }] }),
+    });
+  });
+
+  // Einrichten: Adresse, Modell, kein Zugang (wie bei einem lokalen Server).
+  await page.getByRole('button', { name: 'Einstellungen' }).click();
+  await page.getByText('Anderer Anbieter').click();
+  await page.getByPlaceholder('https://api.openai.com/v1').fill('https://eigener-anbieter.test');
+  await page.getByPlaceholder('gpt-4o').fill('mein-modell');
+
+  // Der Verbindungstest geht über die Dekodierung — das ist Aufgabe eins.
+  await page.getByRole('button', { name: 'Verbindung testen' }).click();
+  await expect(page.getByText(/✓ Klappt/)).toBeVisible();
+  await page.getByRole('button', { name: 'Speichern' }).click();
+  await page.getByRole('button', { name: /Einstellungen schließen/ }).click();
+
+  // Und Aufgabe vier: der Sparringspartner spricht über denselben Anbieter.
+  await openTab(page, 'Gespräche');
+  await page.getByRole('button', { name: /Rede mit jemandem/ }).click();
+  await expect(page.getByText(/Cloud-Partner/)).toBeVisible();
+  await page.getByRole('button', { name: /Im Café/ }).click();
+  await expect(page.getByText('Vad vill du ha?')).toBeVisible();
 });

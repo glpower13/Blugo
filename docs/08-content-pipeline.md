@@ -5,7 +5,7 @@ Für Schwedisch existiert kaum graded Content auf i+1; kuratierte Podcasts/Sende
 
 ## Pipeline (konzeptionell)
 1. **Skript-Generierung** — LLM erzeugt kurze schwedische Segmente, die gezielt Ziel-Chunks auf i+1 enthalten und bekannte Chunks in *neuem* Kontext wiederbringen.
-2. **Grading/Leveling** — Prüfung/Anpassung auf die Zielstufe (Anteil bekannter vs. neuer Chunks im gewünschten Verhältnis).
+2. **Grading/Leveling** — Prüfung/Anpassung auf die Zielstufe (Anteil bekannter vs. neuer Chunks im gewünschten Verhältnis). ✅ **gebaut 2026-07-26**, siehe §Stufe.
 3. **Dekodierung** — automatische interlineare Wort-für-Wort-Übersetzung SV→DE (Birkenbihl-Baustein), historisch der teuerste Handschritt, hier automatisiert.
 4. **TTS** — natürliches Schwedisch, variables Tempo.
 5. **Optional Bild/Kontext** — zur Verständlichmachung (Dual Coding, moderat).
@@ -154,6 +154,43 @@ etwas, ist die Regel verdächtig — nicht der Inhalt.
 kommen nicht vor" — nicht „die Wortstellung stimmt". Das wäre ein Siegel für eine
 Grammatikprüfung, die es hier nicht gibt.
 
+### Stufe: ist der Satz für DIESEN Lerner noch i+1? *(2026-07-26)*
+
+Offener Punkt aus `09-roadmap.md` (Pipeline-**Schritt 2**, „Grading/Leveling") und
+aus `10-open-questions.md`. Der Prompt **bat** das Modell, den Satz aus schon
+bekannten Wörtern zu bauen. Geprüft wurde es **nie**. Die App behauptete i+1 und
+maß es nicht.
+
+Verständlicher Input verlangt genau **ein** neues Element pro Begegnung
+(`03-method.md`). Ein Satz mit sieben unbekannten Wörtern ist kein i+1, sondern
+eine Wand — und eine Wand ist als Lernmaterial kaputt, egal wie korrekt ihr
+Schwedisch ist. Deshalb **hart**.
+
+**Die Latte kommt aus dem eigenen Inhalt.** Über 2.291 simulierte Begegnungen mit
+dem handgeschriebenen Bestand gemessen — wie viele Wörter kennt der Lerner in dem
+Moment noch nicht, die Ziel-Wendung nicht mitgerechnet?
+
+| neue Wörter | Anteil der Begegnungen |
+|---|---|
+| 0 | 72,2 % |
+| ≤ 1 | 93,4 % |
+| ≤ 2 | 99,3 % |
+| ≤ 4 | 100 % ← das Maximum, das je vorkommt |
+
+`STUFE_MAX` = **4**: Alles darüber liegt außerhalb dessen, was der kuratierte
+Bestand in 2.291 Begegnungen je getan hat. Ein Test in
+`quality/kalibrierung.test.ts` hält beides fest — dass kein handgeschriebenes
+Segment die Latte reißt, **und** dass sie nicht ins Uferlose gesetzt ist (höchstens
+zwei über dem tatsächlichen Maximum; sonst prüfte sie nichts mehr).
+
+**Ohne Lernstand entfällt die Prüfung.** `Wissen.gelernt` ist optional. Fehlt die
+Menge, wird nicht geraten — und die Beschriftung behauptet den Punkt dann auch
+nicht. „Er baut auf Wörtern auf, die du schon kennst" steht nur da, wenn es
+gemessen wurde.
+
+**Der Vorrat prüft mit.** Ohne den Lernstand legte er Sätze an, die das Tor beim
+Herausnehmen verwerfen würde — bezahlt und weggeworfen.
+
 ## Der Vorrat: schreiben, bevor jemand wartet *(gebaut 2026-07-26)*
 
 Das Tor hat einen Preis: Ein verworfener Satz kostet einen zweiten Aufruf, und der
@@ -265,3 +302,108 @@ behauptet es auch nicht.
   **zwei Muster** abgedeckt (siehe §Wortstellung) — der Rest der Satzgrammatik nicht,
   und die App behauptet es auch nicht.
 - Konkrete Modellwahl (LLM/TTS) → Anbieter-Entscheidung offen (`10-open-questions.md`); die Port-Schicht hält alle Wege offen.
+
+## Anbieter sind austauschbar — jetzt belegt *(Nutzerwunsch 2026-07-26)*
+
+„Die KI, die wir einsetzen, kann ja eine ganz andere sein. Das muss nicht Claude
+sein." Die Port-Schicht war dafür von Anfang an gebaut — es gab nur nie einen
+**zweiten** Adapter, der es beweist. Eine Architektur, deren Austauschbarkeit
+niemand ausprobiert hat, ist eine Behauptung.
+
+### Was jetzt drinsteht
+
+| Datei | Inhalt |
+|---|---|
+| `adapters/prompts.ts` | **Was** die KI tun soll: die vier Systemanweisungen, die Nutzer-Texte, das Auslesen der Antworten — anbieterunabhängig |
+| `adapters/shared.ts` | Wie Fehler klingen: HTTP-Status → klarer deutscher Satz, echte Anbieter-Meldung durchgereicht |
+| `adapters/anthropic.ts` | nur noch **der Draht** zu Claude |
+| `adapters/openaiCompatible.ts` | **der Draht zu allem anderen** |
+
+Vorher lagen Prompts und Auswertung im Claude-Adapter. Ein zweiter Anbieter
+hätte sie kopieren müssen — und zwei Kopien eines Prompts driften genauso
+auseinander wie zwei Kopien einer Prüfregel. Dann verhält sich die App je nach
+Anbieter anders, ohne dass es jemand entschieden hat. Ein Test hält jetzt fest,
+dass beide Adapter **dieselbe** Systemanweisung und denselben Nutzer-Text
+schicken; unterschiedlich ist allein das Format der Anfrage.
+
+### Was der generische Adapter abdeckt
+
+Alles, was die OpenAI-Chat-Schnittstelle spricht: OpenAI, Groq, Mistral,
+DeepSeek, Together, OpenRouter, Fireworks — **und lokale Server** (Ollama,
+LM Studio, llama.cpp, vLLM). Bei denen verlässt nichts das Gerät, und sie
+brauchen keinen Schlüssel: Ein leerer `Authorization`-Header lässt manche mit
+401 antworten, deshalb wird er dann gar nicht erst gesetzt.
+
+Der Nutzer trägt drei Dinge ein — Adresse, Modellname, Zugang (optional) — und
+bekommt Vorschläge als Knöpfe. Die Adresse wird nachsichtig behandelt:
+`https://api.openai.com`, `…/v1` und `…/v1/chat/completions` meinen dasselbe.
+An einem Schrägstrich zu scheitern wäre eine selbstgemachte Hürde.
+
+### Alle vier Fähigkeiten, jeder Anbieter
+
+Dekodierung · Erklärung · neuer Kontext · **Sparringspartner**. Ein e2e-Test
+fährt die App gegen einen *erfundenen* Anbieter und prüft, dass sowohl der
+Verbindungstest als auch das Gespräch darüber laufen.
+
+### Die ehrliche Grenze
+
+Die App kann **nicht** wissen, wie gut ein fremdes Modell Schwedisch kann.
+Deshalb ist es gut, dass das Tor (`quality/gate.ts`) hinter **jedem** Anbieter
+steht: Was ein schwaches Modell liefert, fällt dort durch, statt beim Lerner zu
+landen. Der Adapter macht Anbieter austauschbar — die Prüfung macht sie
+vergleichbar. Genau das sagt die Einstellungs-Fläche auch.
+
+## Der Grund-Partner: Sparring ohne eigenen Zugang *(Nutzerwunsch 2026-07-26)*
+
+**Der Befund.** In der Registry stand `partner: null`. Wer keinen eigenen
+Cloud-Zugang eingerichtet hatte, bekam beim Sparring einen **Erklärtext statt
+eines Gesprächs**. Damit war ausgerechnet der Modus, in dem man das Gelernte
+tatsächlich *sagt*, für die meisten Nutzer gar nicht vorhanden.
+
+**Woraus er besteht.** Aus den 90 kuratierten Gesprächen. Jede „du"-Zeile trägt
+die Wendung, die dort produziert wird — die Partner-Zeile **davor** ist also
+bereits genau das, was ein Sparringspartner können muss: eine Äußerung, auf die
+die Ziel-Wendung die natürliche Antwort ist. Nur von Hand geschrieben und
+geprüft statt erzeugt.
+
+### Was er kann und was nicht
+
+| | Grund-Partner | Cloud-Partner |
+|---|---|---|
+| Kosten | keine | ein paar Cent je Antwort |
+| Netz | nicht nötig | nötig |
+| Schwedisch | **geprüft** (dieselbe Prüfkette wie aller Inhalt) | erzeugt, nicht muttersprachlich geprüft |
+| Steuert auf fällige Wendungen zu | ja | ja |
+| Geht auf die **tatsächliche** Antwort ein | **nein** | ja |
+
+Beide sind echt, sie können nur Verschiedenes — und die Fläche sagt es, bevor
+sich jemand wundert, warum der Partner nicht auf seine Antwort eingeht. Ein
+Erklärtext statt eines Modus war die schlechtere Antwort darauf.
+
+### Die eine Regel steht hier im Code statt im Prompt
+
+Der Partner darf die Ziel-Wendung **niemals selbst aussprechen** — sonst kann
+der Lerner sie nur nachplappern, und eine nachgeplapperte Wendung ist kein
+Abruf. Beim Cloud-Partner steht das (zweimal) im Prompt und bleibt eine *Bitte*.
+Beim Grund-Partner ist es eine **Bedingung**: Eine Zeile, die die Wendung
+enthält, wird nicht ausgewählt. Ein Test prüft das über **alle** kuratierten
+Wendungen, nicht an einem Beispiel.
+
+Dabei fiel auf, dass die Regel wirklich beißt: Das erste Partner→Du-Paar im
+Inhalt ist ein Gruß-Wechsel („God morgon!" / „God morgon!"). Genau solche Zeilen
+wirft der Grund-Partner weg.
+
+### Auswahl in drei Stufen
+
+1. Eine Zeile, die **genau** eine der offenen Ziel-Wendungen hervorlockt.
+2. Sonst eine Zeile aus demselben **Thema**.
+3. Sonst irgendeine noch ungesagte Zeile, damit das Gespräch nicht mitten im
+   Satz endet.
+
+Am **Anfang** eines Gesprächs zählt zusätzlich, dass es eine Eröffnungszeile ist
+und zur gewählten Kulisse passt (`SparringRequest.sceneId`). Beim Selbst-Ansehen
+sagte die Bedienung im Café als Erstes „Kaffe?" — ein Satz aus der Mitte eines
+fremden Gesprächs. Jetzt: „Hej, välkommen!"
+
+Die Kulisse ist dabei nachrangig: Gibt es die kuratierte Frage zur fälligen
+Wendung nur woanders, gilt die Wendung. Der Ort ist Rahmen, nicht Zweck.

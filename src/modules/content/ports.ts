@@ -67,6 +67,14 @@ export interface SparringLine {
 export interface SparringRequest {
   /** Die Szene in einem deutschen Satz (Café, Werkstatt …) — Kulisse für den Partner. */
   scene: string;
+  /**
+   * Die Kennung der Kulisse (`cafe`, `garage`, …) — dieselbe Wertemenge wie
+   * `Dialog.scene`. Der Cloud-Partner braucht sie nicht, er liest den Satz. Der
+   * Grund-Partner schon: Ohne sie zieht er seine Zeilen aus irgendeinem
+   * Gespräch, und im Café redet plötzlich jemand über die Werkstatt (beim
+   * Selbst-Ansehen aufgefallen).
+   */
+  sceneId?: string;
   /** Wie der Partner heißt und wer er ist (z. B. „Kellnerin Elin"). */
   partner: string;
   /** Vorname des Lerners (leer = keiner). */

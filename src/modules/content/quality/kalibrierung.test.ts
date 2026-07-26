@@ -45,3 +45,50 @@ describe('Kalibrierung: der eigene Inhalt kommt durch sein eigenes Tor', () => {
     expect(pruefeSegment(s, chunk, wissen).unbekannt).toEqual([]);
   });
 });
+
+// ── Die Stufen-Latte kommt aus dem eigenen Inhalt ────────────────────────────
+//
+// `STUFE_MAX` behauptet: „Mehr als so viele neue Wörter verträgt verständlicher
+// Input nicht." Das ist nur tragbar, wenn der handgeschriebene Bestand die Latte
+// selbst einhält. Der Test spielt einen Lerner durch und misst bei JEDER
+// Begegnung, wie viele Wörter er noch nicht kennt.
+describe('Kalibrierung: die i+1-Latte gegen den eigenen Inhalt', () => {
+  it('kein handgeschriebenes Segment überschreitet STUFE_MAX', async () => {
+    const [{ seedSegments }, { initialState, schedule }, { buildQueue, pickSegmentForChunk }, { neueWoerter, STUFE_MAX, woerter }] =
+      await Promise.all([
+        import('../seedSegments'),
+        import('../../memory/memoryEngine'),
+        import('../../../session/buildQueue'),
+        import('./checks'),
+      ]);
+    const TAG = 86_400_000;
+    const START = Date.UTC(2026, 0, 1);
+    const states: Record<string, import('../../../domain/chunk').ChunkState> = {};
+    for (const c of seedChunks) states[c.id] = initialState(c.id, START);
+
+    const bekannt = new Set<string>();
+    let hoechste = 0;
+    const ueber: string[] = [];
+
+    for (let tag = 0; tag <= 120; tag++) {
+      const jetzt = START + tag * TAG;
+      for (const id of buildQueue(Object.values(states), jetzt, 5)) {
+        const chunk = chunkNach.get(id)!;
+        const seg = pickSegmentForChunk(chunk, states[id], seedSegments);
+        if (seg) {
+          const n = neueWoerter(seg.sv, chunk.sv, bekannt).length;
+          hoechste = Math.max(hoechste, n);
+          if (n > STUFE_MAX) ueber.push(`${seg.id}: ${n} neue Wörter`);
+        }
+        for (const w of woerter(chunk.sv)) bekannt.add(w);
+        states[id] = schedule(states[id], 'good', 'seg', jetzt, { retention: 0.9 });
+      }
+    }
+
+    expect(ueber).toEqual([]);
+    // Und die Latte darf nicht ins Uferlose gesetzt sein: Sie liegt knapp über
+    // dem, was der eigene Inhalt braucht — sonst prüfte sie nichts mehr.
+    expect(hoechste).toBeGreaterThan(0);
+    expect(STUFE_MAX - hoechste).toBeLessThanOrEqual(2);
+  });
+});

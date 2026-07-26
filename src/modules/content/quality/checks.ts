@@ -483,6 +483,43 @@ export function glossenKonflikte(
   return raus;
 }
 
+// ── Stufe: ist der Satz wirklich i+1? ────────────────────────────────────────
+//
+// WARUM ES DIESE PRÜFUNG GIBT (offener Punkt aus `09-roadmap.md`, Pipeline-
+// Schritt 2 „Grading/Leveling", und aus `10-open-questions.md`): Der Prompt BAT
+// das Modell, den Satz aus schon bekannten Wörtern zu bauen. Geprüft wurde es
+// nie. Die App behauptete i+1 und maß es nicht.
+//
+// Verständlicher Input verlangt GENAU EIN neues Element pro Begegnung
+// (`03-method.md`). Ein Satz mit sechs unbekannten Wörtern ist kein i+1, sondern
+// eine Wand — und eine Wand ist als Lernmaterial kaputt, egal wie korrekt ihr
+// Schwedisch ist.
+//
+// DIE LATTE KOMMT AUS DEM EIGENEN INHALT, nicht aus dem Bauch. Über 2.291
+// simulierte Begegnungen mit dem handgeschriebenen Bestand gemessen:
+//
+//     0 neue Wörter  72,2 %
+//   ≤ 1 neue Wörter  93,4 %
+//   ≤ 2 neue Wörter  99,3 %
+//   ≤ 4 neue Wörter  100 %   ← das Maximum, das je vorkommt
+//
+// Deshalb steht die harte Grenze bei 4: Alles darüber liegt außerhalb dessen,
+// was der kuratierte Bestand in 2.291 Begegnungen je getan hat.
+
+/** Mehr neue Wörter als das hat kein handgeschriebenes Segment je gehabt. */
+export const STUFE_MAX = 4;
+
+/**
+ * Die Wörter des Satzes, die der Lerner noch nicht kennt — ohne die
+ * Ziel-Wendung, denn die IST das erlaubte „+1". Rein.
+ */
+export function neueWoerter(sv: string, zielSv: string, bekannt: ReadonlySet<string>): string[] {
+  const ziel = new Set(woerter(zielSv));
+  return [...new Set(woerter(sv))].filter(
+    (w) => !/^\d+$/.test(w) && !ziel.has(w) && !bekannt.has(w),
+  );
+}
+
 // ── Wörter, die im geprüften Bestand nie vorkamen ────────────────────────────
 //
 // KEIN harter Fehler: Neue Wörter sind der Sinn von neuem Stoff. Aber sie sind

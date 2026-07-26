@@ -8,6 +8,7 @@ import { initialState, schedule } from './modules/memory/memoryEngine';
 import { newCountFor, recentSuccessRate, scaffoldShouldOpen } from './modules/memory/difficulty';
 import { buildQueue, buildPracticeQueue, pickSegmentForChunk } from './session/buildQueue';
 import { rueckkehrLage } from './session/rueckkehr';
+import { darfNochmal } from './session/zaeh';
 import { loadFocus, saveFocus } from './session/focus';
 import { loadName, saveName } from './session/profile';
 import { loadPreferences, savePreferences, type Preferences, ungesicherteBeweise } from './session/preferences';
@@ -112,6 +113,8 @@ export default function App() {
   // Alles davor war fällig oder neu; alles danach hat der Lerner selbst gewählt.
   const [pflichtAnzahl, setPflichtAnzahl] = useState(0);
   const [pos, setPos] = useState(0);
+  // Wendungen, die heute dreimal nicht saßen und deshalb auf morgen warten.
+  const [aufMorgen, setAufMorgen] = useState(0);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [showSettings, setShowSettings] = useState(false);
@@ -321,6 +324,7 @@ export default function App() {
         setQueue(plannedSession);
         setPflichtAnzahl(plannedSession.length); // der Tagesplan ist ganz Pflicht
         setPos(0);
+        setAufMorgen(0);
         setView({ name: 'session' });
         return;
       }
@@ -341,10 +345,25 @@ export default function App() {
       setQueue(q);
       setPflichtAnzahl(faellig);
       setPos(0);
+      setAufMorgen(0);
       setView({ name: 'session' });
     },
     [plannedSession, states, successRate, prefs.newPerSession, categoryByChunkId, areaByChunkId],
   );
+
+  // Jedes schwedische Wort, dem der Lerner schon begegnet ist — die Grundlage
+  // für die i+1-Prüfung erzeugter Sätze (`quality/gate.ts`). Bewusst die VOLLE
+  // Menge und nicht die zwölf Wendungen aus `knownPhrases`: Die sind für den
+  // Prompt gedeckelt; als Maßstab für „unbekannt" wären sie schlicht falsch.
+  const gelernteWoerter = useMemo(() => {
+    const raus = new Set<string>();
+    for (const c of chunks) {
+      const s = states[c.id];
+      if (!s || (s.status === 'new' && s.history.length === 0)) continue;
+      for (const w of c.sv.toLowerCase().match(/\p{L}+/gu) ?? []) raus.add(w);
+    }
+    return raus;
+  }, [chunks, states]);
 
   // Die Lage nach einer Pause — `null` an einem normalen Tag (`rueckkehr.ts`).
   const rueckkehr = useMemo(() => rueckkehrLage(Object.values(states)), [states]);
@@ -397,7 +416,9 @@ export default function App() {
           chunks: kommend,
           bekanntFuer: (c) => knownPhrases(chunks, states, c.id),
           generator: aiRegistry.generator,
-          wissen: await ladeWissen(),
+          // Ohne den Lernstand legte der Vorrat Sätze an, die das Tor beim
+          // Herausnehmen verwerfen würde — bezahlt und weggeworfen.
+          wissen: { ...(await ladeWissen()), gelernt: gelernteWoerter },
           modell: aiRegistry.generator.id,
           abbruch: () => abgebrochen,
         });
@@ -443,8 +464,21 @@ export default function App() {
         ...(spoken ? { spoken: true } : {}),
       });
       setStates((prev) => ({ ...prev, [currentChunk.id]: next }));
-      // 'again' → re-queue at the end (relearn this session); else advance.
-      setQueue((q) => (result === 'again' ? [...q, currentChunk.id] : q));
+      // „Nochmal" → hinten anhängen, ABER GEDECKELT (`session/zaeh.ts`).
+      //
+      // Vorher stand hier `[...q, currentChunk.id]` ohne Grenze. Warteschlange
+      // und Position wuchsen dann bei jedem Fehlversuch gleichzeitig um eins —
+      // der Abstand blieb konstant, und „Sitzung erledigt." konnte NIE
+      // erscheinen. Wer eine Wendung heute nicht hinbekam, saß fest, bis er
+      // aufgab und die App verließ.
+      setQueue((q) =>
+        result === 'again' && darfNochmal(q, currentChunk.id) ? [...q, currentChunk.id] : q,
+      );
+      // Was heute nicht mehr drankommt, wird gezählt statt verschwiegen — der
+      // Abschluss der Sitzung sagt es.
+      if (result === 'again' && !darfNochmal(queue, currentChunk.id)) {
+        setAufMorgen((n) => n + 1);
+      }
       setPos((p) => p + 1);
     } catch (e) {
       console.error('Persist failed', e);
@@ -971,6 +1005,7 @@ export default function App() {
                 retention={prefs.retention}
                 onResult={handleResult}
                 known={known}
+                gelernt={gelernteWoerter}
                 scaffoldOpen={scaffoldOpen}
               />
             ) : null}
@@ -984,6 +1019,16 @@ export default function App() {
                 {metrics.dueNow > 0 && (
                   <p className="mt-2 text-xs text-faint">
                     Noch {metrics.dueNow} fällig — bewusst auf die nächsten Sitzungen verteilt.
+                  </p>
+                )}
+                {/* Was heute dreimal nicht saß, wird nicht verschwiegen — aber
+                    auch nicht als Versagen hingestellt. Es weiter abzufragen
+                    hätte nichts gebracht (`session/zaeh.ts`). */}
+                {aufMorgen > 0 && (
+                  <p className="mt-2 text-xs text-faint">
+                    {aufMorgen === 1 ? 'Eine Wendung wollte' : `${aufMorgen} Wendungen wollten`} heute
+                    nicht sitzen. Die kommen wieder — heute noch weiter zu fragen hätte nichts
+                    gebracht.
                   </p>
                 )}
                 <button

@@ -108,7 +108,7 @@ export function DialogOverview({
         </p>
         <p className="mt-0.5 text-xs leading-relaxed text-paper/85">
           {!sparringReady
-            ? 'Dafür brauchst du deinen eigenen KI-Zugang. Hier steht, wie du ihn hinterlegst.'
+            ? 'Gerade ist kein Gesprächspartner eingerichtet.'
             : sparringTargets > 0
               ? `Er versucht, dir ${sparringTargets} fällige ${
                   sparringTargets === 1 ? 'Wendung' : 'Wendungen'

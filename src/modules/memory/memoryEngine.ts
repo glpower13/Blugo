@@ -6,6 +6,7 @@
 // (`provenStableAt`) — nicht vom Algorithmus geschätzt (docs/07-measurement.md).
 
 import type { ChunkState, ReviewResult, RetrievalStage } from '../../domain/chunk';
+import { mindestAbstandTage } from '../../session/zaeh';
 import {
   DEFAULT_REQUEST_RETENTION,
   initialDifficulty,
@@ -129,7 +130,16 @@ export function schedule(
 
   if (result === 'again') {
     successStreak = 0;
-    intervalDays = 0; // Relearn: in DIESER Sitzung erneut fällig (Kurzzeit-Schritt)
+    // Relearn: in DIESER Sitzung erneut fällig (Kurzzeit-Schritt) — ABER nicht
+    // mehr endlos. Wer mehrfach hintereinander scheitert, bekommt einen
+    // Mindestabstand (`session/zaeh.ts`): Die tägliche Abfrage hat nachweislich
+    // nicht geholfen, sonst wäre die Wendung nicht viermal durchgefallen. Und
+    // geballte Wiederholung ist die schwächste Form des Übens. `CLAUDE.md`
+    // verlangt an dieser Stelle ausdrücklich das Gegenteil von Durchdrücken.
+    //
+    // Der Abstand wird auf dem Zustand NACH diesem Fehlschlag berechnet, also
+    // einschließlich des gerade eingetragenen „Nochmal" (siehe unten).
+    intervalDays = 0;
     // Demote a failed production chunk back to recognition — it clearly cannot
     // be produced yet, so retrieval difficulty is stepped back down (ISTQB E-1).
     stage = 'recognition';
@@ -183,7 +193,12 @@ export function schedule(
   // Status lifecycle: new → learning → maintenance.
   status = deriveStatus(status, intervalDays, stage, successStreak);
 
-  const dueAt = now + intervalDays * DAY_MS;
+  // Der Verlauf EINSCHLIESSLICH dieses Abrufs — der Mindestabstand für zähe
+  // Wendungen muss den gerade eingetragenen Fehlschlag mitzählen, sonst greift
+  // er immer eine Runde zu spät.
+  const verlauf = [...state.history, { at: now, result, segmentId }];
+  const mindest = mindestAbstandTage({ ...state, history: verlauf });
+  const dueAt = now + Math.max(intervalDays, mindest) * DAY_MS;
   const seenSegmentIds = state.seenSegmentIds.includes(segmentId)
     ? state.seenSegmentIds
     : [...state.seenSegmentIds, segmentId];
