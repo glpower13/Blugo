@@ -89,7 +89,7 @@ export const MEHRDEUTIGE_WOERTER: Mehrdeutig[] = [
   {
     sv: 'ifrån',
     bedeutungen: ['her', 'davon'],
-    hinweis: '„var kommer du ifrån" fragt woher, „ifrån det" heißt davon weg.',
+    hinweis: '„var kommer du ifrån" fragt woher; sonst zeigt es weg von etwas.',
   },
   {
     sv: 'kort',

@@ -184,8 +184,11 @@ Damit Doku und Realität nicht auseinanderdriften — was *heute Code* ist und w
 | Kontextvariation, Tages-Dosierung neuer Chunks | ✅ gebaut |
 | Thematische Struktur — Chunks in Kategorien, ehrliche Themen-Abdeckung („X von Y bewiesen stabil"), Fokus-Wahl für neuen Stoff | ✅ gebaut (`gremium-struktur.md`) |
 | Navigation — Übersicht → Thema-Detail (Drill-down mit den einzelnen Wendungen) → fokussierte Lern-Session (mit Fortschritt & Zurück) | ✅ gebaut (client-seitig, kein Router) |
-| Installierbare PWA, offline, lokale Daten | ✅ gebaut |
+| Installierbare PWA, offline, lokale Daten | ✅ gebaut · offline **gemessen** (Neuladen, nachgeladene Gespräche, Session — alles ohne Netz) |
 | Adaptives Erfolgsband ~80–85 % (Neuzufuhr passt sich an) | ✅ gebaut (Session-Ebene; Intervall-Feintuning später) |
+| Anti-Klippe an der einzelnen Wendung — nach „Nochmal“: leichtere Abrufform, **derselbe** Satz, Hilfe steht von selbst offen | ✅ gebaut (`03-method.md`, Ebene 2) |
+| Mehrdeutige Wörter werden benannt — „kort heißt hier »Karte« — es heißt auch »kurz«“ | ✅ gebaut (29 Wörter, am Inhalt festgehalten) |
+| Sicherungs-Hinweis — nennt, wie viele **bewiesene** Wendungen in keiner Sicherung stehen; bei null unsichtbar | ✅ gebaut (`gremium-einstellungen.md`, Nachtrag) |
 | Echte Produktionserfassung (Tippen statt Selbstnote) | ✅ Tippen gebaut · Sprechen/ASR später |
 | Satz-Darstellung fürs beste Lernen — Zielsprache oben; Bedeutung bei NEUEM Chunk sofort offen, bei bekanntem eingeklappt (Abruf); Produktion als Lückentext ohne Spoiler | ✅ gebaut (`gremium-darstellung.md`) |
 | Formatives Feedback bei Tipp-Produktion (Abweichung zeigen + Hinweis + „Nochmal versuchen") | ✅ gebaut |
