@@ -10,10 +10,10 @@
 
 ## Ergebnis
 
-- Geprüfte schwedische Zeichenketten: **13329**
-- Verschiedene Wörter: **1269**
-- ✅ alltagshäufig belegt (Zipf ≥ 3.0): **1248**
-- ⚠️ selten belegt: **21**
+- Geprüfte schwedische Zeichenketten: **13435**
+- Verschiedene Wörter: **1275**
+- ✅ alltagshäufig belegt (Zipf ≥ 3.0): **1253**
+- ⚠️ selten belegt: **22**
 - ❌ nicht belegt (Tippfehler-Verdacht): **0**
 
 ## ❌ Nicht belegt — zuerst anschauen
@@ -42,6 +42,7 @@ Existiert, ist aber ungewöhnlich. Für Anfänger-Inhalt oft ein Zeichen, dass e
 | **smaklig** | 2.82 | ja | „Smaklig måltid!" · „Smaklig måltid." |
 | **bakad** | 2.85 | ja | „Varsågod. Kakan är bakad i morse." · „bakad" |
 | **handske** | 2.88 | ja | „Du tappade förresten din handske där borta." · „handske" |
+| **skruvmejsel** | 2.92 | ja | „Har du en skruvmejsel?" · „Hittade du en skruvmejsel?" |
 | **automaten** | 2.93 | — | „Tyvärr, kortet fungerar inte i automaten." · „automaten" |
 | **bifoga** | 2.94 | ja | „Gärna. Och du måste bifoga ett intyg också." · „bifoga" |
 | **tjugonde** | 2.95 | ja | „Var tjugonde minut. Men taxi går fortare." · „tjugonde" |
@@ -58,6 +59,8 @@ Existiert, ist aber ungewöhnlich. Für Anfänger-Inhalt oft ein Zeichen, dass e
 | Däcket är punkterat. | punkterat |
 | Fyrtiotvå. Äldre än jag ser ut, brukar folk säga. | fyrtiotvå |
 | Gärna. Och du måste bifoga ett intyg också. | bifoga |
+| Har du en skruvmejsel? | skruvmejsel |
+| Hittade du en skruvmejsel? | skruvmejsel |
 | Hon som bor i grannhuset. Snäll, säger barnen. | grannhuset |
 | Här är vår offert. Priset gäller i två veckor. | offert |
 | I lådan. Titta förresten på framhjulet. | framhjulet |
@@ -99,6 +102,7 @@ Existiert, ist aber ungewöhnlich. Für Anfänger-Inhalt oft ein Zeichen, dass e
 | punkterat | punkterat |
 | rätterna | rätterna |
 | skruven | skruven |
+| skruvmejsel | skruvmejsel |
 | smaklig | smaklig |
 | smaklig måltid | smaklig |
 | tjugonde | tjugonde |

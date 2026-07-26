@@ -17,7 +17,7 @@
 export type VerificationLevel = 'machine' | 'unchecked';
 
 export const VERIFICATION_META = {
-  machine: 376,
+  machine: 392,
   unchecked: 3,
   dictionaryEntries: 152719,
 } as const;
@@ -110,6 +110,22 @@ export const VERIFICATION: Record<string, VerificationLevel> = {
   'c-forvantademignagot': 'machine',
   'c-frantyskland': 'machine',
   'c-fungeratdaligt': 'machine',
+  'c-fw-garna': 'machine',
+  'c-fw-godmorgon': 'machine',
+  'c-fw-godnatt': 'machine',
+  'c-fw-hallo': 'machine',
+  'c-fw-hej': 'machine',
+  'c-fw-ja': 'machine',
+  'c-fw-jattebra': 'machine',
+  'c-fw-kanske': 'machine',
+  'c-fw-kom': 'machine',
+  'c-fw-nej': 'machine',
+  'c-fw-snalla': 'machine',
+  'c-fw-tack': 'machine',
+  'c-fw-titta': 'machine',
+  'c-fw-tyvarr': 'machine',
+  'c-fw-vanta': 'machine',
+  'c-fw-visst': 'machine',
   'c-fyllaiblankett': 'machine',
   'c-fyllerar': 'machine',
   'c-gallergarantin': 'machine',

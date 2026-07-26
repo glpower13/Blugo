@@ -805,10 +805,18 @@ test('in einer Überlagerung bleibt der Fokus beim Tippen im Feld', async ({ pag
 // hängt an der Dekodierung: Wer Wort-für-Wort-Hilfe zieht, bekommt sie ganz.
 test('ein mehrdeutiges Wort wird im Lern-Loop als mehrdeutig erklärt', async ({ page }) => {
   await page.goto('/');
+  // Gezielt in ein Thema mit mehrdeutigen Wörtern: Seit es den Startpiloten gibt,
+  // beginnt eine frische Sitzung bei „hej"/„tack" — Ein-Wort-Äußerungen ohne
+  // zweite Bedeutung. Ein Fokus macht den Test wieder aussagekräftig.
+  await openLearn(page);
+  await page.getByRole('button', { name: /Erste Schritte/ }).click();
+  await page.getByRole('button', { name: /Begrüßen & Kennenlernen/ }).click();
+  await page.getByRole('button', { name: 'Fokus setzen' }).click();
+  await openTab(page, 'Heute');
   await startSession(page);
 
   let gefunden = '';
-  for (let i = 0; i < 8 && !gefunden; i++) {
+  for (let i = 0; i < 12 && !gefunden; i++) {
     const zu = page.getByRole('button', { name: 'Dekodierung', exact: true });
     if (await zu.count()) await zu.click();
     const hinweis = page.locator('p', { hasText: 'es heißt auch' });
@@ -1059,4 +1067,59 @@ test('nach einem „Nochmal" kommt derselbe Satz zurück, mit offener Hilfe', as
     page.getByRole('button', { name: 'Dekodierung ausblenden' }),
     'die Hilfe war beim Nachlernen wieder zugeklappt',
   ).toBeVisible();
+});
+
+// Stufe B: Der Startpilot — der erste Weg für jemanden ohne ein einziges Wort.
+//
+// Der Inhalt begann bisher bei „hur mår du?". Wer noch nie Schwedisch gesehen
+// hat, steht davor wie vor einer Wand. Der Startpilot führt durch sechzehn
+// Ein-Wort-Äußerungen und prüft nach je vier kurz nach.
+//
+// Zwei Dinge prüft dieser Test, weil sie die Regel der App tragen:
+//   1. Der Abschluss nennt das Ergebnis und sagt im selben Atemzug, dass es
+//      KEIN Beweis ist (Wiedererkennen aus drei Möglichkeiten).
+//   2. Die Einladung verschwindet nach dem Durchlauf — ein Angebot, das
+//      stehen bleibt, ist kein Angebot mehr.
+test('der Startpilot führt durch die ersten Wörter und wird danach unsichtbar', async ({
+  page,
+}) => {
+  const seitenFehler: string[] = [];
+  page.on('pageerror', (e) => seitenFehler.push(String(e)));
+
+  await page.goto('/');
+  await expect(page.getByText('bewiesen stabil')).toBeVisible();
+  await page.getByRole('button', { name: /Startpilot starten/ }).click();
+
+  // Erstes Wort: schwedisch groß, deutsche Bedeutung, und wann man es sagt.
+  await expect(page.getByText('Wort 1 von 16')).toBeVisible();
+  await expect(page.locator('section [lang="sv"]').first()).toHaveText('hej');
+
+  // Vier Begegnungen, dann die erste Probe.
+  for (let i = 0; i < 4; i++) await page.getByRole('button', { name: 'Verstanden' }).click();
+  await expect(page.getByText(/Kleine Probe · 1 von 4/)).toBeVisible();
+  await expect(page.locator('section button[lang="sv"]')).toHaveCount(3);
+
+  // Komplett durchspielen — immer die erste Möglichkeit, also mal richtig, mal falsch.
+  for (let i = 0; i < 90; i++) {
+    if (await page.getByRole('button', { name: /Los geht/ }).count()) break;
+    const weiter = page.getByRole('button', { name: 'Weiter' });
+    const verstanden = page.getByRole('button', { name: 'Verstanden' });
+    if (await weiter.count()) await weiter.click();
+    else if (await verstanden.count()) await verstanden.click();
+    else await page.locator('section button[lang="sv"]').first().click();
+  }
+
+  // Der Abschluss zählt — und ordnet das Gezählte sofort ein.
+  await expect(page.getByText(/wiedererkannt/)).toBeVisible();
+  await expect(page.getByText(/nicht als Beweis/)).toBeVisible();
+
+  await page.getByRole('button', { name: /Los geht/ }).click();
+  await expect(page.getByText('bewiesen stabil')).toBeVisible();
+  await expect(page.getByRole('button', { name: /Startpilot starten/ })).toHaveCount(0);
+
+  // Und er bleibt in den Einstellungen erreichbar.
+  await page.getByRole('button', { name: 'Einstellungen' }).click();
+  await expect(page.getByRole('button', { name: 'Noch einmal durchgehen' })).toBeVisible();
+
+  expect(seitenFehler, seitenFehler.join('\n')).toHaveLength(0);
 });

@@ -10,13 +10,13 @@
 
 ## Ergebnis
 
-- Geprüfte Zeilen (Wendungen · Segmente · Gesprächszeilen): **1718**
+- Geprüfte Zeilen (Wendungen · Segmente · Gesprächszeilen): **1797**
 - ❌ **A** Glossen-Lücken (hart): **0**
 - ❌ **B** Kontext-Brüche (hart, Deckung < 0.5): **0**
 - ℹ️ **B2** starke Kontextvariation (erwünscht): **12**
-- ⚠️ **C** Glossen-Konflikte: **224** — davon **0 zu prüfen**, 29 der App bekannt und dem Lerner erklärt, 35 kontextabhängige Funktionswörter, 160 nur deutsche Beugung
+- ⚠️ **C** Glossen-Konflikte: **228** — davon **0 zu prüfen**, 29 der App bekannt und dem Lerner erklärt, 35 kontextabhängige Funktionswörter, 164 nur deutsche Beugung
 - ❌ **E** Zahl- oder Verneinungsfehler (hart): **0**
-- ℹ️ **D** Abstand wörtlich ↔ gemeint: **125** (Deckung < 0.34)
+- ℹ️ **D** Abstand wörtlich ↔ gemeint: **127** (Deckung < 0.34)
 
 ## ❌ A — Glossen-Lücken
 
@@ -68,7 +68,7 @@ Auch hier trägt dasselbe Wort zwei Bedeutungen — aber die App sagt es. In der
 | **flyttar** | „zieht" (Segment s-b1g-ledsen2) · „verlegen" (Gespräch dlg-mix-jobb/mj5) | — |
 | **framme** | „angekommen" (Segment s-a1t-nu2) · „bereit" (Gespräch dlg-mat/mt7) | — |
 | **gång** | „mal" (Wendung c-engangtill) · „gang" (Gespräch dlg-mix-telefon/mt5) | — |
-| **gott** | „lecker" (Wendung c-vargott) · „gut" (Segment s-a1t-tre1) | — |
+| **gott** | „lecker" (Wendung c-vargott) · „gut" (Segment s-fw-gm2) | — |
 | **högt** | „hoch" (Segment s-b2v-pris2) · „laut" (Gespräch dlg-traditioner/tr9) | — |
 | **ifrån** | „davon" (Gespräch dlg-kanslor/ks11) · „her" (Gespräch dlg-familj/fa1) | — |
 | **kort** | „karte" (Wendung c-medkort) · „kurz" (Wendung c-kortsagtgickdetbra) | — |
@@ -85,7 +85,7 @@ Auch hier trägt dasselbe Wort zwei Bedeutungen — aber die App sagt es. In der
 | **tid** | „zeit" (Wendung c-vilkentidpassar) · „termin" (Wendung c-bokaentid) | — |
 | **utanför** | „außerhalb" (Wendung c-utanforbudgeten) · „draußen" (Gespräch dlg-tid/tid7) | — |
 | **vad** | „was" (Wendung c-kostar) · „wie" (Wendung c-vadroligt) | — |
-| **visst** | „klar" (Gespräch dlg-shop/g5) · „wohl" (Gespräch dlg-halsning/hl1) | — |
+| **visst** | „klar" (Wendung c-fw-visst) · „wohl" (Gespräch dlg-halsning/hl1) | — |
 
 ## ℹ️ C3 — Funktionswörter (Bedeutung kommt aus dem Satz)
 
@@ -107,17 +107,17 @@ Auch hier trägt dasselbe Wort zwei Bedeutungen — aber die App sagt es. In der
 | **går** | „fährt" (Wendung c-nartag) · „geht" (Wendung c-hurfort) · „gehe" (Wendung c-detgarjagmedpa) · „gehen" (Segment s-tapadigmossa2) · „gestern" (Segment s-b1r-fel2) | ja |
 | **åt** | „fest" (Gespräch dlg-garage/g9) · „gegen" (Gespräch dlg-miljo/mj3) · „in" (Gespräch dlg-mix-vag/mv7) · „für" (Gespräch dlg-mix-jobb/mj13) | ja |
 | **för** | „für" (Wendung c-bordtva) · „zu" (Wendung c-fordyrt) · „dafür" (Gespräch dlg-asikt/as3) · „vor" (Gespräch dlg-mix-asikt/ma11) | ja |
+| **in** | „herein" (Wendung c-valkommenin) · „rein" (Segment s-fw-visst3) · „ein" (Segment s-a2po-pnr2) · „hinein" (Gespräch dlg-mix-vag/mv3) | ja |
 | **sedan** | „her" (Segment s-a1p-snart1) · „seit" (Segment s-a2ap-hosta1) · „danach" (Segment s-a2r-mix4) · „dann" (Segment s-a2ki-mat1) | ja |
 | **som** | „wie" (Wendung c-samtidigtsomdethande) · „der" (Segment s-vemardet2) · „das" (Gespräch dlg-sprak/sp5) · „die" (Gespräch dlg-mix-familj/mf9) | ja |
+| **ut** | „heraus" (Wendung c-tautpengar) · „hinaus" (Segment s-tapadigmossa2) · „raus" (Gespräch dlg-fw-morgon/fm11) · „aus" (Gespräch dlg-lake/f9) | ja |
 | **först** | „zuerst" (Segment s-a2b-utpengar2) · „als erster" (Gespräch dlg-track/t6) · „erst" (Gespräch dlg-mix-familj/mf3) | ja |
 | **från** | „aus" (Wendung c-frantyskland) · „von" (Segment s-spar1) · „ab" (Gespräch dlg-trafftid/tt5) | ja |
-| **in** | „herein" (Wendung c-valkommenin) · „ein" (Segment s-a2po-pnr2) · „hinein" (Gespräch dlg-mix-vag/mv3) | ja |
-| **ingen** | „keine" (Wendung c-ingenfara) · „niemand" (Segment s-b1g-orolig1) · „kein" (Gespräch dlg-arzt/a5) | ja |
+| **ingen** | „keine" (Wendung c-ingenfara) · „niemand" (Segment s-b1g-orolig1) · „kein" (Gespräch dlg-fw-dorren/fd9) | ja |
 | **inget** | „kein" (Segment s-a1f-mjolk1) · „keine" (Segment s-b1j-ansokan2) · „nichts" (Segment s-b2u-utslapp1) | ja |
 | **innan** | „bevor" (Segment s-tapadigmossa2) · „davor" (Gespräch dlg-tidsbokning/tb7) · „vorher" (Gespräch dlg-trafftid/tt5) | ja |
 | **sen** | „später" (Wendung c-ringerdig) · „spät" (Wendung c-blirlitesen) · „dann" (Gespräch dlg-weg/w4) | ja |
-| **ut** | „heraus" (Wendung c-tautpengar) · „hinaus" (Segment s-tapadigmossa2) · „aus" (Gespräch dlg-lake/f9) | ja |
-| **än** | „als" (Wendung c-laterhardare) · „noch" (Segment s-a2r-bo2) | ja |
+| **än** | „als" (Wendung c-laterhardare) · „noch" (Segment s-fw-kanske3) | ja |
 | **ändå** | „trotzdem" (Segment s-b1m-mix4) · „doch" (Gespräch dlg-mix-asikt/ma7) | ja |
 | **av** | „von" (Wendung c-harerfarenhet) · „ab" (Segment s-valkommenin2) | ja |
 | **då** | „dann" (Wendung c-hejda) · „denn" (Gespräch dlg-berattelse/be5) | ja |
@@ -126,7 +126,7 @@ Auch hier trägt dasselbe Wort zwei Bedeutungen — aber die App sagt es. In der
 | **med** | „mit" (Wendung c-jobbar) · „dabei" (Segment s-b1f-nar2) | ja |
 | **mig** | „mir" (Wendung c-hjalpa) · „mich" (Wendung c-ursaktamig) | ja |
 | **ner** | „unten" (Gespräch dlg-post/po7) · „nieder" (Gespräch dlg-mix-restaurang/mr3) | ja |
-| **tack** | „danke" (Wendung c-tack) · „bitte" (Wendung c-entill) | ja |
+| **tack** | „danke" (Wendung c-fw-tack) · „bitte" (Wendung c-entill) | ja |
 | **upp** | „auf" (Wendung c-atuppmaten) · „hinauf" (Gespräch dlg-familj/fa9) | ja |
 
 ## ℹ️ C2 — nur deutsche Beugung (erwartet)
@@ -137,13 +137,13 @@ Vollständigkeit statt Schönfärberei: Diese Fälle stehen hier, damit nichts v
 |---|---|---|
 | **hela** | „die ganze" (Wendung c-fungeratdaligt) · „den ganzen" (Segment s-vilketvader1) · „ganzen" (Segment s-a1t-klockan2) · „ganze" (Segment s-a1v-sommar1) · „das ganze" (Gespräch dlg-forhandling/fh5) · „dem ganzen" (Gespräch dlg-vader/vr5) | — |
 | **är** | „ist" (Wendung c-var-toa) · „bin" (Wendung c-hungrig) · „bist" (Wendung c-gammal) · „sind" (Wendung c-daarvioverens) · „seid" (Gespräch dlg-familj/fa5) | ja |
+| **din** | „deins" (Segment s-vilkenbil2) · „dein" (Gespräch dlg-fw-dorren/fd3) · „deine" (Gespräch dlg-fika/fk1) · „deinem" (Gespräch dlg-forsta/fo9) · „deinen" (Gespräch dlg-artighet/ar5) | — |
 | **en** | „eine" (Wendung c-entill) · „einer" (Wendung c-entimme) · „einen" (Wendung c-bror) · „ein" (Wendung c-biljett) · „einem" (Wendung c-bormedkompis) | ja |
 | **ett** | „ein" (Wendung c-bokatrum) · „einem" (Wendung c-jobbarpakontor) · „eine" (Wendung c-skickarmejl) · „einen" (Segment s-bordtva3) · „eins" (Segment s-a2ap-utan1) | ja |
 | **min** | „meine" (Wendung c-familj) · „meinem" (Segment s-a2b-overfor1) · „meiner" (Segment s-b1f-midsommar1) · „meinen" (Gespräch dlg-inbjudan/ib1) · „mein" (Gespräch dlg-resa/rs9) | — |
 | **behöver** | „brauche" (Wendung c-lakare) · „brauchen" (Wendung c-behoverforsakring) · „brauchst" (Gespräch dlg-shop/g1) · „braucht" (Gespräch dlg-apotek/ap7) | — |
 | **betalar** | „zahle" (Wendung c-kontant) · „zahlst" (Gespräch dlg-shop/g7) · „zahlen" (Gespräch dlg-reklamation/rk11) · „zahlt" (Gespräch dlg-miljo/mj9) | — |
 | **bra** | „gut" (Wendung c-marbra) · „guter" (Wendung c-braformad) · „gutes" (Wendung c-ettbraargument) · „gute" (Gespräch dlg-kanslor/ks7) | — |
-| **din** | „deins" (Segment s-vilkenbil2) · „deine" (Gespräch dlg-fika/fk1) · „deinem" (Gespräch dlg-forsta/fo9) · „deinen" (Gespräch dlg-artighet/ar5) | — |
 | **fin** | „schön" (Segment s-tarden2) · „schöne" (Segment s-hurmangarum1) · „schöner" (Segment s-akaskidor1) · „schönen" (Gespräch dlg-halsning/hl11) | — |
 | **ha** | „haben" (Wendung c-vill-ha) · „hab" (Wendung c-hadetbra) · „habe" (Segment s-a1v-nasta1) · „ha" (Gespräch dlg-nyanser/ny11) | — |
 | **kan** | „kann" (Wendung c-hjalpa) · „kannst" (Wendung c-upprepa) · „können" (Wendung c-bokaettmote) · „könnt" (Wendung c-narkannileverera) | — |
@@ -156,13 +156,13 @@ Vollständigkeit statt Schönfärberei: Diese Fälle stehen hier, damit nichts v
 | **blir** | „wird" (Wendung c-blirdet) · „werde" (Wendung c-blirlitesen) · „werden" (Segment s-a2in-van2) | — |
 | **bor** | „wohnst" (Wendung c-bordu) · „wohne" (Wendung c-borilagenhet) · „wohnt" (Segment s-familj3) | — |
 | **börjar** | „beginnt" (Wendung c-loppet) · „beginne" (Wendung c-borjarpamandag) · „beginnen" (Gespräch dlg-sprak/sp3) | — |
-| **god** | „guten" (Segment s-morgon) · „gut" (Segment s-a1f-kopp1) · „gute" (Segment s-a2ki-sova1) | — |
+| **god** | „guten" (Wendung c-fw-godmorgon) · „gute" (Wendung c-fw-godnatt) · „gut" (Segment s-a1f-kopp1) | — |
 | **hade** | „hatte" (Segment s-b1g-besviken1) · „hattest" (Gespräch dlg-post/po11) · „hatten" (Gespräch dlg-barn/br3) | — |
 | **håller** | „hältst" (Wendung c-hallerpa) · „halte" (Wendung c-hallermeddig) · „halten" (Gespräch dlg-inbjudan/ib5) | — |
 | **hinner** | „schaffe" (Segment s-a2ap-stanger2) · „schaffen" (Segment s-b2d-aterkomma2) · „schaffst" (Gespräch dlg-mix-jobb/mj7) | — |
 | **hör** | „hörst" (Wendung c-horduemig) · „höre" (Wendung c-hordumig) · „hör" (Gespräch dlg-phone/t5) | — |
 | **jobbet** | „der arbeit" (Segment s-sesses2) · „arbeit" (Segment s-b1j-lon1) · „die arbeit" (Segment s-b1j-borjar2) | — |
-| **kom** | „komm" (Segment s-loppet2) · „kam" (Segment s-b2i-sent1) · „kamst" (Gespräch dlg-garage/g1) | — |
+| **kom** | „komm" (Wendung c-fw-kom) · „kam" (Segment s-b2i-sent1) · „kamst" (Gespräch dlg-garage/g1) | — |
 | **kör** | „fahr" (Segment s-raktfram2) · „fahre" (Gespräch dlg-vardag/vd7) · „fahren" (Gespräch dlg-mix-spel/ms3) | — |
 | **liten** | „klein" (Wendung c-forliten) · „kleine" (Gespräch dlg-bank/bk5) · „kleines" (Gespräch dlg-miljo/mj3) | — |
 | **måste** | „muss" (Wendung c-maste-lagga-pa) · „müssen" (Wendung c-sessnart) · „musst" (Gespräch dlg-forsta/fo7) | — |
@@ -170,7 +170,7 @@ Vollständigkeit statt Schönfärberei: Diese Fälle stehen hier, damit nichts v
 | **nytt** | „neuer" (Wendung c-nytt-rekord) · „neues" (Segment s-b1m-serie2) · „neue" (Gespräch dlg-mix-telefon/mt3) | — |
 | **ring** | „ruf an" (Wendung c-ringpolis) · „ruf" (Segment s-hjalp3) · „rufe an" (Gespräch dlg-tidsbokning/tb9) | — |
 | **ringer** | „rufe an" (Wendung c-ringerdig) · „ruft an" (Segment s-vemardet2) · „rufst an" (Gespräch dlg-mix-jobb/mj7) | — |
-| **sa** | „sagte" (Segment s-b2i-sent2) · „sagtest" (Gespräch dlg-kanslor/ks11) · „sagten" (Gespräch dlg-mix-nyheter/mn7) | — |
+| **sa** | „sagte" (Segment s-b2i-sent2) · „sagtest" (Gespräch dlg-fw-dorren/fd14) · „sagten" (Gespräch dlg-mix-nyheter/mn7) | — |
 | **säger** | „sagt" (Wendung c-pasvenska) · „sagen" (Wendung c-dasagervisa) · „sage" (Segment s-b2i-droppen1) | — |
 | **skriver** | „schreibe" (Segment s-a2po-pnr2) · „schreiben" (Gespräch dlg-forhandling/fh11) · „schreibst" (Gespräch dlg-mix-jobb/mj15) | — |
 | **sover** | „schlafen" (Wendung c-sovaute) · „schlafe" (Segment s-a2ap-hosta2) · „schläfst" (Gespräch dlg-apotek/ap3) | — |
@@ -181,7 +181,7 @@ Vollständigkeit statt Schönfärberei: Diese Fälle stehen hier, damit nichts v
 | **tycker** | „meine" (Wendung c-tyckerattdetarbra) · „meinst" (Wendung c-vadtyckerduomdet) · „meinen" (Gespräch dlg-sprak/sp5) | — |
 | **väntar** | „warten" (Gespräch dlg-gaming/z9) · „warte" (Gespräch dlg-tid/tid7) · „wartet" (Gespräch dlg-fika/fk1) | — |
 | **veckan** | „der woche" (Wendung c-jagtranar) · „die woche" (Segment s-b1g-vila2) · „woche" (Gespräch dlg-tid/tid1) | — |
-| **vet** | „weiß" (Segment s-pasvenska3) · „wissen" (Segment s-b2u-hallbart1) · „weißt" (Gespräch dlg-nodfall/nd9) | — |
+| **vet** | „weiß" (Segment s-fw-kanske3) · „wissen" (Segment s-b2u-hallbart1) · „weißt" (Gespräch dlg-nodfall/nd9) | — |
 | **vill** | „will" (Wendung c-vill-ha) · „willst" (Wendung c-villdukomma) · „wollen" (Gespräch dlg-asikt/as1) | — |
 | **åker** | „fahre" (Segment s-a1v-helg2) · „fahren" (Gespräch dlg-resa/rs1) | — |
 | **allt** | „alles" (Segment s-a1s-engelska2) · „allem" (Segment s-b2e-kort1) | — |
@@ -223,8 +223,8 @@ Vollständigkeit statt Schönfärberei: Diese Fälle stehen hier, damit nichts v
 | **hämtar** | „hole" (Wendung c-hamtapadagis) · „holt" (Gespräch dlg-barn/br11) | — |
 | **helgen** | „dem wochenende" (Wendung c-vadgordu) · „das wochenende" (Segment s-b2v-tanka1) | — |
 | **heter** | „heiße" (Wendung c-heter) · „heißt" (Segment s-namn1) | — |
-| **hittar** | „finde" (Wendung c-tappatvaska) · „findest" (Gespräch dlg-klader/kl1) | — |
-| **hjälp** | „hilfe" (Wendung c-hjalp) · „hilf" (Segment s-hjalpe2) | — |
+| **hittar** | „finde" (Wendung c-tappatvaska) · „findest" (Gespräch dlg-fw-dorren/fd10) | — |
+| **hjälp** | „hilfe" (Wendung c-hjalp) · „hilf" (Segment s-fw-snalla2) | — |
 | **hyr** | „mieten" (Wendung c-hyraenbil) · „mietet" (Gespräch dlg-resa/rs9) | — |
 | **jobbade** | „arbeiteten" (Segment s-b1g-nojd2) · „arbeitete" (Segment s-b1j-erfarenhet2) | — |
 | **jobbar** | „arbeitest" (Wendung c-jobbar) · „arbeite" (Wendung c-jobbarpakontor) | — |
@@ -245,6 +245,7 @@ Vollständigkeit statt Schönfärberei: Diese Fälle stehen hier, damit nichts v
 | **ledigt** | „freies" (Wendung c-ledigtrum) · „frei" (Segment s-a1f-sitta1) | — |
 | **levererar** | „liefert" (Segment s-b2v-medpa1) · „liefern" (Gespräch dlg-debatt/db5) | — |
 | **ligger** | „liegt" (Wendung c-stationen) · „liegen" (Wendung c-vihalleross) | — |
+| **lite** | „wenig" (Wendung c-vantalite) · „ein wenig" (Segment s-fw-snalla3) | — |
 | **lyssna** | „hör" (Segment s-latarkonstigt2) · „höre" (Gespräch dlg-sprak/sp7) | — |
 | **man** | „man" (Wendung c-pasvenska) · „mann" (Gespräch dlg-familj/fa9) | — |
 | **mår** | „befindest" (Wendung c-hej) · „befinde" (Wendung c-marbra) | — |
@@ -266,14 +267,16 @@ Vollständigkeit statt Schönfärberei: Diese Fälle stehen hier, damit nichts v
 | **resa** | „reisen" (Segment s-a1p-roligt2) · „reise" (Gespräch dlg-ticket/t7) | — |
 | **resan** | „die reise" (Wendung c-hurlangresan) · „der reise" (Segment s-a2b-utpengar1) | — |
 | **såg** | „sah" (Wendung c-sagennyhet) · „sahen" (Gespräch dlg-mix-halsa/mha9) | — |
-| **säg** | „sag" (Gespräch dlg-shop/g3) · „sage" (Gespräch dlg-sprak/sp7) | — |
+| **säg** | „sag" (Gespräch dlg-fw-morgon/fm15) · „sage" (Gespräch dlg-sprak/sp7) | — |
 | **se** | „sehen" (Segment s-b1m-rekom2) · „sieh" (Gespräch dlg-natur/nt5) | — |
+| **ses** | „sehen uns" (Wendung c-vises) · „sehen" (Gespräch dlg-fw-dorren/fd12) | — |
 | **sjön** | „den see" (Gespräch dlg-traning/tn3) · „see" (Gespräch dlg-natur/nt7) | — |
 | **skickar** | „schicke" (Wendung c-skickarmejl) · „schicken" (Gespräch dlg-tidsbokning/tb7) | — |
 | **smaklig** | „schmackhaft" (Wendung c-smaklig) · „schmackhafte" (Segment s-smaklig3) | — |
 | **snön** | „dem schnee" (Segment s-a2ki-leker1) · „der schnee" (Gespräch dlg-vinter/vi9) | — |
 | **snygg** | „schön" (Segment s-hurfort2) · „schick" (Segment s-tarden3) | — |
 | **söker** | „suche" (Wendung c-sokerjobb) · „suchst" (Gespräch dlg-weg/w2) | — |
+| **sov** | „schliefst" (Segment s-fw-gm2) · „schlaf" (Segment s-fw-gn2) | — |
 | **spelar** | „spielst" (Wendung c-vilketspel) · „spielt" (Wendung c-vemspelar) | — |
 | **stänger** | „schließt" (Wendung c-narstanger) · „schließen" (Gespräch dlg-apotek/ap11) | — |
 | **stannar** | „bleibe" (Segment s-a1v-omvecka2) · „bleiben" (Segment s-b1f-jul2) | — |
@@ -290,6 +293,7 @@ Vollständigkeit statt Schönfärberei: Diese Fälle stehen hier, damit nichts v
 | **trevlig** | „schönen" (Gespräch dlg-restaurant/r10) · „schöne" (Gespräch dlg-ticket/t7) | — |
 | **utmärkt** | „ausgezeichnet" (Gespräch dlg-restaurant/r8) · „ausgezeichnete" (Gespräch dlg-shop/g7) | — |
 | **varje** | „jeden" (Wendung c-ovarvarjedag) · „jedes" (Segment s-b1f-midsommar2) | — |
+| **varsågod** | „bitte" (Wendung c-varsagod) · „bitte sehr" (Gespräch dlg-fw-morgon/fm7) | — |
 | **väskan** | „die tasche" (Wendung c-packavaskan) · „der tasche" (Segment s-a2k-kvitto1) | — |
 | **vattnet** | „das wasser" (Wendung c-lugntvatten) · „dem wasser" (Gespräch dlg-resa/rs9) | — |
 | **vem** | „wer" (Wendung c-vemvann) · „wen" (Gespräch dlg-inbjudan/ib11) | — |
@@ -377,6 +381,7 @@ Wie weit der Wort-für-Wort-Rückbau von der freien Übersetzung wegliegt. **Das
 | 25 % | det visade sig vara fel | es zeigte sich sein falsch | es stellte sich als falsch heraus | Wendung c-detvisadesigvarafel |
 | 25 % | jag såg en nyhet om det | ich sah eine Nachricht über das | ich habe eine Nachricht darüber gesehen | Wendung c-sagennyhet |
 | 33 % | Jag förstår. Var gör det ont? | ich verstehe wo macht es Schmerz | Ich verstehe. Wo tut es weh? | Gespräch dlg-arzt/a3 |
+| 33 % | Hittade du en skruvmejsel? | fandest du einen Schraubenzieher | Hast du einen Schraubenzieher gefunden? | Gespräch dlg-fw-dorren/fd7 |
 | 33 % | Och förresten: du sa ifrån på mötet. Det var modigt. | und übrigens du sagtest davon auf dem Treffen das war mutig | Und übrigens: du hast im Meeting etwas gesagt. Das war mutig. | Gespräch dlg-kanslor/ks11 |
 | 33 % | Hej! Vad gäller det? | hallo was gilt es | Hallo! Worum geht es? | Gespräch dlg-reklamation/rk1 |
 | 33 % | Utmärkt! Smaklig måltid. | ausgezeichnet schmackhaft Mahlzeit | Ausgezeichnet! Guten Appetit. | Gespräch dlg-restaurant/r8 |
@@ -400,6 +405,7 @@ Wie weit der Wort-für-Wort-Rückbau von der freien Übersetzung wegliegt. **Das
 | 33 % | Det blåser mycket idag. | es weht viel heute | Es ist heute sehr windig. | Segment s-blasermycket1 |
 | 33 % | Kom igen, en gång till! | komm wieder ein Mal noch | Komm schon, noch einmal! | Segment s-engang2 |
 | 33 % | Ingen fara, jag fixar det. | keine Gefahr ich richte das | Kein Problem, ich mache das. | Segment s-fixardet1 |
+| 33 % | Hej! Trevligt att träffas. | hallo nett zu treffen | Hallo! Schön, dich kennenzulernen. | Segment s-fw-hej3 |
 | 33 % | Tack, ha det bra! | danke hab es gut | Danke, alles Gute! | Segment s-hadetbra2 |
 | 33 % | Hej! Vad håller du på med? | hallo was hältst du an mit | Hallo! Was machst du gerade? | Segment s-hallerpa1 |
 | 33 % | Förlåt! – Ingen fara. | verzeih keine Gefahr | Entschuldigung! – Kein Problem. | Segment s-ingenfara2 |

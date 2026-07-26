@@ -44,6 +44,8 @@ interface Props {
   onName: (name: string) => void;
   prefs: Preferences;
   onPrefs: (p: Preferences) => void;
+  /** Den Startpiloten noch einmal öffnen (die ersten sechzehn Wörter). */
+  onStartpilot: () => void;
   states: ChunkState[];
   totalChunks: number;
   /** Eingelesene Stände übernehmen (schreiben + in den Zustand spiegeln). */
@@ -58,6 +60,7 @@ export function SettingsScreen({
   onName,
   prefs,
   onPrefs,
+  onStartpilot,
   states,
   totalChunks,
   onImport,
@@ -95,7 +98,7 @@ export function SettingsScreen({
 
         <div className="mt-4 flex flex-col gap-3">
           <YouSection name={name} onName={onName} />
-          <LearningSection prefs={prefs} onPrefs={onPrefs} />
+          <LearningSection prefs={prefs} onPrefs={onPrefs} onStartpilot={onStartpilot} />
           <VoiceSection prefs={prefs} onPrefs={onPrefs} />
           <SpeechSection prefs={prefs} onPrefs={onPrefs} />
           <Section label="KI & Sparringspartner" title="Wer denkt für die App mit?">
@@ -234,9 +237,11 @@ function YouSection({ name, onName }: { name: string; onName: (n: string) => voi
 function LearningSection({
   prefs,
   onPrefs,
+  onStartpilot,
 }: {
   prefs: Preferences;
   onPrefs: (p: Preferences) => void;
+  onStartpilot: () => void;
 }) {
   const [advanced, setAdvanced] = useState(false);
   const factor = workloadFactor(prefs.retention);
@@ -244,6 +249,23 @@ function LearningSection({
 
   return (
     <Section label="Lernen" title="Wie viel kommt neu dazu?">
+      {/* Der Startpilot verschwindet nach dem ersten Durchlauf von „Heute" —
+          hier bleibt er erreichbar. Er misst nichts neu: Die sechzehn Wörter
+          laufen danach ganz normal im Loop weiter. */}
+      <div className="mb-4 rounded-xl border border-line p-3">
+        <p className="text-sm text-paper">Startpilot — die ersten sechzehn Wörter</p>
+        <p className="mt-1 text-xs leading-relaxed text-faint">
+          {prefs.startpilotDoneAt
+            ? 'Schon einmal gelaufen. Noch einmal ansehen ändert nichts an deinem Stand — die Antworten zählen wie jeder andere Abruf.'
+            : 'Noch nicht gelaufen. Der sanfteste Einstieg: ein Wort nach dem anderen, mit Ton.'}
+        </p>
+        <button
+          onClick={onStartpilot}
+          className="mt-3 min-h-11 w-full rounded-xl border border-line px-4 text-sm text-paper"
+        >
+          {prefs.startpilotDoneAt ? 'Noch einmal durchgehen' : 'Startpilot öffnen'}
+        </button>
+      </div>
       <div className="flex flex-wrap gap-2">
         {NEW_PER_SESSION_OPTIONS.map((n) => (
           <Chip

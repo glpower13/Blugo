@@ -35,6 +35,9 @@ interface Props {
   sparringReady: boolean;
   /** Wie viele fällige Wendungen der Partner hervorlocken würde. */
   sparringTargets: number;
+  /** Startpilot noch nicht gelaufen? Dann führt der erste Weg dorthin. */
+  startpilotOffen: boolean;
+  onStartpilot: () => void;
 }
 
 /** Ehrliche Unterzeile zur großen Zahl — beschönigt eine 0 nicht. */
@@ -67,6 +70,8 @@ export function TodayView({
   onGoSparring,
   sparringReady,
   sparringTargets,
+  startpilotOffen,
+  onStartpilot,
 }: Props) {
   const shown = useCountUp(stable);
 
@@ -143,13 +148,47 @@ export function TodayView({
         </div>
       </section>
 
+      {/* DER ERSTE WEG. Der bisherige Inhalt begann bei „hur mår du?" — für
+          jemanden ohne ein einziges schwedisches Wort ist das eine Wand. Solange
+          der Startpilot offen ist, steht er ÜBER dem normalen Knopf; danach
+          verschwindet er ganz. Ein Angebot, das nach dem Annehmen stehen bleibt,
+          ist kein Angebot mehr, sondern Möbel. */}
+      {!loading && startpilotOffen && (
+        <section className="glass rounded-2xl border border-brand/30 p-5">
+          <p className="text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-brand">
+            Fang hier an
+          </p>
+          <h2 className="mt-2 font-display text-xl font-semibold leading-tight text-paper">
+            Die ersten sechzehn Wörter
+          </h2>
+          <p className="mt-2 text-sm leading-relaxed text-muted">
+            Kurze Wörter, die man wirklich sagt — <span lang="sv">hej</span>,{' '}
+            <span lang="sv">tack</span>, <span lang="sv">kanske</span>. Eines nach dem
+            anderen, mit Ton, und nach jeweils vier eine kleine Probe. Etwa fünf Minuten.
+          </p>
+          <button
+            onClick={onStartpilot}
+            className="btn-gold mt-4 flex min-h-11 w-full items-center justify-center gap-2 rounded-xl px-4 font-semibold text-ink"
+          >
+            <IconSprout className="h-4 w-4" /> Startpilot starten
+          </button>
+        </section>
+      )}
+
       {loading ? (
         <div className="shimmer h-[60px] w-full rounded-2xl" />
       ) : (
         <div>
+          {/* Solange der Startpilot offen ist, tritt dieser Knopf ZURÜCK. Zwei
+              gleich laute Goldknöpfe übereinander sind für jemanden, der noch
+              kein Wort kann, zwei erste Schritte — also keiner. */}
           <button
             onClick={onStart}
-            className="btn-gold flex w-full items-center justify-center gap-2 rounded-2xl py-4 text-base font-semibold text-ink"
+            className={
+              startpilotOffen
+                ? 'flex w-full items-center justify-center gap-2 rounded-2xl border border-line py-3.5 text-sm font-medium text-paper'
+                : 'btn-gold flex w-full items-center justify-center gap-2 rounded-2xl py-4 text-base font-semibold text-ink'
+            }
           >
             <IconPlay className="h-4 w-4" />
             {sessionSize > 0

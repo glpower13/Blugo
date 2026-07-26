@@ -50,6 +50,14 @@ export interface Preferences {
    */
   lastBackupAt: number | null;
   lastBackupProven: number;
+  /**
+   * Wann der Startpilot durchlaufen wurde (`null` = noch nie).
+   *
+   * WOZU: Der Einstieg auf „Heute" soll beim ersten Mal auf den Startpiloten
+   * zeigen und danach nicht mehr. Ein Angebot, das nach dem Durchlaufen
+   * weiter herumsteht, ist kein Angebot mehr, sondern Möbel.
+   */
+  startpilotDoneAt: number | null;
 }
 
 export const RETENTION_MIN = 0.8;
@@ -74,6 +82,7 @@ export function defaultPreferences(): Preferences {
     speechOnDeviceReady: false,
     lastBackupAt: null,
     lastBackupProven: 0,
+    startpilotDoneAt: null,
   };
 }
 
@@ -111,6 +120,12 @@ export function normalizePreferences(raw: unknown): Preferences {
       typeof r.lastBackupProven === 'number' && Number.isFinite(r.lastBackupProven)
         ? Math.max(0, Math.round(r.lastBackupProven))
         : 0,
+    startpilotDoneAt:
+      typeof r.startpilotDoneAt === 'number' &&
+      Number.isFinite(r.startpilotDoneAt) &&
+      r.startpilotDoneAt > 0
+        ? r.startpilotDoneAt
+        : null,
   };
 }
 

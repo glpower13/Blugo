@@ -1,7 +1,7 @@
 {
   "dictionaryEntries": 152719,
-  "wordsChecked": 1269,
-  "stringsChecked": 13329,
+  "wordsChecked": 1275,
+  "stringsChecked": 13435,
   "flagged": {
     "automaten": {
       "verdict": "selten",
@@ -87,6 +87,11 @@
       "verdict": "selten",
       "zipf": 2.8,
       "inDict": false
+    },
+    "skruvmejsel": {
+      "verdict": "selten",
+      "zipf": 2.92,
+      "inDict": true
     },
     "smaklig": {
       "verdict": "selten",

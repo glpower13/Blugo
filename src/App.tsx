@@ -45,6 +45,10 @@ import { pickTargets } from './modules/sparring/targets';
 const SparringScene = lazy(() =>
   import('./modules/sparring/SparringScene').then((m) => ({ default: m.SparringScene })),
 );
+// Der Startpilot läuft genau einmal — er gehört nicht ins Startbündel.
+const StartpilotScene = lazy(() =>
+  import('./modules/onboarding/StartpilotScene').then((m) => ({ default: m.StartpilotScene })),
+);
 
 // Ein Scope grenzt eine Session ein: ein ganzer Bereich oder ein einzelnes Thema.
 type SessionScope = { kind: 'area' | 'category'; id: string };
@@ -61,6 +65,7 @@ type View =
   | { name: 'category'; id: string }
   | { name: 'dialog'; id: string }
   | { name: 'sparring' } // freies Gespräch mit dem KI-Partner (P4)
+  | { name: 'startpilot' } // die ersten sechzehn Wörter, geführt
   | { name: 'session' };
 
 /**
@@ -417,6 +422,41 @@ export default function App() {
     [states, prefs.retention],
   );
 
+  // Die sechzehn Wörter des Startpiloten, in ihrer festgelegten Reihenfolge.
+  const ersteWoerter = useMemo(
+    () => chunks.filter((c) => c.categoryId === 'cat-first-words'),
+    [chunks],
+  );
+
+  /**
+   * Eine Antwort im Startpiloten — DIESELBE Memory-Engine wie überall sonst.
+   *
+   * Kein zweiter Zähler, kein Startpiloten-Punktestand: Was hier gelingt, ist
+   * ein Wiedererkennen und wird als solches verbucht. „Bewiesen stabil" kann
+   * daraus per Konstruktion nichts werden — das verlangt die Produktions-Stufe
+   * nach über neunzig Tagen (`memoryEngine.ts`).
+   */
+  const handleStartpilot = useCallback(
+    (chunkId: string, result: ReviewResult) => {
+      const state = states[chunkId];
+      if (!state) return;
+      const now = Date.now();
+      const segId = `startpilot:${chunkId}`;
+      const next = schedule(state, result, segId, now, { retention: prefs.retention });
+      void (async () => {
+        try {
+          await putChunkState(next);
+          await logEvent(chunkId, { at: now, result, segmentId: segId });
+          setStates((prev) => ({ ...prev, [chunkId]: next }));
+        } catch (e) {
+          console.error('Persist failed', e);
+          setError('Die Antwort konnte nicht gespeichert werden. Bitte die App neu laden.');
+        }
+      })();
+    },
+    [states, prefs.retention],
+  );
+
   // Im Sparring produzierte Wendung: derselbe Weg wie überall (P4). Bewusst
   // ohne Selbsteinschätzung — hier ist der Treffer objektiv: der Lerner hat die
   // geprüfte Wendung selbst gesagt, ohne dass sie ihm vorgesagt wurde.
@@ -450,7 +490,11 @@ export default function App() {
   const done = !loading && pos >= queue.length;
   // Ebene 4 (Lernen/Gespräch): die globale Navigation verschwindet — nichts lenkt
   // ab (docs/gremium-navigation.md §4, „Formsprache je Ebene").
-  const showTabs = view.name !== 'session' && view.name !== 'dialog' && view.name !== 'sparring';
+  const showTabs =
+    view.name !== 'session' &&
+    view.name !== 'dialog' &&
+    view.name !== 'sparring' &&
+    view.name !== 'startpilot';
   const activeArea = view.name === 'area' ? areaProg.find((a) => a.area.id === view.id) : undefined;
   const activeCategory =
     view.name === 'category' ? categories.find((c) => c.id === view.id) : undefined;
@@ -498,6 +542,8 @@ export default function App() {
               onGoSparring={() => navigate('push', () => setView({ name: 'sparring' }))}
               sparringReady={aiRegistry.partner !== null}
               sparringTargets={sparringTargets.length}
+            startpilotOffen={prefs.startpilotDoneAt === null && ersteWoerter.length > 0}
+            onStartpilot={() => navigate('push', () => setView({ name: 'startpilot' }))}
             />
             <div className="mx-auto mt-auto flex w-full max-w-md flex-col gap-3 pt-4 md:max-w-xl">
               <InstallButton />
@@ -749,6 +795,26 @@ export default function App() {
           </Suspense>
         )}
 
+        {/* ───────── STARTPILOT (die ersten sechzehn Wörter) ───────── */}
+        {view.name === 'startpilot' && (
+          <Suspense
+            fallback={
+              <div className="glass mx-auto w-full max-w-xl rounded-2xl p-6 text-center text-muted">
+                Startpilot lädt …
+              </div>
+            }
+          >
+            <StartpilotScene
+              woerter={ersteWoerter}
+              onErgebnis={handleStartpilot}
+              onFertig={(durchgelaufen) => {
+                if (durchgelaufen) updatePrefs({ ...prefs, startpilotDoneAt: Date.now() });
+                navigate('pop', () => setView({ name: 'tab', tab: 'today' }));
+              }}
+            />
+          </Suspense>
+        )}
+
         {/* ───────── LERN-SESSION (fokussiert) ───────── */}
         {view.name === 'session' && (
           <div className="mx-auto flex w-full max-w-xl flex-col gap-4">
@@ -836,6 +902,10 @@ export default function App() {
             onPrefs={updatePrefs}
             states={stateList}
             totalChunks={chunks.length}
+            onStartpilot={() => {
+              setShowSettings(false);
+              navigate('push', () => setView({ name: 'startpilot' }));
+            }}
             onImport={async (next, importedName, importedPrefs) => {
               await putChunkStates(next);
               setStates(Object.fromEntries(next.map((s) => [s.chunkId, s])));
