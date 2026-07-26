@@ -100,3 +100,39 @@ Zwei Sperrklinken in `seedContent.test.ts` halten das: jedes Thema braucht ein
 Gespräch, und mindestens 90 % der Wendungen müssen in einem vorkommen (etwas
 Luft, damit neuer Stoff zuerst im Loop landen darf — aber nie so viel, dass der
 Gesprächs-Modus wieder zur halben Fläche wird).
+
+
+---
+
+## Nachtrag (2026-07-26): Startpilot und Inhalts-Ausbau
+
+**Der Startpilot** schließt die Lücke am Anfang. Der Inhalt begann bei
+„hur mår du?"; wer noch nie ein schwedisches Wort gesehen hat, stand davor wie
+vor einer Wand. Sechzehn Ein-Wort-Äußerungen, je vier begegnen und dieselben
+vier abfragen — in etwa fünf Minuten. Danach übernimmt der normale Loop: Beim
+Nachmessen enthielt die erste Sitzung genau die Wörter, die in der Probe noch
+gewackelt hatten, diesmal in ganzen Sätzen. Genau so soll die Übergabe aussehen.
+
+Er wird nur angeboten, solange **kein einziger Abruf gelungen** ist — sonst
+stünde „Fang hier an" vor jemandem, der schon hundert Wendungen kann.
+
+**Der Inhalt** ist in vier Schüben um sechzehn Themen gewachsen:
+
+| Schub | Themen |
+|---|---|
+| Start | Die ersten Wörter |
+| 1 | Am Flughafen · Internet & Technik · Kochen & Rezepte · Beim Friseur |
+| 2 | Haustiere · Zelten & Allemansrätten · Musik & Konzerte · Nachbarn & Hausordnung |
+| 3 | Beim Zahnarzt · Studium & Kurse · Umzug & Wohnungssuche · Schwimmhalle & Sauna |
+| 4 | Farben & Beschreiben · Feiern & Geburtstag · Garten & Balkon · Verein & Ehrenamt |
+
+Stand: **12 Bereiche, 72 Themen, 506 Wendungen, 1230 Kontext-Sätze, 86
+Gespräche.** A1 wuchs von 108 auf 138 — bewusst, weil der Bestand zuletzt vor
+allem oben gewachsen war.
+
+**Ein zwölfter Bereich** kam dabei nicht aus dem Stoff, sondern aus dem Ansehen:
+„Menschen & Alltag" war auf dreizehn Themen gewachsen und enthielt gleichzeitig
+„Alltag & Small Talk" und „Small Talk". Die vier Wohn-Themen bilden jetzt
+„Wohnen & Nachbarschaft"; vier Tests halten den Baum lesbar (keine doppelten
+Namen, kein Name im anderen enthalten, höchstens zehn Themen je Bereich,
+eindeutige Sortierung).

@@ -142,9 +142,13 @@ export function CategoryDetail({
                       das niemand verdient hat — geprüft ist dort nur, dass jedes
                       Wort echtes Schwedisch ist. */}
                   {VERIFICATION[c.id] === 'unchecked' && (
+                    // „Bitte mit Vorsicht lernen" war zu stark. Gemessen ist, dass
+                    // eine WORTFORM im Häufigkeits-Korpus selten vorkommt — bei
+                    // `tomaterna` oder `skruven` liegt das an der Beugung, nicht an
+                    // der Sprache. Der Satz ist dann ungeprüft, nicht verdächtig.
                     <p className="mt-0.5 text-[0.66rem] leading-snug text-warn">
-                      ⚠ {VERIFICATION_REASON[c.id] ?? 'maschinell auffällig'} — bitte mit
-                      Vorsicht lernen
+                      ⚠ {VERIFICATION_REASON[c.id] ?? 'maschinell auffällig'} — ungeprüft,
+                      nicht zwingend falsch
                     </p>
                   )}
                 </div>
