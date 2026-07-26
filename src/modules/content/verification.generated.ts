@@ -17,8 +17,8 @@
 export type VerificationLevel = 'machine' | 'unchecked';
 
 export const VERIFICATION_META = {
-  machine: 495,
-  unchecked: 11,
+  machine: 520,
+  unchecked: 14,
   dictionaryEntries: 152719,
 } as const;
 
@@ -26,6 +26,13 @@ export const VERIFICATION: Record<string, VerificationLevel> = {
   'c-aandrasidan': 'machine',
   'c-aenasidan': 'machine',
   'c-akaskidor': 'machine',
+  'c-al-allergisk': 'machine',
+  'c-al-glutenfri': 'unchecked',
+  'c-al-innehaller': 'machine',
+  'c-al-laktos': 'machine',
+  'c-al-utan': 'machine',
+  'c-al-vegetarian': 'machine',
+  'c-al-viktigt': 'machine',
   'c-aldrigvaritmed': 'machine',
   'c-allergisk': 'machine',
   'c-ambulans': 'machine',
@@ -249,6 +256,13 @@ export const VERIFICATION: Record<string, VerificationLevel> = {
   'c-kanintekomma': 'machine',
   'c-kannerstressad': 'machine',
   'c-kassan': 'machine',
+  'c-ki-paus': 'machine',
+  'c-ki-plats': 'machine',
+  'c-ki-textad': 'unchecked',
+  'c-ki-tvabiljetter': 'machine',
+  'c-ki-tyckte': 'machine',
+  'c-ki-vardvart': 'machine',
+  'c-ki-vilkensalong': 'machine',
   'c-kiloapplen': 'machine',
   'c-klimatetforandras': 'machine',
   'c-klockan': 'machine',
@@ -370,6 +384,13 @@ export const VERIFICATION: Record<string, VerificationLevel> = {
   'c-ringerdig': 'machine',
   'c-ringersenare': 'machine',
   'c-ringpolis': 'machine',
+  'c-rp-dorren': 'machine',
+  'c-rp-droppar': 'machine',
+  'c-rp-lampan': 'machine',
+  'c-rp-ringa': 'machine',
+  'c-rp-sjalv': 'machine',
+  'c-rp-vantar': 'machine',
+  'c-rp-verktyg': 'machine',
   'c-saenkeltardetinte': 'machine',
   'c-sagennyhet': 'machine',
   'c-samhalletforandras': 'machine',
@@ -529,14 +550,23 @@ export const VERIFICATION: Record<string, VerificationLevel> = {
   'c-vilse': 'machine',
   'c-vises': 'machine',
   'c-vitarcykeln': 'machine',
+  'c-vt-ater': 'machine',
+  'c-vt-halta': 'unchecked',
+  'c-vt-medicin': 'machine',
+  'c-vt-orolig': 'machine',
+  'c-vt-sedan': 'machine',
+  'c-vt-sjuk': 'machine',
+  'c-vt-vaccin': 'machine',
 };
 
 /** Warum eine Wendung als ungeprüft geführt wird (nur für die auffälligen). */
 export const VERIFICATION_REASON: Record<string, string> = {
+  'c-al-glutenfri': "selten belegt: glutenfritt",
   'c-ap-handbagage': "selten belegt: handbagage",
   'c-ap-incheck': "selten belegt: incheckningen",
   'c-ca-elden': "selten belegt: släckas",
   'c-ga-skorda': "selten belegt: tomaterna",
+  'c-ki-textad': "selten belegt: textad",
   'c-na-lana': "selten belegt: borrmaskin",
   'c-na-staddag': "selten belegt: städdag",
   'c-provrum': "selten belegt: provrummet",
@@ -544,4 +574,5 @@ export const VERIFICATION_REASON: Record<string, string> = {
   'c-smaklig': "selten belegt: smaklig",
   'c-ta-tandvark': "selten belegt: tandvärk",
   'c-ve-avgift': "selten belegt: medlemsavgiften",
+  'c-vt-halta': "selten belegt: bakbenet",
 };

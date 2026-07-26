@@ -125,10 +125,15 @@ stünde „Fang hier an" vor jemandem, der schon hundert Wendungen kann.
 | 2 | Haustiere · Zelten & Allemansrätten · Musik & Konzerte · Nachbarn & Hausordnung |
 | 3 | Beim Zahnarzt · Studium & Kurse · Umzug & Wohnungssuche · Schwimmhalle & Sauna |
 | 4 | Farben & Beschreiben · Feiern & Geburtstag · Garten & Balkon · Verein & Ehrenamt |
+| 5 | Allergien & Ernährung · Beim Tierarzt · Reparieren zu Hause · Kino & Theater |
 
-Stand: **12 Bereiche, 72 Themen, 506 Wendungen, 1230 Kontext-Sätze, 86
+Stand: **12 Bereiche, 76 Themen, 534 Wendungen, 1287 Kontext-Sätze, 90
 Gespräche.** A1 wuchs von 108 auf 138 — bewusst, weil der Bestand zuletzt vor
 allem oben gewachsen war.
+
+„Allergien & Ernährung" steht bewusst weit vorn im Essens-Bereich: Es ist das
+einzige Thema dieser App, bei dem ein nicht verstandener Satz gefährlich werden
+kann.
 
 **Ein zwölfter Bereich** kam dabei nicht aus dem Stoff, sondern aus dem Ansehen:
 „Menschen & Alltag" war auf dreizehn Themen gewachsen und enthielt gleichzeitig

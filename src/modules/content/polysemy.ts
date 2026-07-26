@@ -82,6 +82,11 @@ export const MEHRDEUTIGE_WOERTER: Mehrdeutig[] = [
     hinweis: 'Beim Essen heißt „gott" lecker, sonst einfach gut.',
   },
   {
+    sv: 'hallen',
+    bedeutungen: ['Halle', 'Flur'],
+    hinweis: '„simhallen" ist die Schwimmhalle, „hallen" in der Wohnung der Flur.',
+  },
+  {
     sv: 'händer',
     bedeutungen: ['passiert', 'Hände'],
     hinweis: '„vad händer?" fragt was passiert; „två händer" sind zwei Hände.',
@@ -145,6 +150,11 @@ export const MEHRDEUTIGE_WOERTER: Mehrdeutig[] = [
     sv: 'skulle',
     bedeutungen: ['würde', 'sollte'],
     hinweis: 'Höflich gemeint heißt es würde, als Auftrag sollte.',
+  },
+  {
+    sv: 'spår',
+    bedeutungen: ['Gleis', 'Spuren'],
+    hinweis: 'Am Bahnhof ist es das Gleis, auf der Zutatenliste sind es Spuren.',
   },
   {
     sv: 'stannade',
