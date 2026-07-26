@@ -116,11 +116,16 @@ describe('Die Portion', () => {
 
     const mittel = (l: number[]) => l.reduce((a, b) => a + b, 0) / l.length;
     // Der Befund in Zahlen: Die alte Reihenfolge legt dem Rückkehrer Wendungen
-    // mit rund 3 % Abrufchance vor — er scheitert fast sicher an allen. Die neue
-    // liegt um ein Vielfaches höher.
+    // weit unter 10 % Abrufchance vor — er scheitert fast sicher an allen.
+    //
+    // Gemessen wird der ABSTAND, nicht ein Vielfaches: Ein Faktor bricht, sobald
+    // sich die kleine Zahl im Nenner bewegt. Genau das ist am 2026-07-26
+    // passiert, als der Mindestabstand für zähe Wendungen (`zaeh.ts`) die
+    // schwächsten Wendungen auch in der ALTEN Reihenfolge entzerrte — die
+    // Verbesserung war unverändert, die Behauptung „fünffach" nicht mehr.
     expect(mittel(alt)).toBeLessThan(0.1);
     expect(mittel(neu)).toBeGreaterThan(0.25);
-    expect(mittel(neu)).toBeGreaterThan(mittel(alt) * 5);
+    expect(mittel(neu) - mittel(alt)).toBeGreaterThan(0.2);
   });
 
   it('legt nur noch Rettbares in die Portion, solange genug davon da ist', () => {

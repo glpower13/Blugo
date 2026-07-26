@@ -124,3 +124,77 @@ Produktions-Stufe nach über neunzig Tagen. Genau das sagt der Abschluss auch:
 Die Ablenker stammen aus demselben Vorrat von sechzehn Wörtern. Ein Ablenker,
 den der Lerner nie gesehen hat, wäre als falsch erkennbar, ohne dass er das
 richtige Wort kennt — die Frage würde nichts messen. Ein Test hält das fest.
+
+## Die zähe Wendung — und die Schleife, die daraus wurde *(2026-07-26)*
+
+**Der Befund, aus dem Code beweisbar.** Bei jedem „Nochmal" hängte die App die
+Wendung hinten an die Warteschlange:
+
+```
+setQueue((q) => (result === 'again' ? [...q, currentChunk.id] : q));
+setPos((p) => p + 1);
+```
+
+Die Warteschlange wächst um eins, die Position wächst um eins — der Abstand
+zwischen beiden bleibt konstant. Daraus folgt zwingend:
+
+> **Wer eine Wendung nicht hinbekommt, kann die Sitzung nie beenden.**
+
+„Sitzung erledigt." erschien erst, wenn man sie konnte. Wer sie heute nicht
+konnte, saß fest, bis er aufgab und die App verließ. Das ist die Klippe aus
+`CLAUDE.md` — diesmal nicht als Menge, sondern als Schleife.
+
+**Und es war auch didaktisch falsch.** Dieselbe Wendung fünfmal hintereinander
+abzufragen ist geballte Wiederholung (*massed practice*), die schwächste bekannte
+Form des Übens. `CLAUDE.md` verlangt an genau dieser Stelle das Gegenteil: „Wird
+etwas zu hart, **nicht durchdrücken**: erst mehr verständlichen Input + leichtere
+Variante nachschieben, dann neu annähern." Gebaut war das Durchdrücken.
+
+### Was sich ändert
+
+1. **Höchstens zwei zweite Chancen je Sitzung** (`NACHHOLUNGEN`, `session/zaeh.ts`).
+   Nicht null: Der Anlauf direkt nach der offenen Dekodierung ist der wertvollste,
+   da sitzt die Hilfe noch. Nicht fünf: Ab dem dritten Fehlversuch am selben Tag
+   lernt niemand mehr etwas, er ärgert sich nur.
+2. **Ein Mindestabstand nach vier Fehlschlägen am Stück** (`ZAEH_AB`). Er wächst
+   1 → 2 → 4 → 8 Tage und ist bei 14 gedeckelt. Vier ist bewusst hoch: Drei
+   Fehlversuche können ein schlechter Tag sein; vier hintereinander heißen, dass
+   die Darbietung nicht passt — und dagegen hilft kein fünfter Versuch.
+3. **Ein Erfolg nimmt den Abstand sofort wieder weg.** Die Kette zählt nur
+   Fehlschläge *am Stück*; danach plant wieder FSRS allein.
+4. **Gesagt, nicht verschwiegen.** Der Abschluss der Sitzung nennt die Zahl:
+   „2 Wendungen wollten heute nicht sitzen. Die kommen wieder — heute noch weiter
+   zu fragen hätte nichts gebracht."
+
+### Warum ein Abstand bei etwas, das gerade NICHT sitzt?
+
+- Weil es ohnehin weg ist. Ob morgen oder in vier Tagen abgefragt wird, ändert an
+  einer Abrufchance nahe null nichts.
+- Weil geballte Wiederholung die schwächste Form des Übens ist (**Fels**).
+- Weil eine Wendung, die *jeden* Tag als Erstes erscheint und *jeden* Tag
+  misslingt, den Lerner die App kostet — und mit ihr die anderen 533.
+
+Was es **nicht** ist: Verstecken. Die Wendung bleibt gezählt, bleibt im Thema
+sichtbar, und die App sagt, dass sie beiseitegelegt wurde.
+
+| Aussage | Evidenzstufe |
+|---|---|
+| Verteiltes Üben schlägt geballtes Üben | **Fels** |
+| Ein gescheiterter Abruf nützt weniger als ein gelungener (pro Zeit) | **stark** |
+| Dass genau vier Fehlschläge die richtige Schwelle sind | **schwach** |
+
+### Nebenbefund: Der Wartungsmodus hält, was er verspricht
+
+Dieselbe Simulation über 400 Tage, fleißiger Lerner, alle 534 Wendungen:
+
+| Tag | Sitzungsgröße | bewiesen stabil |
+|---|---|---|
+| 30 | 18 | 0 |
+| 60 | 25 | 0 |
+| 120 | 17 | 0 |
+| 200 | 5 | 204 |
+| 300 | 2 | 463 |
+| 400 | 1 | 513 |
+
+Die tägliche Last **sinkt**, während der bewiesene Bestand wächst — genau das,
+was `docs/03-method.md` als Wartungsmodus verspricht. Hier war nichts zu tun.

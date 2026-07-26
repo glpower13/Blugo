@@ -1590,3 +1590,41 @@ test('nach der ersten Woche steht dort etwas Wahres statt einer Leere', async ({
   // Und der Satz nennt seine eigene Grenze im selben Atemzug.
   await expect(page.getByText(/ein Anfang, kein Beweis/)).toBeVisible();
 });
+
+// ── Die zähe Wendung (docs/03-method.md §Die zähe Wendung) ───────────────────
+//
+// Der Befund war aus dem Code beweisbar: Bei jedem „Nochmal" wuchsen
+// Warteschlange UND Position um eins — der Abstand blieb konstant, „Sitzung
+// erledigt." konnte nie erscheinen. Wer eine Wendung heute nicht hinbekam, saß
+// fest, bis er aufgab. Dieser Test spielt genau das im Browser durch.
+test('wer eine Wendung nie hinbekommt, kommt trotzdem ans Ende der Sitzung', async ({ page }) => {
+  const pageErrors: string[] = [];
+  page.on('pageerror', (e) => pageErrors.push(String(e)));
+
+  await page.goto('/');
+  await expect(page.getByText('bewiesen stabil')).toBeVisible();
+  await startSession(page);
+
+  // Immer „Nochmal" — der Lerner bekommt heute gar nichts hin. Ohne den Deckel
+  // liefe diese Schleife bis zum Zeitlimit.
+  let schritte = 0;
+  while (schritte < 40) {
+    if (await page.getByText('Sitzung erledigt.').isVisible()) break;
+    const reveal = page.getByRole('button', { name: 'Auflösen' });
+    await reveal.first().waitFor({ state: 'visible', timeout: 3000 }).catch(() => {});
+    if (!(await reveal.count())) break;
+    await reveal.first().click();
+    const nochmal = page.getByRole('button', { name: 'Selbsteinschätzung: Nochmal' }).first();
+    await nochmal.click();
+    await nochmal.waitFor({ state: 'detached', timeout: 3000 }).catch(() => {});
+    schritte++;
+  }
+
+  // Sie endet. Das ist der ganze Punkt.
+  await expect(page.getByText('Sitzung erledigt.')).toBeVisible();
+  // Und was heute nicht saß, wird benannt statt verschwiegen.
+  await expect(page.getByText(/heute\s+nicht sitzen/)).toBeVisible();
+  await expect(page.getByText(/hätte nichts gebracht/)).toBeVisible();
+
+  expect(pageErrors, pageErrors.join('\n')).toHaveLength(0);
+});
