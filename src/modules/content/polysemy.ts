@@ -82,6 +82,11 @@ export const MEHRDEUTIGE_WOERTER: Mehrdeutig[] = [
     hinweis: 'Beim Essen heißt „gott" lecker, sonst einfach gut.',
   },
   {
+    sv: 'händer',
+    bedeutungen: ['passiert', 'Hände'],
+    hinweis: '„vad händer?" fragt was passiert; „två händer" sind zwei Hände.',
+  },
+  {
     sv: 'högt',
     bedeutungen: ['hoch', 'laut'],
     hinweis: 'Beim Preis oder Berg heißt es hoch, beim Reden laut.',

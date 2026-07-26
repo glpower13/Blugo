@@ -1,7 +1,7 @@
 {
   "dictionaryEntries": 152719,
-  "wordsChecked": 1445,
-  "stringsChecked": 16185,
+  "wordsChecked": 1490,
+  "stringsChecked": 16975,
   "flagged": {
     "automaten": {
       "verdict": "selten",
@@ -63,6 +63,11 @@
       "zipf": 2.53,
       "inDict": false
     },
+    "medlemsavgiften": {
+      "verdict": "selten",
+      "zipf": 2.44,
+      "inDict": false
+    },
     "offert": {
       "verdict": "selten",
       "zipf": 2.7,
@@ -92,6 +97,11 @@
       "verdict": "selten",
       "zipf": 1.78,
       "inDict": false
+    },
+    "rabarber": {
+      "verdict": "selten",
+      "zipf": 2.87,
+      "inDict": true
     },
     "rätterna": {
       "verdict": "selten",
@@ -142,6 +152,11 @@
       "verdict": "selten",
       "zipf": 2.95,
       "inDict": true
+    },
+    "tomaterna": {
+      "verdict": "selten",
+      "zipf": 2.97,
+      "inDict": false
     },
     "trehundra": {
       "verdict": "selten",

@@ -65,14 +65,19 @@ describe('seed content — Integrität', () => {
     // Ein exaktes Duplikat („det regnar" in zwei Themen) wäre schlimmer als ein
     // ID-Konflikt: dieselbe Kenntnis bekäme zwei Gedächtnis-Zustände, und die
     // ehrliche Messung würde denselben Beweis doppelt zählen bzw. nie erreichen.
+    // ALLE Fälle auf einmal melden statt beim ersten abzubrechen: Beim Ausbau
+    // um mehrere Themen kostete jede einzeln gemeldete Dopplung einen kompletten
+    // Durchlauf (2026-07-26).
     const norm = (t: string) => t.trim().toLowerCase().replace(/[.!?,;:]+$/g, '');
-    const seen = new Map<string, string>();
+    const nachSatz = new Map<string, string[]>();
     for (const c of seedChunks) {
       const key = norm(c.sv);
-      const first = seen.get(key);
-      expect(first, `„${c.sv}" steht doppelt: ${first} und ${c.id}`).toBeUndefined();
-      seen.set(key, c.id);
+      nachSatz.set(key, [...(nachSatz.get(key) ?? []), c.id]);
     }
+    const doppelt = [...nachSatz.entries()]
+      .filter(([, ids]) => ids.length > 1)
+      .map(([sv, ids]) => `„${sv}" → ${ids.join(', ')}`);
+    expect(doppelt).toEqual([]);
   });
 
   it('jede Kategorie enthält mindestens einen Chunk', () => {

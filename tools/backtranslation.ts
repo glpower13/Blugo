@@ -230,7 +230,7 @@ const BEUGUNG: string[][] = [
   ['nehme', 'nimmst', 'nimmt', 'nehmen', 'nehmt', 'nimm'],
   ['esse', 'isst', 'essen', 'esst', 'iss', 'aß'],
   ['spreche', 'sprichst', 'spricht', 'sprechen', 'sprecht', 'sprich'],
-  ['komme', 'kommst', 'kommt', 'kommen', 'komm', 'kam', 'kamst', 'kamen'],
+  ['komme', 'kommst', 'kommt', 'kommen', 'komm', 'kam', 'kamst', 'kamt', 'kamen'],
   ['weiss', 'weisst', 'wissen', 'wisst', 'wusste'],
   ['fahre', 'fahrst', 'fahrt', 'fahren', 'fuhr', 'fuhren'],
 ];

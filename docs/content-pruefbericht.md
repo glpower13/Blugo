@@ -10,10 +10,10 @@
 
 ## Ergebnis
 
-- Geprüfte schwedische Zeichenketten: **16185**
-- Verschiedene Wörter: **1445**
-- ✅ alltagshäufig belegt (Zipf ≥ 3.0): **1414**
-- ⚠️ selten belegt: **31**
+- Geprüfte schwedische Zeichenketten: **16975**
+- Verschiedene Wörter: **1490**
+- ✅ alltagshäufig belegt (Zipf ≥ 3.0): **1456**
+- ⚠️ selten belegt: **34**
 - ❌ nicht belegt (Tippfehler-Verdacht): **0**
 
 ## ❌ Nicht belegt — zuerst anschauen
@@ -32,6 +32,7 @@ Existiert, ist aber ungewöhnlich. Für Anfänger-Inhalt oft ein Zeichen, dass e
 | **offerten** | 2.06 | — | „De levererar snabbt, står det i offerten." · „offerten" |
 | **provrummet** | 2.22 | — | „Kan jag prova den? Var är provrummet?" · „Ursäkta, var är provrummet?" |
 | **framhjulet** | 2.25 | — | „I lådan. Titta förresten på framhjulet." · „framhjulet" |
+| **medlemsavgiften** | 2.44 | — | „Vad kostar medlemsavgiften per år?" · „Vad kostar medlemsavgiften?" |
 | **papperen** | 2.47 | — | „Bra. Ta med papperen — och passet, alltid." · „papperen" |
 | **städdag** | 2.48 | ja | „Vi har städdag på lördag, alla hjälper till." · „Vi har städdag på lördag." |
 | **jackorna** | 2.53 | — | „Jaså? Jackorna sitter ofta lite löst." · „jackorna" |
@@ -47,12 +48,14 @@ Existiert, ist aber ungewöhnlich. Für Anfänger-Inhalt oft ein Zeichen, dass e
 | **pelaren** | 2.80 | — | „Precis. Och vid pelaren svänger du." · „pelaren" |
 | **smaklig** | 2.82 | ja | „Smaklig måltid!" · „Smaklig måltid." |
 | **bakad** | 2.85 | ja | „Varsågod. Kakan är bakad i morse." · „bakad" |
+| **rabarber** | 2.87 | ja | „Säg till, jag byter gärna mot rabarber." · „rabarber" |
 | **handske** | 2.88 | ja | „Du tappade förresten din handske där borta." · „handske" |
 | **skruvmejsel** | 2.92 | ja | „Har du en skruvmejsel?" · „Hittade du en skruvmejsel?" |
 | **automaten** | 2.93 | — | „Tyvärr, kortet fungerar inte i automaten." · „automaten" |
 | **bifoga** | 2.94 | ja | „Gärna. Och du måste bifoga ett intyg också." · „bifoga" |
 | **tjugonde** | 2.95 | ja | „Var tjugonde minut. Men taxi går fortare." · „tjugonde" |
 | **tandvärk** | 2.97 | ja | „Jag har tandvärk och kan inte sova." · „Jag har tandvärk sedan i går." |
+| **tomaterna** | 2.97 | — | „Precis rätt. Och tomaterna?" · „Vi skördar tomaterna snart, de är nästan röda." |
 | **åttio** | 2.97 | ja | „Den är på åttio grader nu." · „åttio" |
 | **trehundra** | 2.98 | ja | „Trehundra kronor jämnt." · „trehundra" |
 | **föräldramöte** | 2.98 | ja | „Vi ska förresten på föräldramöte på tisdag." · „föräldramöte" |
@@ -88,10 +91,12 @@ Existiert, ist aber ungewöhnlich. Für Anfänger-Inhalt oft ein Zeichen, dass e
 | Jag har tandvärk. | tandvärk |
 | Jaså? Jackorna sitter ofta lite löst. | jackorna |
 | Kan jag prova den? Var är provrummet? | provrummet |
+| Precis rätt. Och tomaterna? | tomaterna |
 | Precis. Och mellan rätterna sjunger alla, högt och falskt. | rätterna |
 | Precis. Och vid pelaren svänger du. | pelaren |
 | Smaklig måltid! | smaklig |
 | Smaklig måltid. | smaklig |
+| Säg till, jag byter gärna mot rabarber. | rabarber |
 | Tack! Nu drar jag åt den sista skruven. | skruven |
 | Tack, smaklig måltid! | smaklig |
 | Titta, däcket är punkterat! | punkterat |
@@ -101,6 +106,8 @@ Existiert, ist aber ungewöhnlich. Für Anfänger-Inhalt oft ein Zeichen, dass e
 | Ursäkta, var är incheckningen? | incheckningen |
 | Ursäkta, var är provrummet? | provrummet |
 | Utmärkt! Smaklig måltid. | smaklig |
+| Vad kostar medlemsavgiften per år? | medlemsavgiften |
+| Vad kostar medlemsavgiften? | medlemsavgiften |
 | Var tjugonde minut. Men taxi går fortare. | tjugonde |
 | Var är incheckningen för Stockholm? | incheckningen |
 | Var är incheckningen? Jag är sen. | incheckningen |
@@ -111,6 +118,8 @@ Existiert, ist aber ungewöhnlich. Für Anfänger-Inhalt oft ein Zeichen, dass e
 | Vi har städdag på lördag, alla hjälper till. | städdag |
 | Vi har städdag på lördag. | städdag |
 | Vi ska förresten på föräldramöte på tisdag. | föräldramöte |
+| Vi skördar tomaterna snart, de är nästan röda. | tomaterna |
+| Vi skördar tomaterna snart. | tomaterna |
 | Visst! Provrummet är där borta. | provrummet |
 | automaten | automaten |
 | bakad | bakad |
@@ -129,12 +138,14 @@ Existiert, ist aber ungewöhnlich. Für Anfänger-Inhalt oft ein Zeichen, dass e
 | jackorna | jackorna |
 | jag har bara handbagage | handbagage |
 | jag har tandvärk | tandvärk |
+| medlemsavgiften | medlemsavgiften |
 | offert | offert |
 | offerten | offerten |
 | papperen | papperen |
 | pelaren | pelaren |
 | provrummet | provrummet |
 | punkterat | punkterat |
+| rabarber | rabarber |
 | rätterna | rätterna |
 | skruven | skruven |
 | skruvmejsel | skruvmejsel |
@@ -146,10 +157,13 @@ Existiert, ist aber ungewöhnlich. Für Anfänger-Inhalt oft ein Zeichen, dass e
 | tandtråd | tandtråd |
 | tandvärk | tandvärk |
 | tjugonde | tjugonde |
+| tomaterna | tomaterna |
 | trehundra | trehundra |
 | trettiofem | trettiofem |
+| vad kostar medlemsavgiften? | medlemsavgiften |
 | var är incheckningen? | incheckningen |
 | var är provrummet? | provrummet |
 | vi har städdag på lördag | städdag |
+| vi skördar tomaterna snart | tomaterna |
 | åttio | åttio |
 
