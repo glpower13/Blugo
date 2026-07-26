@@ -45,12 +45,76 @@ i+1-Satz, der die Ziel-Wendung in *anderem* Alltagskontext einbettet (Kontextvar
 Schritt 4 des Loops), samt Wort-für-Wort-Dekodierung und Vorlese-Knopf.
 
 - **Opt-in & kostenbewusst:** nur auf Klick, nur mit eingerichtetem eigenen Schlüssel.
-- **Ehrlich gekennzeichnet:** die Karte trägt sichtbar „Neuer Kontext · 🤖 KI-erzeugt ·
-  nicht geprüft". Kein Fortschrittssignal koppelt daran (die eine Design-Regel) — es ist
-  zusätzlicher verständlicher Input, kein bewertetes Können.
 - **Warum das der Moat ist:** unbegrenzter, passgenauer Input statt endlicher Content-Bibliothek
   (siehe „Warum zwingend" oben). Die menschliche Stichprobe (schwedische Muttersprache-QS) bleibt
   die nächste Ausbaustufe.
+- **Bis 2026-07-26 unfertig:** die Karte trug „🤖 KI-erzeugt · nicht geprüft" — ein
+  Warnhinweis anstelle einer Prüfung. Was das Tor daraus gemacht hat, steht unten.
+
+## Das Tor: erzeugter Inhalt wird geprüft, nicht beschriftet *(gebaut 2026-07-26)*
+
+**Der eigentliche Burggraben in einem Satz:** Sätze erzeugen kann jeder. Erzeugte
+Sätze automatisch auf **denselben Stand** prüfen wie die handgeschriebenen — das
+ist der Unterschied.
+
+Befund vor dem Bau: `parseSegment` prüfte genau eine Sache — ob überhaupt Text
+zurückkam. Der handgeschriebene Inhalt musste vier Prüfungen bestehen, der
+KI-erzeugte keine einzige. Der Aufkleber „nicht geprüft" verschob die Verantwortung
+auf den Lerner, der sie nicht tragen kann: Er lernt gerade Schwedisch — er kann
+nicht beurteilen, ob eine Verneinung gedreht ist.
+
+**Eine Regel, ein Ort.** Die Prüfungen liegen jetzt in
+`src/modules/content/quality/checks.ts`, im Browser lauffähig. Die Build-Werkzeuge
+importieren von dort (`tools/backtranslation.ts` reicht `nurBeugung` nur noch
+weiter). Zwei Kopien derselben Regel driften; dann prüft die Laufzeit anders als
+der Bau, und die Laufzeit-Prüfung ist eine Behauptung.
+
+**Zwei Sorten Befund** (`quality/gate.ts`), und der Unterschied ist die ganze
+Ehrlichkeit:
+
+| | Bedeutung | Folge |
+|---|---|---|
+| **hart** | Der Satz ist als Lernmaterial kaputt | verworfen, **nie** beschriftet |
+| **offen** | Brauchbar, aber die App kann etwas nicht bestätigen | gezeigt **und benannt** |
+
+Hart sind: kein Satz/keine Bedeutung · die Ziel-Wendung ist nicht wiederzuerkennen
+(Deckung < 0,5) · die Wort-für-Wort-Dekodierung ist unvollständig oder nennt Wörter,
+die im Satz fehlen · Zahl oder Verneinung stimmen zwischen den Sprachen nicht · eine
+Glosse widerspricht dem geprüften Inhalt. Offen ist genau eines: ein Wort, das im
+geprüften Bestand nie vorkam. Das ist **kein Fehler** — neue Wörter sind der Sinn
+von neuem Stoff —, aber es ist die Grenze dessen, was die App bestätigen kann, und
+sie wird beim Namen genannt.
+
+**Wogegen geprüft wird.** `npm run build:wissen` (`tools/build-quality-knowledge.ts`)
+zieht aus dem geprüften Inhalt jedes vorkommende schwedische Wort und die Glossen,
+die dort dafür stehen (1.540 Wörter, `quality/wissen.generated.ts`). Die Datei wird
+**erst beim ersten KI-Satz nachgeladen** — die meisten Lerner drücken den Knopf nie
+und sollen seine Ladezeit nicht bezahlen.
+
+**Wo das Tor absichtlich nicht zuschlägt.** Bei Funktionswörtern (`på` heißt
+auf/an/am/im/über/bei) und bei den Wörtern, deren zweite Bedeutung die App selbst
+erklärt (`polysemy.ts`, z. B. `kort` = Karte *und* kurz). Dort bildet der Satz das
+Deutsche, nicht das schwedische Wort; ein Widerspruch wäre keiner. Ein Tor, das gute
+Sätze wegwirft, kostet den Lerner Geld auf seinem eigenen Zugang und Vertrauen.
+
+**Der Weg durchs Tor ist der einzige Weg.** `erzeugeGeprueft()`
+(`quality/gepruefteErzeugung.ts`) erzeugt und prüft als *eine* Handlung, die man
+nicht halb ausführen kann. Ein harter Befund kostet **einen** zweiten Versuch (der
+abgelehnte Satz wird dabei ausdrücklich gemieden); scheitert auch der, wird nichts
+gezeigt und die App sagt, **woran** es lag und dass der geprüfte Satz oben weiter gilt.
+Zweimal, nicht fünfmal: jeder Versuch kostet echtes Geld und Sekunden vor einem
+sich drehenden Rad.
+
+**Was die Beschriftung sagt.** Statt „nicht geprüft" jetzt aufzählend, was geprüft
+wurde — und im selben Atemzug, was nicht: *„Ob der Satz so gesagt wird, sagt
+niemand — dafür bräuchte es einen Muttersprachler."* „Geprüft" allein wäre ein
+Siegel, das diese Prüfung nicht deckt.
+
+**Wie belegt ist, dass die Latte stimmt.** `quality/kalibrierung.test.ts` schickt
+**jedes** handgeschriebene Segment durch das Tor. Kommt der eigene geprüfte Bestand
+nicht durch sein eigenes Tor, ist das Tor falsch — nicht der Inhalt. Eine zu hohe
+Latte ist kein „sicherheitshalber streng": sie wirft gute Sätze weg und lässt die
+KI-Funktion kaputt aussehen, obwohl das Modell geliefert hat.
 
 ### Echtes i+1: aus Bekanntem bauen *(gebaut 2026-07-23)*
 
@@ -98,8 +162,11 @@ Die muttersprachliche Prüfung ist der Flaschenhals der ganzen Pipeline. Entsche
 4. **Ehrliche Kennzeichnung** am Inhalt: *ungeprüft* · *maschinell vorgeprüft* ·
    *muttersprachlich geprüft*. Nie mehr behaupten, als gemessen ist.
 
-Für KI-erzeugten Stoff gilt derselbe Weg: Stufe 1 ist automatisierbar, die Kennzeichnung
-„🤖 KI-erzeugt · nicht geprüft" bleibt, bis eine Stufe sie wirklich deckt.
+Für KI-erzeugten Stoff gilt derselbe Weg — seit 2026-07-26 nicht mehr als Vorsatz,
+sondern als Tor (siehe oben): Stufe 2 läuft zur **Laufzeit** aus derselben
+Bibliothek, harte Befunde führen zum Verwerfen, und die Kennzeichnung nennt genau
+das, was geprüft wurde. Stufe 3 (muttersprachlich) deckt sie weiterhin **nicht** und
+behauptet es auch nicht.
 
 ## Risiken / offene Punkte
 - Faktentreue & Natürlichkeit generierter Sätze → menschliche Stichprobe.
