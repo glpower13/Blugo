@@ -192,3 +192,69 @@ describe('Beschriftung', () => {
     expect(t).toContain('Neu für die App');
   });
 });
+
+describe('Stufe: ist der Satz noch i+1?', () => {
+  const chunkTack: Chunk = {
+    id: 'tack',
+    categoryId: 'c',
+    sv: 'tack',
+    de: 'danke',
+    decoding: [{ sv: 'tack', de: 'danke' }],
+  };
+  const segTack = (sv: string): Segment => ({
+    id: 'ai:tack',
+    level: 2,
+    sv,
+    de: 'irgendeine Bedeutung',
+    decoding: sv.split(' ').map((w) => ({ sv: w, de: 'x' })),
+    chunkIds: ['tack'],
+  });
+  const wissenMit = (gelernt?: string[]): Wissen => ({
+    woerter: new Set<string>(),
+    glossen: {},
+    istBeugung: () => false,
+    ...(gelernt ? { gelernt: new Set(gelernt) } : {}),
+  });
+
+  it('lässt einen Satz aus lauter Bekanntem durch', () => {
+    const r = pruefeSegment(
+      segTack('tack så mycket'),
+      chunkTack,
+      wissenMit(['så', 'mycket']),
+    );
+    expect(r.angenommen).toBe(true);
+  });
+
+  it('verwirft eine Wand aus lauter Unbekanntem', () => {
+    const r = pruefeSegment(
+      segTack('tack för hjälpen med den trasiga cykeln igår kväll'),
+      chunkTack,
+      wissenMit(['så']),
+    );
+    expect(r.angenommen).toBe(false);
+    expect(r.befunde.some((b) => b.text.includes('Zu viel auf einmal'))).toBe(true);
+  });
+
+  it('rechnet die ZIEL-Wendung nicht als Last — sie IST das erlaubte „+1"', () => {
+    const chunkLang: Chunk = { ...chunkTack, sv: 'kan du hjälpa mig', de: 'kannst du mir helfen' };
+    const r = pruefeSegment(
+      { ...segTack('kan du hjälpa mig'), chunkIds: ['tack'] },
+      chunkLang,
+      wissenMit([]), // der Lerner kennt NICHTS — trotzdem in Ordnung
+    );
+    expect(r.angenommen).toBe(true);
+  });
+
+  it('prüft die Stufe GAR NICHT, wenn kein Lernstand da ist', () => {
+    // Raten wäre schlimmer als nicht prüfen — und die Beschriftung behauptet
+    // den Punkt dann auch nicht.
+    const r = pruefeSegment(
+      segTack('tack för hjälpen med den trasiga cykeln igår kväll'),
+      chunkTack,
+      wissenMit(undefined),
+    );
+    expect(r.angenommen).toBe(true);
+    expect(beschriftung(r, false)).not.toContain('schon kennst');
+    expect(beschriftung(r, true)).toContain('schon kennst');
+  });
+});

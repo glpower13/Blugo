@@ -351,6 +351,20 @@ export default function App() {
     [plannedSession, states, successRate, prefs.newPerSession, categoryByChunkId, areaByChunkId],
   );
 
+  // Jedes schwedische Wort, dem der Lerner schon begegnet ist — die Grundlage
+  // für die i+1-Prüfung erzeugter Sätze (`quality/gate.ts`). Bewusst die VOLLE
+  // Menge und nicht die zwölf Wendungen aus `knownPhrases`: Die sind für den
+  // Prompt gedeckelt; als Maßstab für „unbekannt" wären sie schlicht falsch.
+  const gelernteWoerter = useMemo(() => {
+    const raus = new Set<string>();
+    for (const c of chunks) {
+      const s = states[c.id];
+      if (!s || (s.status === 'new' && s.history.length === 0)) continue;
+      for (const w of c.sv.toLowerCase().match(/\p{L}+/gu) ?? []) raus.add(w);
+    }
+    return raus;
+  }, [chunks, states]);
+
   // Die Lage nach einer Pause — `null` an einem normalen Tag (`rueckkehr.ts`).
   const rueckkehr = useMemo(() => rueckkehrLage(Object.values(states)), [states]);
 
@@ -402,7 +416,9 @@ export default function App() {
           chunks: kommend,
           bekanntFuer: (c) => knownPhrases(chunks, states, c.id),
           generator: aiRegistry.generator,
-          wissen: await ladeWissen(),
+          // Ohne den Lernstand legte der Vorrat Sätze an, die das Tor beim
+          // Herausnehmen verwerfen würde — bezahlt und weggeworfen.
+          wissen: { ...(await ladeWissen()), gelernt: gelernteWoerter },
           modell: aiRegistry.generator.id,
           abbruch: () => abgebrochen,
         });
@@ -989,6 +1005,7 @@ export default function App() {
                 retention={prefs.retention}
                 onResult={handleResult}
                 known={known}
+                gelernt={gelernteWoerter}
                 scaffoldOpen={scaffoldOpen}
               />
             ) : null}

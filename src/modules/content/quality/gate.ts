@@ -31,6 +31,8 @@ import {
   glossenKonflikte,
   glossenLuecke,
   KONTEXTABHAENGIG,
+  neueWoerter,
+  STUFE_MAX,
   unbekannteWoerter,
   wortstellung,
   zahlUndVerneinung,
@@ -68,6 +70,15 @@ export interface Wissen {
   glossen: Record<string, string[]>;
   /** Sind zwei deutsche Glossen nur Beugungen desselben Wortes? */
   istBeugung: (a: string, b: string) => boolean;
+  /**
+   * Jedes schwedische Wort, dem DIESER Lerner schon begegnet ist.
+   *
+   * Optional, und das mit Absicht: Ohne Lernstand lässt sich die Stufe nicht
+   * beurteilen, und eine Prüfung, die dann RÄT, wäre schlimmer als keine. Fehlt
+   * die Menge, entfällt der Punkt — und die Beschriftung behauptet ihn auch
+   * nicht.
+   */
+  gelernt?: ReadonlySet<string>;
 }
 
 /**
@@ -135,7 +146,24 @@ export function pruefeSegment(kandidat: Segment, chunk: Chunk, wissen: Wissen): 
     });
   }
 
-  // 7. Neue Wörter: kein Fehler, aber die Grenze dessen, was die App bestätigen kann.
+  // 7. Ist der Satz für DIESEN Lerner noch i+1?
+  //    Der Prompt bittet darum, geprüft wurde es nie — die App behauptete i+1
+  //    und maß es nicht (offener Punkt aus `09-roadmap.md`, Pipeline-Schritt 2).
+  //    Hart, weil ein Satz mit zu vielen unbekannten Wörtern als verständlicher
+  //    Input kaputt ist, ganz gleich wie korrekt sein Schwedisch ist.
+  const zuNeu = wissen.gelernt
+    ? neueWoerter(kandidat.sv, chunk.sv, wissen.gelernt)
+    : [];
+  if (zuNeu.length > STUFE_MAX) {
+    befunde.push({
+      art: 'hart',
+      text:
+        `Zu viel auf einmal: ${zuNeu.length} unbekannte Wörter neben der Wendung ` +
+        `(${zuNeu.join(', ')}). Verständlicher Input verträgt höchstens ${STUFE_MAX}.`,
+    });
+  }
+
+  // 8. Neue Wörter: kein Fehler, aber die Grenze dessen, was die App bestätigen kann.
   const unbekannt = unbekannteWoerter(kandidat.sv, wissen.woerter);
   if (unbekannt.length > 0) {
     befunde.push({
@@ -158,14 +186,16 @@ export function pruefeSegment(kandidat: Segment, chunk: Chunk, wissen: Wissen): 
  * Atemzug, was NICHT geprüft ist. „Geprüft" allein wäre ein Siegel, das diese
  * Prüfung nicht deckt.
  */
-export function beschriftung(ergebnis: Pruefergebnis): string {
+export function beschriftung(ergebnis: Pruefergebnis, stufeGeprueft = false): string {
   // „die zwei häufigsten" statt „die Wortstellung": Die Prüfung kennt genau zwei
   // Muster (Verb nach Vorfeld, Verneinung nach Verb). „Wortstellung geprüft" wäre
   // ein Siegel für eine Grammatikprüfung, die es hier nicht gibt.
   const basis =
     'Maschinell geprüft: jedes Wort hat eine Bedeutung, die Wendung steckt im Satz, ' +
     'Zahlen und Verneinung stimmen überein, die zwei häufigsten Wortstellungs-Fehler ' +
-    'kommen nicht vor, keine Glosse widerspricht dem geprüften Inhalt.';
+    'kommen nicht vor, keine Glosse widerspricht dem geprüften Inhalt.' +
+    // Nur behaupten, was auch gemessen wurde: Ohne Lernstand entfällt der Punkt.
+    (stufeGeprueft ? ' Er baut auf Wörtern auf, die du schon kennst.' : '');
   const offen =
     ergebnis.unbekannt.length > 0
       ? ` Neu für die App: ${ergebnis.unbekannt.join(', ')} — diese Wörter stehen in keinem geprüften Satz.`

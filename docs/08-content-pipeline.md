@@ -5,7 +5,7 @@ Für Schwedisch existiert kaum graded Content auf i+1; kuratierte Podcasts/Sende
 
 ## Pipeline (konzeptionell)
 1. **Skript-Generierung** — LLM erzeugt kurze schwedische Segmente, die gezielt Ziel-Chunks auf i+1 enthalten und bekannte Chunks in *neuem* Kontext wiederbringen.
-2. **Grading/Leveling** — Prüfung/Anpassung auf die Zielstufe (Anteil bekannter vs. neuer Chunks im gewünschten Verhältnis).
+2. **Grading/Leveling** — Prüfung/Anpassung auf die Zielstufe (Anteil bekannter vs. neuer Chunks im gewünschten Verhältnis). ✅ **gebaut 2026-07-26**, siehe §Stufe.
 3. **Dekodierung** — automatische interlineare Wort-für-Wort-Übersetzung SV→DE (Birkenbihl-Baustein), historisch der teuerste Handschritt, hier automatisiert.
 4. **TTS** — natürliches Schwedisch, variables Tempo.
 5. **Optional Bild/Kontext** — zur Verständlichmachung (Dual Coding, moderat).
@@ -153,6 +153,43 @@ etwas, ist die Regel verdächtig — nicht der Inhalt.
 **Was die Beschriftung deshalb sagt:** „die zwei häufigsten Wortstellungs-Fehler
 kommen nicht vor" — nicht „die Wortstellung stimmt". Das wäre ein Siegel für eine
 Grammatikprüfung, die es hier nicht gibt.
+
+### Stufe: ist der Satz für DIESEN Lerner noch i+1? *(2026-07-26)*
+
+Offener Punkt aus `09-roadmap.md` (Pipeline-**Schritt 2**, „Grading/Leveling") und
+aus `10-open-questions.md`. Der Prompt **bat** das Modell, den Satz aus schon
+bekannten Wörtern zu bauen. Geprüft wurde es **nie**. Die App behauptete i+1 und
+maß es nicht.
+
+Verständlicher Input verlangt genau **ein** neues Element pro Begegnung
+(`03-method.md`). Ein Satz mit sieben unbekannten Wörtern ist kein i+1, sondern
+eine Wand — und eine Wand ist als Lernmaterial kaputt, egal wie korrekt ihr
+Schwedisch ist. Deshalb **hart**.
+
+**Die Latte kommt aus dem eigenen Inhalt.** Über 2.291 simulierte Begegnungen mit
+dem handgeschriebenen Bestand gemessen — wie viele Wörter kennt der Lerner in dem
+Moment noch nicht, die Ziel-Wendung nicht mitgerechnet?
+
+| neue Wörter | Anteil der Begegnungen |
+|---|---|
+| 0 | 72,2 % |
+| ≤ 1 | 93,4 % |
+| ≤ 2 | 99,3 % |
+| ≤ 4 | 100 % ← das Maximum, das je vorkommt |
+
+`STUFE_MAX` = **4**: Alles darüber liegt außerhalb dessen, was der kuratierte
+Bestand in 2.291 Begegnungen je getan hat. Ein Test in
+`quality/kalibrierung.test.ts` hält beides fest — dass kein handgeschriebenes
+Segment die Latte reißt, **und** dass sie nicht ins Uferlose gesetzt ist (höchstens
+zwei über dem tatsächlichen Maximum; sonst prüfte sie nichts mehr).
+
+**Ohne Lernstand entfällt die Prüfung.** `Wissen.gelernt` ist optional. Fehlt die
+Menge, wird nicht geraten — und die Beschriftung behauptet den Punkt dann auch
+nicht. „Er baut auf Wörtern auf, die du schon kennst" steht nur da, wenn es
+gemessen wurde.
+
+**Der Vorrat prüft mit.** Ohne den Lernstand legte er Sätze an, die das Tor beim
+Herausnehmen verwerfen würde — bezahlt und weggeworfen.
 
 ## Der Vorrat: schreiben, bevor jemand wartet *(gebaut 2026-07-26)*
 

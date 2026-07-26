@@ -1628,3 +1628,58 @@ test('wer eine Wendung nie hinbekommt, kommt trotzdem ans Ende der Sitzung', asy
 
   expect(pageErrors, pageErrors.join('\n')).toHaveLength(0);
 });
+
+// ── Stufe: erzeugte Sätze müssen für DIESEN Lerner i+1 sein ──────────────────
+//
+// Offener Punkt aus `09-roadmap.md` (Pipeline-Schritt 2): Der Prompt BAT das
+// Modell, aus Bekanntem zu bauen — geprüft wurde es nie. Die App behauptete i+1
+// und maß es nicht.
+test('ein KI-Satz voller unbekannter Wörter wird verworfen', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.getByText('bewiesen stabil')).toBeVisible();
+  await configureCloud(page);
+
+  await page.route('**/api.anthropic.com/**', async (route) => {
+    const kopf = {
+      'content-type': 'application/json',
+      'access-control-allow-origin': '*',
+      'access-control-allow-headers': '*',
+      'access-control-allow-methods': '*',
+    };
+    if (route.request().method() === 'OPTIONS') {
+      await route.fulfill({ status: 204, headers: kopf, body: '' });
+      return;
+    }
+    const body = route.request().postData() ?? '';
+    const m = /Ziel-Wendung[^„]*„([^\\"]+)\\?" \(Bedeutung: „([^\\"]+)\\?"\)/.exec(body);
+    const sv = m?.[1] ?? 'hej';
+    const de = m?.[2] ?? 'hallo';
+    // Korrektes Schwedisch, vollständig dekodiert — aber sieben Wörter, die der
+    // Lerner am ersten Tag unmöglich kennen kann. Das ist keine Begegnung, das
+    // ist eine Wand.
+    const extra = ['cykeln', 'trasiga', 'hjälpen', 'grannen', 'verkstaden', 'lagade', 'igår'];
+    await route.fulfill({
+      status: 200,
+      headers: kopf,
+      body: JSON.stringify({
+        content: [
+          {
+            type: 'text',
+            text: JSON.stringify({
+              sv: `${sv} ${extra.join(' ')}`,
+              de: `${de} …`,
+              decoding: [{ sv, de }, ...extra.map((w) => ({ sv: w, de: w }))],
+            }),
+          },
+        ],
+      }),
+    });
+  });
+
+  await startSession(page);
+  await page.getByRole('button', { name: /Neuer Kontext/ }).click();
+
+  // Der Satz erscheint NICHT — und die App sagt, woran es lag.
+  await expect(page.getByText(/Zu viel auf einmal/)).toBeVisible();
+  await expect(page.getByText(/Neuer Kontext · KI-erzeugt/)).toHaveCount(0);
+});

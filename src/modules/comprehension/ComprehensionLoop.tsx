@@ -82,6 +82,11 @@ interface Props {
   // hängen darf (siehe ReviewMeta.exact in der Memory-Engine).
   onResult: (result: ReviewResult, helpUsed: boolean, spoken: boolean, exact?: boolean) => void;
   known?: KnownPhrase[]; // Wendungen, die der Lerner schon kann (für echtes i+1)
+  /**
+   * Jedes schwedische Wort, dem der Lerner begegnet ist — Maßstab dafür, ob ein
+   * erzeugter Satz für IHN noch i+1 ist (`quality/gate.ts`, Punkt 7).
+   */
+  gelernt?: ReadonlySet<string>;
   // Neuer Chunk? Dann Bedeutung/Dekodierung SOFORT zeigen (verständlicher Input,
   // docs/gremium-darstellung.md). Bei bekanntem Chunk bleibt die Stütze zu (Abruf).
   scaffoldOpen?: boolean;
@@ -95,6 +100,7 @@ export function ComprehensionLoop({
   retention,
   onResult,
   known,
+  gelernt,
   scaffoldOpen = false,
 }: Props) {
   // „Warum jetzt?" — die App legt ihre eigene Entscheidung offen (explain.ts).
@@ -198,7 +204,8 @@ export function ComprehensionLoop({
         import('../content/quality/wissen'),
         import('../content/quality/gate'),
       ]);
-      const wissen = await ladeWissen();
+      // Der Lernstand macht aus der Bestandsprüfung eine Stufenprüfung.
+      const wissen = { ...(await ladeWissen()), gelernt };
 
       // Liegt schon einer bereit? Dann ohne Netz, ohne Warten, ohne neue Kosten.
       // Geprüft wird er trotzdem — mit den Regeln von JETZT, nicht mit dem
@@ -208,7 +215,7 @@ export function ComprehensionLoop({
       const bereit = await nimmAusVorrat(vorratSpeicher, chunk, wissen).catch(() => null);
       if (bereit) {
         setGenSegment(bereit.segment);
-        setGenLabel(beschriftung(bereit.ergebnis));
+        setGenLabel(beschriftung(bereit.ergebnis, gelernt !== undefined));
         setGenAusVorrat(true);
         setGenState('idle');
         return;
@@ -228,7 +235,7 @@ export function ComprehensionLoop({
         wissen,
       );
       setGenSegment(seg);
-      setGenLabel(beschriftung(ergebnis));
+      setGenLabel(beschriftung(ergebnis, gelernt !== undefined));
       setGenState('idle');
     } catch (e) {
       setGenState('error');
