@@ -1,5 +1,12 @@
 import { describe, expect, it } from 'vitest';
-import { computeMetrics, isStable, isMaturing, directionSplit, spokenAloud } from './metrics';
+import {
+  computeMetrics,
+  isStable,
+  isMaturing,
+  isHolding,
+  directionSplit,
+  spokenAloud,
+} from './metrics';
 import { initialState } from '../memory/memoryEngine';
 import type { ChunkState } from '../../domain/chunk';
 
@@ -173,5 +180,85 @@ describe('„fällig" ist Wiederholung, nicht Vorrat', () => {
     const m = computeMetrics([frisch, wirklichFaellig], NOW);
     expect(m.dueNow).toBe(1);
     expect(m.untouched).toBe(1);
+  });
+});
+
+// ── Die kleinste ehrliche Stufe („gehalten") ──────────────────────────────────
+//
+// Diese Stufe ist die riskanteste Zahl der ganzen App: Sie ist dazu da, in den
+// ersten Wochen etwas zu zeigen — genau die Lage, in der jede andere App anfängt
+// zu schummeln. Die Tests hier prüfen deshalb vor allem, was NICHT zählt.
+describe('gehalten — eine überstandene Pause von drei Tagen', () => {
+  const TAG = 86_400_000;
+  const T0 = Date.UTC(2026, 0, 1);
+  const mit = (h: { at: number; result: 'again' | 'hard' | 'good' }[], lapsedAt: number | null = null) =>
+    ({
+      ...initialState('c'),
+      lastReviewedAt: h[h.length - 1]?.at ?? null,
+      lapsedAt,
+      history: h.map((x) => ({ ...x, segmentId: 's' })),
+    }) as ChunkState;
+
+  it('zählt eine Wendung, die nach drei Tagen wieder abgerufen wurde', () => {
+    expect(isHolding(mit([
+      { at: T0, result: 'good' },
+      { at: T0 + 3 * TAG, result: 'good' },
+    ]))).toBe(true);
+  });
+
+  it('zählt ANWESENHEIT nicht — üben ohne Pause bringt nichts', () => {
+    // Zehn Abrufe an einem Tag sind zehn Abrufe, aber keine überstandene Pause.
+    const gleicherTag = Array.from({ length: 10 }, (_, i) => ({
+      at: T0 + i * 3600_000,
+      result: 'good' as const,
+    }));
+    expect(isHolding(mit(gleicherTag))).toBe(false);
+  });
+
+  it('zählt einen FEHLSCHLAG nach langer Pause nicht als Halten', () => {
+    // Der wichtigste Fall: „Nochmal" nach drei Wochen beweist, dass es weg war.
+    expect(isHolding(mit([
+      { at: T0, result: 'good' },
+      { at: T0 + 21 * TAG, result: 'again' },
+    ]))).toBe(false);
+  });
+
+  it('zählt eine zu kurze Pause nicht', () => {
+    expect(isHolding(mit([
+      { at: T0, result: 'good' },
+      { at: T0 + 2 * TAG, result: 'good' },
+    ]))).toBe(false);
+  });
+
+  it('verfällt nach einem späteren Fehlschlag — wie „reift" und „bewiesen"', () => {
+    const s = mit(
+      [
+        { at: T0, result: 'good' },
+        { at: T0 + 5 * TAG, result: 'good' },
+      ],
+      T0 + 9 * TAG,
+    );
+    expect(isHolding(s)).toBe(false);
+  });
+
+  it('lebt wieder auf, wenn die Pause danach erneut überstanden wird', () => {
+    const s = mit(
+      [
+        { at: T0, result: 'good' },
+        { at: T0 + 5 * TAG, result: 'good' },
+        { at: T0 + 20 * TAG, result: 'good' },
+      ],
+      T0 + 9 * TAG,
+    );
+    expect(isHolding(s)).toBe(true);
+  });
+
+  it('ist eine OBERMENGE — was 90 Tage hält, hält auch drei', () => {
+    const s = { ...mit([
+      { at: T0, result: 'good' },
+      { at: T0 + 95 * TAG, result: 'good' },
+    ]), provenStableAt: T0 + 95 * TAG } as ChunkState;
+    expect(isStable(s)).toBe(true);
+    expect(isHolding(s)).toBe(true);
   });
 });

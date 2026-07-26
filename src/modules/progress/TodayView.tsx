@@ -11,6 +11,7 @@
 // Genau dafür steht die zweite Zahl „reift" daneben.
 
 import type { ReactNode } from 'react';
+import type { RueckkehrLage } from '../../session/rueckkehr';
 import { IconPlay, IconSettings, IconChat, IconMic, IconSprout } from '../../ui/icons';
 import { useCountUp } from '../../ui/useCountUp';
 
@@ -18,6 +19,8 @@ interface Props {
   name: string;
   stable: number;
   maturing: number;
+  /** Kleinste ehrliche Stufe: hält eine überstandene Pause von 3 Tagen. */
+  holding: number;
   sessionSize: number; // was die nächste Sitzung WIRKLICH enthält
   dueNow: number;
   totalChunks: number;
@@ -37,16 +40,36 @@ interface Props {
   sparringTargets: number;
   /** Startpilot noch nicht gelaufen? Dann führt der erste Weg dorthin. */
   startpilotOffen: boolean;
+  /** Lage nach einer Pause — `null` an einem normalen Tag (`session/rueckkehr.ts`). */
+  rueckkehr: RueckkehrLage | null;
   onStartpilot: () => void;
 }
 
 /** Ehrliche Unterzeile zur großen Zahl — beschönigt eine 0 nicht. */
-function stageNote(stable: number, maturing: number, total: number): string {
+function stageNote(
+  stable: number,
+  maturing: number,
+  total: number,
+  holding: number,
+): string {
   if (stable > 0) {
     return maturing > 0 ? `von ${total} Wendungen · ${maturing} reifen` : `von ${total} Wendungen`;
   }
   if (maturing > 0) {
     return `${maturing} reifen — „bewiesen" wird daraus erst nach über 90 Tagen`;
+  }
+  // DIE ERSTEN WOCHEN (Befund 2026-07-26): Wer täglich übt und fast nichts
+  // falsch macht, sah hier SECHS WOCHEN lang nur „Noch nichts bewiesen".
+  // Die erste „reift"-Meldung kommt an Tag 45, die große Zahl bleibt über 140
+  // Tage auf 0. Das ist wahr — und trotzdem der Grund, warum jemand aufhört,
+  // bevor die App überhaupt zeigen kann, was sie kann.
+  //
+  // Erfunden wird dafür nichts: „gehalten" ist DASSELBE Signal wie „reift" und
+  // „bewiesen" — eine tatsächlich überstandene Pause plus gelungener Abruf —
+  // nur mit der kürzesten Pause, die etwas aussagt. Der Satz nennt seine eigene
+  // Grenze im selben Atemzug (`metrics.ts`).
+  if (holding > 0) {
+    return `${holding} ${holding === 1 ? 'Wendung hält' : 'Wendungen halten'} schon eine Pause von drei Tagen — ein Anfang, kein Beweis.`;
   }
   return 'Noch nichts bewiesen — der Beweis braucht über 90 Tage.';
 }
@@ -55,6 +78,7 @@ export function TodayView({
   name,
   stable,
   maturing,
+  holding,
   sessionSize,
   dueNow,
   totalChunks,
@@ -72,6 +96,7 @@ export function TodayView({
   sparringTargets,
   startpilotOffen,
   onStartpilot,
+  rueckkehr,
 }: Props) {
   const shown = useCountUp(stable);
 
@@ -143,7 +168,7 @@ export function TodayView({
             bewiesen stabil
           </p>
           <p className="mx-auto mt-2 max-w-[26ch] text-xs leading-relaxed text-faint">
-            {stageNote(stable, maturing, totalChunks)}
+            {stageNote(stable, maturing, totalChunks, holding)}
           </p>
         </div>
       </section>
@@ -172,6 +197,42 @@ export function TodayView({
           >
             <IconSprout className="h-4 w-4" /> Startpilot starten
           </button>
+        </section>
+      )}
+
+      {/* NACH EINER PAUSE. Der Befund (2026-07-26): Wer 30 Tage weg war, bekam
+          „Weiterlernen · 120 Wendungen" — und darin die schwächsten zuerst
+          vorgelegt (im Schnitt 3 % Abrufchance). Das ist die Klippe, gegen die
+          diese App gebaut ist, ausgerechnet im verletzlichsten Moment.
+
+          Die ZAHL bleibt hier stehen. Gelogen war sie nie — gelogen war, sie als
+          eine Sitzung hinzustellen. Was sich ändert, ist der Ton: kein
+          Rückstand, keine Schuld, sondern wie Vergessen nun einmal funktioniert. */}
+      {!loading && rueckkehr && (
+        <section className="glass rounded-2xl border border-brand/30 p-5">
+          <p className="text-[0.68rem] font-semibold uppercase tracking-[0.14em] text-brand">
+            {rueckkehr.tageWeg > 0
+              ? `${rueckkehr.tageWeg} Tage nicht geübt`
+              : 'Einiges hat sich angesammelt'}
+          </p>
+          <h2 className="mt-2 font-display text-xl font-semibold leading-tight text-paper">
+            Willkommen zurück
+          </h2>
+          <p className="mt-2 text-sm leading-relaxed text-muted">
+            {rueckkehr.faellig} Wendungen sind fällig. Das ist kein Rückstand und nichts,
+            was du aufholen musst — so funktioniert Vergessen.
+          </p>
+          <p className="mt-2 text-sm leading-relaxed text-muted">
+            Wir fangen mit {rueckkehr.portion} an, und zwar mit denen, die noch am
+            ehesten sitzen.{' '}
+            {rueckkehr.verblasst > 0 && (
+              <>
+                {rueckkehr.verblasst} sind stark verblasst — die kommen später wieder,
+                dann wie neuer Stoff. Sie zuerst abzufragen hieße nur, dich scheitern zu
+                lassen.
+              </>
+            )}
+          </p>
         </section>
       )}
 

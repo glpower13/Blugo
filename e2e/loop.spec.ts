@@ -1,5 +1,5 @@
 import { test, expect, type Page, type ConsoleMessage } from '@playwright/test';
-import { writeFile } from 'node:fs/promises';
+import { readFile, writeFile } from 'node:fs/promises';
 
 // Vom Verteiler „Heute" in eine Lern-Session wechseln.
 async function startSession(page: Page) {
@@ -1440,4 +1440,153 @@ test('der Vorrat ist sichtbar und lässt sich wegwerfen', async ({ page }) => {
 
   await page.getByRole('button', { name: 'Vorrat leeren' }).click();
   await expect(page.getByText('Vorrat: leer')).toBeVisible();
+});
+
+// ── Die Rückkehr nach einer Pause (docs/03-method.md §Rückkehr) ───────────────
+//
+// Der Befund, gegen den dieser Test steht: Wer 30 Tage weg war, bekam
+// „Weiterlernen · 120 Wendungen" — und darin die schwächsten zuerst. Das ist die
+// Klippe, gegen die diese App gebaut ist, im verletzlichsten Moment überhaupt.
+//
+// Der Lernstand kommt über die Sicherungs-Datei herein: Das ist der einzige Weg,
+// im echten Browser einen Rückkehrer zu erzeugen, ohne an der Speicherschicht
+// vorbeizugreifen — und er benutzt genau den Pfad, den ein echter Gerätewechsel
+// auch nimmt.
+async function lernstandEinlesen(page: Page, datei: string) {
+  await page.getByRole('button', { name: 'Einstellungen' }).click();
+  await page.getByRole('button', { name: 'Sicherung einlesen' }).click();
+  await page.setInputFiles('input[type=file]', datei);
+  await expect(page.getByText(/Eingelesen:/)).toBeVisible();
+  await page.getByRole('button', { name: /Einstellungen schließen/ }).click();
+}
+
+test('nach einer langen Pause wird portioniert statt abgeladen', async ({ page }, info) => {
+  const TAG = 86_400_000;
+  const jetzt = Date.now();
+
+  await page.goto('/');
+  await expect(page.getByText('bewiesen stabil')).toBeVisible();
+
+  // Die ECHTEN Wendungs-Kennungen kommen aus der App selbst — über ihren eigenen
+  // Sicherungs-Export. Kein Import aus `src`: Der e2e-Build sieht den Quellcode
+  // der App bewusst nicht, und ein Test, der sich daran vorbeimogelt, prüft
+  // etwas anderes als das ausgelieferte Programm.
+  await page.getByRole('button', { name: 'Einstellungen' }).click();
+  const [download] = await Promise.all([
+    page.waitForEvent('download'),
+    page.getByRole('button', { name: /^Sichern/ }).click(),
+  ]);
+  const roh = info.outputPath('roh.json');
+  await download.saveAs(roh);
+  await page.getByRole('button', { name: /Einstellungen schließen/ }).click();
+
+  const original = JSON.parse(await readFile(roh, 'utf-8')) as {
+    states: Record<string, unknown>[];
+  };
+
+  // 60 Wendungen zu einem Rückkehrer machen: seit 90 Tagen nicht angefasst.
+  // Die Hälfte ist noch gut abrufbar (Stabilität 60 Tage → rund 86 % Abrufchance),
+  // die andere praktisch weg. 90 und nicht 40: Bei 40 Tagen wären die stabilen
+  // Wendungen noch gar nicht fällig gewesen — der Prüfstand hätte den Fall gar
+  // nicht hergestellt, den er prüfen soll.
+  const zuletzt = jetzt - 90 * TAG;
+  const states = original.states.slice(0, 60).map((s, i) => {
+    const stark = i % 2 === 0;
+    return {
+      ...s,
+      status: 'maintenance',
+      stage: 'recognition',
+      intervalDays: stark ? 60 : 1,
+      stability: stark ? 60 : 0.3,
+      difficulty: 5,
+      dueAt: zuletzt + (stark ? 60 : 1) * TAG,
+      lastReviewedAt: zuletzt,
+      successStreak: 2,
+      history: [{ at: zuletzt, result: 'good', segmentId: 'x' }],
+    };
+  });
+
+  const datei = info.outputPath('rueckkehrer.json');
+  await writeFile(datei, JSON.stringify({ ...original, states }));
+
+  await lernstandEinlesen(page, datei);
+
+  // Die Zahl wird NICHT geschönt — 60 sind fällig, und das steht da.
+  await expect(page.getByText(/60 Wendungen sind fällig/)).toBeVisible();
+  await expect(page.getByText('Willkommen zurück')).toBeVisible();
+  await expect(page.getByText(/kein Rückstand/)).toBeVisible();
+  // Aber die Sitzung trägt eine Portion, nicht den Berg: 20 zum Retten plus
+  // GENAU EINE neue Wendung. Solange ein Rückstand da ist, geht Retten vor
+  // Nachlegen — sonst wächst der Berg von morgen, während der von heute steht.
+  const knopf = page.getByRole('button', { name: /Weiterlernen · \d+ Wendungen/ });
+  await expect(knopf).toBeVisible();
+  const anzahl = Number(/· (\d+) /.exec((await knopf.innerText()) ?? '')?.[1]);
+  expect(anzahl).toBeGreaterThanOrEqual(20);
+  expect(anzahl).toBe(21);
+  // Und es wird gesagt, was mit dem Rest passiert.
+  await expect(page.getByText(/stark verblasst/)).toBeVisible();
+});
+
+test('an einem normalen Tag sagt niemand „willkommen zurück"', async ({ page }) => {
+  await page.goto('/');
+  await expect(page.getByText('bewiesen stabil')).toBeVisible();
+  // Frisches Gerät, nichts angesammelt: Die Rückkehr-Ansprache wäre Theater.
+  await expect(page.getByText('Willkommen zurück')).toHaveCount(0);
+});
+
+// ── Die ersten Wochen (docs/07-measurement.md §Die kleinste ehrliche Stufe) ───
+//
+// Befund 2026-07-26: Wer täglich übt und fast nichts falsch macht, sah sechs
+// Wochen lang nur „Noch nichts bewiesen". Die große Zahl bleibt zu Recht auf 0 —
+// gefüllt wird nur die Leere darunter, und zwar mit einem wahren Satz.
+test('nach der ersten Woche steht dort etwas Wahres statt einer Leere', async ({ page }, info) => {
+  const TAG = 86_400_000;
+  const jetzt = Date.now();
+
+  await page.goto('/');
+  await expect(page.getByText('bewiesen stabil')).toBeVisible();
+  // Frisch: Es gibt noch nichts zu sagen, und die App sagt genau das.
+  await expect(page.getByText(/Noch nichts bewiesen/)).toBeVisible();
+
+  await page.getByRole('button', { name: 'Einstellungen' }).click();
+  const [download] = await Promise.all([
+    page.waitForEvent('download'),
+    page.getByRole('button', { name: /^Sichern/ }).click(),
+  ]);
+  const roh = info.outputPath('roh-anfang.json');
+  await download.saveAs(roh);
+  await page.getByRole('button', { name: /Einstellungen schließen/ }).click();
+  const original = JSON.parse(await readFile(roh, 'utf-8')) as { states: Record<string, unknown>[] };
+
+  // Eine Woche fleißig: 23 Wendungen haben eine ECHTE Pause von vier Tagen
+  // überstanden — zwei Abrufe im Abstand von vier Tagen, der zweite gelungen.
+  const states = original.states.map((s, i) =>
+    i >= 23
+      ? s
+      : {
+          ...s,
+          status: 'maintenance',
+          stage: 'recognition',
+          intervalDays: 4,
+          stability: 4,
+          difficulty: 5,
+          dueAt: jetzt + 2 * TAG,
+          lastReviewedAt: jetzt - TAG,
+          successStreak: 2,
+          history: [
+            { at: jetzt - 5 * TAG, result: 'good', segmentId: 'x' },
+            { at: jetzt - TAG, result: 'good', segmentId: 'y' },
+          ],
+        },
+  );
+  const datei = info.outputPath('anfaenger.json');
+  await writeFile(datei, JSON.stringify({ ...original, states }));
+  await lernstandEinlesen(page, datei);
+
+  // Die große Zahl bleibt bei 0 — der Beweis braucht weiter über 90 Tage.
+  await expect(page.getByText('bewiesen stabil')).toBeVisible();
+  // Darunter steht jetzt aber etwas, das WAHR ist und sich bewegt.
+  await expect(page.getByText(/23 Wendungen halten schon eine Pause von drei Tagen/)).toBeVisible();
+  // Und der Satz nennt seine eigene Grenze im selben Atemzug.
+  await expect(page.getByText(/ein Anfang, kein Beweis/)).toBeVisible();
 });

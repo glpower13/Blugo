@@ -32,6 +32,66 @@ Das gilt auf **zwei Ebenen** — die zweite fehlte bis 2026-07-26 und ist nachge
 
 Punkt 2 und 3 fehlten: Wer scheiterte, bekam die Wendung wenige Minuten später in einem **neuen** Satz und mit **zugeklappter** Hilfe zurück. Beim Wiedersehen war sie damit schwerer als beim Scheitern — genau die Klippe, gegen die dieses Projekt gebaut ist. Als e2e-Test festgehalten, der ohne jede der beiden Korrekturen nachweislich scheitert.
 
+## Die Rückkehr nach einer Pause — die Klippe am anderen Ende *(2026-07-26)*
+
+Attrition ist das Problem, gegen das dieses Produkt antritt. Der Moment, in dem
+sie entschieden wird, ist die **Rückkehr**: Jemand war Wochen weg und öffnet die
+App wieder. Genau dort stand bis 2026-07-26 die schlimmste Klippe der ganzen App.
+
+**Der Befund** (simuliert, `session/rueckkehr.test.ts` hält ihn fest): Ein Lerner
+mit 120 geübten Wendungen macht 30 Tage Pause. Auf „Heute" stand danach:
+
+> Weiterlernen · **120 Wendungen**
+
+Und die Reihenfolge war „am längsten überfällig zuerst" — das sind ausgerechnet
+die **schwächsten**. Die ersten zwölf Wendungen hatten im Schnitt **3 %**
+Abrufchance, während der Durchschnitt aller fälligen bei 37 % lag. Der Rückkehrer
+bekam also einen Berg vorgesetzt *und* scheiterte an den ersten zwölf fast sicher.
+
+**Was sich NICHT ändert: die Zahl.** 120 sind fällig, und das steht weiter da.
+Gelogen war nie die Zahl — gelogen war, sie als *eine Sitzung* hinzustellen.
+
+**Was sich ändert, sind drei Dinge:**
+
+1. **Eine Sitzung trägt eine Portion** (`PORTION` = 20), nicht den Rückstand. Die
+   Oberfläche versprach das längst („der Rest wartet — bewusst auf die nächsten
+   Sitzungen verteilt"); gebaut war es nie. Die Portion begrenzt **eine Sitzung**,
+   nicht den Tag: Eine zweite ist einen Knopfdruck entfernt.
+2. **Zuerst kommt, was noch zu retten ist.** Sortiert wird nach Abrufchance
+   (`retrievability`), nicht nach Überfälligkeit. Innerhalb des noch Abrufbaren
+   bleibt „am längsten überfällig zuerst" — das rutscht gerade weg.
+3. **Der Zustrom wird gedrosselt.** Bei einer Rückkehr kommt **eine** neue Wendung
+   dazu statt bis zu fünf. Solange ein Rückstand da ist, geht Retten vor
+   Nachlegen — sonst wächst der Berg von morgen, während der von heute steht.
+   Nicht auf null: Eine Rückkehr, die nur aus Reparatur besteht, ist keine
+   Einladung.
+
+**Und die App sagt es.** Kein Schweigen über den Rest, keine Schuldzuweisung:
+„60 Wendungen sind fällig. Das ist kein Rückstand und nichts, was du aufholen
+musst — so funktioniert Vergessen. Wir fangen mit 20 an, und zwar mit denen, die
+noch am ehesten sitzen. 30 sind stark verblasst — die kommen später wieder, dann
+wie neuer Stoff. Sie zuerst abzufragen hieße nur, dich scheitern zu lassen."
+
+### Evidenzstufen dieser Entscheidung
+
+| Aussage | Stufe |
+|---|---|
+| Abrufübung wirkt (Testing Effect) | **Fels** |
+| Ein Abruf, der mit Mühe *gelingt*, bringt pro Minute mehr als ein gescheiterter | **stark** |
+| Gescheiterte Abrufe mit Rückmeldung helfen auch — nur langsamer | **stark** |
+| Wo genau die Grenze „noch da / weg" liegt (`RETTBAR_MINIMUM` = 0,2) | **schwach** |
+
+Deshalb ist es eine **Schwelle** und kein „optimaler Zielwert": Die Behauptung
+„ab hier lohnt es noch" ist tragbar, die Behauptung „genau bei 0,6 ist es am
+besten" wäre es nicht.
+
+### Was ein täglicher Nutzer davon merkt: nichts
+
+Wer nie weg war, hat weniger fällig als eine Portion. Für ihn ändert sich weder
+die Menge noch die Reihenfolge, und die Rückkehr-Ansprache erscheint nicht —
+sie wäre Theater. Ein eigener Test hält genau das fest, denn eine Verbesserung
+für den Rückkehrer, die den Alltag verschlechtert, wäre keine.
+
 ## Produktion vs. Rezeption
 Rezeptives Verstehen zuerst (der Keil), Produktion als Verstärker (nicht Konkurrenz). Produktive Abrufe kommen gestuft dazu, sobald Rezeption stabil ist — weil produktives Wissen schneller verfällt und mehr Pflege braucht.
 

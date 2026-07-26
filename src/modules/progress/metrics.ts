@@ -8,6 +8,11 @@ export interface Metrics {
   maturing: number; // on the way to stable: production stage, interval grown, not yet proven
   stable: number; // chunks proven retained after a long gap
   /**
+   * Wendungen, die eine tatsächlich überstandene Pause von ≥ 3 Tagen halten.
+   * Die kleinste ehrliche Stufe — Obermenge von `maturing` und `stable`.
+   */
+  holding: number;
+  /**
    * Fällig zur WIEDERHOLUNG — nur schon begegnete Wendungen.
    *
    * Vorher zählte diese Zahl jede Wendung mit `dueAt <= now`, und eine frische
@@ -88,6 +93,63 @@ export function isMaturing(s: ChunkState): boolean {
   return !isStable(s) && stillHolds(s.maturedAt, s);
 }
 
+// ── Die kleinste ehrliche Stufe: eine überstandene Pause von drei Tagen ───────
+//
+// DER BEFUND (2026-07-26, simuliert): Ein Anfänger, der JEDEN TAG übt und fast
+// nichts falsch macht, sieht auf „Heute" die große Zahl **0** — und daneben
+// „reift: 0". Die erste „reift"-Meldung kommt an **Tag 45**. Die große Zahl
+// steht nach **140 Tagen** immer noch auf 0, weil der Beweis eine überstandene
+// Pause von über 90 Tagen verlangt.
+//
+// Das ist die Klippe am ANDEREN Ende: Der Rückkehrer sprang ab, weil zu viel
+// dastand; der Anfänger springt ab, weil sechs Wochen lang gar nichts steht.
+//
+// DIE EINE DESIGN-REGEL WIRD DABEI NICHT GEBOGEN, und das ist der ganze Punkt:
+// Hier wird KEIN neues Signal erfunden. Es wird dasselbe Signal gezeigt, nur
+// bei der Auflösung, an der ein Anfänger tatsächlich steht — eine TATSÄCHLICH
+// überstandene Pause plus ein gelungener Abruf. Der Unterschied zu „reift" und
+// „bewiesen" ist allein die LÄNGE der Pause, nicht die Art des Nachweises.
+// Anwesenheit zählt weiterhin nichts: Wer übt, ohne sich zu erinnern, bekommt
+// hier keinen Punkt.
+//
+// UND ES ÄNDERT DIE GROSSE ZAHL NICHT. „Bewiesen stabil" bleibt, was es war.
+// Gefüllt wird nur die Leere DARUNTER, und zwar mit einem wahren Satz.
+
+const TAG_MS = 86_400_000;
+
+/** Ab welcher Pause ein überstandener Abruf zählt. */
+export const GEHALTEN_TAGE = 3;
+
+/**
+ * Wann diese Wendung zuletzt eine ECHTE Pause von ≥ `tage` Tagen überstanden
+ * hat — oder `null`. Aus der aufgezeichneten Historie abgeleitet, nicht
+ * gespeichert: Der Vorgang steht ohnehin schon da, ein zweites Feld dafür wäre
+ * eine Kopie, die auseinanderlaufen kann.
+ *
+ * „Überstanden" heißt: Zwischen zwei Abrufen lagen ≥ `tage` Tage UND der
+ * spätere ist gelungen. Ein „Nochmal" nach drei Wochen ist kein Halten,
+ * sondern der Beleg dafür, dass es weg war.
+ */
+export function letzteUeberstandenePause(s: ChunkState, tage = GEHALTEN_TAGE): number | null {
+  let letzte: number | null = null;
+  for (let i = 1; i < s.history.length; i++) {
+    const spaeter = s.history[i];
+    if (spaeter.result === 'again') continue;
+    if (spaeter.at - s.history[i - 1].at >= tage * TAG_MS) letzte = spaeter.at;
+  }
+  return letzte;
+}
+
+/**
+ * Hat die Wendung mindestens eine dreitägige Pause überstanden — und hält das
+ * noch? Bewusst als OBERMENGE gebaut: Was 21 oder 90 Tage überstanden hat, hat
+ * auch drei überstanden. Zwei sich widersprechende Zahlen wären schlimmer als
+ * eine langsame.
+ */
+export function isHolding(s: ChunkState): boolean {
+  return stillHolds(letzteUeberstandenePause(s), s);
+}
+
 /**
  * Wie viele Wendungen stehen in welcher RICHTUNG (docs/gremium-navigation.md §5).
  *
@@ -163,6 +225,7 @@ export function computeMetrics(states: ChunkState[], now: number = Date.now()): 
     active: activeStates.length,
     maturing: states.filter(isMaturing).length,
     stable: states.filter(isStable).length,
+    holding: states.filter(isHolding).length,
     dueNow: activeStates.filter((s) => s.dueAt <= now).length,
     untouched: states.length - activeStates.length,
     coverage: activeStates.length === 0 ? 0 : understoodWeight / activeStates.length,
